@@ -1,2 +1,3 @@
-# FRONTEND
+# AI-CONFLICT-JUDGE
+
 추후 수정
