@@ -1,0 +1,17 @@
+// Flex center
+@mixin flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+// Responsive breakpoint (mobile-first)
+@mixin respond-to($breakpoint) {
+  @if $breakpoint == 'sm' {
+    @media (min-width: 480px) { @content; }
+  } @else if $breakpoint == 'md' {
+    @media (min-width: 768px) { @content; }
+  } @else if $breakpoint == 'lg' {
+    @media (min-width: 1024px) { @content; }
+  }
+}

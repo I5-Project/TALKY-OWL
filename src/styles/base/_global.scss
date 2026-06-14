@@ -1,0 +1,10 @@
+@use '../abstracts/variables' as v;
+
+body {
+  font-family: v.$font-family-base;
+  font-size: v.$font-size-base;
+  background-color: v.$color-white;
+  color: v.$color-black;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
