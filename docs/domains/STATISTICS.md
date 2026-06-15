@@ -66,8 +66,8 @@ TODO: 비기능 요구사항 정의서 확인 후 작성
 ## 7. 관련 화면
 
 ```txt
-src/app/page/home/    홈 내 요약 통계 컴포넌트
-src/app/page/mypage/  마이페이지 내 요약 통계 컴포넌트
+src/app/(page)/home/    홈 내 요약 통계 컴포넌트
+src/app/(page)/mypage/  마이페이지 내 요약 통계 컴포넌트
 ```
 
 독립 statistics 화면은 생성하지 않는다.
@@ -115,8 +115,8 @@ judgement_result_types 결과 유형 마스터
 
 ```txt
 도메인 훅:       src/domains/statistics/
-홈 컴포넌트:     src/components/ 또는 src/app/page/home/
-마이페이지 컴포넌트: src/app/page/mypage/
+홈 컴포넌트:     src/components/ 또는 src/app/(page)/home/
+마이페이지 컴포넌트: src/app/(page)/mypage/
 차트:            recharts 활용
 ```
 

@@ -78,8 +78,8 @@ TODO: 비기능 요구사항 정의서 확인 후 작성
 ## 7. 관련 화면
 
 ```txt
-src/app/page/disputes/
-src/app/page/join/
+src/app/(page)/disputes/
+src/app/(page)/join/
 ```
 
 ---
@@ -155,8 +155,8 @@ closed / expired / deleted
 
 ```txt
 도메인 훅: src/domains/dispute/
-참여 페이지: src/app/page/join/
-사건 페이지: src/app/page/disputes/
+참여 페이지: src/app/(page)/join/
+사건 페이지: src/app/(page)/disputes/
 ```
 
 ---

@@ -68,9 +68,9 @@ TODO: 비기능 요구사항 정의서 확인 후 작성
 ## 7. 관련 화면
 
 ```txt
-src/app/page/home/
-src/app/page/rooms/
-src/app/page/join/
+src/app/(page)/home/
+src/app/(page)/rooms/
+src/app/(page)/join/
 ```
 
 ---
@@ -135,8 +135,8 @@ closed / expired / deleted
 
 ```txt
 도메인 훅:  src/domains/room/
-AI 대화 UI: src/app/page/rooms/
-초대 참여:  src/app/page/join/
+AI 대화 UI: src/app/(page)/rooms/
+초대 참여:  src/app/(page)/join/
 ```
 
 ---
