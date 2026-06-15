@@ -66,8 +66,8 @@ TODO: 비기능 요구사항 정의서 확인 후 작성
 ## 7. 관련 화면
 
 ```txt
-src/app/page/mypage/
-src/app/page/home/
+src/app/(page)/mypage/
+src/app/(page)/home/
 ```
 
 ---
@@ -113,7 +113,7 @@ users   사용자 정보
 
 ```txt
 도메인 훅:        src/domains/user/
-마이페이지:       src/app/page/mypage/
+마이페이지:       src/app/(page)/mypage/
 요약 통계 컴포넌트: src/components/ (STATISTICS 도메인 연계)
 ```
 

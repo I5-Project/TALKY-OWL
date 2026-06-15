@@ -62,7 +62,7 @@ TODO: 비기능 요구사항 정의서 확인 후 작성
 ## 7. 관련 화면
 
 ```txt
-src/app/page/calendar/
+src/app/(page)/calendar/
 ```
 
 ---
@@ -107,7 +107,7 @@ emotion_diaries    감정일기 작성 여부 참조
 
 ```txt
 도메인 훅:  src/domains/calendar/
-달력 화면:  src/app/page/calendar/
+달력 화면:  src/app/(page)/calendar/
 ```
 
 ---

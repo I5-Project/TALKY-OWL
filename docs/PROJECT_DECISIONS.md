@@ -104,7 +104,7 @@ A/B 소통 태도 점수
 ## 7. 아키텍처 원칙
 
 ```txt
-src/app/page      → 화면 라우트
+src/app/(page)    → 화면 라우트
 src/app/api       → API Route Handler
 src/domains       → 도메인별 비즈니스 로직, API client, hooks, constants
 src/components    → 공통 UI / 레이아웃 / 피드백 컴포넌트

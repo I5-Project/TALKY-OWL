@@ -136,7 +136,7 @@ AI 판결 결과에는 아래 항목을 중심으로 제공한다.
 ### 기본 구조 원칙
 
 ```txt
-src/app/page      → 화면 라우트
+src/app/(page)    → 화면 라우트
 src/app/api       → API Route Handler
 src/domains       → 도메인별 비즈니스 로직, API client, hooks, constants
 src/components    → 공통 UI / 레이아웃 / 피드백 컴포넌트
@@ -155,8 +155,8 @@ src/lib/types
 src/lib/stores
 src/domains/*/types
 src/domains/*/stores
-src/app/page/*/*.type.ts
-src/app/page/*/*.store.ts
+src/app/(page)/*/*.type.ts
+src/app/(page)/*/*.store.ts
 ```
 
 `features` 폴더는 사용하지 않는다.

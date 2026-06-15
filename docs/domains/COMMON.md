@@ -70,7 +70,7 @@ TODO: 비기능 요구사항 정의서 확인 후 작성
 ## 7. 관련 화면
 
 ```txt
-src/app/page/landing/
+src/app/(page)/landing/
 src/components/layout/
 src/components/feedback/
 ```

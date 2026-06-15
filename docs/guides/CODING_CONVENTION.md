@@ -71,8 +71,8 @@ src/lib/types
 src/lib/stores
 src/domains/*/types
 src/domains/*/stores
-src/app/page/*/*.type.ts
-src/app/page/*/*.store.ts
+src/app/(page)/*/*.type.ts
+src/app/(page)/*/*.store.ts
 ```
 
 ---
