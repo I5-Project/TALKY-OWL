@@ -54,20 +54,35 @@ vercel env pull .env.local
 `/.env.example` 파일을 참고하세요.
 
 ```txt
-NEXT_PUBLIC_APP_URL    앱 URL
-NEXTAUTH_URL           NextAuth 콜백 URL
-NEXTAUTH_SECRET        NextAuth 서명 키
-KAKAO_CLIENT_ID        카카오 OAuth 앱 키
-KAKAO_CLIENT_SECRET    카카오 OAuth 시크릿
-DATABASE_URL           PostgreSQL 연결 URL
-GEMINI_API_KEY         Google Gemini API 키
-ROOM_TOKEN_SECRET      초대 링크 토큰 서명 키
-CRON_SECRET            Cron API 보호 키
+NEXT_PUBLIC_APP_URL                   앱 URL
+NEXTAUTH_URL                          NextAuth 콜백 URL
+NEXTAUTH_SECRET                       NextAuth 서명 키
+KAKAO_CLIENT_ID                       카카오 OAuth 앱 키
+KAKAO_CLIENT_SECRET                   카카오 OAuth 시크릿
+DATABASE_URL                          Supabase Postgres 연결 URL (Prisma 연결에 사용)
+GEMINI_API_KEY                        Google Gemini API 키
+ROOM_TOKEN_SECRET                     초대 링크 토큰 서명 키
+CRON_SECRET                           Cron API 보호 키
+SUPABASE_URL                          Supabase 프로젝트 URL
+SUPABASE_ANON_KEY                     Supabase 공개 익명 키
+SUPABASE_SERVICE_ROLE_KEY             Supabase 서버 전용 관리 키 (클라이언트 노출 금지)
+SUPABASE_STORAGE_BUCKET_RESULT_CARDS  결과 카드 이미지 저장용 버킷 이름
 ```
 
 ---
 
-## 5. 금지사항
+## 5. Supabase 환경변수 주의사항
+
+```txt
+SUPABASE_SERVICE_ROLE_KEY는 서버 전용이다.
+클라이언트(브라우저) 코드에서 SUPABASE_SERVICE_ROLE_KEY를 절대 사용하지 않는다.
+NEXT_PUBLIC_ prefix를 SUPABASE_SERVICE_ROLE_KEY에 사용하지 않는다.
+업로드, 삭제, 비공개 파일 접근은 반드시 Next.js API Route를 통해 서버에서 처리한다.
+```
+
+---
+
+## 6. 금지사항
 
 ```txt
 메신저(카카오톡, Slack 등)로 secret 값 공유 금지

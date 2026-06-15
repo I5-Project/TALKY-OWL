@@ -154,7 +154,44 @@ room_token 원문은 DB 저장 금지 → room_token_hash만 저장
 
 ---
 
-## 10. 문서 관리 원칙
+## 10. Supabase 인프라 확정
+
+Supabase를 실제 사용 인프라로 확정한다.
+
+**DB:**
+
+```txt
+Supabase Postgres 사용
+Prisma는 Supabase Postgres의 DATABASE_URL을 통해 연결
+```
+
+**Storage:**
+
+```txt
+Supabase Storage 사용
+MVP Storage 사용 범위는 result-cards bucket으로 제한
+결과 카드 이미지 저장에 사용
+정적 에셋(캐릭터, 아이콘, 결과카드 템플릿 등)은 public/images에서 관리
+```
+
+**Auth:**
+
+```txt
+Supabase Auth는 사용하지 않음
+인증은 NextAuth + Kakao OAuth 유지
+```
+
+**보안:**
+
+```txt
+SUPABASE_SERVICE_ROLE_KEY는 서버 전용
+클라이언트에서 Service Role Key 사용 금지
+민감 원문(진술, 감정일기, AI 대화)은 Storage에 저장하지 않음
+```
+
+---
+
+## 11. 문서 관리 원칙
 
 ```txt
 도메인 상세 설계는 docs/domains/*.md에서 관리

@@ -4,6 +4,17 @@ TALKY-OWL 프로젝트 기술 스택 및 설치 패키지 정의서
 
 ---
 
+## 인프라
+
+| 분류 | 기술 | 비고 |
+|------|------|------|
+| Database | Supabase Postgres | Prisma ORM을 통해 연결 |
+| Storage | Supabase Storage | result-cards bucket (MVP 범위) |
+| Auth | NextAuth + Kakao OAuth | Supabase Auth 미사용 |
+| 배포 | Vercel | 환경변수는 Vercel에서 관리 |
+
+---
+
 ## 패키지 매니저
 
 ```txt
