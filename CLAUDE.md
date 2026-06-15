@@ -270,6 +270,13 @@ emotion_diaries.user_id 기준
 - 로그에는 불필요한 원문과 민감 정보를 저장하지 않는다.
 ```
 
+### 인증 방식
+
+```txt
+- 인증은 NextAuth + Kakao OAuth를 사용한다.
+- Supabase Auth는 사용하지 않는다.
+```
+
 ---
 
 ## 8. Data & DB Rules
@@ -291,6 +298,24 @@ Prisma mapping: @map 사용
 - 하나의 dispute에는 role_a 1명, role_b 1명만 존재할 수 있다.
 - 하나의 role은 하나의 진술만 작성할 수 있다.
 - 동일 사용자가 role_a와 role_b를 동시에 가질 수 없다.
+```
+
+### DB 인프라
+
+```txt
+- DB는 Supabase Postgres를 사용한다.
+- Prisma는 Supabase Postgres의 DATABASE_URL을 통해 연결한다.
+```
+
+### Storage 인프라
+
+```txt
+- Storage는 Supabase Storage를 사용한다.
+- MVP Storage 사용 범위는 result-cards bucket으로 제한한다.
+- 결과 카드 이미지 저장에 사용한다.
+- SUPABASE_SERVICE_ROLE_KEY는 서버에서만 사용하며 클라이언트에 노출하지 않는다.
+- 민감 원문(진술, 감정일기, AI 대화)은 Storage에 저장하지 않는다.
+- 정적 에셋(캐릭터, 아이콘, 결과카드 템플릿 등)은 public/images에서 관리한다.
 ```
 
 ### 멱등성 / 중복 요청 방지

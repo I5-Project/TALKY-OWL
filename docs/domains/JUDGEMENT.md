@@ -56,6 +56,7 @@ TODO: 비기능 요구사항 정의서 확인 후 작성
 - 판결 결과 조회
 - 판결 결과 카드 생성
 - 결과 카드 이미지 추출 (html-to-image)
+- 결과 카드 이미지 저장 (Supabase Storage result-cards bucket)
 - 16가지 세부 결과 유형 중 AI 도출 유형 표시
 ```
 
@@ -138,6 +139,16 @@ dispute_status = judging → judged 로 전환.
 도메인 훅:      src/domains/judgement/
 AI 연동:        src/lib/ai/
 결과 카드 추출: html-to-image 활용
+결과 카드 저장: Supabase Storage result-cards bucket (서버 API Route를 통해 업로드)
+```
+
+### Storage 접근 원칙
+
+```txt
+- 결과 카드 이미지 업로드는 Next.js API Route를 통해 서버에서 처리한다.
+- 클라이언트에서 SUPABASE_SERVICE_ROLE_KEY를 직접 사용하지 않는다.
+- 공개 가능한 결과 카드는 public URL 또는 signed URL 정책을 구현 단계에서 확정한다.
+- 결과 카드에 개인정보 및 사건 원문을 포함하지 않는다.
 ```
 
 ---
@@ -162,4 +173,7 @@ AI 연동:        src/lib/ai/
 - 결과 카드에 개인정보 포함 금지
 - AI 판결 생성 요청 중복 방지 처리 필요
 - Gemini API 프롬프트 구조 변경은 팀 승인 필요 (CLAUDE.md 15항 참고)
+- 결과 카드 이미지 저장은 Supabase Storage result-cards bucket 사용
+- Storage 업로드는 반드시 서버(API Route)를 통해 처리하며 클라이언트에서 직접 업로드 금지
+- src/lib/supabase 또는 src/lib/storage 폴더 생성은 실제 구현 단계에서 진행
 ```
