@@ -198,3 +198,35 @@ SUPABASE_SERVICE_ROLE_KEY는 서버 전용
 루트 CLAUDE.md에는 상세 설계를 넣지 않음
 도메인별 문서가 없으면 임의 구현하지 않음
 ```
+
+---
+
+## 12. Calendar UI 결정사항
+
+**결정:** 달력 UI는 MUI X Date Pickers + Day.js 기반으로 구현한다.
+
+**배경:**
+
+```txt
+- 날짜 선택 / 달력 마킹 UI를 자체 구현하면 복잡도가 높아진다.
+- MUI X Date Pickers는 React + TypeScript 환경에서 안정적인 달력 UI를 제공한다.
+- Day.js는 번들 크기가 작고 @mui/x-date-pickers 어댑터와 호환된다.
+```
+
+**적용 범위:**
+
+```txt
+- 달력 UI
+- 날짜 선택 UI
+- 날짜 기반 감정일기 / 사건기록 조회 UI
+```
+
+**제약:**
+
+```txt
+- 전체 디자인 시스템은 SCSS / SCSS Module을 유지한다.
+- MUI는 달력 / 날짜 선택 UI 전용으로만 사용한다.
+- MUI 컴포넌트는 src/components/calendar/ 내 래핑 컴포넌트를 통해서만 사용한다.
+- 아이콘은 기존 lucide-react를 우선 사용한다.
+- 달력 라이브러리는 래핑 컴포넌트 구조로 교체 가능성을 확보한다.
+```

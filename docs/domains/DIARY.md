@@ -117,6 +117,7 @@ emotion_diaries   감정일기 원문 및 감정 정보
 도메인 훅: src/domains/diary/
 일기 화면: src/app/page/diary/
 달력 연계: src/domains/calendar/ 와 마킹 연결
+날짜 선택: 달력 날짜 선택 UI는 MUI X Date Pickers 기반 래핑 컴포넌트(src/components/calendar/)를 사용한다
 ```
 
 ---
