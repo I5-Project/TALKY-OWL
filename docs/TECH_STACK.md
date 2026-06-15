@@ -15,6 +15,36 @@ TALKY-OWL 프로젝트 기술 스택 및 설치 패키지 정의서
 
 ---
 
+## Calendar UI
+
+달력 UI는 MUI X Date Pickers 기반으로 구현한다.
+
+설치 예정 패키지:
+
+```txt
+@mui/material
+@emotion/react
+@emotion/styled
+@mui/x-date-pickers
+dayjs
+```
+
+사용 범위:
+
+- 달력 UI
+- 날짜 선택 UI
+- 날짜 기반 감정일기/사건기록 조회 UI
+
+주의사항:
+
+- 전체 디자인 시스템을 MUI 기반으로 전환하지 않는다.
+- 기존 스타일 기준은 SCSS / SCSS Module을 유지한다.
+- 아이콘은 기존 `lucide-react` 사용을 우선한다.
+- `@mui/icons-material`은 현재 필수 설치 대상이 아니다.
+- 달력 라이브러리는 추후 변경 가능하다. 변경 가능성을 확보하기 위해 MUI 의존성은 Calendar 전용 컴포넌트와 날짜 유틸 영역에만 제한한다.
+
+---
+
 ## 패키지 매니저
 
 ```txt

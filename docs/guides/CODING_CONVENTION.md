@@ -85,3 +85,36 @@ API 응답에 불필요한 민감 정보 포함 금지
 권한 검증은 반드시 서버에서 수행
 클라이언트 단독 권한 검증 금지
 ```
+
+---
+
+## 7. MUI 사용 기준
+
+MUI는 달력 / 날짜 선택 UI 전용으로만 사용한다.
+
+```txt
+허용 범위:
+  src/components/calendar/ 내 래핑 컴포넌트에서만 MUI import 허용
+
+금지 사항:
+  - 전체 디자인 시스템을 MUI 기반으로 전환하지 않는다
+  - 여러 페이지 / 도메인에서 MUI 컴포넌트를 직접 import하지 않는다
+  - @mui/icons-material 사용 금지 (아이콘은 lucide-react 사용)
+  - MUI ThemeProvider를 앱 전역에 적용하지 않는다
+```
+
+스타일 기준:
+
+```txt
+- SCSS / SCSS Module 원칙을 유지한다
+- MUI의 sx prop, styled() 사용은 래핑 컴포넌트 내부로 제한한다
+- 전역 스타일에 MUI 의존 스타일을 추가하지 않는다
+```
+
+래핑 컴포넌트 원칙:
+
+```txt
+- 달력 UI는 src/components/calendar/ 내 래핑 컴포넌트로 제공한다
+- 래핑 컴포넌트를 통해 라이브러리 교체 가능성을 유지한다
+- 래핑 컴포넌트 외부에서는 MUI 직접 의존을 갖지 않는다
+```
