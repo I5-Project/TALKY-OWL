@@ -56,7 +56,7 @@ TODO: 비기능 요구사항 정의서 확인 후 작성
 - 판결 결과 조회
 - 판결 결과 카드 생성
 - 결과 카드 이미지 추출 (html-to-image)
-- 결과 카드 이미지 저장 (Supabase Storage result-cards bucket)
+- 결과 카드 이미지 저장 (MVP에서는 서버 영구 저장 없이 html-to-image 클라이언트 추출 기준. Supabase Storage는 추후 확장)
 - 16가지 세부 결과 유형 중 AI 도출 유형 표시
 ```
 

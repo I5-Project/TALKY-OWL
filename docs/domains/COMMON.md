@@ -89,9 +89,21 @@ src/components/feedback/
 
 ## 9. 관련 테이블
 
+현재 Prisma schema 기준 로그 테이블:
+
 ```txt
-TODO: ERD 확정 후 작성
+audit_logs          공통 이벤트 감사 로그 (eventType + metadata Json)
+api_error_logs      API 오류 로그
+moderation_logs     욕설/혐오/민감표현 필터링 결과 로그
+room_access_logs    초대 링크 접근 기록
+user_deletion_logs  회원탈퇴 / 비식별 처리 이력 (User 삭제 후에도 유지)
 ```
+
+> **TODO**: 구조 가이드 v2 section 17에 `judgement_logs` 테이블이 언급되어 있으나,
+> 현재 Prisma schema MVP 초안(PR #21)에는 포함되지 않았다.
+> AI 판결 요청/성공/실패 로그는 현재 `audit_logs` (eventType: JUDGMENT_CREATED)와
+> `api_error_logs`로 처리한다.
+> `judgement_logs` 별도 모델이 필요한 경우 Prisma schema 변경 승인 후 추가한다.
 
 ---
 
