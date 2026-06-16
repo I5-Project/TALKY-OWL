@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx next *)",
+      "Bash(npm run *)",
+      "Bash(gh pr *)",
+      "Bash(git add *)",
+      "Bash(git commit -m 'feat\\(styles\\): 디자인 토큰 및 전역 스타일 설정 *)",
+      "Bash(git commit -m 'docs: 커밋 타입 style 추가 및 scope 제거 *)",
+      "Bash(git push *)",
+      "Bash(git commit -m 'style: 컨테이너 max-width 1000px 설정 *)",
+      "Bash(git commit -m 'style: 루트 레이아웃 container 적용 및 개발 확인용 임시 border 추가 *)",
+      "Bash(git commit -m 'style: 개발 확인용 임시 border 색상 회색으로 변경 *)",
+      "Bash(git commit -m 'style: container min-height 100vh 추가 *)"
+    ]
+  }
+}
