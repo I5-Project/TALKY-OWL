@@ -1,6 +1,6 @@
 'use client';
 
-import { ChevronLeft } from 'lucide-react';
+import ChevronLeftRoundedIcon from '@mui/icons-material/ChevronLeftRounded';
 import styles from './Header.module.scss';
 
 interface HeaderProps {
@@ -19,7 +19,7 @@ export default function Header({ title, subtitle, onBack }: HeaderProps) {
             onClick={onBack}
             aria-label="뒤로가기"
           >
-            <ChevronLeft size={24} />
+            <ChevronLeftRoundedIcon sx={{ fontSize: 24 }} />
           </button>
         )}
         <h1

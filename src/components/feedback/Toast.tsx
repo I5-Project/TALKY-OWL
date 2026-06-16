@@ -1,18 +1,22 @@
 'use client';
 
+import Snackbar from '@mui/material/Snackbar';
 import { useToastStore } from '@/stores/toastStore';
 import styles from './Toast.module.scss';
 
 export default function Toast() {
-  const { message, isVisible } = useToastStore();
+  const { message, isVisible, hide } = useToastStore();
 
   return (
-    <div
-      className={`${styles.toast} ${!isVisible ? styles['toast--hidden'] : ''}`}
-      role="status"
-      aria-live="polite"
+    <Snackbar
+      open={isVisible}
+      autoHideDuration={3000}
+      onClose={hide}
+      anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
     >
-      {message}
-    </div>
+      <div className={styles.toast} role="status" aria-live="polite">
+        {message}
+      </div>
+    </Snackbar>
   );
 }
