@@ -73,7 +73,7 @@ npm run type-check
 
 # 4. 커밋
 git add [파일명]
-git commit -m "feat(room): add create room api"
+git commit -m "feat(room): 방 생성 API 추가"
 
 # 5. push
 git push -u origin feature/room-ai-chat-create-room
@@ -97,10 +97,10 @@ infra:    환경설정, 인프라
 예시:
 
 ```txt
-feat(auth): add kakao oauth login
-fix(room): resolve token expiry validation
-docs(infra): confirm Supabase as project infrastructure
-chore(github): add collaboration templates and policy
+feat(auth): 카카오 OAuth 로그인 구현
+fix(room): 초대 토큰 만료 검증 수정
+docs(infra): Supabase 인프라 사용 확정 반영
+chore(github): 협업 템플릿 및 정책 추가
 ```
 
 ---
@@ -120,7 +120,7 @@ git merge dev
 
 # 4. 해결 후 커밋
 git add [해결된 파일]
-git commit -m "chore: resolve merge conflict with dev"
+git commit -m "chore: dev 브랜치 충돌 해결"
 
 # 5. push
 git push origin feature/my-branch
