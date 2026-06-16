@@ -65,6 +65,8 @@ $color-type-14: #f0c4c4;
 $color-type-15: #ddd0c4;
 $color-type-16: #c8cccc;
 
+@use './functions' as fn;
+
 // ===========================
 // Typography
 // ===========================
@@ -73,18 +75,18 @@ $font-family-base: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', 
 $font-size-base: 16px;
 
 // Font sizes
-$font-size-display:  40px;
-$font-size-title-xl: 28px;
-$font-size-title-l:  24px;
-$font-size-title-m:  20px;
-$font-size-title-s:  18px;
-$font-size-body-l:   18px;
-$font-size-body-m:   16px;
-$font-size-body-s:   14px;
-$font-size-caption:  12px;
-$font-size-label-m:  16px;
-$font-size-label-s:  12px;
-$font-size-value-m:  16px;
+$font-size-display:  fn.r(40);
+$font-size-title-xl: fn.r(28);
+$font-size-title-l:  fn.r(24);
+$font-size-title-m:  fn.r(20);
+$font-size-title-s:  fn.r(18);
+$font-size-body-l:   fn.r(18);
+$font-size-body-m:   fn.r(16);
+$font-size-body-s:   fn.r(14);
+$font-size-caption:  fn.r(12);
+$font-size-label-m:  fn.r(16);
+$font-size-label-s:  fn.r(12);
+$font-size-value-m:  fn.r(16);
 
 // Font weights
 $font-weight-regular:  400;
@@ -93,18 +95,18 @@ $font-weight-semibold: 600;
 $font-weight-bold:     700;
 
 // Line heights
-$line-height-display:  48px;
-$line-height-title-xl: 36px;
-$line-height-title-l:  32px;
-$line-height-title-m:  28px;
-$line-height-title-s:  24px;
-$line-height-body-l:   28px;
-$line-height-body-m:   28px;
-$line-height-body-s:   24px;
-$line-height-caption:  20px;
-$line-height-label-m:  24px;
-$line-height-label-s:  16px;
-$line-height-value-m:  24px;
+$line-height-display:  fn.r(48);
+$line-height-title-xl: fn.r(36);
+$line-height-title-l:  fn.r(32);
+$line-height-title-m:  fn.r(28);
+$line-height-title-s:  fn.r(24);
+$line-height-body-l:   fn.r(28);
+$line-height-body-m:   fn.r(28);
+$line-height-body-s:   fn.r(24);
+$line-height-caption:  fn.r(20);
+$line-height-label-m:  fn.r(24);
+$line-height-label-s:  fn.r(16);
+$line-height-value-m:  fn.r(24);
 
 // Spacing
 $spacing-unit: 8px;
