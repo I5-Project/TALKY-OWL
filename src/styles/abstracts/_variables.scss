@@ -66,6 +66,51 @@ $color-type-15: #ddd0c4;
 $color-type-16: #c8cccc;
 
 // ===========================
+// Rem Scale (숫자 = rem 값)
+// ===========================
+
+$rem0-25:  0.25rem;   // 4px
+$rem0-5:   0.5rem;    // 8px
+$rem0-75:  0.75rem;   // 12px
+$rem0-875: 0.875rem;  // 14px
+$rem1:     1rem;      // 16px
+$rem1-125: 1.125rem;  // 18px
+$rem1-25:  1.25rem;   // 20px
+$rem1-5:   1.5rem;    // 24px
+$rem1-75:  1.75rem;   // 28px
+$rem2:     2rem;      // 32px
+$rem2-25:  2.25rem;   // 36px
+$rem2-5:   2.5rem;    // 40px
+$rem3:     3rem;      // 48px
+$rem3-5:   3.5rem;    // 56px
+$rem4:     4rem;      // 64px
+$rem4-5:   4.5rem;    // 72px
+$rem5:     5rem;      // 80px
+$rem5-5:   5.5rem;    // 88px
+$rem6:     6rem;      // 96px
+$rem6-5:   6.5rem;    // 104px
+$rem7:     7rem;      // 112px
+$rem7-5:   7.5rem;    // 120px
+$rem8:     8rem;      // 128px
+$rem9:     9rem;      // 144px
+$rem10:    10rem;     // 160px
+$rem11:    11rem;     // 176px
+$rem12:    12rem;     // 192px
+$rem13:    13rem;     // 208px
+$rem14:    14rem;     // 224px
+$rem15:    15rem;     // 240px
+$rem16:    16rem;     // 256px
+$rem17:    17rem;     // 272px
+$rem18:    18rem;     // 288px
+$rem19:    19rem;     // 304px
+$rem20:    20rem;     // 320px
+$rem22:    22rem;     // 352px
+$rem24:    24rem;     // 384px
+$rem25:    25rem;     // 400px
+$rem28:    28rem;     // 448px
+$rem30:    30rem;     // 480px
+
+// ===========================
 // Typography
 // ===========================
 
@@ -73,18 +118,18 @@ $font-family-base: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', 
 $font-size-base: 16px;
 
 // Font sizes
-$font-size-display:  40px;
-$font-size-title-xl: 28px;
-$font-size-title-l:  24px;
-$font-size-title-m:  20px;
-$font-size-title-s:  18px;
-$font-size-body-l:   18px;
-$font-size-body-m:   16px;
-$font-size-body-s:   14px;
-$font-size-caption:  12px;
-$font-size-label-m:  16px;
-$font-size-label-s:  12px;
-$font-size-value-m:  16px;
+$font-size-display:  $rem2-5;    // 40px
+$font-size-title-xl: $rem1-75;   // 28px
+$font-size-title-l:  $rem1-5;    // 24px
+$font-size-title-m:  $rem1-25;   // 20px
+$font-size-title-s:  $rem1-125;  // 18px
+$font-size-body-l:   $rem1-125;  // 18px
+$font-size-body-m:   $rem1;      // 16px
+$font-size-body-s:   $rem0-875;  // 14px
+$font-size-caption:  $rem0-75;   // 12px
+$font-size-label-m:  $rem1;      // 16px
+$font-size-label-s:  $rem0-75;   // 12px
+$font-size-value-m:  $rem1;      // 16px
 
 // Font weights
 $font-weight-regular:  400;
@@ -93,18 +138,18 @@ $font-weight-semibold: 600;
 $font-weight-bold:     700;
 
 // Line heights
-$line-height-display:  48px;
-$line-height-title-xl: 36px;
-$line-height-title-l:  32px;
-$line-height-title-m:  28px;
-$line-height-title-s:  24px;
-$line-height-body-l:   28px;
-$line-height-body-m:   28px;
-$line-height-body-s:   24px;
-$line-height-caption:  20px;
-$line-height-label-m:  24px;
-$line-height-label-s:  16px;
-$line-height-value-m:  24px;
+$line-height-display:  $rem3;     // 48px
+$line-height-title-xl: $rem2-25;  // 36px
+$line-height-title-l:  $rem2;     // 32px
+$line-height-title-m:  $rem1-75;  // 28px
+$line-height-title-s:  $rem1-5;   // 24px
+$line-height-body-l:   $rem1-75;  // 28px
+$line-height-body-m:   $rem1-75;  // 28px
+$line-height-body-s:   $rem1-5;   // 24px
+$line-height-caption:  $rem1-25;  // 20px
+$line-height-label-m:  $rem1-5;   // 24px
+$line-height-label-s:  $rem1;     // 16px
+$line-height-value-m:  $rem1-5;   // 24px
 
 // Spacing
 $spacing-unit: 8px;
