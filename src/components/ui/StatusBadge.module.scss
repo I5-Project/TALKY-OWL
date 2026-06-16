@@ -12,8 +12,8 @@
   white-space: nowrap;
 
   &--done {
-    background-color: var(--bg-brand-soft);
-    color: #5e9d96;
+    background-color: var(--status-done-bg);
+    color: var(--status-done-text);
   }
 
   &--progress {
@@ -27,7 +27,7 @@
   }
 
   &--error {
-    background-color: #f5d4c8;
-    color: #c05a3a;
+    background-color: var(--status-danger-bg);
+    color: var(--status-danger-text);
   }
 }

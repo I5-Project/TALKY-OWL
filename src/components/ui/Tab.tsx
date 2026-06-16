@@ -14,7 +14,7 @@ interface TabProps {
 
 export default function Tab({ items, activeValue, onChange, className }: TabProps) {
   return (
-    <div className={`${styles.tabList} ${className ?? ''}`}>
+    <div className={[styles.tabList, className].filter(Boolean).join(' ')}>
       {items.map((item) => {
         const isActive = item.value === activeValue;
         return (
