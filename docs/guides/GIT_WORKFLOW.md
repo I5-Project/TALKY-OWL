@@ -44,15 +44,13 @@ infra/setup-eslint-config
 ## 3. 기본 작업 흐름
 
 ```txt
-Issue 생성
-→ dev 최신화
+dev 최신화
 → 작업 브랜치 생성
 → 작업
 → 검증 (lint / type-check)
 → PR 생성 (대상: dev)
 → 리뷰 및 수정
 → Squash Merge
-→ Issue 자동 종료
 ```
 
 ---
