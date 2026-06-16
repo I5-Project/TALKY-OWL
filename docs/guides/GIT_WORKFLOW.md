@@ -73,7 +73,7 @@ npm run type-check
 
 # 4. 커밋
 git add [파일명]
-git commit -m "feat(room): 방 생성 API 추가"
+git commit -m "feat: 방 생성 API 추가"
 
 # 5. push
 git push -u origin feature/room-ai-chat-create-room
@@ -89,6 +89,7 @@ git push -u origin feature/room-ai-chat-create-room
 feat:     새 기능 추가
 fix:      버그 수정
 docs:     문서 변경
+style:    디자인 토큰, 전역 스타일, CSS 변경
 refactor: 리팩토링
 chore:    패키지, 설정, 기타
 infra:    환경설정, 인프라
@@ -97,10 +98,11 @@ infra:    환경설정, 인프라
 예시:
 
 ```txt
-feat(auth): 카카오 OAuth 로그인 구현
-fix(room): 초대 토큰 만료 검증 수정
-docs(infra): Supabase 인프라 사용 확정 반영
-chore(github): 협업 템플릿 및 정책 추가
+feat: 카카오 OAuth 로그인 구현
+fix: 초대 토큰 만료 검증 수정
+docs: Supabase 인프라 사용 확정 반영
+style: 디자인 토큰 및 전역 스타일 설정
+chore: 협업 템플릿 및 정책 추가
 ```
 
 ---
