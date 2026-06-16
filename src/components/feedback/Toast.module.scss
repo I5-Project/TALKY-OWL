@@ -1,0 +1,27 @@
+@use '../../styles/abstracts/variables' as v;
+@use '../../styles/abstracts/functions' as fn;
+
+.toast {
+  position: fixed;
+  top: fn.r(20);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 9999;
+  width: calc(100% - fn.r(32));
+  padding: fn.r(14) fn.r(20);
+  background-color: v.$color-black-600;
+  color: var(--text-inverse);
+  border-radius: fn.r(10);
+  font-family: v.$font-family-base;
+  font-size: v.$font-size-body-s;
+  font-weight: v.$font-weight-medium;
+  line-height: v.$line-height-body-s;
+  text-align: center;
+  pointer-events: none;
+  word-break: keep-all;
+  overflow-wrap: break-word;
+
+  &--hidden {
+    display: none;
+  }
+}
