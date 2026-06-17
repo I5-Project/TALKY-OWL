@@ -549,6 +549,15 @@ YYYY-MM-DDTHH:mm:ssZ
       }
     ]
   },
+  "page": {
+    "page": 1,
+    "size": 20,
+    "totalPages": 3,
+    "sortBy": "createdAt",
+    "sort": "desc",
+    "hasNext": true,
+    "hasPrevious": false
+  },
   "error": null
 }
 ```
@@ -1059,6 +1068,15 @@ YYYY-MM-DDTHH:mm:ssZ
       }
     ]
   },
+  "page": {
+    "page": 1,
+    "size": 20,
+    "totalPages": 2,
+    "sortBy": "diaryDate",
+    "sort": "desc",
+    "hasNext": true,
+    "hasPrevious": false
+  },
   "error": null
 }
 ```
@@ -1206,6 +1224,15 @@ YYYY-MM-DDTHH:mm:ssZ
       }
     ]
   },
+  "page": {
+    "page": 1,
+    "size": 5,
+    "totalPages": 1,
+    "sortBy": "count",
+    "sort": "desc",
+    "hasNext": false,
+    "hasPrevious": false
+  },
   "error": null
 }
 ```
@@ -1213,6 +1240,7 @@ YYYY-MM-DDTHH:mm:ssZ
 - **처리 정책:**
   - 결과 유형은 DB 마스터 기준 (`ConflictTypeDetail`) — Enum 하드코딩 금지
   - 로그인 여부와 무관하게 응답 동일
+  - Top5 고정 목록으로 실질적 Pagination 없음 (단일 페이지)
 - **확정 필요:**
   - 경로 최종 확정: `/top-types` (STATISTICS.md 기준) vs `/top5`
   - 집계 기준 및 쿼리 성능 정책
@@ -1382,7 +1410,7 @@ src/app/api/
 
 ### Room
 - [ ] 초대 링크 만료 시간 정책
-- [ ] 방 목록 Pagination 구조
+- [x] 방 목록 Pagination 구조: 공통 Pagination 구조 적용
 - [ ] 방 종료/삭제 가능 조건 및 권한 기준
 
 ### Dispute
