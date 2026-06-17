@@ -47,7 +47,7 @@ function toRoomDto(room: {
   }
 }
 
-// GET /api/v1/rooms
+// GET /api/rooms
 // 내가 생성하거나 참여한 방 목록 조회
 export async function GET(request: NextRequest) {
   const session = await getServerSession(authOptions)
@@ -95,7 +95,7 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// POST /api/v1/rooms
+// POST /api/rooms
 // AI 대화방 생성. 기본 roomMode = ai_chat
 export async function POST(request: NextRequest) {
   const session = await getServerSession(authOptions)
