@@ -150,9 +150,12 @@ YYYY-MM-DDTHH:mm:ssZ
   },
   "page": {
     "page": 1,
+    "size": 20,
     "totalPages": 5,
     "sortBy": "createdAt",
-    "isNext": true
+    "sort": "desc",
+    "hasNext": true,
+    "hasPrevious": false
   },
   "error": null
 }
@@ -161,9 +164,12 @@ YYYY-MM-DDTHH:mm:ssZ
 | 필드 | 타입 | 설명 |
 |------|------|------|
 | `page` | number | 현재 페이지 번호 (1-based) |
+| `size` | number | 한 번에 가져오는 항목 수 |
 | `totalPages` | number | 전체 페이지 수 |
 | `sortBy` | string | 정렬 기준 필드명 |
-| `isNext` | boolean | 다음 페이지 존재 여부 |
+| `sort` | `"asc" \| "desc"` | 정렬 방향 |
+| `hasNext` | boolean | 다음 페이지 존재 여부 |
+| `hasPrevious` | boolean | 이전 페이지 존재 여부 |
 
 ---
 
@@ -1356,7 +1362,7 @@ src/app/api/
 ### 공통
 - [ ] 공통 응답 구조 (`success / data / error`) 팀 최종 확정
 - [x] 날짜/시간 포맷 확정: ISO 8601 (`YYYY-MM-DDTHH:mm:ssZ`)
-- [x] Pagination 방식 확정: offset 기반, `data` + `page` 두 필드 구조 (page/totalPages/sortBy/isNext)
+- [x] Pagination 방식 확정: offset 기반, `data` + `page` 두 필드 구조 (page/size/totalPages/sortBy/sort/hasNext/hasPrevious)
 
 ### Auth
 - [x] 회원탈퇴 경로: `DELETE /api/v1/users/me` 채택 확정
