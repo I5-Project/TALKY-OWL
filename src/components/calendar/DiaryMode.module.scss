@@ -1,0 +1,25 @@
+@use '../../styles/abstracts/variables' as v;
+@use '../../styles/abstracts/functions' as fn;
+
+.diaryMode {
+  margin-top: fn.r(24);
+}
+
+.tab {
+  display: flex;
+  margin-bottom: fn.r(16);
+  padding: 0 fn.r(20);
+
+  &__button {
+    height: fn.r(42);
+    flex: 1;
+    font-weight: v.$font-weight-bold;
+    color: v.$color-black-400;
+    border-bottom: 2px solid transparent;
+
+    &--active {
+      color: v.$color-black-500;
+      border-bottom: 2px solid v.$color-black-500;
+    }
+  }
+}

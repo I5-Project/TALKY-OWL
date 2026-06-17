@@ -1,6 +1,9 @@
 'use client';
 
 import { useState } from 'react';
+import EmotionDiaryList from './EmotionDiaryList';
+import RecordList from './RecordList';
+import styles from './DiaryMode.module.scss';
 
 type DiaryTab = 'emotion' | 'record';
 
@@ -9,28 +12,30 @@ const tabMode: { key: DiaryTab; label: string }[] = [
   { key: 'record', label: '사건기록' },
 ];
 
-const tabResult: Record<DiaryTab, React.ReactNode> = {
-  emotion: <div>등록한 일기가 없어요 (감정일기)</div>,
-  record: <div>등록한 기록이 없어요 (사건기록)</div>,
+type Props = {
+  selectedDate: string;
 };
 
-export default function DiaryMode() {
+export default function DiaryMode({ selectedDate }: Props) {
   const [diaryTabMode, setDiaryTab] = useState<DiaryTab>('emotion');
 
   return (
-    <div>
-      <div className='diary-tab'>
+    <div className={styles.diaryMode}>
+      <div className={styles.tab}>
         {tabMode.map((tab) => (
           <button
             key={tab.key}
-            className={diaryTabMode === tab.key ? 'active' : ''}
+            className={`${styles.tab__button} ${diaryTabMode === tab.key ? styles['tab__button--active'] : ''}`}
             onClick={() => setDiaryTab(tab.key)}
           >
             {tab.label}
           </button>
         ))}
       </div>
-      <div>{tabResult[diaryTabMode]}</div>
+      <div>
+        {diaryTabMode === 'emotion' && <EmotionDiaryList selectedDate={selectedDate} />}
+        {diaryTabMode === 'record' && <RecordList selectedDate={selectedDate} />}
+      </div>
     </div>
   );
 }

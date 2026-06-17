@@ -1,17 +1,25 @@
+'use client';
+
+import { useState } from 'react';
+import dayjs from 'dayjs';
 import CalendarView from '@/components/calendar/CalendarView';
 import DiaryMode from '@/components/calendar/DiaryMode';
-import "./page.scss";
+import styles from './page.module.scss';
 
-export default function calendar() {
+export default function Calendar() {
+  const [selectedDate, setSelectedDate] = useState(dayjs().format('YYYY-MM-DD'));
+
   return (
     <div>
-      <CalendarView />
-      <div className={"month-closed-number"}>
-        <div>이달 화해횟수</div>
-        <div>2번</div>
+      <CalendarView onDateChange={setSelectedDate} />
+
+      <div className={styles.summary}>
+        <div className={styles['summary__label']}>이달 화해횟수</div>
+        <div className={styles['summary__count']}>2번</div>
       </div>
-      <div>
-        <DiaryMode />
+
+      <div className={styles.diary}>
+        <DiaryMode selectedDate={selectedDate} />
       </div>
     </div>
   );
