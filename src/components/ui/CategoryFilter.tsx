@@ -1,10 +1,11 @@
 'use client';
 
 import GridViewRoundedIcon from '@mui/icons-material/GridViewRounded';
-import { CATEGORY_ICON_MAP, type CategoryWithoutAll } from './CategoryIcon';
+import type { CategoryGroup } from '@/types/common';
+import { CATEGORY_ICON_MAP, CATEGORY_LABEL_MAP } from './CategoryIcon';
 import styles from './CategoryFilter.module.scss';
 
-export type Category = '전체' | CategoryWithoutAll;
+export type Category = 'all' | CategoryGroup;
 
 interface CategoryFilterProps {
   value: Category;
@@ -12,12 +13,12 @@ interface CategoryFilterProps {
   mode?: 'filter' | 'single';
 }
 
-const CATEGORIES: { key: Category; Icon: React.ElementType }[] = [
-  { key: '전체', Icon: GridViewRoundedIcon },
-  ...(['연애', '직장', '친구', '가족'] as CategoryWithoutAll[]).map((key) => ({
-    key,
-    Icon: CATEGORY_ICON_MAP[key],
-  })),
+const CATEGORIES: { key: Category; Icon: React.ElementType; label: string }[] = [
+  { key: 'all',     Icon: GridViewRoundedIcon,        label: '전체' },
+  { key: 'romance', Icon: CATEGORY_ICON_MAP.romance,  label: CATEGORY_LABEL_MAP.romance },
+  { key: 'work',    Icon: CATEGORY_ICON_MAP.work,     label: CATEGORY_LABEL_MAP.work },
+  { key: 'friend',  Icon: CATEGORY_ICON_MAP.friend,   label: CATEGORY_LABEL_MAP.friend },
+  { key: 'family',  Icon: CATEGORY_ICON_MAP.family,   label: CATEGORY_LABEL_MAP.family },
 ];
 
 export default function CategoryFilter({ value, onChange, mode = 'filter' }: CategoryFilterProps) {
@@ -27,7 +28,7 @@ export default function CategoryFilter({ value, onChange, mode = 'filter' }: Cat
 
   return (
     <div className={styles.container}>
-      {visibleCategories.map(({ key, Icon }) => {
+      {visibleCategories.map(({ key, Icon, label }) => {
         const isSelected = value === key;
         return (
           <button
@@ -40,7 +41,7 @@ export default function CategoryFilter({ value, onChange, mode = 'filter' }: Cat
               <Icon />
             </div>
             <span className={`${styles.label} ${isSelected ? styles['label--selected'] : ''}`}>
-              {key}
+              {label}
             </span>
           </button>
         );

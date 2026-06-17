@@ -2,25 +2,31 @@ import FavoriteIcon from '@mui/icons-material/Favorite';
 import BusinessCenterIcon from '@mui/icons-material/BusinessCenter';
 import Diversity3Icon from '@mui/icons-material/Diversity3';
 import FamilyRestroomIcon from '@mui/icons-material/FamilyRestroom';
+import type { CategoryGroup } from '@/types/common';
 
-export type CategoryWithoutAll = '연애' | '직장' | '친구' | '가족';
-
-export const CATEGORY_ICON_MAP: Record<CategoryWithoutAll, React.ElementType> = {
-  연애: FavoriteIcon,
-  직장: BusinessCenterIcon,
-  친구: Diversity3Icon,
-  가족: FamilyRestroomIcon,
+export const CATEGORY_ICON_MAP: Record<CategoryGroup, React.ElementType> = {
+  romance: FavoriteIcon,
+  work:    BusinessCenterIcon,
+  friend:  Diversity3Icon,
+  family:  FamilyRestroomIcon,
 };
 
-const CATEGORY_COLOR_MAP: Record<CategoryWithoutAll, string> = {
-  연애: 'var(--category-love-text)',
-  직장: 'var(--category-work-text)',
-  친구: 'var(--category-friend-text)',
-  가족: 'var(--category-family-text)',
+export const CATEGORY_LABEL_MAP: Record<CategoryGroup, string> = {
+  romance: '연애',
+  work:    '직장',
+  friend:  '친구',
+  family:  '가족',
+};
+
+const CATEGORY_COLOR_MAP: Record<CategoryGroup, string> = {
+  romance: 'var(--category-love-text)',
+  work:    'var(--category-work-text)',
+  friend:  'var(--category-friend-text)',
+  family:  'var(--category-family-text)',
 };
 
 interface CategoryIconProps {
-  category: CategoryWithoutAll;
+  category: CategoryGroup;
 }
 
 export default function CategoryIcon({ category }: CategoryIconProps) {

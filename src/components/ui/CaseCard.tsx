@@ -1,3 +1,5 @@
+import type { CategoryGroup } from '@/types/common';
+import CategoryIcon from './CategoryIcon';
 import styles from './CaseCard.module.scss';
 
 type CaseCardStatus = 'progress' | null;
@@ -6,17 +8,10 @@ interface CaseCardProps {
   title: string;
   preview: string;
   date: string;
-  categoryGroup?: string;
+  categoryGroup?: CategoryGroup;
   status?: CaseCardStatus;
   onClick?: () => void;
 }
-
-const CATEGORY_EMOJI: Record<string, string> = {
-  ROMANCE: '🖤',
-  FAMILY: '🏠',
-  FRIEND: '🤝',
-  WORK: '💼',
-};
 
 const STATUS_LABEL: Record<string, string> = {
   progress: '진행중',
@@ -26,12 +21,10 @@ export default function CaseCard({
   title,
   preview,
   date,
-  categoryGroup = 'ROMANCE',
+  categoryGroup,
   status = null,
   onClick,
 }: CaseCardProps) {
-  const emoji = CATEGORY_EMOJI[categoryGroup] ?? '📋';
-
   return (
     <article
       className={[
@@ -42,9 +35,11 @@ export default function CaseCard({
       {...(onClick ? { role: 'button', tabIndex: 0 } : {})}
     >
       <div className={styles.card__header}>
-        <span className={styles.card__icon} aria-hidden="true">
-          {emoji}
-        </span>
+        {categoryGroup && (
+          <span className={styles.card__icon} aria-hidden="true">
+            <CategoryIcon category={categoryGroup} />
+          </span>
+        )}
         {status && (
           <span
             className={`${styles.card__badge} ${styles[`card__badge--${status}`]}`}
