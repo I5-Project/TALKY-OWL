@@ -74,7 +74,7 @@ function toDisputeDto(dispute: DisputeForDetail): DisputeDto {
   }
 }
 
-// GET /api/v1/disputes/:id
+// GET /api/disputes/:id
 // 사건 상세 조회. 참여자(role_a / role_b)만 조회 가능
 export async function GET(
   request: NextRequest,
@@ -121,7 +121,7 @@ export async function GET(
   }
 }
 
-// PATCH /api/v1/disputes/:id
+// PATCH /api/disputes/:id
 // 사건 수정. role_a만 수정 가능. both_submitted 이후 상태에서는 수정 불가
 export async function PATCH(
   request: NextRequest,
@@ -227,7 +227,7 @@ export async function PATCH(
   }
 }
 
-// DELETE /api/v1/disputes/:id
+// DELETE /api/disputes/:id
 // 사건 소프트 삭제. 참여자만 삭제 가능
 // TODO: 삭제 권한 기준 확정 필요 (docs/domains/DISPUTE.md 11항)
 export async function DELETE(

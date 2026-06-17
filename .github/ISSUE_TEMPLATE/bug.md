@@ -32,7 +32,6 @@ assignees: ""
 
 - [ ] identity-access
 - [ ] room-ai-chat
-- [ ] personal-analysis
 - [ ] invite-participation
 - [ ] statement
 - [ ] judgement-result
