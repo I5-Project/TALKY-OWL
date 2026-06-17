@@ -180,79 +180,86 @@ YYYY-MM-DDTHH:mm:ssZ
 | 메서드 | 경로 | 설명 | 인증 |
 |--------|------|------|------|
 | `GET/POST` | `/api/auth/[...nextauth]` | NextAuth 핸들러 (카카오 OAuth) | 공개 |
-| `GET` | `/api/v1/users/me` | 내 정보 조회 | 🔒 |
-| `PATCH` | `/api/v1/users/me` | 프로필 수정 | 🔒 |
-| `DELETE` | `/api/v1/users/me` | 회원탈퇴 | 🔒 |
+| `GET` | `/api/users/me` | 내 정보 조회 | 🔒 |
+| `PATCH` | `/api/users/me` | 프로필 수정 | 🔒 |
+| `DELETE` | `/api/users/me` | 회원탈퇴 | 🔒 |
+
+### Personal Analysis
+
+| 메서드 | 경로 | 설명 | 인증 |
+|--------|------|------|------|
+| `POST` | `/api/personal-analyses` | 단독 판결 요청 (확정 필요) | 🔒 |
+| `GET` | `/api/personal-analyses/{analysisId}` | 단독 판결 결과 조회 (확정 필요) | 🔒 |
 
 ### Room / Invite / AI Chat
 
 | 메서드 | 경로 | 설명 | 인증 |
 |--------|------|------|------|
-| `POST` | `/api/v1/rooms` | 방 생성 | 🔒 |
-| `GET` | `/api/v1/rooms` | 방 목록 조회 | 🔒 |
-| `GET` | `/api/v1/rooms/{roomId}` | 방 상세 조회 | 🔒 |
-| `POST` | `/api/v1/rooms/{roomId}/invite` | 초대 링크 발급 | 🔒 |
-| `POST` | `/api/v1/rooms/{roomId}/join` | 초대 링크로 참여 | 🔒 |
-| `POST` | `/api/v1/rooms/{roomId}/close` | 방 종료 | 🔒 |
-| `DELETE` | `/api/v1/rooms/{roomId}` | 방 삭제 | 🔒 |
+| `POST` | `/api/rooms` | 방 생성 | 🔒 |
+| `GET` | `/api/rooms` | 방 목록 조회 | 🔒 |
+| `GET` | `/api/rooms/{roomId}` | 방 상세 조회 | 🔒 |
+| `POST` | `/api/rooms/{roomId}/invite` | 초대 링크 발급 | 🔒 |
+| `POST` | `/api/rooms/{roomId}/join` | 초대 링크로 참여 | 🔒 |
+| `POST` | `/api/rooms/{roomId}/close` | 방 종료 | 🔒 |
+| `DELETE` | `/api/rooms/{roomId}` | 방 삭제 | 🔒 |
 
 ### Dispute / Statement
 
 | 메서드 | 경로 | 설명 | 인증 |
 |--------|------|------|------|
-| `POST` | `/api/v1/disputes` | 사건 생성 (방 생성 시 함께 생성) | 🔒 |
-| `GET` | `/api/v1/disputes/{disputeId}` | 사건 상세 조회 | 🔒 |
-| `POST` | `/api/v1/disputes/{disputeId}/close` | 사건 종료 | 🔒 |
-| `DELETE` | `/api/v1/disputes/{disputeId}` | 사건 삭제 | 🔒 |
-| `POST` | `/api/v1/disputes/{disputeId}/statements` | 진술 작성/수정 | 🔒 |
-| `POST` | `/api/v1/disputes/{disputeId}/statements/submit` | 진술 종료 | 🔒 |
+| `POST` | `/api/disputes` | 사건 생성 (1:1 전환) | 🔒 |
+| `GET` | `/api/disputes/{disputeId}` | 사건 상세 조회 | 🔒 |
+| `POST` | `/api/disputes/{disputeId}/close` | 사건 종료 | 🔒 |
+| `DELETE` | `/api/disputes/{disputeId}` | 사건 삭제 | 🔒 |
+| `POST` | `/api/disputes/{disputeId}/statements` | 진술 작성/수정 | 🔒 |
+| `POST` | `/api/disputes/{disputeId}/statements/submit` | 진술 종료 | 🔒 |
 
 ### Judgement / Result Card
 
 | 메서드 | 경로 | 설명 | 인증 |
 |--------|------|------|------|
-| `POST` | `/api/v1/disputes/{disputeId}/judge` | AI 판결 요청 | 🔒 |
-| `GET` | `/api/v1/disputes/{disputeId}/result` | 판결 결과 조회 | 🔒 |
+| `POST` | `/api/disputes/{disputeId}/judge` | AI 판결 요청 | 🔒 |
+| `GET` | `/api/disputes/{disputeId}/result` | 판결 결과 조회 | 🔒 |
 
 ### Diary
 
 | 메서드 | 경로 | 설명 | 인증 |
 |--------|------|------|------|
-| `POST` | `/api/v1/diary` | 일기 작성 | 🔒 |
-| `GET` | `/api/v1/diary` | 일기 목록 조회 | 🔒 |
-| `GET` | `/api/v1/diary/{diaryId}` | 일기 상세 조회 | 🔒 |
-| `PATCH` | `/api/v1/diary/{diaryId}` | 일기 수정 | 🔒 |
-| `DELETE` | `/api/v1/diary/{diaryId}` | 일기 삭제 | 🔒 |
+| `POST` | `/api/diary` | 일기 작성 | 🔒 |
+| `GET` | `/api/diary` | 일기 목록 조회 | 🔒 |
+| `GET` | `/api/diary/{diaryId}` | 일기 상세 조회 | 🔒 |
+| `PATCH` | `/api/diary/{diaryId}` | 일기 수정 | 🔒 |
+| `DELETE` | `/api/diary/{diaryId}` | 일기 삭제 | 🔒 |
 
-> 확정 필요: 경로 `/api/v1/diary` (스캐폴딩 기준) vs `/api/v1/diaries` (DIARY.md 기준)
+> 확정 필요: 경로 `/api/diary` (스캐폴딩 기준) vs `/api/diaries` (DIARY.md 기준)
 
 ### Calendar
 
 | 메서드 | 경로 | 설명 | 인증 |
 |--------|------|------|------|
-| `GET` | `/api/v1/calendar` | 월별 기록 조회 | 🔒 |
+| `GET` | `/api/calendar` | 월별 기록 조회 | 🔒 |
 
 ### Statistics
 
 | 메서드 | 경로 | 설명 | 인증 |
 |--------|------|------|------|
-| `GET` | `/api/v1/statistics/summary` | 요약 통계 조회 | 공개 |
-| `GET` | `/api/v1/statistics/top-types` | 결과 유형 Top5 조회 | 공개 |
+| `GET` | `/api/statistics/summary` | 요약 통계 조회 | 공개 |
+| `GET` | `/api/statistics/top-types` | 결과 유형 Top5 조회 | 공개 |
 
 ### Gift Recommendation
 
 | 메서드 | 경로 | 설명 | 인증 |
 |--------|------|------|------|
-| `POST` | `/api/v1/disputes/{disputeId}/gift-recommendations` | 선물 추천 요청 (확정 필요) | 🔒 |
-| `GET` | `/api/v1/disputes/{disputeId}/gift-recommendations` | 선물 추천 조회 (확정 필요) | 🔒 |
+| `POST` | `/api/disputes/{disputeId}/gift-recommendations` | 선물 추천 요청 (확정 필요) | 🔒 |
+| `GET` | `/api/disputes/{disputeId}/gift-recommendations` | 선물 추천 조회 (확정 필요) | 🔒 |
 
 ### Cron
 
 | 메서드 | 경로 | 설명 | 인증 |
 |--------|------|------|------|
-| `POST` | `/api/v1/cron/expire-invitations` | 초대 링크 만료 처리 (확정 필요) | 🔑 |
-| `POST` | `/api/v1/cron/aggregate-statistics` | 통계 집계 (확정 필요) | 🔑 |
-| `POST` | `/api/v1/cron/cleanup-drafts` | 미완성 사건 정리 (확정 필요) | 🔑 |
+| `POST` | `/api/cron/expire-invitations` | 초대 링크 만료 처리 (확정 필요) | 🔑 |
+| `POST` | `/api/cron/aggregate-statistics` | 통계 집계 (확정 필요) | 🔑 |
+| `POST` | `/api/cron/cleanup-drafts` | 미완성 사건 정리 (확정 필요) | 🔑 |
 
 ---
 
@@ -277,7 +284,7 @@ YYYY-MM-DDTHH:mm:ssZ
 
 ---
 
-#### `DELETE /api/v1/users/me` (회원탈퇴)
+#### `DELETE /api/users/me` (회원탈퇴)
 
 - **인증:** 🔒
 - **설명:** 본인 계정 탈퇴. 비식별 처리 후 세션 무효화.
@@ -314,7 +321,7 @@ YYYY-MM-DDTHH:mm:ssZ
 
 ---
 
-#### `GET /api/v1/users/me`
+#### `GET /api/users/me`
 
 - **인증:** 🔒
 - **설명:** 로그인한 사용자의 프로필 정보를 조회한다.
@@ -354,7 +361,7 @@ YYYY-MM-DDTHH:mm:ssZ
 
 ---
 
-#### `PATCH /api/v1/users/me`
+#### `PATCH /api/users/me`
 
 - **인증:** 🔒
 - **설명:** 사용자 프로필 정보를 수정한다.
@@ -401,7 +408,7 @@ YYYY-MM-DDTHH:mm:ssZ
 
 ---
 
-#### `DELETE /api/v1/users/me` (회원탈퇴)
+#### `DELETE /api/users/me` (회원탈퇴)
 
 - **인증:** 🔒
 - **설명:** 본인 계정 탈퇴. 4.1 Auth 섹션의 회원탈퇴 상세 명세 참조.
@@ -412,7 +419,7 @@ YYYY-MM-DDTHH:mm:ssZ
 
 ---
 
-#### `POST /api/v1/rooms`
+#### `POST /api/rooms`
 
 - **인증:** 🔒
 - **설명:** AI 대화방을 생성한다. 모든 방은 `ai_chat` 모드로 시작한다.
@@ -455,7 +462,7 @@ YYYY-MM-DDTHH:mm:ssZ
 
 ---
 
-#### `GET /api/v1/rooms`
+#### `GET /api/rooms`
 
 - **인증:** 🔒
 - **설명:** 내가 생성하거나 참여한 방 목록을 조회한다.
@@ -504,7 +511,7 @@ YYYY-MM-DDTHH:mm:ssZ
 
 ---
 
-#### `GET /api/v1/rooms/{roomId}`
+#### `GET /api/rooms/{roomId}`
 
 - **인증:** 🔒
 - **설명:** 방 상세 정보를 조회한다.
@@ -540,7 +547,7 @@ YYYY-MM-DDTHH:mm:ssZ
 
 ---
 
-#### `POST /api/v1/rooms/{roomId}/invite`
+#### `POST /api/rooms/{roomId}/invite`
 
 - **인증:** 🔒
 - **설명:** 초대 링크용 토큰을 발급하고 `room_mode`를 `invite_ready`로 전환한다.
@@ -573,7 +580,7 @@ YYYY-MM-DDTHH:mm:ssZ
 
 ---
 
-#### `POST /api/v1/rooms/{roomId}/join`
+#### `POST /api/rooms/{roomId}/join`
 
 - **인증:** 🔒
 - **설명:** 초대 토큰 검증 후 상대방이 방에 참여한다. 성공 시 `room_mode` → `one_to_one`, `Dispute` 생성.
@@ -619,7 +626,7 @@ YYYY-MM-DDTHH:mm:ssZ
 
 ---
 
-#### `POST /api/v1/rooms/{roomId}/close`
+#### `POST /api/rooms/{roomId}/close`
 
 - **인증:** 🔒
 - **설명:** 방을 종료 상태(`closed`)로 전환한다.
@@ -637,7 +644,7 @@ YYYY-MM-DDTHH:mm:ssZ
 
 ---
 
-#### `DELETE /api/v1/rooms/{roomId}`
+#### `DELETE /api/rooms/{roomId}`
 
 - **인증:** 🔒
 - **설명:** 방을 삭제 처리한다. Soft delete (`deletedAt` 기준).
@@ -649,7 +656,7 @@ YYYY-MM-DDTHH:mm:ssZ
 
 ---
 
-#### `POST /api/v1/disputes`
+#### `POST /api/disputes`
 
 - **인증:** 🔒
 - **설명:** 방(room) 생성 시 사건을 함께 생성한다. 생성자를 `role_a`로 확정한다. 혼자서 진행(단독 판결)과 상대방 초대(1:1 판결) 모두 이 dispute를 기반으로 처리한다.
@@ -696,7 +703,7 @@ YYYY-MM-DDTHH:mm:ssZ
 
 ---
 
-#### `GET /api/v1/disputes/{disputeId}`
+#### `GET /api/disputes/{disputeId}`
 
 - **인증:** 🔒
 - **설명:** 사건 상세 정보를 조회한다.
@@ -733,7 +740,7 @@ YYYY-MM-DDTHH:mm:ssZ
 
 ---
 
-#### `POST /api/v1/disputes/{disputeId}/close`
+#### `POST /api/disputes/{disputeId}/close`
 
 - **인증:** 🔒
 - **설명:** 사건을 종료 상태(`closed`)로 전환한다.
@@ -741,7 +748,7 @@ YYYY-MM-DDTHH:mm:ssZ
 
 ---
 
-#### `DELETE /api/v1/disputes/{disputeId}`
+#### `DELETE /api/disputes/{disputeId}`
 
 - **인증:** 🔒
 - **설명:** 사건을 삭제 처리한다.
@@ -752,7 +759,7 @@ YYYY-MM-DDTHH:mm:ssZ
 
 ---
 
-#### `POST /api/v1/disputes/{disputeId}/statements`
+#### `POST /api/disputes/{disputeId}/statements`
 
 - **인증:** 🔒
 - **설명:** 본인 role 기준으로 진술을 작성하거나 수정한다. 진술 종료(`submit`) 이후 수정 불가.
@@ -797,7 +804,7 @@ YYYY-MM-DDTHH:mm:ssZ
 
 ---
 
-#### `POST /api/v1/disputes/{disputeId}/statements/submit`
+#### `POST /api/disputes/{disputeId}/statements/submit`
 
 - **인증:** 🔒
 - **설명:** 진술을 최종 제출한다. 제출 이후 수정 불가.
@@ -833,7 +840,7 @@ YYYY-MM-DDTHH:mm:ssZ
 
 ---
 
-#### `POST /api/v1/disputes/{disputeId}/judge`
+#### `POST /api/disputes/{disputeId}/judge`
 
 - **인증:** 🔒
 - **설명:** Gemini API를 호출하여 AI 판결을 생성한다. `dispute_status = both_submitted` 상태에서만 가능.
@@ -875,7 +882,7 @@ YYYY-MM-DDTHH:mm:ssZ
 
 ---
 
-#### `GET /api/v1/disputes/{disputeId}/result`
+#### `GET /api/disputes/{disputeId}/result`
 
 - **인증:** 🔒
 - **설명:** AI 판결 결과를 조회한다. 해당 dispute 참여자만 접근 가능.
@@ -931,11 +938,11 @@ YYYY-MM-DDTHH:mm:ssZ
 
 ### 4.6 Diary
 
-> 확정 필요: 경로 `/api/v1/diary` (스캐폴딩 기준) vs `/api/v1/diaries` (DIARY.md 기준) 최종 확정 필요. 아래 명세는 현재 스캐폴딩 폴더 기준으로 작성.
+> 확정 필요: 경로 `/api/diary` (스캐폴딩 기준) vs `/api/diaries` (DIARY.md 기준) 최종 확정 필요. 아래 명세는 현재 스캐폴딩 폴더 기준으로 작성.
 
 ---
 
-#### `POST /api/v1/diary`
+#### `POST /api/diary`
 
 - **인증:** 🔒
 - **설명:** 날짜 기준 감정일기를 작성한다.
@@ -974,7 +981,7 @@ YYYY-MM-DDTHH:mm:ssZ
 
 ---
 
-#### `GET /api/v1/diary`
+#### `GET /api/diary`
 
 - **인증:** 🔒
 - **설명:** 감정일기 목록을 조회한다.
@@ -1021,7 +1028,7 @@ YYYY-MM-DDTHH:mm:ssZ
 
 ---
 
-#### `GET /api/v1/diary/{diaryId}`
+#### `GET /api/diary/{diaryId}`
 
 - **인증:** 🔒
 - **Response 200:**
@@ -1045,7 +1052,7 @@ YYYY-MM-DDTHH:mm:ssZ
 
 ---
 
-#### `PATCH /api/v1/diary/{diaryId}`
+#### `PATCH /api/diary/{diaryId}`
 
 - **인증:** 🔒
 - **Request Body:**
@@ -1061,7 +1068,7 @@ YYYY-MM-DDTHH:mm:ssZ
 
 ---
 
-#### `DELETE /api/v1/diary/{diaryId}`
+#### `DELETE /api/diary/{diaryId}`
 
 - **인증:** 🔒
 - **처리 정책:** 본인만 삭제 가능, Soft delete (`deletedAt` 기준)
@@ -1072,7 +1079,7 @@ YYYY-MM-DDTHH:mm:ssZ
 
 ---
 
-#### `GET /api/v1/calendar`
+#### `GET /api/calendar`
 
 - **인증:** 🔒
 - **설명:** 특정 월의 사건 기록, 감정일기 마킹 데이터를 조회한다.
@@ -1114,7 +1121,7 @@ YYYY-MM-DDTHH:mm:ssZ
 
 ---
 
-#### `GET /api/v1/statistics/summary`
+#### `GET /api/statistics/summary`
 
 - **인증:** 공개 (비로그인 사용자도 조회 가능)
 - **설명:** 홈 화면 진입 시 비로그인 회원을 포함한 모든 사용자에게 노출할 익명 집계 데이터를 조회한다. Statistics 독립 화면은 MVP 제외이며 API만 제공한다.
@@ -1139,7 +1146,7 @@ YYYY-MM-DDTHH:mm:ssZ
 
 ---
 
-#### `GET /api/v1/statistics/top-types`
+#### `GET /api/statistics/top-types`
 
 - **인증:** 공개 (비로그인 사용자도 조회 가능)
 - **설명:** 전체 판결 결과 유형 중 상위 5개를 조회한다.
@@ -1184,7 +1191,7 @@ YYYY-MM-DDTHH:mm:ssZ
 
 > **전체 확정 필요:** `GIFT.md §8`이 TODO 상태. 아래는 검토 메모 기반 초안이며 팀 확정 필요.
 
-- **예상 Endpoint:** `/api/v1/disputes/{disputeId}/gift-recommendations`
+- **예상 Endpoint:** `/api/disputes/{disputeId}/gift-recommendations`
 - **접근 조건:** `dispute_status = judged` 이후만 접근 가능
 - **권한:** 해당 dispute 참여자만 접근 가능
 - **제약:**
@@ -1207,7 +1214,7 @@ YYYY-MM-DDTHH:mm:ssZ
 
 ---
 
-#### `POST /api/v1/cron/expire-invitations`
+#### `POST /api/cron/expire-invitations`
 
 - **인증:** 🔑 Cron
 - **설명:** 만료 시간이 지난 초대 링크를 일괄 처리한다.
@@ -1215,7 +1222,7 @@ YYYY-MM-DDTHH:mm:ssZ
 
 ---
 
-#### `POST /api/v1/cron/aggregate-statistics`
+#### `POST /api/cron/aggregate-statistics`
 
 - **인증:** 🔑 Cron
 - **설명:** 통계 데이터를 집계한다.
@@ -1223,7 +1230,7 @@ YYYY-MM-DDTHH:mm:ssZ
 
 ---
 
-#### `POST /api/v1/cron/cleanup-drafts`
+#### `POST /api/cron/cleanup-drafts`
 
 - **인증:** 🔑 Cron
 - **설명:** 장기 미완성 사건을 정리한다.
@@ -1240,56 +1247,54 @@ src/app/api/
 ├── auth/
 │   └── [...nextauth]/
 │       └── route.ts
-└── v1/
-    ├── users/
-    │   └── me/
-    │       └── route.ts              # GET, PATCH, DELETE(회원탈퇴)
-    ├── rooms/
-    │   ├── route.ts                  # GET 목록, POST 생성
-    │   └── [roomId]/
-    │       ├── route.ts              # GET 상세, DELETE
-    │       ├── invite/
-    │       │   └── route.ts          # POST
-    │       ├── join/
-    │       │   └── route.ts          # POST
-    │       └── close/
-    │           └── route.ts          # POST
-    ├── disputes/
-    │   ├── route.ts                  # POST 생성
-    │   └── [disputeId]/
-    │       ├── route.ts              # GET 상세, DELETE
-    │       ├── close/
-    │       │   └── route.ts          # POST
-    │       ├── statements/
-    │       │   ├── route.ts          # POST 진술 작성
-    │       │   └── submit/
-    │       │       └── route.ts      # POST 진술 종료
-    │       ├── judge/
-    │       │   └── route.ts          # POST — 확정 필요: /judge vs /judgement
-    │       ├── result/
-    │       │   └── route.ts          # GET — 확정 필요: /result vs /judgement
-    │       └── gift-recommendations/
-    │           └── route.ts          # GET, POST — 확정 필요
-    ├── diary/                        # ※ /diary vs /diaries 확정 필요
-    │   ├── route.ts                  # GET 목록, POST 작성
-    │   └── [diaryId]/
-    │       └── route.ts              # GET 상세, PATCH, DELETE
-    ├── calendar/
-    │   └── route.ts                  # GET
-    ├── statistics/
-    │   ├── summary/
-    │   │   └── route.ts              # GET
-    │   └── top-types/
-    │       └── route.ts              # GET — 확정 필요: /top-types vs /top5
-    ├── statements/                   # ※ disputes 하위로 통합 여부 확정 필요
-    └── cron/
-        ├── expire-invitations/
-        │   └── route.ts
-        ├── aggregate-statistics/
-        │   └── route.ts
-        └── cleanup-drafts/
-            └── route.ts
-```
+├── users/
+│   └── me/
+│       └── route.ts              # GET, PATCH, DELETE(회원탈퇴)
+├── rooms/
+│   ├── route.ts                  # GET 목록, POST 생성
+│   └── [roomId]/
+│       ├── route.ts              # GET 상세, DELETE
+│       ├── invite/
+│       │   └── route.ts          # POST
+│       ├── join/
+│       │   └── route.ts          # POST
+│       └── close/
+│           └── route.ts          # POST
+├── disputes/
+│   ├── route.ts                  # POST 생성
+│   └── [disputeId]/
+│       ├── route.ts              # GET 상세, DELETE
+│       ├── close/
+│       │   └── route.ts          # POST
+│       ├── statements/
+│       │   ├── route.ts          # POST 진술 작성
+│       │   └── submit/
+│       │       └── route.ts      # POST 진술 종료
+│       ├── judge/
+│       │   └── route.ts          # POST — 확정 필요: /judge vs /judgement
+│       ├── result/
+│       │   └── route.ts          # GET — 확정 필요: /result vs /judgement
+│       └── gift-recommendations/
+│           └── route.ts          # GET, POST — 확정 필요
+├── diary/                        # ※ /diary vs /diaries 확정 필요
+│   ├── route.ts                  # GET 목록, POST 작성
+│   └── [diaryId]/
+│       └── route.ts              # GET 상세, PATCH, DELETE
+├── calendar/
+│   └── route.ts                  # GET
+├── statistics/
+│   ├── summary/
+│   │   └── route.ts              # GET
+│   └── top-types/
+│       └── route.ts              # GET — 확정 필요: /top-types vs /top5
+├── statements/                   # ※ disputes 하위로 통합 여부 확정 필요
+└── cron/
+    ├── expire-invitations/
+    │   └── route.ts
+    ├── aggregate-statistics/
+    │   └── route.ts
+    └── cleanup-drafts/
+        └── route.ts
 
 ---
 
@@ -1310,10 +1315,10 @@ src/app/api/
 
 | 항목 | 문서 A | 문서 B | 상태 |
 |------|--------|--------|------|
-| 회원탈퇴 경로 | `POST /api/v1/auth/withdraw` (AUTH.md) | `DELETE /api/v1/users/me` (USER.md) | **구현 필수: `DELETE /api/v1/users/me` 채택** |
+| 회원탈퇴 경로 | `POST /api/auth/withdraw` (AUTH.md) | `DELETE /api/users/me` (USER.md) | **구현 필수: `DELETE /api/users/me` 채택** |
 | 판결 요청 경로 | `/judge` (JUDGEMENT.md, 실제 라우트 파일) | `/judgement` (검토 메모) | **확정 필요** |
 | 판결 결과 조회 경로 | `/result` (JUDGEMENT.md, 실제 라우트 파일) | `/judgement` (검토 메모) | **확정 필요** |
-| 일기 API 경로 | `/api/v1/diary` (스캐폴딩) | `/api/v1/diaries` (DIARY.md) | **확정 필요** |
+| 일기 API 경로 | `/api/diary` (스캐폴딩) | `/api/diaries` (DIARY.md) | **확정 필요** |
 | 통계 Top 경로 | `/top-types` (STATISTICS.md) | `/top5` (검토 메모) | **확정 필요** |
 
 ---
@@ -1326,7 +1331,7 @@ src/app/api/
 - [x] Pagination 방식 확정: offset 기반, `data` + `page` 두 필드 구조 (page/size/totalPages/sortBy/sort/hasNext/hasPrevious)
 
 ### Auth
-- [x] 회원탈퇴 경로: `DELETE /api/v1/users/me` 채택 확정
+- [x] 회원탈퇴 경로: `DELETE /api/users/me` 채택 확정
 - [ ] 닉네임 자동 생성 패턴 및 길이
 - [ ] 약관 동의 여부 확인 기준 (`termsAgreedAt` vs `user_terms_agreements` 테이블)
 - [ ] 세션 커스텀 필드 범위
@@ -1359,7 +1364,7 @@ src/app/api/
 - [ ] 나이대/성별 수집 방식
 
 ### Diary
-- [ ] 경로 확정: `/api/v1/diary` vs `/api/v1/diaries`
+- [ ] 경로 확정: `/api/diary` vs `/api/diaries`
 - [ ] 같은 날짜 중복 작성 허용 여부 (DIARY.md §13 — TODO)
 - [ ] `emotionType` 허용 값 목록 및 마스터 데이터 관리 방식
 - [ ] 목록 조회 응답에 `content` 포함 여부
@@ -1382,5 +1387,5 @@ src/app/api/
 - [ ] 각 Cron API 처리 대상 조건, 응답 구조, 실행 주기
 
 ### Route 구조
-- [ ] `src/app/api/v1/statements/` 폴더 — `disputes/{id}/statements` 하위로 통합 여부
-- [ ] `src/app/api/v1/users/me` — 동적 라우트 vs 정적 `me` 세그먼트 처리 방식
+- [ ] `src/app/api/statements/` 폴더 — `disputes/{id}/statements` 하위로 통합 여부
+- [ ] `src/app/api/users/me` — 동적 라우트 vs 정적 `me` 세그먼트 처리 방식

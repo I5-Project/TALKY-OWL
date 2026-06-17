@@ -7,7 +7,7 @@ import type { ApiResponse } from '@/types/common'
 
 const CLOSEABLE_MODES = ['AI_CHAT', 'INVITE_READY', 'ONE_TO_ONE'] as const
 
-// POST /api/v1/rooms/:id/close
+// POST /api/rooms/:id/close
 // 방 종료. 생성자만 가능. closed/expired/deleted 상태에서는 불가
 export async function POST(
   request: NextRequest,

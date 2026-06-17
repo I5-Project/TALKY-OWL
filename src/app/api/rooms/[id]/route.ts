@@ -43,7 +43,7 @@ function hasAccess(room: { creatorUserId: string; roomMode: PrismaRoomMode; disp
   )
 }
 
-// GET /api/v1/rooms/:id
+// GET /api/rooms/:id
 // 방 상세 조회
 export async function GET(
   request: NextRequest,
@@ -88,7 +88,7 @@ export async function GET(
   }
 }
 
-// DELETE /api/v1/rooms/:id
+// DELETE /api/rooms/:id
 // 방 소프트 삭제. 생성자만 삭제 가능
 export async function DELETE(
   request: NextRequest,

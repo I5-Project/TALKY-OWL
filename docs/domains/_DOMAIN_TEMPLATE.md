@@ -70,8 +70,8 @@ src/app/(page)/[경로]
 ## 8. 관련 API
 
 ```txt
-GET  /api/v1/[경로]
-POST /api/v1/[경로]
+GET  /api/[경로]
+POST /api/[경로]
 ```
 
 상세 스펙은 `docs/API_SPEC.md` 참고.
