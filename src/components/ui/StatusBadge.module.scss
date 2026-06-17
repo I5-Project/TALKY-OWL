@@ -1,0 +1,36 @@
+@use '../../styles/abstracts/functions' as fn;
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  align-self: flex-start;
+  min-width: fn.r(58);
+  height: fn.r(24);
+  padding: fn.r(2) fn.r(8);
+  border-radius: fn.r(4);
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1rem;
+  white-space: nowrap;
+
+  &--done {
+    background-color: var(--status-done-bg);
+    color: var(--status-done-text);
+  }
+
+  &--progress {
+    background-color: var(--status-progress-bg);
+    color: var(--status-progress-text);
+  }
+
+  &--disabled {
+    background-color: var(--status-disabled-bg);
+    color: var(--status-disabled-text);
+  }
+
+  &--error {
+    background-color: var(--status-danger-bg);
+    color: var(--status-danger-text);
+  }
+}

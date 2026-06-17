@@ -161,15 +161,27 @@ src/app/(page)/*/*.store.ts
 
 `features` 폴더는 사용하지 않는다.
 
+### MUI 사용 허용 범위
+
+```txt
+허용:
+- 달력 / 날짜 선택 UI: src/components/calendar/ 내 래핑 컴포넌트
+- 피드백 UI (Toast/Snackbar): src/components/feedback/ 내 래핑 컴포넌트
+- 아이콘: @mui/icons-material — 감정일기(diary) 기능 제외 전체 허용
+
+금지:
+- 감정일기(diary) 기능 내 아이콘은 lucide-react 사용 유지
+- 전체 디자인 시스템을 MUI 기반으로 전환하지 않는다.
+- 여러 페이지 / 도메인에서 MUI 컴포넌트를 직접 import하지 않는다.
+- MUI ThemeProvider를 앱 전역에 적용하지 않는다.
+- 전체 스타일 기준은 SCSS / SCSS Module을 유지한다.
+```
+
 ### Calendar UI Rules
 
 ```txt
 - 달력 UI는 MUI X Date Pickers 기반으로 구현한다.
-- MUI는 달력 / 날짜 선택 UI 전용으로만 사용한다. 전체 디자인 시스템에 적용하지 않는다.
-- 전체 스타일 기준은 SCSS / SCSS Module을 유지한다.
 - MUI 컴포넌트는 src/components/calendar/ 내 래핑 컴포넌트를 통해서만 사용한다.
-- 여러 페이지 / 도메인에서 MUI 컴포넌트를 직접 import하지 않는다.
-- 아이콘은 기존 lucide-react를 우선 사용한다.
 - 달력 라이브러리는 래핑 컴포넌트 구조로 교체 가능성을 확보한다.
 ```
 
