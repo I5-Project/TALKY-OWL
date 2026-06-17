@@ -1,0 +1,63 @@
+@use '../../styles/abstracts/variables' as v;
+@use '../../styles/abstracts/functions' as fn;
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: fn.r(8);
+
+  &__label {
+    font-family: v.$font-family-base;
+    font-size: v.$font-size-body-s;
+    font-weight: v.$font-weight-semibold;
+    line-height: v.$line-height-body-s;
+    color: var(--text-primary);
+  }
+
+  &__wrapper {
+    position: relative;
+  }
+
+  &__select {
+    width: 100%;
+    height: fn.r(52);
+    padding: 0 fn.r(44) 0 fn.r(16);
+    font-family: v.$font-family-base;
+    font-size: v.$font-size-body-m;
+    font-weight: v.$font-weight-regular;
+    line-height: v.$line-height-body-m;
+    color: var(--text-primary);
+    background-color: var(--bg-surface);
+    border: 1px solid var(--border-default);
+    border-radius: fn.r(8);
+    outline: none;
+    appearance: none;
+    cursor: pointer;
+    transition: border-color 0.15s;
+
+    &:focus {
+      border-color: var(--border-brand);
+    }
+
+    &--error {
+      border-color: var(--border-danger);
+    }
+  }
+
+  &__chevron {
+    position: absolute;
+    right: fn.r(16);
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--icon-secondary);
+    pointer-events: none;
+  }
+
+  &__error {
+    font-family: v.$font-family-base;
+    font-size: v.$font-size-caption;
+    font-weight: v.$font-weight-regular;
+    line-height: v.$line-height-caption;
+    color: var(--text-danger);
+  }
+}
