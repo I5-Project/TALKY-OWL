@@ -1,19 +1,30 @@
 @use '@/styles/abstracts/variables' as v;
 
+.page {
+  position: relative;
+}
+
+.characterImage {
+  position: absolute;
+  top: 41px;
+  right: -20px;
+  width: 169px;
+  height: 138px;
+  object-fit: contain;
+  pointer-events: none;
+  z-index: 0;
+}
+
 .container {
+  position: relative;
+  z-index: 1;
   display: flex;
   flex-direction: column;
-  padding: 24px 16px;
+  padding: 20px 16px;
   gap: 16px;
 }
 
-// 헤더
-.header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
+// 인사
 .greeting {
   display: flex;
   flex-direction: column;
@@ -32,10 +43,6 @@
   font-weight: v.$font-weight-regular;
   color: v.$color-black-400;
   line-height: v.$line-height-body-s;
-}
-
-.owlImage {
-  object-fit: contain;
 }
 
 // 일기 박스

@@ -10,23 +10,22 @@ export default async function HomePage() {
   const userName = session?.user?.name ?? '사용자'
 
   return (
-    <>
+    <div className={styles.page}>
       <Header variant="logo" />
 
+      <Image
+        src="/images/characters/character-home.png"
+        alt="말해부엉 캐릭터"
+        width={169}
+        height={138}
+        className={styles.characterImage}
+      />
+
       <main className={styles.container}>
-        {/* 헤더: 인사 + 부엉이 */}
-        <section className={styles.header}>
-          <div className={styles.greeting}>
-            <p className={styles.userName}>{userName}님</p>
-            <p className={styles.greetingText}>오늘 감정은 어떠신가요?</p>
-          </div>
-          <Image
-            src="/images/characters/character-welcome.png"
-            alt="말해부엉 캐릭터"
-            width={80}
-            height={80}
-            className={styles.owlImage}
-          />
+        {/* 인사 */}
+        <section className={styles.greeting}>
+          <p className={styles.userName}>{userName}님</p>
+          <p className={styles.greetingText}>오늘 감정은 어떠신가요?</p>
         </section>
 
         {/* 오늘의 일기 박스 */}
@@ -39,6 +38,6 @@ export default async function HomePage() {
           <span className={styles.diaryButton} aria-hidden="true">+</span>
         </Link>
       </main>
-    </>
+    </div>
   )
 }
