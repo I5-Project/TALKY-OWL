@@ -148,7 +148,7 @@ statistics 독립 화면 API
 | `GET/POST` | `/api/auth/[...nextauth]` | NextAuth 핸들러 (카카오 OAuth) | 공개 |
 | `GET` | `/api/v1/users/me` | 내 정보 조회 | 🔒 |
 | `PATCH` | `/api/v1/users/me` | 프로필 수정 | 🔒 |
-| `POST` | `/api/v1/auth/withdraw` | 회원탈퇴 | 🔒 |
+| `DELETE` | `/api/v1/users/me` | 회원탈퇴 | 🔒 |
 
 ### Personal Analysis
 
@@ -250,18 +250,11 @@ statistics 독립 화면 API
 
 ---
 
-#### `POST /api/v1/auth/withdraw`
+#### `DELETE /api/v1/users/me` (회원탈퇴)
 
 - **인증:** 🔒
 - **설명:** 본인 계정 탈퇴. 비식별 처리 후 세션 무효화.
-- **Request Body:**
-
-```json
-{
-  "reason": "string (optional)"
-}
-```
-
+- **Request Body:** 없음
 - **Response 200:**
 
 ```json
@@ -285,7 +278,6 @@ statistics 독립 화면 API
   - 세션 무효화 후 응답
 - **로그 정책:** `UserDeletionLog` 기록 (원문 없이 hash 및 메타만 저장)
 - **확정 필요:**
-  - 경로 최종 확정: `POST /api/v1/auth/withdraw` (AUTH.md) vs `DELETE /api/v1/users/me` (USER.md) 충돌
   - 탈퇴 처리 중 오류 시 롤백 기준
   - 비식별 처리 대상 필드 범위
 
@@ -379,6 +371,13 @@ statistics 독립 화면 API
 - **확정 필요:**
   - 수정 가능 필드 범위 최종 확정
   - nickname 중복 허용 여부
+
+---
+
+#### `DELETE /api/v1/users/me` (회원탈퇴)
+
+- **인증:** 🔒
+- **설명:** 본인 계정 탈퇴. 4.1 Auth 섹션의 회원탈퇴 상세 명세 참조.
 
 ---
 
@@ -1246,7 +1245,7 @@ src/app/api/
 └── v1/
     ├── users/
     │   └── me/
-    │       └── route.ts              # GET, PATCH
+    │       └── route.ts              # GET, PATCH, DELETE(회원탈퇴)
     ├── rooms/
     │   ├── route.ts                  # GET 목록, POST 생성
     │   └── [roomId]/
@@ -1289,9 +1288,6 @@ src/app/api/
     │   └── [analysisId]/
     │       └── route.ts              # GET 단독 판결 결과
     ├── statements/                   # ※ disputes 하위로 통합 여부 확정 필요
-    ├── auth/
-    │   └── withdraw/
-    │       └── route.ts              # POST — 확정 필요: /auth/withdraw vs DELETE /users/me
     └── cron/
         ├── expire-invitations/
         │   └── route.ts
@@ -1319,7 +1315,7 @@ src/app/api/
 
 | 항목 | 문서 A | 문서 B | 상태 |
 |------|--------|--------|------|
-| 회원탈퇴 경로 | `POST /api/v1/auth/withdraw` (AUTH.md) | `DELETE /api/v1/users/me` (USER.md) | **확정 필요** |
+| 회원탈퇴 경로 | `POST /api/v1/auth/withdraw` (AUTH.md) | `DELETE /api/v1/users/me` (USER.md) | **구현 필수: `DELETE /api/v1/users/me` 채택** |
 | 판결 요청 경로 | `/judge` (JUDGEMENT.md, 실제 라우트 파일) | `/judgement` (검토 메모) | **확정 필요** |
 | 판결 결과 조회 경로 | `/result` (JUDGEMENT.md, 실제 라우트 파일) | `/judgement` (검토 메모) | **확정 필요** |
 | 일기 API 경로 | `/api/v1/diary` (스캐폴딩) | `/api/v1/diaries` (DIARY.md) | **확정 필요** |
@@ -1335,7 +1331,7 @@ src/app/api/
 - [ ] Pagination 방식(cursor / offset), 페이지 크기, 응답 구조
 
 ### Auth
-- [ ] 회원탈퇴 경로: `POST /api/v1/auth/withdraw` vs `DELETE /api/v1/users/me`
+- [x] 회원탈퇴 경로: `DELETE /api/v1/users/me` 채택 확정
 - [ ] 닉네임 자동 생성 패턴 및 길이
 - [ ] 약관 동의 여부 확인 기준 (`termsAgreedAt` vs `user_terms_agreements` 테이블)
 - [ ] 세션 커스텀 필드 범위
