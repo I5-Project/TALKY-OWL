@@ -2,6 +2,7 @@
 
 import DiaryCard from '@/components/diary/DiaryCard';
 import type { EmotionType } from '@/components/diary/DiaryCard';
+import styles from './EmotionDiaryList.module.scss';
 
 interface DiaryItem {
   id: string;
@@ -38,7 +39,17 @@ export default function EmotionDiaryList({ selectedDate }: Props) {
   }
 
   return (
-    <ul style={{ listStyle: 'none', marginBlock:'10px',padding: 0, display: 'flex', flexDirection: 'column', gap: '12px' }}>
+    <ul
+      className={styles.list}
+      style={{
+        listStyle: 'none',
+        marginBlock: '10px',
+
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '12px',
+      }}
+    >
       {DUMMY_ITEMS.map((item) => (
         <li key={item.id}>
           <DiaryCard {...item} />
