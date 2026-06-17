@@ -14,10 +14,14 @@
     color: var(--text-primary);
   }
 
+  &__wrapper {
+    position: relative;
+  }
+
   &__textarea {
     width: 100%;
     min-height: fn.r(140);
-    padding: fn.r(14) fn.r(16);
+    padding: fn.r(14) fn.r(16) fn.r(32);
     font-family: v.$font-family-base;
     font-size: v.$font-size-body-s;
     font-weight: v.$font-weight-regular;
@@ -45,9 +49,8 @@
 
   &__footer {
     display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    gap: fn.r(8);
+    flex-direction: column;
+    gap: fn.r(4);
   }
 
   &__filter-warning {
@@ -67,12 +70,15 @@
   }
 
   &__counter {
+    position: absolute;
+    bottom: fn.r(10);
+    right: fn.r(12);
     font-family: v.$font-family-base;
     font-size: v.$font-size-caption;
     font-weight: v.$font-weight-regular;
     line-height: v.$line-height-caption;
     color: var(--text-secondary);
     white-space: nowrap;
-    flex-shrink: 0;
+    pointer-events: none;
   }
 }

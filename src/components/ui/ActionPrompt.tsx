@@ -4,7 +4,6 @@ import Button from './Button';
 import styles from './ActionPrompt.module.scss';
 
 interface ActionPromptProps {
-  message: string;
   primaryLabel: string;
   onPrimary: () => void;
   secondaryLabel: string;
@@ -12,7 +11,6 @@ interface ActionPromptProps {
 }
 
 export default function ActionPrompt({
-  message,
   primaryLabel,
   onPrimary,
   secondaryLabel,
@@ -20,7 +18,6 @@ export default function ActionPrompt({
 }: ActionPromptProps) {
   return (
     <div className={styles.prompt}>
-      <p className={styles.prompt__message}>{message}</p>
       <div className={styles.prompt__actions}>
         <Button variant="outline" onClick={onSecondary}>
           {secondaryLabel}

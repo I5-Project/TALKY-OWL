@@ -21,20 +21,27 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
             {label}
           </label>
         )}
-        <textarea
-          ref={ref}
-          id={textareaId}
-          value={value}
-          maxLength={maxLength}
-          className={[
-            styles.field__textarea,
-            hasError ? styles['field__textarea--error'] : '',
-            className ?? '',
-          ].join(' ')}
-          {...props}
-        />
-        <div className={styles.field__footer}>
-          <div>
+        <div className={styles.field__wrapper}>
+          <textarea
+            ref={ref}
+            id={textareaId}
+            value={value}
+            maxLength={maxLength}
+            className={[
+              styles.field__textarea,
+              hasError ? styles['field__textarea--error'] : '',
+              className ?? '',
+            ].join(' ')}
+            {...props}
+          />
+          {maxLength !== undefined && (
+            <span className={styles.field__counter}>
+              {currentLength}/{maxLength}
+            </span>
+          )}
+        </div>
+        {(isFiltered || error) && (
+          <div className={styles.field__footer}>
             {isFiltered && (
               <span className={styles['field__filter-warning']}>
                 욕설이 감지되어 가리기처리 됩니다
@@ -42,12 +49,7 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
             )}
             {error && <span className={styles.field__error}>{error}</span>}
           </div>
-          {maxLength !== undefined && (
-            <span className={styles.field__counter}>
-              {currentLength}/{maxLength}
-            </span>
-          )}
-        </div>
+        )}
       </div>
     );
   }
