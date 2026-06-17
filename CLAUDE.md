@@ -195,7 +195,6 @@ src/app/(page)/*/*.store.ts
 auth
 common
 room
-personal-analysis
 dispute
 judgement
 gift
