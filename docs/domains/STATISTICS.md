@@ -76,12 +76,7 @@ src/app/(page)/mypage/  마이페이지 내 요약 통계 컴포넌트
 
 ## 8. 관련 API
 
-```txt
-GET /api/v1/statistics/summary   요약 통계 조회
-GET /api/v1/statistics/top-types 결과 유형 Top5 조회
-```
-
-상세 스펙은 `docs/API_SPEC.md` 확정 후 작성.
+→ [`docs/API_SPEC.md`](../API_SPEC.md) §3, §4.9 참조
 
 ---
 

@@ -77,16 +77,7 @@ src/app/(page)/join/
 
 ## 8. 관련 API
 
-```txt
-POST /api/v1/rooms             방 생성
-GET  /api/v1/rooms             방 목록 조회
-GET  /api/v1/rooms/:id         방 상세 조회
-POST /api/v1/rooms/:id/invite  초대 링크 발급
-POST /api/v1/rooms/:id/close   방 종료
-DELETE /api/v1/rooms/:id       방 삭제
-```
-
-상세 스펙은 `docs/API_SPEC.md` 확정 후 작성.
+→ [`docs/API_SPEC.md`](../API_SPEC.md) §3, §4.4 참조
 
 ---
 

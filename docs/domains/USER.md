@@ -74,13 +74,7 @@ src/app/(page)/home/
 
 ## 8. 관련 API
 
-```txt
-GET  /api/v1/users/me        내 정보 조회
-PATCH /api/v1/users/me       프로필 수정
-DELETE /api/v1/users/me      회원탈퇴 (AUTH 도메인과 연계)
-```
-
-상세 스펙은 `docs/API_SPEC.md` 확정 후 작성.
+→ [`docs/API_SPEC.md`](../API_SPEC.md) §3, §4.2 참조
 
 ---
 
