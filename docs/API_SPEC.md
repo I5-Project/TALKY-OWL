@@ -243,8 +243,8 @@ YYYY-MM-DDTHH:mm:ssZ
 
 | 메서드 | 경로 | 설명 | 인증 |
 |--------|------|------|------|
-| `GET` | `/api/v1/statistics/summary` | 요약 통계 조회 | 🔒 |
-| `GET` | `/api/v1/statistics/top-types` | 결과 유형 Top5 조회 | 🔒 |
+| `GET` | `/api/v1/statistics/summary` | 요약 통계 조회 | 공개 |
+| `GET` | `/api/v1/statistics/top-types` | 결과 유형 Top5 조회 | 공개 |
 
 ### Gift Recommendation
 
@@ -1165,8 +1165,8 @@ YYYY-MM-DDTHH:mm:ssZ
 
 #### `GET /api/v1/statistics/summary`
 
-- **인증:** 🔒
-- **설명:** 홈/마이페이지 요약 통계 컴포넌트에 노출할 익명 집계 데이터를 조회한다. Statistics 독립 화면은 MVP 제외이며 API만 제공한다.
+- **인증:** 공개 (비로그인 사용자도 조회 가능)
+- **설명:** 홈 화면 진입 시 비로그인 회원을 포함한 모든 사용자에게 노출할 익명 집계 데이터를 조회한다. Statistics 독립 화면은 MVP 제외이며 API만 제공한다.
 - **Response 200:**
 
 ```json
@@ -1183,13 +1183,14 @@ YYYY-MM-DDTHH:mm:ssZ
 - **처리 정책:**
   - 개인 식별 정보 포함 금지 (익명 집계)
   - 진술 원문, 감정일기 원문 포함 금지
+  - 로그인 여부와 무관하게 응답 동일
 - **확정 필요:** 응답 포함 집계 항목 범위 최종 확정
 
 ---
 
 #### `GET /api/v1/statistics/top-types`
 
-- **인증:** 🔒
+- **인증:** 공개 (비로그인 사용자도 조회 가능)
 - **설명:** 전체 판결 결과 유형 중 상위 5개를 조회한다.
 - **Response 200:**
 
@@ -1209,7 +1210,9 @@ YYYY-MM-DDTHH:mm:ssZ
 }
 ```
 
-- **처리 정책:** 결과 유형은 DB 마스터 기준 (`ConflictTypeDetail`) — Enum 하드코딩 금지
+- **처리 정책:**
+  - 결과 유형은 DB 마스터 기준 (`ConflictTypeDetail`) — Enum 하드코딩 금지
+  - 로그인 여부와 무관하게 응답 동일
 - **확정 필요:**
   - 경로 최종 확정: `/top-types` (STATISTICS.md 기준) vs `/top5`
   - 집계 기준 및 쿼리 성능 정책
