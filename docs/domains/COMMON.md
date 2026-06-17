@@ -80,7 +80,7 @@ src/components/feedback/
 ## 8. 관련 API
 
 ```txt
-공통 응답 구조는 모든 /api/v1/* 에 적용
+공통 응답 구조는 모든 /api/* 에 적용
 ```
 
 상세 스펙은 `docs/API_SPEC.md` 확정 후 작성.
