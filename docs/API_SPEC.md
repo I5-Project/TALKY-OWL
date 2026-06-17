@@ -128,7 +128,7 @@ statistics 독립 화면 API
 
 모든 날짜/시간은 ISO 8601 형식을 사용한다.
 
-```
+```text
 YYYY-MM-DDTHH:mm:ssZ
 예시: 2026-06-17T09:00:00Z
 ```
