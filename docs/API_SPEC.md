@@ -126,7 +126,12 @@ statistics 독립 화면 API
 
 ### 날짜/시간 포맷
 
-> 확정 필요: ISO 8601 (`YYYY-MM-DDTHH:mm:ssZ`) 기준으로 제안하나 팀 확정 필요.
+모든 날짜/시간은 ISO 8601 형식을 사용한다.
+
+```
+YYYY-MM-DDTHH:mm:ssZ
+예시: 2026-06-17T09:00:00Z
+```
 
 ### ID 명명 규칙
 
@@ -135,7 +140,30 @@ statistics 독립 화면 API
 
 ### Pagination
 
-> 확정 필요: Pagination 방식(cursor / offset), 페이지 크기, 응답 구조 미확정.
+목록 응답은 `data`와 `page` 두 필드로 구성한다.
+
+```json
+{
+  "success": true,
+  "data": {
+    "items": [ ... ]
+  },
+  "page": {
+    "page": 1,
+    "totalPages": 5,
+    "sortBy": "createdAt",
+    "isNext": true
+  },
+  "error": null
+}
+```
+
+| 필드 | 타입 | 설명 |
+|------|------|------|
+| `page` | number | 현재 페이지 번호 (1-based) |
+| `totalPages` | number | 전체 페이지 수 |
+| `sortBy` | string | 정렬 기준 필드명 |
+| `isNext` | boolean | 다음 페이지 존재 여부 |
 
 ---
 
@@ -523,9 +551,9 @@ statistics 독립 화면 API
   - `ai_chat / invite_ready`: `creator_user_id` 기준 조회
   - `one_to_one` 이후: `dispute_participants.user_id` 기준 조회
   - `deleted` 상태 방 제외
+- **Pagination:** 공통 Pagination 구조 적용 (§2 참조)
 - **확정 필요:**
-  - Pagination 방식 및 구조
-  - 정렬 기준
+  - 정렬 기준 (`sortBy` 허용 값)
 
 ---
 
@@ -1030,9 +1058,9 @@ statistics 독립 화면 API
 ```
 
 - **처리 정책:** `emotion_diaries.user_id` 기준 본인 데이터만 조회
+- **Pagination:** 공통 Pagination 구조 적용 (§2 참조)
 - **확정 필요:**
   - 목록 응답에 `content` 포함 여부
-  - Pagination 방식
 
 ---
 
@@ -1327,8 +1355,8 @@ src/app/api/
 
 ### 공통
 - [ ] 공통 응답 구조 (`success / data / error`) 팀 최종 확정
-- [ ] 날짜/시간 포맷 확정
-- [ ] Pagination 방식(cursor / offset), 페이지 크기, 응답 구조
+- [x] 날짜/시간 포맷 확정: ISO 8601 (`YYYY-MM-DDTHH:mm:ssZ`)
+- [x] Pagination 방식 확정: offset 기반, `data` + `page` 두 필드 구조 (page/totalPages/sortBy/isNext)
 
 ### Auth
 - [x] 회원탈퇴 경로: `DELETE /api/v1/users/me` 채택 확정
