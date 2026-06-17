@@ -5,6 +5,10 @@
 // ===========================
 
 :root {
+  // Base
+  --color-white: #{v.$color-white};
+  --color-black: #{v.$color-black};
+
   // Text
   --text-primary: #{v.$color-black-500};
   --text-secondary: #{v.$color-black-300};
