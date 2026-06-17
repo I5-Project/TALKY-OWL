@@ -35,6 +35,7 @@ const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
               className ?? '',
             ].join(' ')}
             {...props}
+            data-placeholder={!props.value ? 'true' : undefined}
           >
             {placeholder && (
               <option value="" disabled>

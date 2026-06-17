@@ -15,7 +15,6 @@
   display: flex;
   flex-direction: column;
   gap: fn.r(16);
-  overflow-y: auto;
 }
 
 .section {
@@ -33,7 +32,6 @@
 .categories {
   display: flex;
   flex-direction: row;
-  gap: fn.r(8);
 }
 
 .categoryItem {
@@ -41,15 +39,7 @@
   flex-direction: column;
   align-items: center;
   gap: fn.r(4);
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 0;
   width: fn.r(44);
-
-  &--selected {
-    // selected state managed on child elements
-  }
 }
 
 .categoryIcon {
@@ -60,23 +50,20 @@
   height: fn.r(44);
   border-radius: fn.r(8);
   background-color: var(--bg-surface);
-  border: 1px solid transparent;
-  transition: border-color 0.15s ease;
-
-  &--selected {
-    border-color: var(--border-brand);
-  }
+  border: 1px solid var(--border-brand);
 }
 
 .categoryLabel {
   @include m.text-caption;
-  color: var(--text-secondary);
+  font-weight: v.$font-weight-bold;
+  color: var(--text-primary);
   white-space: nowrap;
+}
 
-  &--selected {
-    font-weight: v.$font-weight-bold;
-    color: var(--text-primary);
-  }
+.statementGroup {
+  display: flex;
+  flex-direction: column;
+  gap: fn.r(8);
 }
 
 .textarea {
@@ -88,6 +75,35 @@
   bottom: 0;
   left: 0;
   right: 0;
-  padding: fn.r(16) fn.r(20);
+  padding: fn.r(40) fn.r(20);
   background-color: var(--bg-page);
+}
+
+.modalOverlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  padding: fn.r(20);
+}
+
+.modal {
+  background-color: var(--bg-page);
+  border-radius: fn.r(16);
+  padding: fn.r(24) fn.r(20);
+  width: 100%;
+  max-width: fn.r(320);
+  display: flex;
+  flex-direction: column;
+  gap: fn.r(20);
+}
+
+.modalText {
+  @include m.text-body-m;
+  color: var(--text-primary);
+  margin: 0;
+  text-align: center;
 }
