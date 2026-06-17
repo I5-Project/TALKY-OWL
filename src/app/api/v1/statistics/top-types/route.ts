@@ -12,9 +12,20 @@ export async function GET() {
 
     // result = { items: [...], page: {...} } 를 data 아래로 중첩
     return NextResponse.json<ApiResponse<typeof result>>({ success: true, data: result })
-  } catch {
-    // DB 오류 등 예상치 못한 서버 에러
-    // HTTP 500: 서버 내부 오류
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error)
+    const isTimeout = /timeout|timed out/i.test(message)
+
+    // API 오류 로깅 (CLAUDE.md §11 로그 대상: API 오류)
+    console.error('[statistics/top-types] api error', { isTimeout, message })
+
+    if (isTimeout) {
+      return NextResponse.json<ApiResponse>(
+        { success: false, error: { code: 'TIMEOUT', message: '요청 처리 시간이 초과되었습니다.' } },
+        { status: 504 },
+      )
+    }
+
     return NextResponse.json<ApiResponse>(
       { success: false, error: { code: 'INTERNAL_SERVER_ERROR', message: '서버 오류가 발생했습니다.' } },
       { status: 500 },
