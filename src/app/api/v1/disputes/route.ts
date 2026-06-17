@@ -1,0 +1,236 @@
+import { NextRequest, NextResponse } from 'next/server'
+import { getServerSession } from 'next-auth'
+import { z } from 'zod'
+import { type Prisma, type CategoryGroup as PrismaCategoryGroup } from '@prisma/client'
+import { authOptions } from '@/lib/auth'
+import { prisma } from '@/lib/db'
+import { getSessionUserId } from '@/lib/auth/session'
+import { VALID_CATEGORY_GROUPS } from '@/lib/constants/dispute'
+import type { ApiResponse, CategoryGroup } from '@/types/common'
+import type { DisputeDto, DisputeParticipantDto, DisputeListResponse } from '@/types/dispute'
+
+const createDisputeSchema = z.object({
+  roomId: z.string().uuid('유효하지 않은 방 ID입니다.'),
+  categoryGroup: z.enum(VALID_CATEGORY_GROUPS, {
+    errorMap: () => ({ message: '카테고리는 romance, family, friend, work 중 하나여야 합니다.' }),
+  }),
+  title: z
+    .string()
+    .min(1, '제목을 입력해주세요.')
+    .max(200, '제목은 200자 이하로 입력해주세요.'),
+  description: z.string().optional(),
+  sourceConversationId: z.string().uuid('유효하지 않은 대화 ID입니다.').optional(),
+})
+
+type DisputeForList = Prisma.DisputeGetPayload<{
+  include: { participants: true }
+}>
+
+function toParticipantDto(p: DisputeForList['participants'][number]): DisputeParticipantDto {
+  return {
+    id: p.id,
+    disputeId: p.disputeId,
+    userId: p.userId,
+    role: p.role.toLowerCase() as DisputeParticipantDto['role'],
+    joinedAt: p.joinedAt.toISOString(),
+    createdAt: p.createdAt.toISOString(),
+  }
+}
+
+function toDisputeDto(dispute: DisputeForList): DisputeDto {
+  return {
+    id: dispute.id,
+    roomId: dispute.roomId,
+    sourceConversationId: dispute.sourceConversationId ?? null,
+    categoryGroup: dispute.categoryGroup.toLowerCase() as CategoryGroup,
+    title: dispute.title,
+    description: dispute.description ?? null,
+    status: dispute.status.toLowerCase() as DisputeDto['status'],
+    createdAt: dispute.createdAt.toISOString(),
+    updatedAt: dispute.updatedAt.toISOString(),
+    participants: dispute.participants.map(toParticipantDto),
+  }
+}
+
+// GET /api/v1/disputes
+// 내가 참여한 사건 목록 조회. categoryGroup으로 필터링, page/limit으로 페이지네이션
+export async function GET(request: NextRequest) {
+  const session = await getServerSession(authOptions)
+  const userId = getSessionUserId(session)
+  if (!userId) {
+    return NextResponse.json<ApiResponse>(
+      { success: false, error: { code: 'UNAUTHORIZED', message: '로그인이 필요합니다.' } },
+      { status: 401 },
+    )
+  }
+
+  const { searchParams } = new URL(request.url)
+  const rawCategory = searchParams.get('categoryGroup')
+  const page = Math.max(1, parseInt(searchParams.get('page') ?? '1', 10))
+  const limit = Math.min(50, Math.max(1, parseInt(searchParams.get('limit') ?? '20', 10)))
+
+  if (rawCategory !== null && !VALID_CATEGORY_GROUPS.includes(rawCategory as CategoryGroup)) {
+    return NextResponse.json<ApiResponse>(
+      {
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: '유효하지 않은 카테고리입니다.',
+          fieldErrors: [
+            {
+              field: 'categoryGroup',
+              code: 'INVALID_ENUM_VALUE',
+              message: '카테고리는 romance, family, friend, work 중 하나여야 합니다.',
+            },
+          ],
+        },
+      },
+      { status: 400 },
+    )
+  }
+
+  const where = {
+    deletedAt: null,
+    participants: { some: { userId } },
+    ...(rawCategory ? { categoryGroup: rawCategory.toUpperCase() as PrismaCategoryGroup } : {}),
+  }
+
+  try {
+    const [disputes, total] = await prisma.$transaction([
+      prisma.dispute.findMany({
+        where,
+        include: { participants: true },
+        orderBy: { createdAt: 'desc' },
+        take: limit,
+        skip: (page - 1) * limit,
+      }),
+      prisma.dispute.count({ where }),
+    ])
+
+    return NextResponse.json<ApiResponse<DisputeListResponse>>({
+      success: true,
+      data: { disputes: disputes.map(toDisputeDto), total, page, limit },
+    })
+  } catch {
+    return NextResponse.json<ApiResponse>(
+      { success: false, error: { code: 'INTERNAL_SERVER_ERROR', message: '서버 오류가 발생했습니다.' } },
+      { status: 500 },
+    )
+  }
+}
+
+// POST /api/v1/disputes
+// 사건 생성 (1:1 전환). 방이 one_to_one 상태일 때만 생성 가능. 생성자는 role_a로 확정
+export async function POST(request: NextRequest) {
+  const session = await getServerSession(authOptions)
+  const userId = getSessionUserId(session)
+  if (!userId) {
+    return NextResponse.json<ApiResponse>(
+      { success: false, error: { code: 'UNAUTHORIZED', message: '로그인이 필요합니다.' } },
+      { status: 401 },
+    )
+  }
+
+  let body: unknown
+  try {
+    body = await request.json()
+  } catch {
+    return NextResponse.json<ApiResponse>(
+      { success: false, error: { code: 'INVALID_REQUEST', message: '요청 본문을 파싱할 수 없습니다.' } },
+      { status: 400 },
+    )
+  }
+
+  const parsed = createDisputeSchema.safeParse(body)
+  if (!parsed.success) {
+    return NextResponse.json<ApiResponse>(
+      {
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: '입력값이 올바르지 않습니다.',
+          fieldErrors: parsed.error.errors.map((e) => ({
+            field: e.path.join('.'),
+            code: e.code,
+            message: e.message,
+          })),
+        },
+      },
+      { status: 400 },
+    )
+  }
+
+  const { roomId, categoryGroup, title, description, sourceConversationId } = parsed.data
+
+  try {
+    const room = await prisma.disputeRoom.findFirst({
+      where: { id: roomId, creatorUserId: userId, deletedAt: null },
+    })
+    if (!room) {
+      return NextResponse.json<ApiResponse>(
+        { success: false, error: { code: 'ROOM_NOT_FOUND', message: '방을 찾을 수 없습니다.' } },
+        { status: 404 },
+      )
+    }
+
+    // AI 대화방 없이 바로 1:1 사건 생성 금지
+    if (room.roomMode !== 'ONE_TO_ONE') {
+      return NextResponse.json<ApiResponse>(
+        {
+          success: false,
+          error: {
+            code: 'ROOM_NOT_READY',
+            message: '상대방이 참여한 1:1 방에서만 사건을 생성할 수 있습니다.',
+            details: `현재 방 상태: ${room.roomMode.toLowerCase()}`,
+          },
+        },
+        { status: 422 },
+      )
+    }
+
+    // roomId는 DB unique 제약이 있어 소프트 삭제된 레코드도 포함해서 확인
+    const existing = await prisma.dispute.findFirst({
+      where: { roomId },
+    })
+    if (existing) {
+      return NextResponse.json<ApiResponse>(
+        {
+          success: false,
+          error: { code: 'DISPUTE_ALREADY_EXISTS', message: '이미 사건이 존재하는 방입니다.' },
+        },
+        { status: 409 },
+      )
+    }
+
+    // 사건 생성 + role_a 참여자 등록 (원자적 처리)
+    const dispute = await prisma.$transaction(async (tx) => {
+      const created = await tx.dispute.create({
+        data: {
+          roomId,
+          categoryGroup: categoryGroup.toUpperCase() as PrismaCategoryGroup,
+          title,
+          description,
+          sourceConversationId,
+          status: 'DRAFT',
+        },
+      })
+      await tx.disputeParticipant.create({
+        data: { disputeId: created.id, userId, role: 'ROLE_A' },
+      })
+      return tx.dispute.findUniqueOrThrow({
+        where: { id: created.id },
+        include: { participants: true },
+      })
+    })
+
+    return NextResponse.json<ApiResponse<DisputeDto>>(
+      { success: true, data: toDisputeDto(dispute) },
+      { status: 201 },
+    )
+  } catch {
+    return NextResponse.json<ApiResponse>(
+      { success: false, error: { code: 'INTERNAL_SERVER_ERROR', message: '서버 오류가 발생했습니다.' } },
+      { status: 500 },
+    )
+  }
+}
