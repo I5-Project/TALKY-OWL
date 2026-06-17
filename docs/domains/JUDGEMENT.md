@@ -97,12 +97,7 @@ src/app/(page)/disputes/   판결 결과 확인
 
 ## 8. 관련 API
 
-```txt
-POST /api/v1/disputes/:id/judge   AI 판결 요청
-GET  /api/v1/disputes/:id/result  판결 결과 조회
-```
-
-상세 스펙은 `docs/API_SPEC.md` 확정 후 작성.
+→ [`docs/API_SPEC.md`](../API_SPEC.md) §3, §4.6 참조
 
 ---
 

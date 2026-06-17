@@ -74,12 +74,7 @@ src/app/(page)/terms/
 
 ## 8. 관련 API
 
-```txt
-GET  /api/auth/[...nextauth]   NextAuth 핸들러
-POST /api/v1/auth/withdraw     회원탈퇴
-```
-
-상세 스펙은 `docs/API_SPEC.md` 확정 후 작성.
+→ [`docs/API_SPEC.md`](../API_SPEC.md) §3, §4.1 참조
 
 ---
 

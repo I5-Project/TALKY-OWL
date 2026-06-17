@@ -69,11 +69,7 @@ src/app/(page)/calendar/
 
 ## 8. 관련 API
 
-```txt
-GET /api/v1/calendar?year=&month=   월별 기록 조회
-```
-
-상세 스펙은 `docs/API_SPEC.md` 확정 후 작성.
+→ [`docs/API_SPEC.md`](../API_SPEC.md) §3, §4.8 참조
 
 ---
 

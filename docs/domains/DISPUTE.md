@@ -86,16 +86,7 @@ src/app/(page)/join/
 
 ## 8. 관련 API
 
-```txt
-POST /api/v1/disputes                        사건 생성 (1:1 전환)
-GET  /api/v1/disputes/:id                    사건 상세 조회
-POST /api/v1/disputes/:id/statements         진술 작성
-POST /api/v1/disputes/:id/statements/submit  진술 종료
-POST /api/v1/disputes/:id/close              사건 종료
-DELETE /api/v1/disputes/:id                  사건 삭제
-```
-
-상세 스펙은 `docs/API_SPEC.md` 확정 후 작성.
+→ [`docs/API_SPEC.md`](../API_SPEC.md) §3, §4.5 참조
 
 ---
 

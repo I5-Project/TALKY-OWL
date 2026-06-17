@@ -73,15 +73,7 @@ src/app/(page)/calendar/   달력에서 일기 마킹 연계
 
 ## 8. 관련 API
 
-```txt
-POST  /api/v1/diaries          일기 작성
-GET   /api/v1/diaries          일기 목록 조회
-GET   /api/v1/diaries/:id      일기 상세 조회
-PATCH /api/v1/diaries/:id      일기 수정
-DELETE /api/v1/diaries/:id     일기 삭제
-```
-
-상세 스펙은 `docs/API_SPEC.md` 확정 후 작성.
+→ [`docs/API_SPEC.md`](../API_SPEC.md) §3, §4.7 참조
 
 ---
 
