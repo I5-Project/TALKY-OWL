@@ -29,6 +29,8 @@ interface AvatarGroupProps {
   className?: string;
 }
 
+const FALLBACK_SRC = '/images/common/thumbnail-default.png';
+
 export default function Avatar({ src, alt, size: sizeProp = 's', className }: AvatarProps) {
   const groupSize = useContext(AvatarSizeContext);
   const size = groupSize ?? sizeProp;
@@ -36,7 +38,7 @@ export default function Avatar({ src, alt, size: sizeProp = 's', className }: Av
 
   return (
     <MuiAvatar
-      src={src}
+      src={src ?? FALLBACK_SRC}
       alt={alt}
       className={`${styles.avatar} ${className ?? ''}`}
       sx={{
