@@ -24,7 +24,7 @@ export default function Tab({ items, activeValue, onChange, className }: TabProp
             onClick={() => onChange(item.value)}
             type="button"
           >
-            {item.label}
+            <span className={styles.label}>{item.label}</span>
           </button>
         );
       })}

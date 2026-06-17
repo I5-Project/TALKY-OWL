@@ -5,8 +5,13 @@
   gap: fn.r(8);
 }
 
+.label {
+  font-size: fn.r(16);
+  line-height: fn.r(28);
+}
+
 .tabItem {
-  height: fn.r(44);
+  height: fn.r(36);
   padding: 0 fn.r(16);
   border-radius: fn.r(8);
   font-family: var(--font-family-base);
