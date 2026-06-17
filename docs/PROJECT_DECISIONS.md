@@ -227,6 +227,6 @@ SUPABASE_SERVICE_ROLE_KEY는 서버 전용
 - 전체 디자인 시스템은 SCSS / SCSS Module을 유지한다.
 - MUI는 달력 / 날짜 선택 UI 전용으로만 사용한다.
 - MUI 컴포넌트는 src/components/calendar/ 내 래핑 컴포넌트를 통해서만 사용한다.
-- 아이콘은 기존 lucide-react를 우선 사용한다.
+- 아이콘은 @mui/icons-material을 사용한다. 단, 감정일기(diary) 기능 내 아이콘은 lucide-react를 유지한다.
 - 달력 라이브러리는 래핑 컴포넌트 구조로 교체 가능성을 확보한다.
 ```
