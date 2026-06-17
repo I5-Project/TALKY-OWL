@@ -3,28 +3,19 @@
 
 .tabs {
   display: flex;
-  width: 100%;
-  border-bottom: 1px solid var(--border-default);
 
   &__tab {
     flex: 1;
-    height: fn.r(44);
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    height: fn.r(42);
     font-family: v.$font-family-base;
-    font-size: v.$font-size-body-s;
-    font-weight: v.$font-weight-medium;
+    font-weight: v.$font-weight-bold;
     color: var(--text-secondary);
-    background: none;
-    border: none;
     border-bottom: 2px solid transparent;
-    margin-bottom: -1px;
     cursor: pointer;
 
     &--active {
-      color: var(--text-brand);
-      border-bottom-color: var(--border-brand);
+      color: var(--text-primary);
+      border-bottom: 2px solid var(--text-primary);
     }
   }
 }

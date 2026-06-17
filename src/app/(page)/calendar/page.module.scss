@@ -1,5 +1,7 @@
 @use '../../../styles/abstracts/variables' as v;
 @use '../../../styles/abstracts/mixins' as typo;
+@use '../../../styles/abstracts/functions' as fn;
+
 .summary {
   display: flex;
   align-items: center;
@@ -18,6 +20,14 @@
     font-weight: bold;
   }
 
-  
+}
+
+.diaryMode {
+  margin-top: fn.r(24);
+}
+
+.tabs {
+  margin-bottom: fn.r(16);
+  padding: 0 fn.r(20);
 }
 

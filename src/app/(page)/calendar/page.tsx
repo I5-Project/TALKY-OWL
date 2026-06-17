@@ -3,11 +3,22 @@
 import { useState } from 'react';
 import dayjs from 'dayjs';
 import CalendarView from '@/components/calendar/CalendarView';
-import DiaryMode from '@/components/calendar/DiaryMode';
 import styles from './page.module.scss';
+import EmotionDiaryList from '@/components/diary/EmotionDiaryList';
+import RecordList from '@/components/calendar/RecordList';
+import Tabs from '@/components/ui/Tabs';
+import type { TabItem } from '@/components/ui/Tabs';
+
+type DiaryTab = 'emotion' | 'record';
+
+const tabItems: TabItem<DiaryTab>[] = [
+  { key: 'emotion', label: '감정일기' },
+  { key: 'record', label: '사건기록' },
+];
 
 export default function Calendar() {
   const [selectedDate, setSelectedDate] = useState(dayjs().format('YYYY-MM-DD'));
+  const [activeTab, setActiveTab] = useState<DiaryTab>('emotion');
 
   return (
     <div>
@@ -19,7 +30,13 @@ export default function Calendar() {
       </div>
 
       <div className={styles.diary}>
-        <DiaryMode selectedDate={selectedDate} />
+        <div className={styles.diaryMode}>
+          <Tabs tabs={tabItems} activeKey={activeTab} onChange={setActiveTab} className={styles.tabs} />
+          <div>
+            {activeTab === 'emotion' && <EmotionDiaryList selectedDate={selectedDate} />}
+            {activeTab === 'record' && <RecordList selectedDate={selectedDate} />}
+          </div>
+        </div>
       </div>
     </div>
   );
