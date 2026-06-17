@@ -25,7 +25,8 @@
   width: fn.r(44);
   height: fn.r(44);
   border-radius: fn.r(8);
-  background-color: var(--bg-disabled);
+  background-color: var(--bg-page);
+  border: 1px solid var(--border-default);
   color: var(--icon-secondary);
 
   svg {
@@ -35,15 +36,19 @@
   }
 
   &--selected {
-    background-color: var(--icon-primary);
-    color: var(--text-inverse);
+    border-color: var(--border-brand);
+    color: var(--icon-primary);
   }
 }
 
 .label {
   font-size: fn.r(12);
-  font-weight: 700;
+  font-weight: 400;
   line-height: fn.r(20);
   color: var(--text-primary);
   white-space: nowrap;
+
+  &--selected {
+    font-weight: 700;
+  }
 }

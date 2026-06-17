@@ -12,6 +12,7 @@ export type Category = '전체' | '연애' | '직장' | '친구' | '가족';
 interface CategoryFilterProps {
   value: Category;
   onChange: (category: Category) => void;
+  mode?: 'filter' | 'single';
 }
 
 const CATEGORIES: { key: Category; Icon: React.ElementType }[] = [
@@ -22,10 +23,14 @@ const CATEGORIES: { key: Category; Icon: React.ElementType }[] = [
   { key: '가족', Icon: FamilyRestroomIcon },
 ];
 
-export default function CategoryFilter({ value, onChange }: CategoryFilterProps) {
+export default function CategoryFilter({ value, onChange, mode = 'filter' }: CategoryFilterProps) {
+  const visibleCategories = mode === 'single'
+    ? CATEGORIES.filter(({ key }) => key === value)
+    : CATEGORIES;
+
   return (
     <div className={styles.container}>
-      {CATEGORIES.map(({ key, Icon }) => {
+      {visibleCategories.map(({ key, Icon }) => {
         const isSelected = value === key;
         return (
           <button
@@ -37,7 +42,9 @@ export default function CategoryFilter({ value, onChange }: CategoryFilterProps)
             <div className={`${styles.iconBox} ${isSelected ? styles['iconBox--selected'] : ''}`}>
               <Icon />
             </div>
-            <span className={styles.label}>{key}</span>
+            <span className={`${styles.label} ${isSelected ? styles['label--selected'] : ''}`}>
+              {key}
+            </span>
           </button>
         );
       })}
