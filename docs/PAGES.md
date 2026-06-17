@@ -9,7 +9,7 @@ TALKY-OWL MVP 전체 페이지 목록
 
 ## 1. 전체 흐름 요약
 
-```
+```txt
 홈 (home/)
   ↓ 새 사건 + → 카테고리 선택
 AI 대화방 (rooms/[roomId])
