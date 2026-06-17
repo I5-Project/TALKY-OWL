@@ -1,3 +1,3 @@
 export default function disputes() {
-  return <></>;
+  return <>준비중</>;
 }

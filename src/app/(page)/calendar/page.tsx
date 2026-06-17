@@ -21,22 +21,27 @@ export default function Calendar() {
 
   return (
     <div>
-      <CalendarView onDateChange={setSelectedDate} />
+      <CalendarView onDateChange={setSelectedDate} selectedDate={selectedDate} />
 
       <div className={styles.summary}>
         <div className={styles['summary__label']}>이달 화해횟수</div>
         <div className={styles['summary__count']}>2번</div>
       </div>
 
-      <div className={styles.diary}>
-        <div className={styles.diaryMode}>
-          <Tabs tabs={tabItems} activeId={activeTab} onChange={(v) => setActiveTab(v as DiaryTab)} />
-          <div>
-            {activeTab === 'emotion' && <EmotionDiaryList selectedDate={selectedDate} />}
-            {activeTab === 'record' && <RecordList selectedDate={selectedDate} />}
-          </div>
+      <div className={styles.diaryMode}>
+        <Tabs tabs={tabItems} activeId={activeTab} onChange={(v) => setActiveTab(v as DiaryTab)} />
+        <div className={styles.tabContent}>
+          {activeTab === 'emotion' && <EmotionDiaryList selectedDate={selectedDate} />}
+          {activeTab === 'record' && <RecordList selectedDate={selectedDate} />}
         </div>
       </div>
+
+      {activeTab === 'emotion' && (
+        <button className={styles.fab}>
+          <span>새 일기</span>
+          <span>+</span>
+        </button>
+      )}
     </div>
   );
 }

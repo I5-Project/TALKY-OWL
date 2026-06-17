@@ -19,15 +19,28 @@
   &__count {
     font-weight: bold;
   }
-
 }
 
 .diaryMode {
   margin-top: fn.r(24);
 }
 
-.tabs {
-  margin-bottom: fn.r(16);
-  padding: 0 fn.r(20);
+.tabContent {
+  min-height: fn.r(300);
 }
 
+.fab {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: fn.r(115);
+  margin-left: auto;
+  margin-right: fn.r(20);
+  margin-bottom: fn.r(24);
+  padding: fn.r(12) fn.r(20);
+  background-color: v.$color-black-700;
+  color: v.$color-white;
+  border: none;
+  border-radius: fn.r(999);
+  @include typo.text-title-s;
+}
