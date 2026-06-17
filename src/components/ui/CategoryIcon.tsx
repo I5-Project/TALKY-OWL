@@ -4,7 +4,14 @@ import Diversity3Icon from '@mui/icons-material/Diversity3';
 import FamilyRestroomIcon from '@mui/icons-material/FamilyRestroom';
 import type { CategoryGroup } from '@/types/common';
 
-export const CATEGORY_ICON_MAP: Record<CategoryGroup, React.ElementType> = {
+import type { ElementType } from 'react';
+import FavoriteIcon from '`@mui/icons-material/Favorite`';
+import BusinessCenterIcon from '`@mui/icons-material/BusinessCenter`';
+import Diversity3Icon from '`@mui/icons-material/Diversity3`';
+import FamilyRestroomIcon from '`@mui/icons-material/FamilyRestroom`';
+import type { CategoryGroup } from '`@/types/common`';
+
+export const CATEGORY_ICON_MAP: Record<CategoryGroup, ElementType> = {
   romance: FavoriteIcon,
   work:    BusinessCenterIcon,
   friend:  Diversity3Icon,
