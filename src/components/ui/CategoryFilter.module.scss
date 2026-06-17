@@ -1,0 +1,49 @@
+@use '../../styles/abstracts/functions' as fn;
+
+.container {
+  display: flex;
+  flex-direction: row;
+  gap: fn.r(4);
+}
+
+.item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: fn.r(4);
+  width: fn.r(44);
+  padding: 0;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.iconBox {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: fn.r(44);
+  height: fn.r(44);
+  border-radius: fn.r(8);
+  background-color: var(--bg-disabled);
+  color: var(--icon-secondary);
+
+  svg {
+    width: fn.r(24);
+    height: fn.r(24);
+    display: block;
+  }
+
+  &--selected {
+    background-color: var(--icon-primary);
+    color: var(--text-inverse);
+  }
+}
+
+.label {
+  font-size: fn.r(12);
+  font-weight: 700;
+  line-height: fn.r(20);
+  color: var(--text-primary);
+  white-space: nowrap;
+}
