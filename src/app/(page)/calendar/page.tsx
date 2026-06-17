@@ -7,14 +7,13 @@ import styles from './page.module.scss';
 import EmotionDiaryList from '@/components/diary/EmotionDiaryList';
 import RecordList from '@/components/calendar/RecordList';
 import Tabs from '@/components/ui/Tabs';
-import type { TabItem } from '@/components/ui/Tabs';
 
 type DiaryTab = 'emotion' | 'record';
 
-const tabItems: TabItem<DiaryTab>[] = [
-  { key: 'emotion', label: '감정일기' },
-  { key: 'record', label: '사건기록' },
-];
+const tabItems = [
+  { id: 'emotion', label: '감정일기' },
+  { id: 'record', label: '사건기록' },
+] satisfies { id: DiaryTab; label: string }[];
 
 export default function Calendar() {
   const [selectedDate, setSelectedDate] = useState(dayjs().format('YYYY-MM-DD'));
@@ -31,7 +30,7 @@ export default function Calendar() {
 
       <div className={styles.diary}>
         <div className={styles.diaryMode}>
-          <Tabs tabs={tabItems} activeKey={activeTab} onChange={setActiveTab} className={styles.tabs} />
+          <Tabs tabs={tabItems} activeId={activeTab} onChange={(v) => setActiveTab(v as DiaryTab)} />
           <div>
             {activeTab === 'emotion' && <EmotionDiaryList selectedDate={selectedDate} />}
             {activeTab === 'record' && <RecordList selectedDate={selectedDate} />}

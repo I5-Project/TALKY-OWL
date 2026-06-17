@@ -2,27 +2,29 @@
 
 import styles from './Tabs.module.scss';
 
-export type TabItem<T extends string = string> = {
-  key: T;
+interface Tab {
+  id: string;
   label: string;
-};
+}
 
-type TabsProps<T extends string> = {
-  tabs: TabItem<T>[];
-  activeKey: T;
-  onChange: (key: T) => void;
-  className?: string;
-};
+interface TabsProps {
+  tabs: Tab[];
+  activeId: string;
+  onChange: (id: string) => void;
+}
 
-export default function Tabs<T extends string>({ tabs, activeKey, onChange, className }: TabsProps<T>) {
+export default function Tabs({ tabs, activeId, onChange }: TabsProps) {
   return (
-    <div className={[styles.tabs, className].filter(Boolean).join(' ')}>
+    <div className={styles.tabs} role="tablist">
       {tabs.map((tab) => (
         <button
-          key={tab.key}
-          type="button"
-          className={`${styles.tabs__tab} ${activeKey === tab.key ? styles['tabs__tab--active'] : ''}`}
-          onClick={() => onChange(tab.key)}
+          key={tab.id}
+          role="tab"
+          aria-selected={activeId === tab.id}
+          className={`${styles.tabs__tab} ${
+            activeId === tab.id ? styles['tabs__tab--active'] : ''
+          }`}
+          onClick={() => onChange(tab.id)}
         >
           {tab.label}
         </button>

@@ -11,7 +11,7 @@ const EMOTION_ICON_MAP: Record<Feel, string> = {
   기쁨: '/images/icons/emotions/emotion-happy.svg',
   슬픔: '/images/icons/emotions/emotion-sad.svg',
   보통: '/images/icons/emotions/emotion-neutral.svg',
-  짜증: '/images/icons/emotions/emotion-irritated.svg',
+  짜증: '/images/icons/emotions/emotion-annoyed.svg',
   화남: '/images/icons/emotions/emotion-angry.svg',
 };
 
