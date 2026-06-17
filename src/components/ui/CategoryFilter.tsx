@@ -7,11 +7,17 @@ import styles from './CategoryFilter.module.scss';
 
 export type Category = 'all' | CategoryGroup;
 
-interface CategoryFilterProps {
-  value: Category;
-  onChange: (category: Category) => void;
-  mode?: 'filter' | 'single';
-}
+type CategoryFilterProps =
+  | {
+      mode?: 'filter';
+      value: Category;
+      onChange: (category: Category) => void;
+    }
+  | {
+      mode: 'single';
+      value: CategoryGroup;
+      onChange: (category: CategoryGroup) => void;
+    };
 
 const CATEGORIES: { key: Category; Icon: React.ElementType; label: string }[] = [
   { key: 'all',     Icon: GridViewRoundedIcon,        label: '전체' },
@@ -21,7 +27,9 @@ const CATEGORIES: { key: Category; Icon: React.ElementType; label: string }[] = 
   { key: 'family',  Icon: CATEGORY_ICON_MAP.family,   label: CATEGORY_LABEL_MAP.family },
 ];
 
-export default function CategoryFilter({ value, onChange, mode = 'filter' }: CategoryFilterProps) {
+export default function CategoryFilter(props: CategoryFilterProps) {
+  const { value, mode = 'filter' } = props;
+
   const visibleCategories = mode === 'single'
     ? CATEGORIES.filter(({ key }) => key === value)
     : CATEGORIES;
@@ -35,7 +43,13 @@ export default function CategoryFilter({ value, onChange, mode = 'filter' }: Cat
             key={key}
             type="button"
             className={styles.item}
-            onClick={() => onChange(key)}
+            onClick={() => {
+              if (props.mode === 'single') {
+                props.onChange(key as CategoryGroup);
+              } else {
+                props.onChange(key);
+              }
+            }}
           >
             <div className={`${styles.iconBox} ${isSelected ? styles['iconBox--selected'] : ''}`}>
               <Icon />

@@ -11,7 +11,7 @@
 }
 
 .tabItem {
-  height: fn.r(36);
+  min-height: fn.r(44);
   padding: 0 fn.r(16);
   border-radius: fn.r(8);
   font-family: var(--font-family-base);
