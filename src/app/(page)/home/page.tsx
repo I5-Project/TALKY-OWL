@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import Header from '@/components/layout/Header'
+import StatsCategorySection from '@/components/home/StatsCategorySection'
 import styles from './page.module.scss'
 
 export default async function HomePage() {
@@ -37,6 +38,9 @@ export default async function HomePage() {
           </div>
           <span className={styles.diaryButton} aria-hidden="true">+</span>
         </Link>
+
+        {/* 고민 카테고리 TOP4 */}
+        <StatsCategorySection />
       </main>
     </div>
   )
