@@ -1,13 +1,10 @@
 'use client';
 
 import GridViewRoundedIcon from '@mui/icons-material/GridViewRounded';
-import FavoriteIcon from '@mui/icons-material/Favorite';
-import BusinessCenterIcon from '@mui/icons-material/BusinessCenter';
-import Diversity3Icon from '@mui/icons-material/Diversity3';
-import FamilyRestroomIcon from '@mui/icons-material/FamilyRestroom';
+import { CATEGORY_ICON_MAP, type CategoryWithoutAll } from './CategoryIcon';
 import styles from './CategoryFilter.module.scss';
 
-export type Category = '전체' | '연애' | '직장' | '친구' | '가족';
+export type Category = '전체' | CategoryWithoutAll;
 
 interface CategoryFilterProps {
   value: Category;
@@ -17,10 +14,10 @@ interface CategoryFilterProps {
 
 const CATEGORIES: { key: Category; Icon: React.ElementType }[] = [
   { key: '전체', Icon: GridViewRoundedIcon },
-  { key: '연애', Icon: FavoriteIcon },
-  { key: '직장', Icon: BusinessCenterIcon },
-  { key: '친구', Icon: Diversity3Icon },
-  { key: '가족', Icon: FamilyRestroomIcon },
+  ...(['연애', '직장', '친구', '가족'] as CategoryWithoutAll[]).map((key) => ({
+    key,
+    Icon: CATEGORY_ICON_MAP[key],
+  })),
 ];
 
 export default function CategoryFilter({ value, onChange, mode = 'filter' }: CategoryFilterProps) {
