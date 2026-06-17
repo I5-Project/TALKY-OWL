@@ -35,11 +35,14 @@ export default function CaseCard({
       {...(onClick ? { role: 'button', tabIndex: 0 } : {})}
     >
       <div className={styles.card__header}>
-        {categoryGroup && (
-          <span className={styles.card__icon} aria-hidden="true">
-            <CategoryIcon category={categoryGroup} />
-          </span>
-        )}
+        <div className={styles.card__titleRow}>
+          {categoryGroup && (
+            <span className={styles.card__icon} aria-hidden="true">
+              <CategoryIcon category={categoryGroup} />
+            </span>
+          )}
+          <h3 className={styles.card__title}>{title}</h3>
+        </div>
         {status && (
           <span
             className={`${styles.card__badge} ${styles[`card__badge--${status}`]}`}
@@ -48,7 +51,6 @@ export default function CaseCard({
           </span>
         )}
       </div>
-      <h3 className={styles.card__title}>{title}</h3>
       <p className={styles.card__preview}>{preview}</p>
       <time className={styles.card__date}>{date}</time>
     </article>
