@@ -2,14 +2,17 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, BookOpenText, CalendarDays, User } from 'lucide-react';
+import HomeRoundedIcon from '@mui/icons-material/HomeRounded';
+import GavelRoundedIcon from '@mui/icons-material/GavelRounded';
+import CalendarMonthRoundedIcon from '@mui/icons-material/CalendarMonthRounded';
+import PersonRoundedIcon from '@mui/icons-material/PersonRounded';
 import styles from './BottomNavigation.module.scss';
 
 const NAV_ITEMS = [
-  { href: '/home', label: '홈', icon: Home },
-  { href: '/records', label: '사건기록', icon: BookOpenText },
-  { href: '/diary', label: '일기', icon: CalendarDays },
-  { href: '/mypage', label: '마이페이지', icon: User },
+  { href: '/home', label: '홈', Icon: HomeRoundedIcon },
+  { href: '/records', label: '사건기록', Icon: GavelRoundedIcon },
+  { href: '/diary', label: '일기', Icon: CalendarMonthRoundedIcon },
+  { href: '/mypage', label: '마이페이지', Icon: PersonRoundedIcon },
 ] as const;
 
 export default function BottomNavigation() {
@@ -18,7 +21,7 @@ export default function BottomNavigation() {
   return (
     <nav className={styles.nav}>
       <ul className={styles.nav__list}>
-        {NAV_ITEMS.map(({ href, label, icon: Icon }) => {
+        {NAV_ITEMS.map(({ href, label, Icon }) => {
           const isActive = pathname.startsWith(href);
           return (
             <li key={href} className={styles.nav__item}>
@@ -27,7 +30,7 @@ export default function BottomNavigation() {
                 className={`${styles.nav__link} ${isActive ? styles['nav__link--active'] : ''}`}
                 aria-current={isActive ? 'page' : undefined}
               >
-                <Icon size={24} />
+                <Icon sx={{ fontSize: 24 }} />
                 <span className={styles.nav__label}>{label}</span>
               </Link>
             </li>
