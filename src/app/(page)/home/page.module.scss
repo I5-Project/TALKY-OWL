@@ -44,7 +44,8 @@
   justify-content: space-between;
   align-items: center;
   align-self: center;
-  width: 365px;
+  width: 100%;
+  max-width: 365px;
   height: 88px;
   padding: 20px 16px;
   border: 2px solid v.$color-black-700;
