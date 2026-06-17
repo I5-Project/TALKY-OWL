@@ -30,9 +30,10 @@ export default function StatementPage({
   const { category: rawCategory } = React.use(searchParams)
   const router = useRouter()
 
-  const category = VALID_CATEGORIES.includes(rawCategory as CategoryGroup)
+  // TODO: 이전 페이지 카테고리 데이터 연동 후 null 처리로 교체
+  const category: CategoryGroup = VALID_CATEGORIES.includes(rawCategory as CategoryGroup)
     ? (rawCategory as CategoryGroup)
-    : null
+    : 'romance'
 
   const [mbti, setMbti] = React.useState('')
   const [content, setContent] = React.useState('')
@@ -49,6 +50,7 @@ export default function StatementPage({
         <div className={styles.modalOverlay}>
           <div className={styles.modal}>
             <p className={styles.modalText}>카테고리를 선택해주세요</p>
+            <Button onClick={() => router.back()}>확인</Button>
           </div>
         </div>
       </div>
