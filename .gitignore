@@ -24,6 +24,9 @@ coverage
 # TypeScript
 tsconfig.tsbuildinfo
 
+# MCP
+.playwright-mcp/
+
 # Logs
 *.log
 npm-debug.log*

@@ -3,9 +3,12 @@
 .badge {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   align-self: flex-start;
-  padding: fn.r(4) fn.r(10);
-  border-radius: fn.r(6);
+  min-width: fn.r(58);
+  height: fn.r(24);
+  padding: fn.r(2) fn.r(8);
+  border-radius: fn.r(4);
   font-size: 0.75rem;
   font-weight: 600;
   line-height: 1rem;
