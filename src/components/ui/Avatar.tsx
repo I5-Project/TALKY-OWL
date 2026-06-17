@@ -1,3 +1,6 @@
+'use client';
+
+import { createContext, useContext } from 'react';
 import MuiAvatar from '@mui/material/Avatar';
 import MuiAvatarGroup from '@mui/material/AvatarGroup';
 import styles from './Avatar.module.scss';
@@ -9,6 +12,8 @@ const SIZE_MAP: Record<AvatarSize, { width: number; height: number; fontSize: nu
   m: { width: 48, height: 48, fontSize: 14 },
   l: { width: 64, height: 64, fontSize: 18 },
 };
+
+const AvatarSizeContext = createContext<AvatarSize | null>(null);
 
 interface AvatarProps {
   src?: string;
@@ -24,7 +29,9 @@ interface AvatarGroupProps {
   className?: string;
 }
 
-export default function Avatar({ src, alt, size = 's', className }: AvatarProps) {
+export default function Avatar({ src, alt, size: sizeProp = 's', className }: AvatarProps) {
+  const groupSize = useContext(AvatarSizeContext);
+  const size = groupSize ?? sizeProp;
   const { width, height, fontSize } = SIZE_MAP[size];
 
   return (
@@ -37,32 +44,27 @@ export default function Avatar({ src, alt, size = 's', className }: AvatarProps)
         height,
         fontSize,
         bgcolor: 'var(--icon-secondary)',
-        color: 'var(--color-white)',
+        color: 'var(--text-inverse)',
       }}
     />
   );
 }
 
 export function AvatarGroup({ children, max = 2, size = 's', className }: AvatarGroupProps) {
-  const { width, height, fontSize } = SIZE_MAP[size];
-
   return (
-    <MuiAvatarGroup
-      max={max}
-      className={`${styles.avatarGroup} ${className ?? ''}`}
-      spacing="small"
-      sx={{
-        '& .MuiAvatar-root': {
-          width,
-          height,
-          fontSize,
-          bgcolor: 'var(--icon-secondary)',
-          color: 'var(--color-white)',
-          borderColor: 'var(--bg-surface)',
-        },
-      }}
-    >
-      {children}
-    </MuiAvatarGroup>
+    <AvatarSizeContext.Provider value={size}>
+      <MuiAvatarGroup
+        max={max}
+        className={`${styles.avatarGroup} ${className ?? ''}`}
+        spacing="small"
+        sx={{
+          '& .MuiAvatar-root': {
+            borderColor: 'var(--bg-surface)',
+          },
+        }}
+      >
+        {children}
+      </MuiAvatarGroup>
+    </AvatarSizeContext.Provider>
   );
 }
