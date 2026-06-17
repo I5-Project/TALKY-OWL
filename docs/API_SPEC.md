@@ -415,68 +415,7 @@ YYYY-MM-DDTHH:mm:ssZ
 
 ---
 
-### 4.3 Personal Analysis (단독 판결)
-
-> **상세 구조 확정 필요:** `PERSONAL_ANALYSIS.md §8`이 TODO 상태. 요청/응답 필드 구조 미확정. 아래는 MVP 포함 확정 기준 초안.
-
-- **Base Endpoint:** `/api/personal-analyses`
-- **설명:** 상대방 초대 없이 AI가 단독으로 갈등을 분석하고 판결을 생성하는 흐름.
-- **연관 도메인:** ROOM 도메인과 연계 (`room_mode = ai_chat` 단계에서 시작)
-- **조회 권한:** `creator_user_id` 기준
-
----
-
-#### `POST /api/personal-analyses`
-
-- **인증:** 🔒
-- **설명:** AI 단독 판결을 요청한다. 방이 `ai_chat` 상태이며 상대방 미초대 상태에서만 가능.
-- **Request Body:**
-
-```json
-{
-  "roomId": "uuid"
-}
-```
-
-- **Response 201:**
-
-```json
-{
-  "success": true,
-  "data": {
-    "analysisId": "uuid",
-    "status": "analyzing"
-  },
-  "error": null
-}
-```
-
-- **Error Code:**
-
-| 코드 | HTTP | 설명 |
-|------|------|------|
-| `FORBIDDEN` | 403 | 생성자 아님 |
-| `INVALID_STATUS` | 422 | ai_chat 상태 아님 또는 상대방 참여 상태 |
-| `CONFLICT` | 409 | 이미 분석 진행 중 또는 완료 |
-| `AI_FAILURE` | 500 | Gemini API 호출 실패 |
-| `AI_PARSE_FAILURE` | 500 | Gemini 응답 파싱 실패 |
-| `AI_TIMEOUT` | 500 | Gemini API 타임아웃 |
-
-- **확정 필요:**
-  - 단독 판결 결과 포함 필드 범위 (PERSONAL_ANALYSIS.md §8 — TODO)
-  - 1:1 판결과 결과 구조 공유 여부 (verdictScoreA/B 포함 여부 등)
-
----
-
-#### `GET /api/personal-analyses/{analysisId}`
-
-- **인증:** 🔒
-- **설명:** 단독 판결 결과를 조회한다.
-- **확정 필요:** 응답 필드 구조 전체 (PERSONAL_ANALYSIS.md §8 — TODO)
-
----
-
-### 4.4 Room / Invite / AI Chat
+### 4.3 Room / Invite / AI Chat
 
 ---
 
@@ -713,14 +652,14 @@ YYYY-MM-DDTHH:mm:ssZ
 
 ---
 
-### 4.5 Dispute / Statement
+### 4.4 Dispute / Statement
 
 ---
 
 #### `POST /api/disputes`
 
 - **인증:** 🔒
-- **설명:** 상대방 참여 완료 후 1:1 조정 사건을 생성한다. 생성자를 `role_a`로 확정한다.
+- **설명:** 방(room) 생성 시 사건을 함께 생성한다. 생성자를 `role_a`로 확정한다. 혼자서 진행(단독 판결)과 상대방 초대(1:1 판결) 모두 이 dispute를 기반으로 처리한다.
 - **Request Body:**
 
 ```json
@@ -756,10 +695,11 @@ YYYY-MM-DDTHH:mm:ssZ
 | `CONFLICT` | 409 | 해당 roomId에 dispute 이미 존재 |
 
 - **처리 정책:**
-  - AI 대화방 없이 바로 사건 생성 금지 (CLAUDE.md §14)
-  - `room_mode = one_to_one` 상태에서만 생성 가능
+  - AI 대화방(room) 없이 바로 사건 생성 금지 (CLAUDE.md §14)
+  - room 생성 시 dispute 함께 생성 (dispute_status: draft)
   - 생성자를 `role_a`로 확정
   - 동일 `roomId`에 dispute 중복 생성 불가
+  - 혼자서 진행 / 상대방 초대 모두 동일 dispute 사용
 
 ---
 
@@ -896,7 +836,7 @@ YYYY-MM-DDTHH:mm:ssZ
 
 ---
 
-### 4.6 Judgement / Result Card
+### 4.5 Judgement / Result Card
 
 ---
 
@@ -996,7 +936,7 @@ YYYY-MM-DDTHH:mm:ssZ
 
 ---
 
-### 4.7 Diary
+### 4.6 Diary
 
 > 확정 필요: 경로 `/api/diary` (스캐폴딩 기준) vs `/api/diaries` (DIARY.md 기준) 최종 확정 필요. 아래 명세는 현재 스캐폴딩 폴더 기준으로 작성.
 
@@ -1135,7 +1075,7 @@ YYYY-MM-DDTHH:mm:ssZ
 
 ---
 
-### 4.8 Calendar
+### 4.7 Calendar
 
 ---
 
@@ -1177,7 +1117,7 @@ YYYY-MM-DDTHH:mm:ssZ
 
 ---
 
-### 4.9 Statistics
+### 4.8 Statistics
 
 ---
 
@@ -1247,7 +1187,7 @@ YYYY-MM-DDTHH:mm:ssZ
 
 ---
 
-### 4.10 Gift Recommendation
+### 4.9 Gift Recommendation
 
 > **전체 확정 필요:** `GIFT.md §8`이 TODO 상태. 아래는 검토 메모 기반 초안이며 팀 확정 필요.
 
@@ -1266,7 +1206,7 @@ YYYY-MM-DDTHH:mm:ssZ
 
 ---
 
-### 4.11 Cron
+### 4.10 Cron
 
 > **전체 확정 필요:** 아래는 스캐폴딩 폴더 기준 초안이며 세부 처리 정책은 팀 확정 필요.
 
@@ -1347,10 +1287,6 @@ src/app/api/
 │   │   └── route.ts              # GET
 │   └── top-types/
 │       └── route.ts              # GET — 확정 필요: /top-types vs /top5
-├── personal-analyses/            # 단독 판결 — 상세 구조 확정 필요
-│   ├── route.ts                  # POST 단독 판결 요청
-│   └── [analysisId]/
-│       └── route.ts              # GET 단독 판결 결과
 ├── statements/                   # ※ disputes 하위로 통합 여부 확정 필요
 └── cron/
     ├── expire-invitations/
@@ -1359,7 +1295,6 @@ src/app/api/
     │   └── route.ts
     └── cleanup-drafts/
         └── route.ts
-```
 
 ---
 
@@ -1374,6 +1309,7 @@ src/app/api/
 | 관리자 API | MVP 제외 |
 | 푸시 알림 API | MVP 제외 |
 | `statistics` 독립 화면 API | MVP 제외 (API는 유지, 독립 화면만 제외) |
+| `/api/personal-analyses` | 단독 판결은 `disputes/{id}/judge` 로 처리. `personal-analyses` 도메인 제거 |
 
 ### 경로 충돌 / 확정 필요 목록
 

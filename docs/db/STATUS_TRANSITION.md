@@ -60,10 +60,10 @@ closed / expired / deleted
 
 | 상태 | 설명 |
 |------|------|
-| `draft` | 진술 초안 작성 단계 |
-| `waiting_opponent` | 상대방 참여 대기 |
-| `opponent_joined` | 상대방 참여 완료, 진술 작성 가능 |
-| `both_submitted` | 양측 진술 완료, AI 판결 요청 가능 |
+| `draft` | 방(room) 생성 시 dispute 함께 생성. role_a 진술 작성 대기 단계 |
+| `waiting_opponent` | role_a 진술 완료 후 상대방 초대 선택. 상대방 참여 대기 |
+| `opponent_joined` | role_b 참여 완료. role_b 진술 작성 가능 |
+| `both_submitted` | 양측 진술 완료. AI 판결 요청 가능 |
 | `judging` | AI 판결 처리 중 |
 | `judged` | AI 판결 완료 |
 | `closed` | 정상 종료 |
