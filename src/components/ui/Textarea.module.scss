@@ -23,12 +23,12 @@
     min-height: fn.r(140);
     padding: fn.r(14) fn.r(16) fn.r(32);
     font-family: v.$font-family-base;
-    font-size: v.$font-size-body-s;
+    font-size: v.$font-size-body-m;
     font-weight: v.$font-weight-regular;
-    line-height: v.$line-height-body-s;
+    line-height: v.$line-height-body-m;
     color: var(--text-primary);
     background-color: var(--bg-surface);
-    border: 1px solid var(--border-default);
+    border: 1px solid var(--border-strong);
     border-radius: fn.r(8);
     outline: none;
     resize: none;
@@ -36,10 +36,6 @@
 
     &::placeholder {
       color: var(--text-secondary);
-    }
-
-    &:focus {
-      border-color: var(--border-brand);
     }
 
     &--error {
@@ -77,7 +73,7 @@
     font-size: v.$font-size-caption;
     font-weight: v.$font-weight-regular;
     line-height: v.$line-height-caption;
-    color: var(--text-secondary);
+    color: var(--text-disabled);
     white-space: nowrap;
     pointer-events: none;
   }
