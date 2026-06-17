@@ -7,7 +7,7 @@ import { toAiJudgmentDto } from '@/domains/judgement/judgment.mapper'
 import type { ApiResponse } from '@/types/common'
 import type { AiJudgmentDto } from '@/types/judgment'
 
-// GET /api/v1/disputes/:id/result
+// GET /api/disputes/:id/result
 // 판결 결과 조회. 해당 dispute의 참여자(role_a / role_b)만 접근 가능
 export async function GET(
   request: NextRequest,
