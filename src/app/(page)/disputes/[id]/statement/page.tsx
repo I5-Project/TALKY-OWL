@@ -49,7 +49,6 @@ export default function StatementPage({
         <div className={styles.modalOverlay}>
           <div className={styles.modal}>
             <p className={styles.modalText}>카테고리를 선택해주세요</p>
-            <Button onClick={() => router.back()}>확인</Button>
           </div>
         </div>
       </div>
