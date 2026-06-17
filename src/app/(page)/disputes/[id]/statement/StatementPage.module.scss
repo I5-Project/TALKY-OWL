@@ -1,0 +1,93 @@
+@use '../../../../../styles/abstracts/variables' as v;
+@use '../../../../../styles/abstracts/functions' as fn;
+@use '../../../../../styles/abstracts/mixins' as m;
+
+.page {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background-color: var(--bg-page);
+}
+
+.content {
+  flex: 1;
+  padding: fn.r(16) fn.r(20) fn.r(100);
+  display: flex;
+  flex-direction: column;
+  gap: fn.r(16);
+  overflow-y: auto;
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: fn.r(16);
+}
+
+.label {
+  @include m.text-body-s;
+  color: v.$color-black;
+  margin: 0;
+}
+
+.categories {
+  display: flex;
+  flex-direction: row;
+  gap: fn.r(8);
+}
+
+.categoryItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: fn.r(4);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  width: fn.r(44);
+
+  &--selected {
+    // selected state managed on child elements
+  }
+}
+
+.categoryIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: fn.r(44);
+  height: fn.r(44);
+  border-radius: fn.r(8);
+  background-color: var(--bg-surface);
+  border: 1px solid transparent;
+  transition: border-color 0.15s ease;
+
+  &--selected {
+    border-color: var(--border-brand);
+  }
+}
+
+.categoryLabel {
+  @include m.text-caption;
+  color: var(--text-secondary);
+  white-space: nowrap;
+
+  &--selected {
+    font-weight: v.$font-weight-bold;
+    color: var(--text-primary);
+  }
+}
+
+.textarea {
+  min-height: fn.r(350);
+}
+
+.footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: fn.r(16) fn.r(20);
+  background-color: var(--bg-page);
+}
