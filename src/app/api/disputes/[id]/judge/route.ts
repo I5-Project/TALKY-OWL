@@ -10,7 +10,7 @@ import type { AiJudgmentDto } from '@/types/judgment'
 // TODO: src/lib/ai 구현 후 import 추가
 // import { generateAiJudgment } from '@/lib/ai/judgment'
 
-// POST /api/v1/disputes/:id/judge
+// POST /api/disputes/:id/judge
 // AI 판결 요청. both_submitted 상태일 때만 가능. 중복 요청 방지 (멱등성)
 export async function POST(
   request: NextRequest,

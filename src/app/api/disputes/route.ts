@@ -52,7 +52,7 @@ function toDisputeDto(dispute: DisputeForList): DisputeDto {
   }
 }
 
-// GET /api/v1/disputes
+// GET /api/disputes
 // 내가 참여한 사건 목록 조회. categoryGroup으로 필터링, page/limit으로 페이지네이션
 export async function GET(request: NextRequest) {
   const session = await getServerSession(authOptions)
@@ -119,7 +119,7 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// POST /api/v1/disputes
+// POST /api/disputes
 // 사건 생성 (1:1 전환). 방이 one_to_one 상태일 때만 생성 가능. 생성자는 role_a로 확정
 export async function POST(request: NextRequest) {
   const session = await getServerSession(authOptions)
