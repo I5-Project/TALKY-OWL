@@ -43,12 +43,12 @@
 }
 
 .kakaoButton {
-  background-color: #fee500 !important;
+  background-color: #ffe812 !important;
   color: #000000 !important;
   gap: fn.r(8);
 
   &:hover:not(:disabled) {
-    background-color: #f5dc00 !important;
+    background-color: #f5df00 !important;
   }
 }
 
