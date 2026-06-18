@@ -39,7 +39,9 @@ export async function GET() {
       success: true,
       data: { id: user.id, nickname: user.nickname, mbti: user.mbti },
     })
-  } catch {
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error)
+    console.error('[user/me] api error', { message })
     return NextResponse.json<ApiResponse>(
       { success: false, error: { code: 'INTERNAL_SERVER_ERROR', message: '서버 오류가 발생했습니다.' } },
       { status: 500 },
