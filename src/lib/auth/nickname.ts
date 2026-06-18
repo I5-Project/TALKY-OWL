@@ -5,8 +5,15 @@ const VERBS = [
   '느긋한', '용감한', '씩씩한', '지혜로운', '엉뚱한',
 ]
 
+function randomFourDigits(): string {
+  return String(Math.floor(Math.random() * 9000) + 1000)
+}
+
 export function generateNickname(): string {
   const verb = VERBS[Math.floor(Math.random() * VERBS.length)]
-  const digits = String(Math.floor(Math.random() * 9000) + 1000)
-  return `${verb}부엉이${digits}`
+  return `${verb}부엉이${randomFourDigits()}`
+}
+
+export function generateFallbackNickname(): string {
+  return `부엉이${randomFourDigits()}${randomFourDigits()}`
 }

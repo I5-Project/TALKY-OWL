@@ -2,7 +2,7 @@ import type { NextAuthOptions } from 'next-auth'
 import KakaoProvider from 'next-auth/providers/kakao'
 import { PrismaAdapter } from '@auth/prisma-adapter'
 import { prisma } from '@/lib/db'
-import { generateNickname } from './nickname'
+import { generateNickname, generateFallbackNickname } from './nickname'
 
 const MAX_NICKNAME_RETRIES = 10
 
@@ -10,7 +10,7 @@ async function saveFirstLoginFields(userId: string, kakaoId: string): Promise<vo
   for (let attempt = 0; attempt < MAX_NICKNAME_RETRIES; attempt++) {
     const isLastAttempt = attempt === MAX_NICKNAME_RETRIES - 1
     const nickname = isLastAttempt
-      ? `부엉이${Date.now()}`
+      ? generateFallbackNickname()
       : generateNickname()
 
     try {
