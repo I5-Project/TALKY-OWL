@@ -24,6 +24,7 @@ export default function Button({
 
   return (
     <button
+      type="button"
       className={`${styles.button} ${variantClass} ${sizeClass} ${className ?? ''}`}
       disabled={disabled}
       {...props}

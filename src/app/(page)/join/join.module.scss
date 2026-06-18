@@ -33,6 +33,7 @@
 
 .message {
   @include m.text-title-m;
+
   color: v.$color-black-500;
   text-align: center;
   white-space: pre-line;
