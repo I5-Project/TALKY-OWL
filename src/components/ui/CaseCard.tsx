@@ -1,8 +1,17 @@
 import type { CategoryGroup } from '@/types/common';
+import Avatar, { AvatarGroup } from './Avatar';
 import CategoryIcon from './CategoryIcon';
 import styles from './CaseCard.module.scss';
 
 type CaseCardStatus = 'progress' | null;
+
+type Participant = {
+  role: 'role_a' | 'role_b';
+  user: {
+    nickname: string | null;
+    profileImageUrl: string | null;
+  };
+};
 
 interface CaseCardProps {
   title: string;
@@ -10,6 +19,7 @@ interface CaseCardProps {
   date: string;
   categoryGroup?: CategoryGroup;
   status?: CaseCardStatus;
+  participants?: Participant[];
   onClick?: () => void;
 }
 
@@ -23,6 +33,7 @@ export default function CaseCard({
   date,
   categoryGroup,
   status = null,
+  participants,
   onClick,
 }: CaseCardProps) {
   return (
@@ -52,7 +63,21 @@ export default function CaseCard({
         )}
       </div>
       <p className={styles.card__preview}>{preview}</p>
-      <time className={styles.card__date}>{date}</time>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <time className={styles.card__date}>{date}</time>
+        {participants && participants.length > 0 && (
+          <AvatarGroup size="s" max={2}>
+            {participants.map((p) => (
+              <Avatar
+                key={p.role}
+                src={p.user.profileImageUrl ?? undefined}
+                alt={p.user.nickname ?? '참여자'}
+                size="s"
+              />
+            ))}
+          </AvatarGroup>
+        )}
+      </div>
     </article>
   );
 }

@@ -1,0 +1,36 @@
+@use '@/styles/abstracts/variables' as v;
+@use '@/styles/abstracts/mixins' as m;
+@use '@/styles/abstracts/functions' as fn;
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: fn.r(16);
+}
+
+.title {
+  @include m.text-title-s;
+  color: v.$color-black-700;
+}
+
+.list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: fn.r(12);
+}
+
+.cardWrapper {
+  border-left: 4px solid var(--accent-color);
+  border-radius: fn.r(12);
+  overflow: hidden;
+}
+
+.empty {
+  @include m.text-body-s;
+  color: v.$color-black-400;
+  text-align: center;
+  padding: fn.r(24) 0;
+}

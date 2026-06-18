@@ -4,6 +4,7 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import Header from '@/components/layout/Header'
 import StatsCategorySection from '@/components/home/StatsCategorySection'
+import ActiveCasesSection from '@/components/home/ActiveCasesSection'
 import styles from './page.module.scss'
 
 export default async function HomePage() {
@@ -48,7 +49,11 @@ export default async function HomePage() {
         <div className={styles.divider} />
 
         {/* 진행중인 사건(로그인) or 말해부엉 알아보기(비로그인) */}
-        {!isLoggedIn && (
+        {isLoggedIn ? (
+          <div className={styles.activeCasesSection}>
+            <ActiveCasesSection />
+          </div>
+        ) : (
           <Link href="/login" className={styles.introBox} aria-label="말해부엉 알아보기">
             <div className={styles.diaryTextGroup}>
               <p className={styles.diaryTitle}>말해부엉이 궁금하신가요?</p>
