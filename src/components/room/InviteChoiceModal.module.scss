@@ -9,7 +9,7 @@
 }
 
 .message {
-  @include m.text-body-m;
+  @include m.text-title-s;
   color: v.$color-black-500;
   white-space: pre-line;
 }

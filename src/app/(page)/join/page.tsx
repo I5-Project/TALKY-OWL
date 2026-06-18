@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Button from '@/components/ui/Button';
 import JoinStatusView from '@/components/ui/JoinStatusView';
@@ -12,6 +13,7 @@ const currentState: JoinState = 'invite';
 
 export default function JoinPage() {
   const router = useRouter();
+  const [modalOpen, setModalOpen] = useState(false);
 
   const goToMain = () => router.push('/home');
 
@@ -50,10 +52,14 @@ export default function JoinPage() {
         </p>
       </div>
       <div className={styles.footer}>
-        <Button>진술하러 가기</Button>
+        <Button onClick={() => setModalOpen(true)}>진술하러 가기</Button>
       </div>
-      {/* TODO: 미리보기용 임시 — 확인 후 제거 */}
-      <InviteChoiceModal open={true} onAlone={() => {}} onInvite={() => {}} />
+      <InviteChoiceModal
+        open={modalOpen}
+        onClose={() => setModalOpen(false)}
+        onAlone={() => {}}
+        onInvite={() => {}}
+      />
     </div>
   );
 }
