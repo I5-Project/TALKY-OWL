@@ -90,28 +90,19 @@ export default function CalendarView({
             calendarHeader: { format: 'YYYY년 M월' },
           }}
           sx={{
-            // 달력 루트 기본 레이아웃
             width: '100%',
             minHeight: 600,
             overflow: 'visible',
-
-            // 폰트 전체 적용
             fontFamily: 'var(--font-pretendard), Pretendard, -apple-system, sans-serif',
             '& *': { fontFamily: 'inherit' },
 
-            // 월 슬라이드 전환 시 높이 고정 (레이아웃 밀림 방지)
+            // 월 전환 시 높이 고정 — 없으면 레이아웃 밀림 발생
             '& .MuiDayCalendar-slideTransition': {
               minHeight: 480,
               overflow: 'visible',
             },
 
-            // 년도 선택 뷰
-            '& .MuiYearCalendar-root': {
-              width: '100%',
-              minHeight: 380,
-            },
-
-            // 월 선택 뷰
+            '& .MuiYearCalendar-root': { width: '100%', minHeight: 380 },
             '& .MuiMonthCalendar-root': {
               width: '100%',
               height: 'auto',
@@ -119,43 +110,31 @@ export default function CalendarView({
               overflow: 'visible',
             },
 
-            // 헤더 (년/월 텍스트)
             '& .MuiPickersCalendarHeader-root': {
               color: 'var(--text-primary)',
               fontWeight: 500,
             },
 
-            // 요일 헤더 행 (S M T W T F S)
             '& .MuiDayCalendar-header': {
               justifyContent: 'space-around',
               color: 'var(--text-secondary)',
             },
-            '&& .MuiDayCalendar-weekDayLabel': {
-              width: 52,
-              height: 52,
-              fontSize: '1rem',
-            },
+            '&& .MuiDayCalendar-weekDayLabel': { width: 52, height: 52, fontSize: '1rem' },
 
-            // 날짜 행
-            '& .MuiDayCalendar-weekContainer': {
-              justifyContent: 'space-around',
-            },
-            '& .MuiPickersDay-dayOutsideMonth': {
-              width: 52,
-              height: 80,
-            },
+            '& .MuiDayCalendar-weekContainer': { justifyContent: 'space-around' },
+            '& .MuiPickersDay-dayOutsideMonth': { width: 52, height: 80 },
 
-            // 월 이동 좌우 꺽쇠 버튼
-            '& .MuiPickersArrowSwitcher-button': {
-              color: 'var(--icon-primary)',
-            },
-            '& .MuiPickersArrowSwitcher-spacer': {
-              width: 80,
-            },
+            '& .MuiPickersArrowSwitcher-button': { color: 'var(--icon-primary)' },
+            '& .MuiPickersArrowSwitcher-spacer': { width: 80 },
+            '& .MuiPickersCalendarHeader-switchViewButton': { color: 'var(--icon-primary)' },
 
-            // 헤더 아래 꺽쇠 (년/월 뷰 전환)
-            '& .MuiPickersCalendarHeader-switchViewButton': {
-              color: 'var(--icon-primary)',
+            '& .MuiYearCalendar-button.Mui-selected': {
+              backgroundColor: 'var(--bg-surface-soft)',
+              color: 'var(--text-primary)',
+            },
+            '& .MuiMonthCalendar-button.Mui-selected': {
+              backgroundColor: 'var(--bg-surface-soft)',
+              color: 'var(--text-primary)',
             },
           }}
         />
