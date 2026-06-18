@@ -1,5 +1,5 @@
-@use '../../styles/abstracts/variables' as v;
-@use '../../styles/abstracts/functions' as fn;
+@use 'styles/abstracts/variables' as v;
+@use 'styles/abstracts/functions' as fn;
 
 .button {
   display: inline-flex;
@@ -8,7 +8,7 @@
   width: 100%;
   height: fn.r(52);
   padding: 0 fn.r(16);
-  border-radius: fn.r(12);
+  border-radius: fn.r(8);
   font-family: v.$font-family-base;
   font-size: v.$font-size-body-m;
   font-weight: v.$font-weight-semibold;
@@ -34,6 +34,19 @@
     &:hover:not(:disabled) {
       background-color: var(--bg-surface-soft);
     }
+  }
+
+  &--soft {
+    background-color: var(--bg-surface-soft);
+    color: var(--text-brand);
+
+    &:hover:not(:disabled) {
+      background-color: var(--bg-brand-soft);
+    }
+  }
+
+  &--sm {
+    height: fn.r(48);
   }
 
   &--disabled,

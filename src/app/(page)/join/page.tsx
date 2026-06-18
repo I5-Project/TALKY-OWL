@@ -3,11 +3,12 @@
 import { useRouter } from 'next/navigation';
 import Button from '@/components/ui/Button';
 import JoinStatusView from '@/components/ui/JoinStatusView';
+import InviteChoiceModal from '@/components/room/InviteChoiceModal';
 import styles from './join.module.scss';
 
 // TODO: API 연동 후 실제 상태로 교체
 type JoinState = 'invite' | 'error' | 'closed';
-const currentState: JoinState = 'closed';
+const currentState: JoinState = 'invite';
 
 export default function JoinPage() {
   const router = useRouter();
@@ -51,6 +52,8 @@ export default function JoinPage() {
       <div className={styles.footer}>
         <Button>진술하러 가기</Button>
       </div>
+      {/* TODO: 미리보기용 임시 — 확인 후 제거 */}
+      <InviteChoiceModal open={true} onAlone={() => {}} onInvite={() => {}} />
     </div>
   );
 }
