@@ -29,7 +29,7 @@ const Select = React.forwardRef<HTMLDivElement, SelectProps>(
     const triggerRef = React.useRef<HTMLButtonElement>(null)
 
     const internalId = React.useId()
-    const resolvedId = id ?? (label ? `select-${label}` : internalId)
+    const resolvedId = id ?? internalId
     const errorId = `${resolvedId}-error`
 
     React.useEffect(() => {
@@ -77,13 +77,17 @@ const Select = React.forwardRef<HTMLDivElement, SelectProps>(
         case 'Enter':
         case ' ':
           e.preventDefault()
-          handleSelect(options[focusedIndex].value)
+          if (options.length > 0 && focusedIndex < options.length) {
+            handleSelect(options[focusedIndex].value)
+          }
           break
         case 'Escape':
-        case 'Tab':
           e.preventDefault()
           setOpen(false)
           triggerRef.current?.focus()
+          break
+        case 'Tab':
+          setOpen(false)
           break
       }
     }
@@ -142,13 +146,13 @@ const Select = React.forwardRef<HTMLDivElement, SelectProps>(
               className={styles.field__dropdown}
               role="listbox"
               tabIndex={-1}
-              aria-activedescendant={`${resolvedId}-option-${options[focusedIndex]?.value}`}
+              aria-activedescendant={options.length > 0 ? `${resolvedId}-option-${focusedIndex}` : undefined}
               onKeyDown={handleListKeyDown}
             >
               {options.map((opt, idx) => (
                 <li
                   key={opt.value}
-                  id={`${resolvedId}-option-${opt.value}`}
+                  id={`${resolvedId}-option-${idx}`}
                   role="option"
                   aria-selected={opt.value === value}
                   className={[
