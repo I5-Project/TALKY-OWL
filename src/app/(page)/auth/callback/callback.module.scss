@@ -28,5 +28,6 @@
 
 .text {
   @include m.text-body-m;
+
   color: v.$color-black-400;
 }
