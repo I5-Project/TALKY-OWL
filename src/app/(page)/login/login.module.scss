@@ -1,0 +1,65 @@
+@use '../../../styles/abstracts/variables' as v;
+@use '../../../styles/abstracts/functions' as fn;
+
+.page {
+  display: flex;
+  flex-direction: column;
+  min-height: 100svh;
+  padding: fn.r(20) fn.r(24) fn.r(40);
+}
+
+.content {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.logo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: fn.r(20);
+}
+
+.characterWrap {
+  position: relative;
+  width: 40vw;
+  height: 40vw;
+  max-width: fn.r(200);
+  max-height: fn.r(180);
+
+  img {
+    image-rendering: pixelated;
+  }
+}
+
+.logoImage {
+  width: 45vw;
+  height: auto;
+  max-width: fn.r(200);
+}
+
+.footer {
+  display: flex;
+  flex-direction: column;
+  gap: fn.r(12);
+}
+
+.kakaoButton {
+  background-color: #fee500 !important;
+  color: #000000 !important;
+  gap: fn.r(8);
+
+  &:hover:not(:disabled) {
+    background-color: #f5dc00 !important;
+  }
+}
+
+.disclaimer {
+  font-size: v.$font-size-caption;
+  font-weight: v.$font-weight-regular;
+  color: v.$color-black-400;
+  text-align: center;
+  line-height: v.$line-height-caption;
+}
