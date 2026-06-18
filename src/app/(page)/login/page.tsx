@@ -31,7 +31,7 @@ export default function LoginPage() {
       <div className={styles.footer}>
         <Button
           className={styles.kakaoButton}
-          onClick={() => signIn('kakao', { callbackUrl: '/home' })}
+          onClick={() => signIn('kakao', { callbackUrl: '/' })}
         >
           <KakaoIcon />
           카카오로 로그인 하기

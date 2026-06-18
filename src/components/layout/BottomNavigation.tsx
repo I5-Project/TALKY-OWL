@@ -9,7 +9,7 @@ import PersonIcon from '@mui/icons-material/Person';
 import styles from './BottomNavigation.module.scss';
 
 const NAV_ITEMS = [
-  { href: '/home', label: '홈', Icon: HomeIcon },
+  { href: '/', label: '홈', Icon: HomeIcon },
   { href: '/records', label: '사건기록', Icon: MenuBookIcon },
   { href: '/diary', label: '일기', Icon: CalendarMonthIcon },
   { href: '/mypage', label: '마이페이지', Icon: PersonIcon },
@@ -22,7 +22,7 @@ export default function BottomNavigation() {
     <nav className={styles.nav}>
       <ul className={styles.nav__list}>
         {NAV_ITEMS.map(({ href, label, Icon }) => {
-          const isActive = pathname.startsWith(href);
+          const isActive = href === '/' ? pathname === '/' : pathname.startsWith(href);
           return (
             <li key={href} className={styles.nav__item}>
               <Link

@@ -104,6 +104,11 @@
   margin-right: -16px;
 }
 
+// 진행중인 사건 섹션 (구분선 아래 gap 20px = container gap 16 + 4)
+.activeCasesSection {
+  margin-top: 4px;
+}
+
 // 비로그인 알아보기 박스
 .introBox {
   display: flex;
