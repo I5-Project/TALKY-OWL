@@ -23,25 +23,25 @@ export default async function HomePage() {
       />
 
       <main className={styles.container}>
-        {isLoggedIn ? (
-          <>
-            {/* 인사 */}
-            <section className={styles.greeting}>
-              <p className={styles.userName}>{userName}님</p>
-              <p className={styles.greetingText}>오늘 감정은 어떠신가요?</p>
-            </section>
+        {/* 인사 */}
+        <section className={styles.greeting}>
+          <p className={styles.userName}>{isLoggedIn ? `${userName}님` : '안녕하세요'}</p>
+          <p className={styles.greetingText}>오늘 감정은 어떠신가요?</p>
+        </section>
 
-            {/* 오늘의 일기 박스 */}
-            <Link href="/diary/new" className={styles.diaryBox} aria-label="감정일기 작성">
-              <div className={styles.diaryTextGroup}>
-                <p className={styles.diaryTitle}>오늘의 일기를 적어보세요</p>
-                <p className={styles.diarySubtitle}>감정일기 작성하러가기</p>
-              </div>
-              <span className={styles.diaryButton} aria-hidden="true">+</span>
-            </Link>
-          </>
-        ) : (
-          /* 비로그인: 말해부엉 알아보기 박스 */
+        {/* 오늘의 일기 박스 */}
+        <Link href="/diary/new" className={styles.diaryBox} aria-label="감정일기 작성">
+          <div className={styles.diaryTextGroup}>
+            <p className={styles.diaryTitle}>오늘의 일기를 적어보세요</p>
+            <p className={styles.diarySubtitle}>감정일기 작성하러가기</p>
+          </div>
+          <span className={styles.diaryButton} aria-hidden="true">+</span>
+        </Link>
+
+        {/* 고민 카테고리 TOP4 + 구분선 — feature/homepage-statistics-jm 병합 후 추가 */}
+
+        {/* 진행중인 사건(로그인) or 말해부엉 알아보기(비로그인) */}
+        {!isLoggedIn && (
           <Link href="/login" className={styles.introBox} aria-label="말해부엉 알아보기">
             <div className={styles.diaryTextGroup}>
               <p className={styles.diaryTitle}>말해부엉이 궁금하신가요?</p>
