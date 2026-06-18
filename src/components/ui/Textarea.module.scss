@@ -4,7 +4,7 @@
 .field {
   display: flex;
   flex-direction: column;
-  gap: fn.r(8);
+  gap: fn.r(10);
 
   &__label {
     font-family: v.$font-family-base;
@@ -51,9 +51,9 @@
 
   &__filter-warning {
     font-family: v.$font-family-base;
-    font-size: v.$font-size-caption;
+    font-size: v.$font-size-body-s;
     font-weight: v.$font-weight-regular;
-    line-height: v.$line-height-caption;
+    line-height: v.$line-height-body-s;
     color: var(--text-danger);
   }
 

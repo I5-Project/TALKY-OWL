@@ -108,26 +108,10 @@ MVP 제외 기능은 구현하지 않는다.
 - 모든 방은 먼저 AI 대화방으로 생성한다.
 - AI 대화방 단계에서는 갈등 정리, 감정 정리, 대화 방향 조언만 제공한다.
 - AI 대화방 단계에서는 판결 점수를 생성하지 않는다.
-- AI 판결은 진술 작성 후 생성할 수 있다.
-  - 단독 판결: ai_chat / invite_ready 상태의 방에서 진술 1건으로 생성 가능 (제한적 결과)
-  - 1:1 판결: one_to_one 상태로 전환 후 양측 진술 2건 기반으로 생성 (전체 결과)
-```
-
-### 단독 판결 vs 1:1 판결 결과 비교
-
-단독 판결은 진술이 1건(작성자 본인)이므로 제공 결과가 제한된다.
-
-```txt
-단독 판결 제공:
-- 핵심 쟁점 요약
-- 판결 근거
-- 화해 제안
-- 화해 메시지
-
-단독 판결 미제공 (1:1 판결 전용):
-- A/B 판결 점수
-- 선물추천 문구
-- 16가지 세부 결과 유형
+- 진술저장 후 분기:
+  - 혼자서 진행: disputes/[id]/statement에서 진술 작성 후 단독 AI 판결 가능
+  - 상대방 초대: disputes/[id]/statement에서 진술 작성 후 초대 링크 발급 → 1:1 AI 판결은 상대방 참여 후 가능
+- 단독 판결과 1:1 판결 모두 disputes/[id]/statement를 거친다.
 ```
 
 ### AI 판결 결과
@@ -270,11 +254,22 @@ ai_chat
 
 ### dispute_status
 
+1:1 판결 경로:
+
 ```txt
 draft
 → waiting_opponent
 → opponent_joined
 → both_submitted
+→ judging
+→ judged
+→ closed / expired / deleted
+```
+
+단독 판결 경로:
+
+```txt
+draft
 → judging
 → judged
 → closed / expired / deleted
