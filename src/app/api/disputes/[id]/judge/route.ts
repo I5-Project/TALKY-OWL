@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
+import type { DisputeStatus } from '@prisma/client'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/db'
 import { getSessionUserId } from '@/lib/auth/session'
@@ -29,6 +30,7 @@ export async function POST(
 
   // JUDGING 상태 전환 여부를 추적해 외부 catch에서도 원복할 수 있게 함
   let statusSetToJudging = false
+  let previousStatus: DisputeStatus = 'BOTH_SUBMITTED'
 
   try {
     const dispute = await prisma.dispute.findFirst({
@@ -83,19 +85,40 @@ export async function POST(
       )
     }
 
-    // 양측 진술 완료 여부 확인
-    if (dispute.status !== 'BOTH_SUBMITTED') {
-      return NextResponse.json<ApiResponse>(
-        {
-          success: false,
-          error: {
-            code: 'DISPUTE_NOT_READY',
-            message: '양측 진술이 완료된 후 AI 판결을 요청할 수 있습니다.',
-            details: `현재 사건 상태: ${dispute.status.toLowerCase()}`,
+    const isSolo = dispute.participants.length === 1
+    previousStatus = dispute.status
+
+    // 판결 가능 여부 확인
+    if (isSolo) {
+      // 1인: 본인 진술 제출 여부만 확인
+      if (dispute.statements.length === 0) {
+        return NextResponse.json<ApiResponse>(
+          {
+            success: false,
+            error: {
+              code: 'DISPUTE_NOT_READY',
+              message: '진술을 먼저 작성해주세요.',
+              details: `현재 사건 상태: ${dispute.status.toLowerCase()}`,
+            },
           },
-        },
-        { status: 422 },
-      )
+          { status: 422 },
+        )
+      }
+    } else {
+      // 2인: 양측 진술 완료(BOTH_SUBMITTED) 확인
+      if (dispute.status !== 'BOTH_SUBMITTED') {
+        return NextResponse.json<ApiResponse>(
+          {
+            success: false,
+            error: {
+              code: 'DISPUTE_NOT_READY',
+              message: '양측 진술이 완료된 후 AI 판결을 요청할 수 있습니다.',
+              details: `현재 사건 상태: ${dispute.status.toLowerCase()}`,
+            },
+          },
+          { status: 422 },
+        )
+      }
     }
 
     // 판결 진행 상태로 전환 (중복 요청 잠금)
@@ -139,7 +162,7 @@ export async function POST(
       // AI 모듈 미구현 — 상태 원복 후 503 반환
       await prisma.dispute.update({
         where: { id },
-        data: { status: 'BOTH_SUBMITTED' },
+        data: { status: previousStatus },
       })
       statusSetToJudging = false
       return NextResponse.json<ApiResponse>(
