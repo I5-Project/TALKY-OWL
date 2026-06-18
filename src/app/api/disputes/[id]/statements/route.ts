@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { z } from 'zod'
+import { Prisma, type DisputeStatement } from '@prisma/client'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/db'
 import { getSessionUserId } from '@/lib/auth/session'
@@ -27,6 +28,13 @@ const statementSchema = z.object({
     .length(4, 'MBTI는 4자리여야 합니다.')
     .optional(),
 })
+
+// 동시 제출 경쟁 조건에서 발생하는 충돌을 outer catch까지 전달하기 위한 sentinel
+class StatementConflictError extends Error {
+  constructor() {
+    super('STATEMENT_ALREADY_SUBMITTED')
+  }
+}
 
 interface StatementData {
   id: string
@@ -162,21 +170,44 @@ export async function POST(
       moderation = await moderateContent(content)
     } catch (err) {
       // Gemini 실패 시 fail open — pending 상태로 저장, ModerationLog 생략
+      // create/updateMany(where: submittedAt: null)로 원자적 중복 제출 방지
       console.error('[moderation] Gemini call failed:', err)
 
-      const statement = await prisma.disputeStatement.upsert({
-        where: { disputeId_role: { disputeId, role: participant.role } },
-        create: {
-          disputeId,
-          participantId: participant.id,
-          userId,
-          role: participant.role,
+      let statement: DisputeStatement
+
+      if (isNew) {
+        try {
+          statement = await prisma.disputeStatement.create({
+            data: {
+              disputeId,
+              participantId: participant.id,
+              userId,
+              role: participant.role,
+              content,
+              moderationStatus: 'pending',
+              submittedAt: new Date(),
+            },
+          })
+        } catch (e) {
+          if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === 'P2002') {
+            throw new StatementConflictError()
+          }
+          throw e
+        }
+      } else {
+        const { count } = await prisma.disputeStatement.updateMany({
+          where: { id: existingStatement.id, submittedAt: null },
+          data: { content, moderationStatus: 'pending', submittedAt: new Date() },
+        })
+        if (count === 0) throw new StatementConflictError()
+        statement = {
+          ...existingStatement,
           content,
           moderationStatus: 'pending',
           submittedAt: new Date(),
-        },
-        update: { content, moderationStatus: 'pending', submittedAt: new Date() },
-      })
+          updatedAt: new Date(),
+        }
+      }
 
       return NextResponse.json<ApiResponse<StatementData>>(
         {
@@ -186,7 +217,7 @@ export async function POST(
             disputeId: statement.disputeId,
             role: statement.role.toLowerCase(),
             content: statement.content,
-            submittedAt: null,
+            submittedAt: statement.submittedAt?.toISOString() ?? null,
             hasPersonalInfo: false,
           },
         },
@@ -222,20 +253,37 @@ export async function POST(
     }
 
     // 정상 저장 + ModerationLog + user.mbti 업데이트 트랜잭션
+    // create/updateMany(where: submittedAt: null)로 원자적 중복 제출 방지
     const statement = await prisma.$transaction(async (tx) => {
-      const stmt = await tx.disputeStatement.upsert({
-        where: { disputeId_role: { disputeId, role: participant.role } },
-        create: {
-          disputeId,
-          participantId: participant.id,
-          userId,
-          role: participant.role,
-          content,
-          moderationStatus: 'approved',
-          submittedAt: new Date(),
-        },
-        update: { content, moderationStatus: 'approved', submittedAt: new Date() },
-      })
+      let stmt: DisputeStatement
+
+      if (isNew) {
+        try {
+          stmt = await tx.disputeStatement.create({
+            data: {
+              disputeId,
+              participantId: participant.id,
+              userId,
+              role: participant.role,
+              content,
+              moderationStatus: 'approved',
+              submittedAt: new Date(),
+            },
+          })
+        } catch (e) {
+          if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === 'P2002') {
+            throw new StatementConflictError()
+          }
+          throw e
+        }
+      } else {
+        const { count } = await tx.disputeStatement.updateMany({
+          where: { id: existingStatement!.id, submittedAt: null },
+          data: { content, moderationStatus: 'approved', submittedAt: new Date() },
+        })
+        if (count === 0) throw new StatementConflictError()
+        stmt = await tx.disputeStatement.findUniqueOrThrow({ where: { id: existingStatement!.id } })
+      }
 
       await tx.moderationLog.create({
         data: {
@@ -276,6 +324,12 @@ export async function POST(
       { status: isNew ? 201 : 200 },
     )
   } catch (error) {
+    if (error instanceof StatementConflictError) {
+      return NextResponse.json<ApiResponse>(
+        { success: false, error: { code: 'CONFLICT', message: '이미 제출된 진술은 수정할 수 없습니다.' } },
+        { status: 409 },
+      )
+    }
     const message = error instanceof Error ? error.message : String(error)
     console.error('[disputes/statements] api error', { message })
     return NextResponse.json<ApiResponse>(
