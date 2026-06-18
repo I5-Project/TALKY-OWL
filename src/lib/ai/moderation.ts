@@ -49,8 +49,6 @@ reason:
 - If isBlocked: brief Korean explanation of why, max 255 chars
 - If not blocked: null`
 
-const TIMEOUT_MS = 10_000
-
 export async function moderateContent(content: string): Promise<ModerationResult> {
   const apiKey = process.env.GEMINI_API_KEY
   if (!apiKey) throw new Error('GEMINI_API_KEY is not configured')
@@ -58,14 +56,10 @@ export async function moderateContent(content: string): Promise<ModerationResult
   const genAI = new GoogleGenerativeAI(apiKey)
   const model = genAI.getGenerativeModel({ model: MODEL_NAME })
 
-  const safeContent = content.replace(/</g, '&lt;').replace(/>/g, '&gt;')
-  const prompt = PROMPT_TEMPLATE.replace('{content}', safeContent)
+  const prompt = PROMPT_TEMPLATE.replace('{content}', content)
   const startTime = Date.now()
 
-  const timeout = new Promise<never>((_, reject) =>
-    setTimeout(() => reject(new Error('Gemini moderation timed out')), TIMEOUT_MS),
-  )
-  const result = await Promise.race([model.generateContent(prompt), timeout])
+  const result = await model.generateContent(prompt)
   const durationMs = Date.now() - startTime
 
   const text = result.response.text().trim()
