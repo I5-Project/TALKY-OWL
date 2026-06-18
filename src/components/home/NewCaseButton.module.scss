@@ -21,6 +21,7 @@
   z-index: 101;
 
   @include m.text-title-s;
+
   color: #ffffff;
   white-space: nowrap;
 }
@@ -29,6 +30,7 @@
 .overlay {
   position: fixed;
   inset: 0;
+
   // 페이지 배경을 불투명 베이스로 깔아 콘텐츠가 비치지 않게 하고,
   // 그 위에 color-black-700 40% 틴트를 적용
   background-color: var(--bg-page);
@@ -72,6 +74,7 @@
 
 .itemLabel {
   @include m.text-body-m;
+
   color: var(--text-primary);
 }
 
@@ -82,6 +85,7 @@
   background-color: #ffffff;
   border: none;
   cursor: pointer;
+
   display: flex;
   align-items: center;
   justify-content: center;

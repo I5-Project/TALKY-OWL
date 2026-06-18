@@ -3,8 +3,8 @@ import styles from './HomeServiceInfo.module.scss'
 
 const LINKS = [
   { label: '서비스 소개', href: '#' },
-  { label: '개인정보 처리방침', href: '#' },
-  { label: '이용약관', href: '#' },
+  { label: '개인정보 처리방침', href: '/privacy' },
+  { label: '이용약관', href: '/terms' },
   { label: '고객문의', href: '#' },
 ]
 

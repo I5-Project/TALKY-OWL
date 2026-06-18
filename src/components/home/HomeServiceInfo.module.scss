@@ -29,6 +29,7 @@
 
 .link {
   @include m.text-caption;
+
   color: v.$color-black-200;
   text-decoration: none;
   white-space: nowrap;
@@ -36,6 +37,7 @@
 
 .copyright {
   @include m.text-caption;
+
   color: v.$color-black-400;
   margin-top: fn.r(10);
   text-align: center;
