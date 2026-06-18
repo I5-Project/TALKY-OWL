@@ -1,6 +1,7 @@
 'use client';
 
 import Image from 'next/image';
+import Link from 'next/link';
 import { signIn } from 'next-auth/react';
 import Button from '@/components/ui/Button';
 import styles from './login.module.scss';
@@ -10,15 +11,12 @@ export default function LoginPage() {
     <div className={styles.page}>
       <div className={styles.content}>
         <div className={styles.logo}>
-          <div className={styles.characterWrap}>
-            <Image
-              src="/images/common/login_character.png"
-              alt="말해부엉 캐릭터"
-              fill
-              sizes="(max-width: 500px) 40vw, 200px"
-              priority
-            />
-          </div>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/images/common/login_character.png"
+            alt="말해부엉 캐릭터"
+            className={styles.character}
+          />
           <Image
             src="/images/common/logo.png"
             alt="말해부엉"
@@ -39,7 +37,15 @@ export default function LoginPage() {
           카카오로 로그인 하기
         </Button>
         <p className={styles.disclaimer}>
-          로그인 시 이용약관 및 개인정보 처리방침에 동의한 것으로 간주합니다.
+          로그인 시{' '}
+          <Link href="/terms" className={styles.disclaimerLink}>
+            이용약관
+          </Link>{' '}
+          및{' '}
+          <Link href="/privacy" className={styles.disclaimerLink}>
+            개인정보 처리방침
+          </Link>
+          에 동의한 것으로 간주합니다.
         </p>
       </div>
     </div>

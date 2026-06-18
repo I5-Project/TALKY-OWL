@@ -4,6 +4,31 @@ import { PrismaAdapter } from '@auth/prisma-adapter'
 import { prisma } from '@/lib/db'
 import { generateNickname } from './nickname'
 
+const MAX_NICKNAME_RETRIES = 10
+
+async function saveFirstLoginFields(userId: string, kakaoId: string): Promise<void> {
+  for (let attempt = 0; attempt < MAX_NICKNAME_RETRIES; attempt++) {
+    const isLastAttempt = attempt === MAX_NICKNAME_RETRIES - 1
+    const nickname = isLastAttempt
+      ? `부엉이${Date.now()}`
+      : generateNickname()
+
+    try {
+      await prisma.user.update({
+        where: { id: userId },
+        data: { kakaoId, nickname, termsAgreedAt: new Date() },
+      })
+      return
+    } catch (e) {
+      const err = e as { code?: string; meta?: { target?: string[] } }
+      if (err.code === 'P2002' && err.meta?.target?.includes('nickname')) {
+        continue
+      }
+      throw e
+    }
+  }
+}
+
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma) as NextAuthOptions['adapter'],
   session: { strategy: 'jwt' },
@@ -25,16 +50,9 @@ export const authOptions: NextAuthOptions = {
           select: { kakaoId: true },
         })
 
-        // kakaoId가 없으면 최초 로그인 → 커스텀 필드 설정
+        // kakaoId가 없으면 최초 로그인 → 커스텀 필드 설정 (닉네임 충돌 시 재시도)
         if (!existing?.kakaoId) {
-          await prisma.user.update({
-            where: { id: user.id },
-            data: {
-              kakaoId: account.providerAccountId,
-              nickname: generateNickname(),
-              termsAgreedAt: new Date(),
-            },
-          })
+          await saveFirstLoginFields(user.id, account.providerAccountId)
         }
       }
 

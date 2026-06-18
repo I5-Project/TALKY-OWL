@@ -1,5 +1,5 @@
-@use '../../../styles/abstracts/variables' as v;
-@use '../../../styles/abstracts/functions' as fn;
+@use '@/styles/abstracts/variables' as v;
+@use '@/styles/abstracts/functions' as fn;
 
 .page {
   display: flex;
@@ -22,16 +22,11 @@
   gap: fn.r(20);
 }
 
-.characterWrap {
-  position: relative;
+.character {
   width: 40vw;
-  height: 40vw;
   max-width: fn.r(200);
-  max-height: fn.r(180);
-
-  img {
-    image-rendering: pixelated;
-  }
+  height: auto;
+  image-rendering: pixelated;
 }
 
 .logoImage {
@@ -62,4 +57,10 @@
   color: v.$color-black-400;
   text-align: center;
   line-height: v.$line-height-caption;
+}
+
+.disclaimerLink {
+  text-decoration: underline;
+  cursor: pointer;
+  color: inherit;
 }
