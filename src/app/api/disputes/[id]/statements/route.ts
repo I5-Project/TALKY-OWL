@@ -22,6 +22,10 @@ const statementSchema = z.object({
     .string()
     .min(1, '진술 내용을 입력해주세요.')
     .refine((val) => getByteLength(val) <= 1000, '진술 내용은 1000바이트 이하로 입력해주세요.'),
+  mbti: z
+    .string()
+    .length(4, 'MBTI는 4자리여야 합니다.')
+    .optional(),
 })
 
 interface StatementData {
@@ -81,7 +85,7 @@ export async function POST(
     )
   }
 
-  const { content } = parsed.data
+  const { content, mbti } = parsed.data
 
   // 개발 환경 bypass: DB 없이 모더레이션만 테스트
   if (DEV_BYPASS && userId === 'dev-bypass-user') {
@@ -216,7 +220,7 @@ export async function POST(
       )
     }
 
-    // 정상 저장 + ModerationLog 트랜잭션
+    // 정상 저장 + ModerationLog + user.mbti 업데이트 트랜잭션
     const statement = await prisma.$transaction(async (tx) => {
       const stmt = await tx.disputeStatement.upsert({
         where: { disputeId_role: { disputeId, role: participant.role } },
@@ -244,6 +248,13 @@ export async function POST(
           modelName: moderation.modelName,
         },
       })
+
+      if (mbti) {
+        await tx.user.update({
+          where: { id: userId },
+          data: { mbti },
+        })
+      }
 
       return stmt
     })
