@@ -311,7 +311,7 @@ async function main() {
       resultConflictDetailId: details[0].id,
       resultCardId: card.id,
       aiNoticeId: notices[0].id,
-      modelName: "gpt-5.5",
+      modelName: "gemini-2.5-flash",
     },
   });
 
