@@ -80,7 +80,7 @@ export interface AiJudgmentDto {
 // Request Types
 // ============================================================
 
-// AI 판결은 양측 진술 완료(both_submitted) 후 트리거
+// AI 판결은 단독(a_submitted) 또는 양측 진술 완료(both_submitted) 후 트리거
 export interface CreateAiJudgmentRequest {
   disputeId: string
 }

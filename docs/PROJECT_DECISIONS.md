@@ -136,13 +136,13 @@ ai_chat → invite_ready → one_to_one → closed / expired / deleted
 1:1 판결 경로:
 
 ```txt
-draft → waiting_opponent → opponent_joined → both_submitted → judging → judged → closed / expired / deleted
+draft → waiting_opponent → opponent_joined → a_submitted → both_submitted → judging → judged → closed / expired / deleted
 ```
 
 단독 판결 경로:
 
 ```txt
-draft → judging → judged → closed / expired / deleted
+draft → a_submitted → judging → judged → closed / expired / deleted
 ```
 
 `jailed` 상태명은 사용하지 않는다. 상세 내용은 `docs/db/STATUS_TRANSITION.md` 참고.

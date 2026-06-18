@@ -90,8 +90,8 @@ export async function POST(
 
     // 판결 가능 여부 확인
     if (isSolo) {
-      // 1인: 본인 진술 제출 여부만 확인
-      if (dispute.statements.length === 0) {
+      // 1인: a_submitted 상태 확인
+      if (dispute.status !== 'A_SUBMITTED') {
         return NextResponse.json<ApiResponse>(
           {
             success: false,

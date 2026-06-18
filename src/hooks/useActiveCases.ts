@@ -22,7 +22,7 @@ export type ActiveCase = {
 
 // 진행중인 사건 = 진술 시작 후 ~ 판결 전
 // draft(진술 전), judging(판결 처리 중), judged(판결 완료) 제외
-const ACTIVE_DISPUTE_STATUSES = ['waiting_opponent', 'opponent_joined', 'both_submitted'] as const
+const ACTIVE_DISPUTE_STATUSES = ['waiting_opponent', 'opponent_joined', 'a_submitted', 'both_submitted'] as const
 type ActiveDisputeStatus = (typeof ACTIVE_DISPUTE_STATUSES)[number]
 
 type RawCase = ActiveCase & { status: ActiveDisputeStatus }

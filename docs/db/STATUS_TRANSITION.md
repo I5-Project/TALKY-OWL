@@ -40,7 +40,10 @@ closed / expired / deleted
 
 ```txt
 draft
-  │ role_a 진술 작성 후 단독 AI 판결 요청
+  │ role_a 진술 제출
+  ▼
+a_submitted
+  │ 단독 AI 판결 요청
   ▼
 judging
   │ AI 판결 완료
@@ -55,13 +58,16 @@ closed / expired / deleted
 
 ```txt
 draft
-  │ role_a 진술 작성 후 초대 링크 발급
+  │ 초대 링크 발급
   ▼
 waiting_opponent
   │ 상대방 참여
   ▼
 opponent_joined
-  │ 양측 진술 완료
+  │ role_a 진술 제출
+  ▼
+a_submitted
+  │ role_b 진술 제출
   ▼
 both_submitted
   │ AI 판결 요청
@@ -78,8 +84,9 @@ closed / expired / deleted
 | 상태 | 설명 |
 |------|------|
 | `draft` | 방(room) 생성 시 dispute 함께 생성. role_a 진술 작성 대기 단계 |
-| `waiting_opponent` | role_a 진술 완료 후 초대 링크 발급. 상대방 참여 대기 (1:1 전용) |
-| `opponent_joined` | role_b 참여 완료. role_b 진술 작성 가능 (1:1 전용) |
+| `waiting_opponent` | 초대 링크 발급. 상대방 참여 대기 (1:1 전용) |
+| `opponent_joined` | role_b 참여 완료. 양측 진술 작성 가능 (1:1 전용) |
+| `a_submitted` | role_a 진술 제출 완료. 단독 판결 요청 가능 / 1:1에서는 role_b 진술 대기 |
 | `both_submitted` | 양측 진술 완료. AI 판결 요청 가능 (1:1 전용) |
 | `judging` | AI 판결 처리 중 (단독 / 1:1 공통) |
 | `judged` | AI 판결 완료 (단독 / 1:1 공통) |

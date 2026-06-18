@@ -120,7 +120,10 @@ dispute_statements     양측 진술
 
 ```txt
 draft
-  │ role_a 진술 작성 후 단독 AI 판결 요청
+  │ role_a 진술 제출
+  ▼
+a_submitted
+  │ 단독 AI 판결 요청
   ▼
 judging
   │ AI 판결 완료
@@ -135,13 +138,16 @@ closed / expired / deleted
 
 ```txt
 draft
-  │ role_a 진술 작성 후 초대 링크 발급
+  │ 초대 링크 발급
   ▼
 waiting_opponent
   │ 상대방 참여
   ▼
 opponent_joined
-  │ 양측 진술 완료
+  │ role_a 진술 제출
+  ▼
+a_submitted
+  │ role_b 진술 제출
   ▼
 both_submitted
   │ AI 판결 요청
@@ -204,5 +210,5 @@ closed / expired / deleted
 - 진술 종료 / 초대 참여 / 삭제 요청은 중복 방지 처리 필요
 - jailed 상태명 사용 금지
 - 상태 전이 임의 변경 금지 (팀 승인 필요)
-- 혼자서 진행(단독) 시: draft → judging → judged (waiting_opponent, opponent_joined, both_submitted 생략)
+- 혼자서 진행(단독) 시: draft → a_submitted → judging → judged (waiting_opponent, opponent_joined, both_submitted 생략)
 ```

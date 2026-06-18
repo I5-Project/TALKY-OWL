@@ -718,7 +718,7 @@ YYYY-MM-DDTHH:mm:ssZ
     "categoryGroup": "string",
     "title": "string",
     "description": "string | null",
-    "status": "draft | waiting_opponent | opponent_joined | both_submitted | judging | judged | closed | expired | deleted",
+    "status": "draft | waiting_opponent | opponent_joined | a_submitted | both_submitted | judging | judged | closed | expired | deleted",
     "participants": [
       { "role": "role_a", "userId": "uuid" },
       { "role": "role_b", "userId": "uuid" }
@@ -817,7 +817,7 @@ YYYY-MM-DDTHH:mm:ssZ
   "data": {
     "id": "uuid",
     "submittedAt": "ISO8601",
-    "disputeStatus": "both_submitted | opponent_joined"
+    "disputeStatus": "a_submitted | both_submitted"
   },
   "error": null
 }
@@ -832,6 +832,7 @@ YYYY-MM-DDTHH:mm:ssZ
 
 - **처리 정책:**
   - 멱등성 처리 필요 (CLAUDE.md §8)
+  - role_a 제출 완료 시 `dispute_status` → `a_submitted`
   - 양측 제출 완료 시 `dispute_status` → `both_submitted`
 
 ---
@@ -843,7 +844,7 @@ YYYY-MM-DDTHH:mm:ssZ
 #### `POST /api/disputes/{disputeId}/judge`
 
 - **인증:** 🔒
-- **설명:** Gemini API를 호출하여 AI 판결을 생성한다. `dispute_status = both_submitted` 상태에서만 가능.
+- **설명:** Gemini API를 호출하여 AI 판결을 생성한다. 단독 판결은 `a_submitted`, 1:1 판결은 `both_submitted` 상태에서 가능.
 - **Request Body:** 없음
 - **Response 201:**
 
@@ -863,7 +864,7 @@ YYYY-MM-DDTHH:mm:ssZ
 | 코드 | HTTP | 설명 |
 |------|------|------|
 | `FORBIDDEN` | 403 | 참여자 아님 |
-| `INVALID_STATUS` | 422 | both_submitted 상태 아님 |
+| `INVALID_STATUS` | 422 | 판결 가능 상태(a_submitted / both_submitted) 아님 |
 | `CONFLICT` | 409 | 판결 이미 진행 중 또는 완료 |
 | `AI_FAILURE` | 500 | Gemini API 호출 실패 |
 | `AI_PARSE_FAILURE` | 500 | Gemini 응답 파싱 실패 |
