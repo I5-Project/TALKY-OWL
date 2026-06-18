@@ -30,24 +30,23 @@ export default function ActiveCasesSection() {
               <CaseCard
                 title={item.title}
                 preview={item.description ?? ''}
-                date={formatDate(item.createdAt)}
+                date=""
                 categoryGroup={item.categoryGroup}
                 onClick={() => router.push(`/disputes/${item.id}`)}
               />
-              {item.participants.length > 0 && (
-                <div className={styles.avatarOverlay}>
-                  <AvatarGroup size="s" max={2}>
-                    {item.participants.map((p) => (
-                      <Avatar
-                        key={p.role}
-                        src={p.user.profileImageUrl ?? undefined}
-                        alt={p.user.nickname ?? '참여자'}
-                        size="s"
-                      />
-                    ))}
-                  </AvatarGroup>
-                </div>
-              )}
+              <div className={styles.cardFooter}>
+                <AvatarGroup size="s" max={2}>
+                  {item.participants.map((p) => (
+                    <Avatar
+                      key={p.role}
+                      src={p.user.profileImageUrl ?? undefined}
+                      alt={p.user.nickname ?? '참여자'}
+                      size="s"
+                    />
+                  ))}
+                </AvatarGroup>
+                <time className={styles.cardDate}>{formatDate(item.createdAt)}</time>
+              </div>
             </li>
           ))}
         </ul>
