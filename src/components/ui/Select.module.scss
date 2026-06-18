@@ -70,6 +70,7 @@
     max-height: fn.r(240);
     overflow-y: auto;
     list-style: none;
+    margin: 0;
     padding: fn.r(4) 0;
     box-shadow: 0 fn.r(4) fn.r(12) rgba(0, 0, 0, 0.08);
   }
@@ -90,6 +91,10 @@
     &--selected {
       color: var(--text-brand);
       font-weight: v.$font-weight-semibold;
+    }
+
+    &--focused {
+      background-color: var(--bg-page);
     }
   }
 
