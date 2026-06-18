@@ -32,7 +32,6 @@ export default function ActiveCasesSection() {
                 preview={item.description ?? ''}
                 date={formatDate(item.createdAt)}
                 categoryGroup={item.categoryGroup}
-                status="progress"
                 onClick={() => router.push(`/disputes/${item.id}`)}
               />
               {item.participants.length > 0 && (
