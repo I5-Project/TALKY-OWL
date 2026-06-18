@@ -1,63 +1,185 @@
-import React from 'react';
-import KeyboardArrowDownRoundedIcon from '@mui/icons-material/KeyboardArrowDownRounded';
-import styles from './Select.module.scss';
+'use client'
+
+import React from 'react'
+import KeyboardArrowDownRoundedIcon from '@mui/icons-material/KeyboardArrowDownRounded'
+import styles from './Select.module.scss'
 
 interface SelectOption {
-  value: string;
-  label: string;
+  value: string
+  label: string
 }
 
-interface SelectProps extends React.SelectHTMLAttributes<HTMLSelectElement> {
-  label?: string;
-  options: SelectOption[];
-  placeholder?: string;
-  error?: string;
+interface SelectProps {
+  label?: string
+  options: SelectOption[]
+  placeholder?: string
+  value?: string
+  onChange?: (e: { target: { value: string } }) => void
+  error?: string
+  className?: string
+  id?: string
 }
 
-const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
-  ({ label, options, placeholder, error, className, id, ...props }, ref) => {
-    const selectId = id ?? (label ? `select-${label}` : undefined);
+const Select = React.forwardRef<HTMLDivElement, SelectProps>(
+  ({ label, options, placeholder, value, onChange, error, className, id }, ref) => {
+    const [open, setOpen] = React.useState(false)
+    const [focusedIndex, setFocusedIndex] = React.useState(0)
+    const containerRef = React.useRef<HTMLDivElement>(null)
+    const listboxRef = React.useRef<HTMLUListElement>(null)
+    const triggerRef = React.useRef<HTMLButtonElement>(null)
+
+    const internalId = React.useId()
+    const resolvedId = id ?? internalId
+    const errorId = `${resolvedId}-error`
+
+    React.useEffect(() => {
+      const handleOutside = (e: MouseEvent) => {
+        if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+          setOpen(false)
+        }
+      }
+      if (open) document.addEventListener('mousedown', handleOutside)
+      return () => document.removeEventListener('mousedown', handleOutside)
+    }, [open])
+
+    // 드롭다운 열릴 때 listbox 포커스
+    React.useEffect(() => {
+      if (open) listboxRef.current?.focus()
+    }, [open])
+
+    const selectedLabel = options.find((o) => o.value === value)?.label
+    const hasValue = selectedLabel !== undefined
+
+    const handleSelect = (optionValue: string) => {
+      onChange?.({ target: { value: optionValue } })
+      setOpen(false)
+      triggerRef.current?.focus()
+    }
+
+    const handleToggle = () => {
+      if (!open) {
+        const selectedIdx = options.findIndex((o) => o.value === value)
+        setFocusedIndex(selectedIdx >= 0 ? selectedIdx : 0)
+      }
+      setOpen((prev) => !prev)
+    }
+
+    const handleListKeyDown = (e: React.KeyboardEvent) => {
+      switch (e.key) {
+        case 'ArrowDown':
+          e.preventDefault()
+          setFocusedIndex((i) => Math.min(i + 1, options.length - 1))
+          break
+        case 'ArrowUp':
+          e.preventDefault()
+          setFocusedIndex((i) => Math.max(i - 1, 0))
+          break
+        case 'Enter':
+        case ' ':
+          e.preventDefault()
+          if (options.length > 0 && focusedIndex < options.length) {
+            handleSelect(options[focusedIndex].value)
+          }
+          break
+        case 'Escape':
+          e.preventDefault()
+          setOpen(false)
+          triggerRef.current?.focus()
+          break
+        case 'Tab':
+          setOpen(false)
+          break
+      }
+    }
+
+    const handleTriggerKeyDown = (e: React.KeyboardEvent) => {
+      if ((e.key === 'ArrowDown' || e.key === 'ArrowUp') && !open) {
+        e.preventDefault()
+        const selectedIdx = options.findIndex((o) => o.value === value)
+        setFocusedIndex(selectedIdx >= 0 ? selectedIdx : 0)
+        setOpen(true)
+      }
+    }
 
     return (
-      <div className={styles.field}>
+      <div ref={containerRef} className={styles.field}>
         {label && (
-          <label className={styles.field__label} htmlFor={selectId}>
+          <label className={styles.field__label} htmlFor={resolvedId}>
             {label}
           </label>
         )}
-        <div className={styles.field__wrapper}>
-          <select
-            ref={ref}
-            id={selectId}
+        <div ref={ref} className={styles.field__wrapper}>
+          <button
+            ref={triggerRef}
+            type="button"
+            id={resolvedId}
             className={[
-              styles.field__select,
-              error ? styles['field__select--error'] : '',
+              styles.field__trigger,
+              !hasValue ? styles['field__trigger--placeholder'] : '',
+              error ? styles['field__trigger--error'] : '',
               className ?? '',
-            ].join(' ')}
-            {...props}
+            ]
+              .filter(Boolean)
+              .join(' ')}
+            onClick={handleToggle}
+            onKeyDown={handleTriggerKeyDown}
+            aria-expanded={open}
+            aria-haspopup="listbox"
+            aria-invalid={Boolean(error)}
+            aria-describedby={error ? errorId : undefined}
           >
-            {placeholder && (
-              <option value="" disabled>
-                {placeholder}
-              </option>
-            )}
-            {options.map((opt) => (
-              <option key={opt.value} value={opt.value}>
-                {opt.label}
-              </option>
-            ))}
-          </select>
+            {hasValue ? selectedLabel : placeholder}
+          </button>
           <KeyboardArrowDownRoundedIcon
-            className={styles.field__chevron}
+            className={[
+              styles.field__chevron,
+              open ? styles['field__chevron--open'] : '',
+            ]
+              .filter(Boolean)
+              .join(' ')}
             sx={{ fontSize: 20 }}
             aria-hidden="true"
           />
+          {open && (
+            <ul
+              ref={listboxRef}
+              className={styles.field__dropdown}
+              role="listbox"
+              tabIndex={-1}
+              aria-activedescendant={options.length > 0 ? `${resolvedId}-option-${focusedIndex}` : undefined}
+              onKeyDown={handleListKeyDown}
+            >
+              {options.map((opt, idx) => (
+                <li
+                  key={opt.value}
+                  id={`${resolvedId}-option-${idx}`}
+                  role="option"
+                  aria-selected={opt.value === value}
+                  className={[
+                    styles.field__option,
+                    opt.value === value ? styles['field__option--selected'] : '',
+                    idx === focusedIndex ? styles['field__option--focused'] : '',
+                  ]
+                    .filter(Boolean)
+                    .join(' ')}
+                  onMouseDown={() => handleSelect(opt.value)}
+                  onMouseEnter={() => setFocusedIndex(idx)}
+                >
+                  {opt.label}
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
-        {error && <span className={styles.field__error}>{error}</span>}
+        {error && (
+          <span id={errorId} className={styles.field__error}>
+            {error}
+          </span>
+        )}
       </div>
-    );
-  }
-);
+    )
+  },
+)
 
-Select.displayName = 'Select';
-export default Select;
+Select.displayName = 'Select'
+export default Select

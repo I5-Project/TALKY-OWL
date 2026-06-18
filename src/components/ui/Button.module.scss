@@ -1,5 +1,5 @@
-@use '../../styles/abstracts/variables' as v;
-@use '../../styles/abstracts/functions' as fn;
+@use '@/styles/abstracts/variables' as v;
+@use '@/styles/abstracts/functions' as fn;
 
 .button {
   display: inline-flex;
@@ -7,7 +7,7 @@
   justify-content: center;
   width: 100%;
   height: fn.r(52);
-  padding: 0 fn.r(16);
+  padding: 0 fn.r(12);
   border-radius: fn.r(12);
   font-family: v.$font-family-base;
   font-size: v.$font-size-body-m;
