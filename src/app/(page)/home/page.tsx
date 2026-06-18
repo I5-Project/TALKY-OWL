@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import Header from '@/components/layout/Header'
+import StatsCategorySection from '@/components/home/StatsCategorySection'
 import styles from './page.module.scss'
 
 export default async function HomePage() {
@@ -38,7 +39,11 @@ export default async function HomePage() {
           <span className={styles.diaryButton} aria-hidden="true">+</span>
         </Link>
 
-        {/* 고민 카테고리 TOP4 + 구분선 — feature/homepage-statistics-jm 병합 후 추가 */}
+        {/* 고민 카테고리 TOP4 */}
+        <StatsCategorySection />
+
+        {/* 구분선 */}
+        <div className={styles.divider} />
 
         {/* 진행중인 사건(로그인) or 말해부엉 알아보기(비로그인) */}
         {!isLoggedIn && (
