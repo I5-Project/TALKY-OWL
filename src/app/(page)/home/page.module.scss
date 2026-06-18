@@ -1,4 +1,5 @@
 @use '@/styles/abstracts/variables' as v;
+@use '@/styles/abstracts/mixins' as m;
 
 .page {
   position: relative;
@@ -40,10 +41,8 @@
 }
 
 .greetingText {
-  font-size: v.$font-size-body-s;
-  font-weight: v.$font-weight-regular;
+  @include m.text-body-s;
   color: v.$color-black-400;
-  line-height: v.$line-height-body-s;
 }
 
 // 일기 박스
@@ -71,17 +70,14 @@
 }
 
 .diaryTitle {
-  font-size: v.$font-size-body-s;
+  @include m.text-body-s;
   font-weight: v.$font-weight-semibold;
   color: v.$color-black-700;
-  line-height: v.$line-height-body-s;
 }
 
 .diarySubtitle {
-  font-size: v.$font-size-caption;
-  font-weight: v.$font-weight-regular;
+  @include m.text-caption;
   color: v.$color-black-400;
-  line-height: v.$line-height-caption;
 }
 
 .diaryButton {
