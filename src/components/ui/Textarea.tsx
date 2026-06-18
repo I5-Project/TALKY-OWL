@@ -37,9 +37,7 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
 
     const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
       if (maxLength !== undefined && getByteLength(e.target.value) > maxLength) {
-        const truncated = truncateToByteLength(e.target.value, maxLength)
-        onChange?.({ ...e, target: Object.assign(e.target, { value: truncated }) })
-        return
+        e.target.value = truncateToByteLength(e.target.value, maxLength)
       }
       onChange?.(e)
     }

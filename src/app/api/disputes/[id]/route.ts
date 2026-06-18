@@ -29,7 +29,10 @@ const updateDisputeSchema = z
   })
 
 type DisputeForDetail = Prisma.DisputeGetPayload<{
-  include: { participants: true; statements: true }
+  include: {
+    participants: { include: { user: { select: { profileImageUrl: true } } } }
+    statements: true
+  }
 }>
 
 function toParticipantDto(p: DisputeForDetail['participants'][number]): DisputeParticipantDto {
@@ -38,6 +41,7 @@ function toParticipantDto(p: DisputeForDetail['participants'][number]): DisputeP
     disputeId: p.disputeId,
     userId: p.userId,
     role: p.role.toLowerCase() as DisputeParticipantDto['role'],
+    profileImageUrl: p.user.profileImageUrl ?? null,
     joinedAt: p.joinedAt.toISOString(),
     createdAt: p.createdAt.toISOString(),
   }
@@ -99,7 +103,10 @@ export async function GET(
         deletedAt: null,
         participants: { some: { userId } },
       },
-      include: { participants: true, statements: true },
+      include: {
+        participants: { include: { user: { select: { profileImageUrl: true } } } },
+        statements: true,
+      },
     })
 
     if (!dispute) {
@@ -212,7 +219,10 @@ export async function PATCH(
           categoryGroup: categoryGroup.toUpperCase() as PrismaCategoryGroup,
         }),
       },
-      include: { participants: true, statements: true },
+      include: {
+        participants: { include: { user: { select: { profileImageUrl: true } } } },
+        statements: true,
+      },
     })
 
     return NextResponse.json<ApiResponse<DisputeDto>>({

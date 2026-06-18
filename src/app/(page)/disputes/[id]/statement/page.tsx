@@ -41,13 +41,6 @@ export default function StatementPage({
   const [filterMessage, setFilterMessage] = React.useState<string | null>(null)
   const [showPersonalInfoWarning, setShowPersonalInfoWarning] = React.useState(false)
 
-  React.useEffect(() => {
-    fetch('/api/user/me')
-      .then((r) => r.json())
-      .then((json) => { if (json.success && json.data?.mbti) setMbti(json.data.mbti) })
-      .catch(() => undefined)
-  }, [])
-
   const handleSave = async () => {
     if (isLoading) return
     setIsLoading(true)
@@ -57,20 +50,13 @@ export default function StatementPage({
       const res = await fetch(`/api/disputes/${id}/statements`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ content, mbti: mbti || undefined }),
+        body: JSON.stringify({ content }),
       })
-
-      let json: { success: boolean; error?: { code?: string; message?: string }; data?: { hasPersonalInfo?: boolean } }
-      try {
-        json = await res.json()
-      } catch {
-        setFilterMessage('서버 응답을 처리할 수 없습니다. 다시 시도해주세요.')
-        return
-      }
+      const json = await res.json()
 
       if (!json.success) {
         if (json.error?.code === 'CONTENT_BLOCKED') {
-          setFilterMessage(json.error.message ?? '부적절한 표현이 포함되어 있습니다.')
+          setFilterMessage(json.error.message)
         } else {
           setFilterMessage('저장 중 오류가 발생했습니다. 다시 시도해주세요.')
         }

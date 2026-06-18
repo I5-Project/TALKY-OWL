@@ -24,6 +24,7 @@ export interface DisputeParticipantDto {
   disputeId: string
   userId: string
   role: ParticipantRole
+  profileImageUrl: string | null
   joinedAt: string
   createdAt: string
 }
