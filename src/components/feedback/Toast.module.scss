@@ -1,5 +1,5 @@
-@use '../../styles/abstracts/variables' as v;
-@use '../../styles/abstracts/functions' as fn;
+@use '@/styles/abstracts/variables' as v;
+@use '@/styles/abstracts/functions' as fn;
 
 .toast {
   width: calc(100vw - fn.r(32));

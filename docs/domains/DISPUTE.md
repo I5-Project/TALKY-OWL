@@ -116,9 +116,26 @@ dispute_statements     양측 진술
 
 기준: `docs/db/STATUS_TRANSITION.md`
 
+단독 판결 경로:
+
 ```txt
 draft
-  │ 상대방 참여 대기
+  │ role_a 진술 작성 후 단독 AI 판결 요청
+  ▼
+judging
+  │ AI 판결 완료
+  ▼
+judged
+  │ 종료 / 만료 / 삭제
+  ▼
+closed / expired / deleted
+```
+
+1:1 판결 경로:
+
+```txt
+draft
+  │ role_a 진술 작성 후 초대 링크 발급
   ▼
 waiting_opponent
   │ 상대방 참여
@@ -187,5 +204,5 @@ closed / expired / deleted
 - 진술 종료 / 초대 참여 / 삭제 요청은 중복 방지 처리 필요
 - jailed 상태명 사용 금지
 - 상태 전이 임의 변경 금지 (팀 승인 필요)
-- 혼자서 진행(단독) 시 dispute_status 전이 경로는 팀 확정 필요
+- 혼자서 진행(단독) 시: draft → judging → judged (waiting_opponent, opponent_joined, both_submitted 생략)
 ```

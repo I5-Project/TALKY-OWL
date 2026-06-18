@@ -1,0 +1,16 @@
+@use 'styles/abstracts/variables' as v;
+@use 'styles/abstracts/functions' as fn;
+@use 'styles/abstracts/mixins' as m;
+
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: fn.r(20);
+}
+
+.message {
+  @include m.text-title-s;
+
+  color: v.$color-black-500;
+  white-space: pre-line;
+}

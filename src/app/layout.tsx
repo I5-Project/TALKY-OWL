@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import localFont from 'next/font/local';
+import QueryProvider from '@/components/providers/QueryProvider';
 import './globals.scss';
 
 const pretendard = localFont({
@@ -20,9 +21,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="ko" className={pretendard.variable}>
-      <body>
-        <main className="container">{children}</main>
+    <html lang="ko" className={pretendard.variable} suppressHydrationWarning>
+      <body suppressHydrationWarning>
+        <QueryProvider>
+          <main className="container">{children}</main>
+        </QueryProvider>
       </body>
     </html>
   );

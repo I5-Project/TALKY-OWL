@@ -1,9 +1,16 @@
-@use '../../styles/abstracts/variables' as v;
-@use '../../styles/abstracts/functions' as fn;
+@use '@/styles/abstracts/variables' as v;
+@use '@/styles/abstracts/functions' as fn;
 
 .header {
   width: 100%;
   background-color: var(--bg-page);
+
+  &__logo {
+    display: flex;
+    align-items: center;
+    height: fn.r(56);
+    padding: fn.r(16) fn.r(20);
+  }
 
   &__nav {
     display: flex;
