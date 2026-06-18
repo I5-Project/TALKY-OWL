@@ -2,14 +2,14 @@
 @use 'styles/abstracts/functions' as fn;
 
 .backdrop {
-  background-color: rgba(0, 0, 0, 0.4);
+  background-color: rgba(0, 0, 0, 0.25);
+  backdrop-filter: blur(4px);
 }
 
 .paper {
   width: calc(100% - fn.r(40));
   max-width: fn.r(360);
-  border-radius: fn.r(8) !important;
+  border-radius: fn.r(16) !important;
   padding: fn.r(24) fn.r(20) fn.r(20);
   box-shadow: 0 fn.r(4) fn.r(24) rgba(0, 0, 0, 0.12);
-  border: 2px solid v.$color-black-700 !important;
 }
