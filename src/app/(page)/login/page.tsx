@@ -33,7 +33,7 @@ export default function LoginPage() {
           className={styles.kakaoButton}
           onClick={() => signIn('kakao', { callbackUrl: '/' })}
         >
-          <KakaoTalkIcon />
+          <KakaoIcon />
           카카오로 로그인 하기
         </Button>
         <p className={styles.disclaimer}>
@@ -52,33 +52,22 @@ export default function LoginPage() {
   );
 }
 
-function KakaoTalkIcon() {
+function KakaoIcon() {
   return (
     <svg
-      width="20"
-      height="20"
-      viewBox="0 0 24 24"
+      width="18"
+      height="18"
+      viewBox="0 0 18 18"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       aria-hidden="true"
     >
       <path
-        d="M12 3C6.477 3 2 6.463 2 10.691c0 2.722 1.81 5.104 4.533 6.454l-1.15 4.197a.307.307 0 0 0 .47.334l4.833-3.207c.43.04.864.063 1.314.063 5.523 0 10-3.463 10-7.841C22 6.463 17.523 3 12 3Z"
+        fillRule="evenodd"
+        clipRule="evenodd"
+        d="M9 1.5C4.858 1.5 1.5 4.134 1.5 7.38c0 2.1 1.395 3.942 3.498 4.998L4.1 15.228a.188.188 0 0 0 .288.204l3.726-2.472A8.8 8.8 0 0 0 9 13.26c4.142 0 7.5-2.634 7.5-5.88S13.142 1.5 9 1.5Z"
         fill="#000000"
       />
-      <text
-        x="12"
-        y="12.2"
-        textAnchor="middle"
-        dominantBaseline="central"
-        fill="#FFE812"
-        fontSize="5.5"
-        fontWeight="800"
-        fontFamily="Arial, sans-serif"
-        letterSpacing="0.3"
-      >
-        TALK
-      </text>
     </svg>
   );
 }
