@@ -12,7 +12,16 @@ function formatDate(isoString: string): string {
 
 export default function ActiveCasesSection() {
   const router = useRouter()
-  const { data: cases = [] } = useActiveCases()
+  const { data: cases = [], isLoading, isError } = useActiveCases()
+
+  if (isLoading) return null
+
+  if (isError) return (
+    <section className={styles.section}>
+      <h2 className={styles.title}>진행중인 사건</h2>
+      <p className={styles.empty}>사건 목록을 불러올 수 없어요</p>
+    </section>
+  )
 
   return (
     <section className={styles.section}>
@@ -26,13 +35,13 @@ export default function ActiveCasesSection() {
             <li
               key={item.id}
               className={styles.cardWrapper}
+              onClick={() => router.push(`/disputes/${item.id}`)}
             >
               <CaseCard
                 title={item.title}
                 preview={item.description ?? ''}
                 date=""
                 categoryGroup={item.categoryGroup}
-                onClick={() => router.push(`/disputes/${item.id}`)}
               />
               <div className={styles.cardFooter}>
                 <AvatarGroup size="s" max={2}>

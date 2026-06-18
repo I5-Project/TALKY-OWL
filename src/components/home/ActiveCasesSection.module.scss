@@ -10,6 +10,7 @@
 
 .title {
   @include m.text-title-s;
+
   color: v.$color-black-700;
 }
 
@@ -59,11 +60,13 @@
 
 .cardDate {
   @include m.text-label-s;
+
   color: v.$color-black-400;
 }
 
 .empty {
   @include m.text-body-s;
+
   color: v.$color-black-400;
   text-align: center;
   padding: fn.r(24) 0;
