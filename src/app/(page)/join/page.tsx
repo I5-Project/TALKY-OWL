@@ -1,19 +1,20 @@
 'use client';
 
-import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Button from '@/components/ui/Button';
 import JoinStatusView from '@/components/ui/JoinStatusView';
-import InviteChoiceModal from '@/components/room/InviteChoiceModal';
 import styles from './join.module.scss';
 
-// TODO: API 연동 후 실제 상태로 교체
+// TODO: API 연동 후 token 검증 결과로 교체
 type JoinState = 'invite' | 'error' | 'closed';
 const currentState: JoinState = 'invite';
 
+// TODO: API 연동 후 초대자 정보로 교체
+const inviterName = '';
+const disputeTitle = '';
+
 export default function JoinPage() {
   const router = useRouter();
-  const [modalOpen, setModalOpen] = useState(false);
 
   const goToMain = () => router.push('/home');
 
@@ -47,19 +48,14 @@ export default function JoinPage() {
           <img src="/images/characters/character-welcome.png" alt="말해부엉 판사" />
         </div>
         <p className={styles.message}>
-          <span className={styles.inviterName}>박정민</span>
-          {'님이 OOO 사건으로\n진술을 요청했어요'}
+          <span className={styles.inviterName}>{inviterName}</span>
+          {`님이 ${disputeTitle} 사건으로\n진술을 요청했어요`}
         </p>
       </div>
       <div className={styles.footer}>
-        <Button onClick={() => setModalOpen(true)}>진술하러 가기</Button>
+        {/* TODO: join API 연동 후 진술 페이지로 이동 */}
+        <Button onClick={() => {}}>진술하러 가기</Button>
       </div>
-      <InviteChoiceModal
-        open={modalOpen}
-        onClose={() => setModalOpen(false)}
-        onAlone={() => {}}
-        onInvite={() => {}}
-      />
     </div>
   );
 }
