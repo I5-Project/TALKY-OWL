@@ -1,8 +1,30 @@
 import type { NextAuthOptions } from 'next-auth'
+import type { Adapter, AdapterAccount } from 'next-auth/adapters'
 import KakaoProvider from 'next-auth/providers/kakao'
 import { PrismaAdapter } from '@auth/prisma-adapter'
 import { prisma } from '@/lib/db'
 import { generateNickname, generateFallbackNickname } from './nickname'
+
+const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+
+const ACCOUNT_FIELDS = new Set([
+  'id', 'userId', 'type', 'provider', 'providerAccountId',
+  'refresh_token', 'access_token', 'expires_at', 'token_type',
+  'scope', 'id_token', 'session_state',
+])
+
+function createAdapter(): Adapter {
+  const base = PrismaAdapter(prisma) as Adapter
+  return {
+    ...base,
+    linkAccount: (account: AdapterAccount) => {
+      const filtered = Object.fromEntries(
+        Object.entries(account).filter(([key]) => ACCOUNT_FIELDS.has(key))
+      ) as AdapterAccount
+      return base.linkAccount!(filtered)
+    },
+  }
+}
 
 const MAX_NICKNAME_RETRIES = 10
 
@@ -30,7 +52,7 @@ async function saveFirstLoginFields(userId: string, kakaoId: string): Promise<vo
 }
 
 export const authOptions: NextAuthOptions = {
-  adapter: PrismaAdapter(prisma) as NextAuthOptions['adapter'],
+  adapter: createAdapter() as NextAuthOptions['adapter'],
   session: { strategy: 'jwt' },
   providers: [
     KakaoProvider({
@@ -44,13 +66,12 @@ export const authOptions: NextAuthOptions = {
   },
   callbacks: {
     async signIn({ user, account }) {
-      if (account?.provider === 'kakao' && user.id) {
+      if (account?.provider === 'kakao' && user.id && UUID_REGEX.test(user.id)) {
         const existing = await prisma.user.findUnique({
           where: { id: user.id },
           select: { kakaoId: true },
         })
 
-        // kakaoId가 없으면 최초 로그인 → 커스텀 필드 설정 (닉네임 충돌 시 재시도)
         if (!existing?.kakaoId) {
           await saveFirstLoginFields(user.id, account.providerAccountId)
         }
@@ -69,6 +90,19 @@ export const authOptions: NextAuthOptions = {
         (session.user as { id?: string }).id = token.sub
       }
       return session
+    },
+  },
+  events: {
+    async createUser({ user }) {
+      // PrismaAdapter가 User를 생성한 직후 호출됨 — 신규 사용자 커스텀 필드 설정
+      const account = await prisma.account.findFirst({
+        where: { userId: user.id, provider: 'kakao' },
+        select: { providerAccountId: true },
+      })
+
+      if (account) {
+        await saveFirstLoginFields(user.id, account.providerAccountId)
+      }
     },
   },
   secret: process.env.NEXTAUTH_SECRET,

@@ -37,15 +37,15 @@ export default function LoginPage() {
           카카오로 로그인 하기
         </Button>
         <p className={styles.disclaimer}>
-          로그인 시{' '}
+          소셜 로그인 가입 시 본{' '}
           <Link href="/terms" className={styles.disclaimerLink}>
-            이용약관
+            서비스이용약관
           </Link>{' '}
           및{' '}
           <Link href="/privacy" className={styles.disclaimerLink}>
-            개인정보 처리방침
+            개인정보처리방침
           </Link>
-          에 동의한 것으로 간주합니다.
+          에 동의하시는 것으로 간주됩니다
         </p>
       </div>
     </div>
