@@ -3,8 +3,11 @@ import Link from 'next/link'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import Header from '@/components/layout/Header'
+import BottomNavigation from '@/components/layout/BottomNavigation'
 import StatsCategorySection from '@/components/home/StatsCategorySection'
 import ActiveCasesSection from '@/components/home/ActiveCasesSection'
+import NewCaseButton from '@/components/home/NewCaseButton'
+import HomeServiceInfo from '@/components/home/HomeServiceInfo'
 import styles from './page.module.scss'
 
 export default async function HomePage() {
@@ -63,6 +66,14 @@ export default async function HomePage() {
           </Link>
         )}
       </main>
+
+      {/* 서비스 정보 푸터 — 스크롤 시 탭바 바로 위에 sticky */}
+      <div className={styles.serviceInfoWrapper}>
+        <HomeServiceInfo />
+      </div>
+
+      {isLoggedIn && <NewCaseButton />}
+      <BottomNavigation />
     </div>
   )
 }

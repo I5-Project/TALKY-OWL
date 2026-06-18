@@ -1,0 +1,42 @@
+@use '@/styles/abstracts/variables' as v;
+@use '@/styles/abstracts/mixins' as m;
+@use '@/styles/abstracts/functions' as fn;
+
+.box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  background-color: var(--text-primary);
+  border-radius: 0;
+  padding: fn.r(20) fn.r(16) fn.r(20);
+  box-sizing: border-box;
+}
+
+.logo {
+  display: block;
+  width: fn.r(66);
+  height: fn.r(19);
+  object-fit: contain;
+}
+
+.links {
+  display: flex;
+  align-items: center;
+  gap: fn.r(10);
+  margin-top: fn.r(10);
+}
+
+.link {
+  @include m.text-caption;
+  color: v.$color-black-200;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.copyright {
+  @include m.text-caption;
+  color: v.$color-black-400;
+  margin-top: fn.r(10);
+  text-align: center;
+}

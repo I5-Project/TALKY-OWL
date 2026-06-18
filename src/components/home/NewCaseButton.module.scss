@@ -1,0 +1,27 @@
+@use '@/styles/abstracts/variables' as v;
+@use '@/styles/abstracts/mixins' as m;
+@use '@/styles/abstracts/functions' as fn;
+
+.button {
+  position: fixed;
+  // 탭바(64px) + border(1px) = 65px, 그 위 16px 여백
+  bottom: fn.r(81);
+  // 컨테이너 우측 16px 안쪽 정렬 (max-width: 1000px 기준)
+  right: max(fn.r(16), calc((100vw - #{v.$container-max-width}) / 2 + #{fn.r(16)}));
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: fn.r(115);
+  height: fn.r(48);
+
+  background-color: v.$color-black-700;
+  border-radius: fn.r(100);
+  text-decoration: none;
+  cursor: pointer;
+  z-index: 101;
+
+  @include m.text-title-s;
+  color: #ffffff;
+  white-space: nowrap;
+}
