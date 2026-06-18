@@ -41,6 +41,9 @@ export default async function HomePage() {
 
         {/* 고민 카테고리 TOP4 */}
         <StatsCategorySection />
+
+        {/* 구분선 */}
+        <div className={styles.divider} />
       </main>
     </div>
   )

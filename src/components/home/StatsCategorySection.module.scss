@@ -27,10 +27,11 @@
   &__segment {
     height: 100%;
 
-    &--romance { background-color: var(--category-love-bg); }
-    &--work    { background-color: var(--category-work-bg); }
-    &--friend  { background-color: var(--category-friend-bg); }
-    &--family  { background-color: var(--category-family-bg); }
+    &--romance     { background-color: var(--category-love-bg); }
+    &--work        { background-color: var(--category-work-bg); }
+    &--friend      { background-color: var(--category-friend-bg); }
+    &--family      { background-color: var(--category-family-bg); }
+    &--placeholder { background-color: var(--bg-disabled); }
   }
 }
 

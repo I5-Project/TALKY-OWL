@@ -83,6 +83,15 @@
   line-height: v.$line-height-caption;
 }
 
+// 구분선
+.divider {
+  height: 8px;
+  background-color: v.$color-black-100;
+  margin-top: 26px; // gap(16) + 26 = 42px
+  margin-left: -16px;
+  margin-right: -16px;
+}
+
 .diaryButton {
   width: 28px;
   height: 28px;
