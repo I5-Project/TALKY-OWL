@@ -6,7 +6,7 @@ import JoinStatusView from '@/components/ui/JoinStatusView';
 import styles from './join.module.scss';
 
 // TODO: API 연동 후 token 검증 결과로 교체
-type JoinState = 'invite' | 'error' | 'closed';
+type JoinState = 'invite' | 'error' | 'closed' | 'expired';
 const currentState: JoinState = 'invite';
 
 // TODO: API 연동 후 초대자 정보로 교체
@@ -33,7 +33,18 @@ export default function JoinPage() {
     return (
       <JoinStatusView
         character={<img src="/images/characters/character-closed.png" alt="종료된 사건" />}
-        message={'사건이 종료 또는 만료되어\n더 이상 열람할 수 없어요'}
+        message={'사건이 종료되어\n더 이상 열람할 수 없어요'}
+        buttonLabel="메인으로 돌아가기"
+        onButtonClick={goToMain}
+      />
+    );
+  }
+
+  if (currentState === 'expired') {
+    return (
+      <JoinStatusView
+        character={<img src="/images/characters/character-closed.png" alt="만료된 사건" />}
+        message={'초대 링크가 만료되어\n더 이상 참여할 수 없어요'}
         buttonLabel="메인으로 돌아가기"
         onButtonClick={goToMain}
       />
