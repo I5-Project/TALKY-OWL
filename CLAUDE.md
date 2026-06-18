@@ -10,12 +10,17 @@
 
 ```txt
 AI 대화방 생성
-→ AI 대화
-→ 초대 링크 발급
-→ 상대방 참여
-→ 1:1 조정 전환
-→ 양측 진술 작성
-→ AI 판결 생성
+→ AI 대화 (갈등 상황 입력 + AI 분석)
+→ 진술저장
+→ [혼자서 진행 / 상대방 초대] 선택
+→ 진술 작성 (disputes/[id]/statement)
+     │                        │
+     ▼                        ▼
+단독 AI 판결             초대 링크 발급
+(판결 탭 바로 진입)       → 상대방 참여
+                         → 1:1 조정 전환
+                         → 상대방 진술 작성
+                         → AI 1:1 판결
 → 판결 결과 확인
 → 선물추천
 ```
@@ -31,6 +36,7 @@ AI 대화방 생성
 - 약관 동의
 - AI 대화방 생성
 - AI와 갈등 상황 정리
+- 단독 판결 (혼자서 진행)
 - 초대 링크 발급
 - 상대방 참여
 - 1:1 조정 전환
@@ -51,7 +57,6 @@ AI 대화방 생성
 ### MVP 제외
 
 ```txt
-- 상대방 없는 단독 판결
 - shop
 - points
 - user-items
@@ -98,7 +103,10 @@ MVP 제외 기능은 구현하지 않는다.
 - 모든 방은 먼저 AI 대화방으로 생성한다.
 - AI 대화방 단계에서는 갈등 정리, 감정 정리, 대화 방향 조언만 제공한다.
 - AI 대화방 단계에서는 판결 점수를 생성하지 않는다.
-- 상대방 참여 후 1:1 조정 상태로 전환된 뒤에만 AI 판결을 생성할 수 있다.
+- 진술저장 후 분기:
+  - 혼자서 진행: disputes/[id]/statement에서 진술 작성 후 단독 AI 판결 가능
+  - 상대방 초대: disputes/[id]/statement에서 진술 작성 후 초대 링크 발급 → 1:1 AI 판결은 상대방 참여 후 가능
+- 단독 판결과 1:1 판결 모두 disputes/[id]/statement를 거친다.
 ```
 
 ### AI 판결 결과
@@ -241,11 +249,22 @@ ai_chat
 
 ### dispute_status
 
+1:1 판결 경로:
+
 ```txt
 draft
 → waiting_opponent
 → opponent_joined
 → both_submitted
+→ judging
+→ judged
+→ closed / expired / deleted
+```
+
+단독 판결 경로:
+
+```txt
+draft
 → judging
 → judged
 → closed / expired / deleted
