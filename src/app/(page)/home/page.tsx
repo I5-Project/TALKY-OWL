@@ -8,8 +8,10 @@ import styles from './page.module.scss'
 
 export default async function HomePage() {
   const session = await getServerSession(authOptions)
-  const isLoggedIn = !!session
-  const userName = session?.user?.name ?? '사용자'
+  // TODO: [개발 완료 후 반드시 제거] 개발 편의를 위해 로그인 상태 강제 설정
+  // 실제 배포 전 아래 줄을 삭제하고 const isLoggedIn = !!session 으로 교체할 것
+  const isLoggedIn = true
+  const userName = session?.user?.name ?? '테스트유저'
 
   return (
     <div className={styles.page}>
