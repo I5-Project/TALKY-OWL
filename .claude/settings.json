@@ -11,7 +11,27 @@
       "Bash(git commit -m 'style: 컨테이너 max-width 1000px 설정 *)",
       "Bash(git commit -m 'style: 루트 레이아웃 container 적용 및 개발 확인용 임시 border 추가 *)",
       "Bash(git commit -m 'style: 개발 확인용 임시 border 색상 회색으로 변경 *)",
-      "Bash(git commit -m 'style: container min-height 100vh 추가 *)"
+      "Bash(git commit -m 'style: container min-height 100vh 추가 *)",
+      "PowerShell(git fetch origin dev)",
+      "PowerShell(git merge origin/dev)",
+      "PowerShell(git stash -u -m \"WIP: login page\")",
+      "Bash(npx prisma *)",
+      "Bash(git stash *)",
+      "Bash(git -C \"c:\\\\team-project\\\\talky-owl\" log --oneline -5 --all)",
+      "Bash(git -C \"c:\\\\team-project\\\\talky-owl\" log --oneline --all)",
+      "Bash(git -C \"c:\\\\team-project\\\\talky-owl\" show e606322 --stat)",
+      "Bash(git -C \"c:\\\\team-project\\\\talky-owl\" checkout -b docs/solo-judgment-flow-update dev)",
+      "Bash(git -C \"c:\\\\team-project\\\\talky-owl\" checkout -b docs/solo-judgment-flow-update)",
+      "Bash(git -C \"c:\\\\team-project\\\\talky-owl\" add CLAUDE.md docs/PROJECT_DECISIONS.md docs/db/STATUS_TRANSITION.md docs/domains/DISPUTE.md docs/domains/ROOM.md)",
+      "Bash(git -C \"c:\\\\team-project\\\\talky-owl\" status)",
+      "Bash(git -C 'c:\\\\team-project\\\\talky-owl' commit -m 'docs: 단독/1:1 판결 공통 진입 흐름 반영 및 관련 문서 일괄 수정 *)",
+      "Bash(git -C \"c:\\\\team-project\\\\talky-owl\" push -u origin docs/solo-judgment-flow-update)",
+      "Bash(git -C \"c:\\\\team-project\\\\talky-owl\" checkout feature/common-component-jw)",
+      "Bash(git -C \"c:\\\\team-project\\\\talky-owl\" log --oneline -3 feature/common-component-jw)",
+      "Bash(git -C \"c:\\\\team-project\\\\talky-owl\" show 1f30c28 --stat)",
+      "Bash(git -C \"c:\\\\team-project\\\\talky-owl\" show 8c70a4b --stat)",
+      "Bash(git -C \"c:\\\\team-project\\\\talky-owl\" add .claude/settings.json)",
+      "Bash(git -C 'c:\\\\team-project\\\\talky-owl' commit -m 'merge: origin/dev 반영 및 settings.json 충돌 해결 *)"
     ]
   }
 }

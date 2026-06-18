@@ -1,5 +1,5 @@
-@use '../../styles/abstracts/variables' as v;
-@use '../../styles/abstracts/functions' as fn;
+@use '@/styles/abstracts/variables' as v;
+@use '@/styles/abstracts/functions' as fn;
 
 .field {
   display: flex;
@@ -18,7 +18,7 @@
     position: relative;
   }
 
-  &__select {
+  &__trigger {
     width: 100%;
     height: fn.r(52);
     padding: 0 fn.r(44) 0 fn.r(16);
@@ -28,15 +28,15 @@
     line-height: v.$line-height-body-m;
     color: var(--text-primary);
     background-color: var(--bg-surface);
-    border: 1px solid var(--border-default);
+    border: 1px solid var(--border-strong);
     border-radius: fn.r(8);
     outline: none;
-    appearance: none;
     cursor: pointer;
+    text-align: left;
     transition: border-color 0.15s;
 
-    &:focus {
-      border-color: var(--border-brand);
+    &--placeholder {
+      color: var(--text-secondary);
     }
 
     &--error {
@@ -49,8 +49,53 @@
     right: fn.r(16);
     top: 50%;
     transform: translateY(-50%);
-    color: var(--icon-secondary);
+    color: #000;
     pointer-events: none;
+    transition: transform 0.2s ease;
+
+    &--open {
+      transform: translateY(-50%) rotate(180deg);
+    }
+  }
+
+  &__dropdown {
+    position: absolute;
+    top: calc(100% + fn.r(4));
+    left: 0;
+    right: 0;
+    background-color: var(--bg-surface);
+    border: 1px solid var(--border-strong);
+    border-radius: fn.r(8);
+    z-index: 200;
+    max-height: fn.r(240);
+    overflow-y: auto;
+    list-style: none;
+    margin: 0;
+    padding: fn.r(4) 0;
+    box-shadow: 0 fn.r(4) fn.r(12) rgba(0, 0, 0, 0.08);
+  }
+
+  &__option {
+    padding: fn.r(12) fn.r(16);
+    font-family: v.$font-family-base;
+    font-size: v.$font-size-body-m;
+    font-weight: v.$font-weight-regular;
+    line-height: v.$line-height-body-m;
+    color: var(--text-primary);
+    cursor: pointer;
+
+    &:hover {
+      background-color: var(--bg-page);
+    }
+
+    &--selected {
+      color: var(--text-brand);
+      font-weight: v.$font-weight-semibold;
+    }
+
+    &--focused {
+      background-color: var(--bg-page);
+    }
   }
 
   &__error {

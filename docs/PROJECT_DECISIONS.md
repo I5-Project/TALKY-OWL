@@ -15,12 +15,17 @@ AI 갈등 조정 판결 서비스.
 
 ```txt
 AI 대화방 생성
-→ AI 대화
-→ 초대 링크 발급
-→ 상대방 참여
-→ 1:1 조정 전환
-→ 양측 진술 작성
-→ AI 판결 생성
+→ AI 대화 (갈등 상황 입력 + AI 분석)
+→ 진술저장
+→ [혼자서 진행 / 상대방 초대] 선택
+→ 진술 작성 (disputes/[id]/statement)
+     │                        │
+     ▼                        ▼
+단독 AI 판결             초대 링크 발급
+(판결 탭 바로 진입)       → 상대방 참여
+                         → 1:1 조정 전환
+                         → 상대방 진술 작성
+                         → AI 1:1 판결
 → 판결 결과 확인
 → 선물추천
 ```
@@ -32,6 +37,7 @@ AI 대화방 생성
 ```txt
 카카오 로그인 / 약관 동의
 AI 대화방 생성 / AI와 갈등 상황 정리
+단독 판결 (혼자서 진행)
 초대 링크 발급 / 상대방 참여 / 1:1 조정 전환
 양측 진술 작성 / AI 판결 생성
 판결 결과 확인 / 판결 결과 카드
@@ -46,7 +52,6 @@ AI 대화방 생성 / AI와 갈등 상황 정리
 ## 4. MVP 제외 범위
 
 ```txt
-상대방 없는 단독 판결
 shop / points / user-items
 내부 결제
 카카오톡 선물하기 직접 연동
@@ -128,8 +133,16 @@ ai_chat → invite_ready → one_to_one → closed / expired / deleted
 
 ### dispute_status
 
+1:1 판결 경로:
+
 ```txt
 draft → waiting_opponent → opponent_joined → both_submitted → judging → judged → closed / expired / deleted
+```
+
+단독 판결 경로:
+
+```txt
+draft → judging → judged → closed / expired / deleted
 ```
 
 `jailed` 상태명은 사용하지 않는다. 상세 내용은 `docs/db/STATUS_TRANSITION.md` 참고.

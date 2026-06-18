@@ -34,11 +34,28 @@ closed / expired / deleted
 
 ## 2. dispute_status
 
-1:1 조정 사건의 진행 상태를 나타낸다.
+사건의 진행 상태를 나타낸다. 단독 판결과 1:1 판결의 경로가 다르다.
+
+### 단독 판결 경로 (혼자서 진행)
 
 ```txt
 draft
-  │ 생성자 진술 준비
+  │ role_a 진술 작성 후 단독 AI 판결 요청
+  ▼
+judging
+  │ AI 판결 완료
+  ▼
+judged
+  │ 종료 / 만료 / 삭제
+  ▼
+closed / expired / deleted
+```
+
+### 1:1 판결 경로 (상대방 초대)
+
+```txt
+draft
+  │ role_a 진술 작성 후 초대 링크 발급
   ▼
 waiting_opponent
   │ 상대방 참여
@@ -61,11 +78,11 @@ closed / expired / deleted
 | 상태 | 설명 |
 |------|------|
 | `draft` | 방(room) 생성 시 dispute 함께 생성. role_a 진술 작성 대기 단계 |
-| `waiting_opponent` | role_a 진술 완료 후 상대방 초대 선택. 상대방 참여 대기 |
-| `opponent_joined` | role_b 참여 완료. role_b 진술 작성 가능 |
-| `both_submitted` | 양측 진술 완료. AI 판결 요청 가능 |
-| `judging` | AI 판결 처리 중 |
-| `judged` | AI 판결 완료 |
+| `waiting_opponent` | role_a 진술 완료 후 초대 링크 발급. 상대방 참여 대기 (1:1 전용) |
+| `opponent_joined` | role_b 참여 완료. role_b 진술 작성 가능 (1:1 전용) |
+| `both_submitted` | 양측 진술 완료. AI 판결 요청 가능 (1:1 전용) |
+| `judging` | AI 판결 처리 중 (단독 / 1:1 공통) |
+| `judged` | AI 판결 완료 (단독 / 1:1 공통) |
 | `closed` | 정상 종료 |
 | `expired` | 만료 처리 |
 | `deleted` | 삭제 처리 |
