@@ -120,7 +120,7 @@ export async function GET(request: NextRequest) {
 }
 
 // POST /api/disputes
-// 사건 생성 (1:1 전환). 방이 one_to_one 상태일 때만 생성 가능. 생성자는 role_a로 확정
+// 사건 생성. 활성 방(ai_chat, invite_ready, one_to_one)에서 생성 가능. 생성자는 role_a로 확정
 export async function POST(request: NextRequest) {
   const session = await getServerSession(authOptions)
   const userId = getSessionUserId(session)
@@ -173,14 +173,13 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // AI 대화방 없이 바로 1:1 사건 생성 금지
-    if (room.roomMode !== 'ONE_TO_ONE') {
+    if (room.roomMode === 'CLOSED' || room.roomMode === 'EXPIRED') {
       return NextResponse.json<ApiResponse>(
         {
           success: false,
           error: {
             code: 'ROOM_NOT_READY',
-            message: '상대방이 참여한 1:1 방에서만 사건을 생성할 수 있습니다.',
+            message: '이미 종료되거나 만료된 방입니다.',
             details: `현재 방 상태: ${room.roomMode.toLowerCase()}`,
           },
         },
