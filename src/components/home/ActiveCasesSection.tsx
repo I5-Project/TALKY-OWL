@@ -2,7 +2,7 @@
 
 import { useRouter } from 'next/navigation'
 import CaseCard from '@/components/ui/CaseCard'
-import { CATEGORY_COLOR_MAP } from '@/components/ui/CategoryIcon'
+import Avatar, { AvatarGroup } from '@/components/ui/Avatar'
 import { useActiveCases } from '@/hooks/useActiveCases'
 import styles from './ActiveCasesSection.module.scss'
 
@@ -26,7 +26,6 @@ export default function ActiveCasesSection() {
             <li
               key={item.id}
               className={styles.cardWrapper}
-              style={{ '--accent-color': CATEGORY_COLOR_MAP[item.categoryGroup] } as React.CSSProperties}
             >
               <CaseCard
                 title={item.title}
@@ -34,9 +33,22 @@ export default function ActiveCasesSection() {
                 date={formatDate(item.createdAt)}
                 categoryGroup={item.categoryGroup}
                 status="progress"
-                participants={item.participants}
                 onClick={() => router.push(`/disputes/${item.id}`)}
               />
+              {item.participants.length > 0 && (
+                <div className={styles.avatarOverlay}>
+                  <AvatarGroup size="s" max={2}>
+                    {item.participants.map((p) => (
+                      <Avatar
+                        key={p.role}
+                        src={p.user.profileImageUrl ?? undefined}
+                        alt={p.user.nickname ?? '참여자'}
+                        size="s"
+                      />
+                    ))}
+                  </AvatarGroup>
+                </div>
+              )}
             </li>
           ))}
         </ul>

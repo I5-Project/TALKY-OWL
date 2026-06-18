@@ -19,7 +19,7 @@ export const CATEGORY_LABEL_MAP: Record<CategoryGroup, string> = {
   family:  '가족',
 };
 
-export const CATEGORY_COLOR_MAP: Record<CategoryGroup, string> = {
+const CATEGORY_COLOR_MAP: Record<CategoryGroup, string> = {
   romance: 'var(--category-love-text)',
   work:    'var(--category-work-text)',
   friend:  'var(--category-friend-text)',

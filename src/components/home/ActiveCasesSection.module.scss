@@ -23,9 +23,14 @@
 }
 
 .cardWrapper {
-  border-left: 4px solid var(--accent-color);
-  border-radius: fn.r(12);
-  overflow: hidden;
+  position: relative;
+}
+
+.avatarOverlay {
+  position: absolute;
+  bottom: fn.r(16);
+  left: fn.r(16);
+  pointer-events: none;
 }
 
 .empty {
