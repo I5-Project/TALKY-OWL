@@ -25,7 +25,11 @@
       "Bash(git -C \"c:\\\\team-project\\\\talky-owl\" add CLAUDE.md docs/PROJECT_DECISIONS.md docs/db/STATUS_TRANSITION.md docs/domains/DISPUTE.md docs/domains/ROOM.md)",
       "Bash(git -C \"c:\\\\team-project\\\\talky-owl\" status)",
       "Bash(git -C 'c:\\\\team-project\\\\talky-owl' commit -m 'docs: 단독/1:1 판결 공통 진입 흐름 반영 및 관련 문서 일괄 수정 *)",
-      "Bash(git -C \"c:\\\\team-project\\\\talky-owl\" push -u origin docs/solo-judgment-flow-update)"
+      "Bash(git -C \"c:\\\\team-project\\\\talky-owl\" push -u origin docs/solo-judgment-flow-update)",
+      "Bash(git -C \"c:\\\\team-project\\\\talky-owl\" checkout feature/common-component-jw)",
+      "Bash(git -C \"c:\\\\team-project\\\\talky-owl\" log --oneline -3 feature/common-component-jw)",
+      "Bash(git -C \"c:\\\\team-project\\\\talky-owl\" show 1f30c28 --stat)",
+      "Bash(git -C \"c:\\\\team-project\\\\talky-owl\" show 8c70a4b --stat)"
     ]
   }
 }
