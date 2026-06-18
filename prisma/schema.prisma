@@ -221,7 +221,7 @@ model User {
 
   // TALKY-OWL 서비스 필드
   kakaoId             String?    @unique @map("kakao_id") @db.VarChar(100)
-  nickname            String?    @db.VarChar(100)
+  nickname            String?    @unique @db.VarChar(100)
   profileImageUrl     String?    @map("profile_image_url")
   profileMediaAssetId String?    @map("profile_media_asset_id") @db.Uuid
   gender              UserGender?
