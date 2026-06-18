@@ -72,7 +72,12 @@ export async function moderateContent(content: string): Promise<ModerationResult
   const jsonMatch = text.match(/\{[\s\S]*\}/)
   if (!jsonMatch) throw new Error('Gemini moderation returned invalid JSON')
 
-  const parsed = JSON.parse(jsonMatch[0])
+  let parsed: { isBlocked?: unknown; reason?: unknown; confidenceScore?: unknown; hasPersonalInfo?: unknown }
+  try {
+    parsed = JSON.parse(jsonMatch[0])
+  } catch {
+    throw new Error('Gemini moderation returned unparseable JSON')
+  }
 
   return {
     isBlocked: Boolean(parsed.isBlocked),
