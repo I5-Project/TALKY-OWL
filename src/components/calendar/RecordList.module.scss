@@ -1,0 +1,18 @@
+@use '../../styles/abstracts/functions' as fn;
+
+.list {
+  list-style: none;
+  min-height: fn.r(300);
+  margin-block: 10px;
+  padding: fn.r(20);
+  display: flex;
+  flex-direction: column;
+  gap: fn.r(8);
+}
+
+.empty {
+  min-height: fn.r(400);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}

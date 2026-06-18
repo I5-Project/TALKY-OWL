@@ -1,0 +1,21 @@
+.wrapper {
+  position: relative;
+  width: var(--emotion-size);
+  height: var(--emotion-size);
+  flex-shrink: 0;
+}
+
+.badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  min-width: 14px;
+  height: 14px;
+  padding: 0 3px;
+  border-radius: 50%;
+  background-color: var(--icon-primary);
+  color: #fff;
+  font-size: 10px;
+  line-height: 14px;
+  text-align: center;
+}
