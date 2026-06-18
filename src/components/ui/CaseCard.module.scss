@@ -63,7 +63,7 @@
     font-size: v.$font-size-body-s;
     font-weight: v.$font-weight-regular;
     line-height: v.$line-height-body-s;
-    color: var(--text-secondary);
+    color: v.$color-black-700;
     display: -webkit-box;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
