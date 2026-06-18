@@ -23,7 +23,7 @@ const createDisputeSchema = z.object({
 })
 
 type DisputeForList = Prisma.DisputeGetPayload<{
-  include: { participants: true }
+  include: { participants: { include: { user: { select: { profileImageUrl: true } } } } }
 }>
 
 function toParticipantDto(p: DisputeForList['participants'][number]): DisputeParticipantDto {
@@ -32,6 +32,7 @@ function toParticipantDto(p: DisputeForList['participants'][number]): DisputePar
     disputeId: p.disputeId,
     userId: p.userId,
     role: p.role.toLowerCase() as DisputeParticipantDto['role'],
+    profileImageUrl: p.user.profileImageUrl ?? null,
     joinedAt: p.joinedAt.toISOString(),
     createdAt: p.createdAt.toISOString(),
   }
@@ -99,7 +100,7 @@ export async function GET(request: NextRequest) {
     const [disputes, total] = await prisma.$transaction([
       prisma.dispute.findMany({
         where,
-        include: { participants: true },
+        include: { participants: { include: { user: { select: { profileImageUrl: true } } } } },
         orderBy: { createdAt: 'desc' },
         take: limit,
         skip: (page - 1) * limit,
@@ -218,7 +219,7 @@ export async function POST(request: NextRequest) {
       })
       return tx.dispute.findUniqueOrThrow({
         where: { id: created.id },
-        include: { participants: true },
+        include: { participants: { include: { user: { select: { profileImageUrl: true } } } } },
       })
     })
 

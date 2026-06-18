@@ -36,6 +36,19 @@
     }
   }
 
+  &--soft {
+    background-color: var(--bg-surface-soft);
+    color: var(--text-brand);
+
+    &:hover:not(:disabled) {
+      background-color: var(--bg-brand-soft);
+    }
+  }
+
+  &--sm {
+    height: fn.r(48);
+  }
+
   &--disabled,
   &:disabled {
     background-color: var(--bg-disabled);

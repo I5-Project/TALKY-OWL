@@ -23,10 +23,6 @@ const statementSchema = z.object({
     .string()
     .min(1, '진술 내용을 입력해주세요.')
     .refine((val) => getByteLength(val) <= 1000, '진술 내용은 1000바이트 이하로 입력해주세요.'),
-  mbti: z
-    .string()
-    .length(4, 'MBTI는 4자리여야 합니다.')
-    .optional(),
 })
 
 // 동시 제출 경쟁 조건에서 발생하는 충돌을 outer catch까지 전달하기 위한 sentinel
@@ -93,7 +89,7 @@ export async function POST(
     )
   }
 
-  const { content, mbti } = parsed.data
+  const { content } = parsed.data
 
   // 개발 환경 bypass: DB 없이 모더레이션만 테스트
   if (DEV_BYPASS && userId === 'dev-bypass-user') {
@@ -252,8 +248,7 @@ export async function POST(
       )
     }
 
-    // 정상 저장 + ModerationLog + user.mbti 업데이트 트랜잭션
-    // create/updateMany(where: submittedAt: null)로 원자적 중복 제출 방지
+    // 정상 저장 + ModerationLog 트랜잭션
     const statement = await prisma.$transaction(async (tx) => {
       let stmt: DisputeStatement
 
@@ -298,13 +293,6 @@ export async function POST(
           modelName: moderation.modelName,
         },
       })
-
-      if (mbti) {
-        await tx.user.update({
-          where: { id: userId },
-          data: { mbti },
-        })
-      }
 
       return stmt
     })
