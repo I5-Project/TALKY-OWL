@@ -105,7 +105,20 @@ export default function DisputePage({ params }: { params: Promise<{ id: string }
         )}
 
         <div className={styles.infoMeta}>
-          <span className={styles.infoDate}>{formattedDate}</span>
+          <div className={styles.infoDateGroup}>
+            <div className={styles.avatarStack}>
+              {dispute.participants.slice(0, 2).map((p) => (
+                <div key={p.id} className={styles.avatar}>
+                  {p.profileImageUrl ? (
+                    <img src={p.profileImageUrl} alt="" className={styles.avatarImg} />
+                  ) : (
+                    <div className={styles.avatarFallback} />
+                  )}
+                </div>
+              ))}
+            </div>
+            <span className={styles.infoDate}>{formattedDate}</span>
+          </div>
           <StatusBadge status={dispute.status} />
         </div>
       </section>
@@ -155,7 +168,7 @@ export default function DisputePage({ params }: { params: Promise<{ id: string }
         </div>
       )}
 
-      {/* 1인 판결 모달 */}
+      {/* 1인 판결 모달 — 추후 공통 Modal 컴포넌트로 교체 예정 */}
       {showSoloModal && (
         <div className={styles.modalOverlay}>
           <div className={styles.modal}>
