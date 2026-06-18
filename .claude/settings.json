@@ -29,7 +29,9 @@
       "Bash(git -C \"c:\\\\team-project\\\\talky-owl\" checkout feature/common-component-jw)",
       "Bash(git -C \"c:\\\\team-project\\\\talky-owl\" log --oneline -3 feature/common-component-jw)",
       "Bash(git -C \"c:\\\\team-project\\\\talky-owl\" show 1f30c28 --stat)",
-      "Bash(git -C \"c:\\\\team-project\\\\talky-owl\" show 8c70a4b --stat)"
+      "Bash(git -C \"c:\\\\team-project\\\\talky-owl\" show 8c70a4b --stat)",
+      "Bash(git -C \"c:\\\\team-project\\\\talky-owl\" add .claude/settings.json)",
+      "Bash(git -C 'c:\\\\team-project\\\\talky-owl' commit -m 'merge: origin/dev 반영 및 settings.json 충돌 해결 *)"
     ]
   }
 }
