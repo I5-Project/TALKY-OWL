@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import localFont from 'next/font/local';
+import AuthProvider from '@/components/providers/AuthProvider';
 import QueryProvider from '@/components/providers/QueryProvider';
 import './globals.scss';
 
@@ -23,9 +24,11 @@ export default function RootLayout({
   return (
     <html lang="ko" className={pretendard.variable} suppressHydrationWarning>
       <body suppressHydrationWarning>
-        <QueryProvider>
-          <main className="container">{children}</main>
-        </QueryProvider>
+        <AuthProvider>
+          <QueryProvider>
+            <main className="container">{children}</main>
+          </QueryProvider>
+        </AuthProvider>
       </body>
     </html>
   );

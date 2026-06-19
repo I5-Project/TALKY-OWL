@@ -2,11 +2,18 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 import { signIn } from 'next-auth/react';
 import Button from '@/components/ui/Button';
 import styles from './login.module.scss';
 
 export default function LoginPage() {
+  const searchParams = useSearchParams();
+  const returnTo = searchParams.get('callbackUrl');
+  const callbackUrl = returnTo
+    ? `/auth/callback?callbackUrl=${encodeURIComponent(returnTo)}`
+    : '/auth/callback';
+
   return (
     <div className={styles.page}>
       <div className={styles.content}>
@@ -31,7 +38,7 @@ export default function LoginPage() {
       <div className={styles.footer}>
         <Button
           className={styles.kakaoButton}
-          onClick={() => signIn('kakao', { callbackUrl: '/' })}
+          onClick={() => signIn('kakao', { callbackUrl })}
         >
           <KakaoIcon />
           카카오로 로그인 하기
