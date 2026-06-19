@@ -8,9 +8,448 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
-// ============================================================
-// ENUMS
-// ============================================================
+model User {
+  id                          String               @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name                        String?
+  email                       String?              @unique
+  emailVerified               DateTime?            @map("email_verified")
+  image                       String?
+  kakaoId                     String?              @unique @map("kakao_id") @db.VarChar(100)
+  nickname                    String?              @db.VarChar(100)
+  profileImageUrl             String?              @map("profile_image_url")
+  profileMediaAssetId         String?              @map("profile_media_asset_id") @db.Uuid
+  gender                      UserGender?
+  ageGroup                    AgeGroup?            @map("age_group")
+  mbti                        String?              @db.VarChar(4)
+  termsAgreedAt               DateTime?            @map("terms_agreed_at")
+  deletedAt                   DateTime?            @map("deleted_at")
+  deactivatedAt               DateTime?            @map("deactivated_at")
+  deletionRequestedAt         DateTime?            @map("deletion_requested_at")
+  createdAt                   DateTime             @default(now()) @map("created_at")
+  updatedAt                   DateTime             @updatedAt @map("updated_at")
+  accounts                    Account[]
+  calendarRecords             CalendarRecord[]
+  disputeParticipations       DisputeParticipant[]
+  createdRooms                DisputeRoom[]
+  disputeStatements           DisputeStatement[]
+  emotionDiaries              EmotionDiary[]
+  giftReceivedRecommendations GiftRecommendation[] @relation("GiftReceiver")
+  giftSentRecommendations     GiftRecommendation[] @relation("GiftSender")
+  ownedMediaAssets            MediaAsset[]         @relation("MediaAssetOwner")
+  aiConversations             RoomAiConversation[]
+  aiMessages                  RoomAiMessage[]
+  termsAgreements             UserTermsAgreement[]
+  profileMediaAsset           MediaAsset?          @relation("UserProfileAsset", fields: [profileMediaAssetId], references: [id])
+
+  @@map("users")
+}
+
+model Account {
+  id                String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId            String   @map("user_id") @db.Uuid
+  type              String
+  provider          String
+  providerAccountId String   @map("provider_account_id")
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+  createdAt         DateTime @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt         DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamp(6)
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+model UserTermsAgreement {
+  id           String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId       String    @map("user_id") @db.Uuid
+  termsType    TermsType @map("terms_type")
+  termsVersion String    @map("terms_version") @db.VarChar(50)
+  isRequired   Boolean   @default(true) @map("is_required")
+  agreedAt     DateTime  @default(now()) @map("agreed_at")
+  createdAt    DateTime  @default(now()) @map("created_at")
+  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("user_terms_agreements")
+}
+
+model MediaAsset {
+  id                  String               @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  ownerUserId         String?              @map("owner_user_id") @db.Uuid
+  assetType           MediaAssetType       @map("asset_type")
+  bucketName          String               @map("bucket_name") @db.VarChar(100)
+  storagePath         String               @unique @map("storage_path")
+  publicUrl           String?              @map("public_url")
+  signedUrlRequired   Boolean              @default(false) @map("signed_url_required")
+  mimeType            ImageMimeType?       @map("mime_type")
+  sizeBytes           Int?                 @map("size_bytes")
+  width               Int?
+  height              Int?
+  createdAt           DateTime             @default(now()) @map("created_at")
+  updatedAt           DateTime             @updatedAt @map("updated_at")
+  deletedAt           DateTime?            @map("deleted_at")
+  conflictTypeDetails ConflictTypeDetail[]
+  judgmentResultCards JudgmentResultCard[]
+  ownerUser           User?                @relation("MediaAssetOwner", fields: [ownerUserId], references: [id])
+  profileUsers        User[]               @relation("UserProfileAsset")
+
+  @@map("media_assets")
+}
+
+model AiResultNotice {
+  id          String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  noticeType  String       @map("notice_type") @db.VarChar(50)
+  title       String       @db.VarChar(200)
+  content     String
+  version     String       @db.VarChar(50)
+  isActive    Boolean      @default(true) @map("is_active")
+  createdAt   DateTime     @default(now()) @map("created_at")
+  updatedAt   DateTime     @updatedAt @map("updated_at")
+  aiJudgments AiJudgment[]
+
+  @@map("ai_result_notices")
+}
+
+model ConflictTypeGroup {
+  id                  String               @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  groupCode           String               @unique @map("group_code") @db.VarChar(80)
+  displayName         String               @map("display_name") @db.VarChar(100)
+  description         String?
+  sortOrder           Int                  @map("sort_order")
+  isActive            Boolean              @default(true) @map("is_active")
+  createdAt           DateTime             @default(now()) @map("created_at")
+  updatedAt           DateTime             @updatedAt @map("updated_at")
+  aiJudgments         AiJudgment[]
+  conflictTypeDetails ConflictTypeDetail[]
+
+  @@map("conflict_type_groups")
+}
+
+model ConflictTypeDetail {
+  id               String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  groupId          String            @map("group_id") @db.Uuid
+  detailCode       String            @unique @map("detail_code") @db.VarChar(80)
+  displayName      String            @map("display_name") @db.VarChar(100)
+  description      String?
+  characterAssetId String?           @map("character_asset_id") @db.Uuid
+  sortOrder        Int               @map("sort_order")
+  isActive         Boolean           @default(true) @map("is_active")
+  createdAt        DateTime          @default(now()) @map("created_at")
+  updatedAt        DateTime          @updatedAt @map("updated_at")
+  aiJudgments      AiJudgment[]
+  characterAsset   MediaAsset?       @relation(fields: [characterAssetId], references: [id])
+  group            ConflictTypeGroup @relation(fields: [groupId], references: [id])
+
+  @@map("conflict_type_details")
+}
+
+model DisputeRoom {
+  id              String               @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  roomNo          String               @unique @map("room_no") @db.VarChar(50)
+  creatorUserId   String               @map("creator_user_id") @db.Uuid
+  categoryGroup   CategoryGroup        @map("category_group")
+  roomMode        RoomMode             @default(AI_CHAT) @map("room_mode")
+  roomTokenHash   String?              @unique @map("room_token_hash") @db.VarChar(255)
+  inviteCreatedAt DateTime?            @map("invite_created_at")
+  expiresAt       DateTime?            @map("expires_at")
+  closedAt        DateTime?            @map("closed_at")
+  deletedAt       DateTime?            @map("deleted_at")
+  createdAt       DateTime             @default(now()) @map("created_at")
+  updatedAt       DateTime             @updatedAt @map("updated_at")
+  calendarRecords CalendarRecord[]
+  creator         User                 @relation(fields: [creatorUserId], references: [id])
+  dispute         Dispute?
+  roomAccessLogs  RoomAccessLog[]
+  aiConversations RoomAiConversation[]
+  aiMessages      RoomAiMessage[]
+
+  @@map("dispute_rooms")
+}
+
+model RoomAiConversation {
+  id                String                   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  roomId            String                   @map("room_id") @db.Uuid
+  userId            String                   @map("user_id") @db.Uuid
+  categoryGroup     CategoryGroup            @map("category_group")
+  title             String?                  @db.VarChar(200)
+  initialSituation  String?                  @map("initial_situation")
+  aiSummary         String?                  @map("ai_summary")
+  aiAdvice          String?                  @map("ai_advice")
+  conversationDraft String?                  @map("conversation_draft")
+  modelName         String?                  @map("model_name") @db.VarChar(100)
+  status            RoomAiConversationStatus @default(ACTIVE)
+  createdAt         DateTime                 @default(now()) @map("created_at")
+  updatedAt         DateTime                 @updatedAt @map("updated_at")
+  deletedAt         DateTime?                @map("deleted_at")
+  calendarRecords   CalendarRecord[]
+  disputes          Dispute[]
+  room              DisputeRoom              @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  user              User                     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  messages          RoomAiMessage[]
+
+  @@map("room_ai_conversations")
+}
+
+model RoomAiMessage {
+  id             String             @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  roomId         String             @map("room_id") @db.Uuid
+  conversationId String             @map("conversation_id") @db.Uuid
+  userId         String?            @map("user_id") @db.Uuid
+  senderType     MessageSenderType  @map("sender_type")
+  content        String
+  messageOrder   Int                @map("message_order")
+  modelName      String?            @map("model_name") @db.VarChar(100)
+  createdAt      DateTime           @default(now()) @map("created_at")
+  deletedAt      DateTime?          @map("deleted_at")
+  conversation   RoomAiConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  room           DisputeRoom        @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  user           User?              @relation(fields: [userId], references: [id])
+
+  @@map("room_ai_messages")
+}
+
+model Dispute {
+  id                   String               @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  roomId               String               @unique @map("room_id") @db.Uuid
+  sourceConversationId String?              @map("source_conversation_id") @db.Uuid
+  categoryGroup        CategoryGroup        @map("category_group")
+  title                String               @db.VarChar(200)
+  description          String?
+  status               DisputeStatus        @default(DRAFT)
+  deletedAt            DateTime?            @map("deleted_at")
+  anonymizedAt         DateTime?            @map("anonymized_at")
+  createdAt            DateTime             @default(now()) @map("created_at")
+  updatedAt            DateTime             @updatedAt @map("updated_at")
+  aiJudgment           AiJudgment?
+  calendarRecords      CalendarRecord[]
+  participants         DisputeParticipant[]
+  statements           DisputeStatement[]
+  room                 DisputeRoom          @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  sourceConversation   RoomAiConversation?  @relation(fields: [sourceConversationId], references: [id])
+  giftRecommendations  GiftRecommendation[]
+
+  @@map("disputes")
+}
+
+model DisputeParticipant {
+  id         String             @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  disputeId  String             @map("dispute_id") @db.Uuid
+  userId     String             @map("user_id") @db.Uuid
+  role       ParticipantRole
+  joinedAt   DateTime           @default(now()) @map("joined_at")
+  createdAt  DateTime           @default(now()) @map("created_at")
+  updatedAt  DateTime           @updatedAt @map("updated_at")
+  dispute    Dispute            @relation(fields: [disputeId], references: [id], onDelete: Cascade)
+  user       User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  statements DisputeStatement[]
+
+  @@unique([disputeId, role])
+  @@unique([disputeId, userId])
+  @@map("dispute_participants")
+}
+
+model DisputeStatement {
+  id               String             @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  disputeId        String             @map("dispute_id") @db.Uuid
+  participantId    String             @map("participant_id") @db.Uuid
+  userId           String             @map("user_id") @db.Uuid
+  role             ParticipantRole
+  content          String
+  moderationStatus String             @default("pending") @map("moderation_status") @db.VarChar(30)
+  submittedAt      DateTime?          @map("submitted_at")
+  anonymizedAt     DateTime?          @map("anonymized_at")
+  createdAt        DateTime           @default(now()) @map("created_at")
+  updatedAt        DateTime           @updatedAt @map("updated_at")
+  aiContent        String?            @map("ai_content")
+  dispute          Dispute            @relation(fields: [disputeId], references: [id], onDelete: Cascade)
+  participant      DisputeParticipant @relation(fields: [participantId], references: [id], onDelete: Cascade)
+  user             User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  moderationLogs   ModerationLog[]
+
+  @@unique([disputeId, role])
+  @@unique([disputeId, participantId])
+  @@map("dispute_statements")
+}
+
+model JudgmentResultCard {
+  id            String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  characterType String?         @map("character_type") @db.VarChar(80)
+  cardTitle     String          @map("card_title") @db.VarChar(200)
+  cardSummary   String          @map("card_summary")
+  shareMessage  String?         @map("share_message") @db.VarChar(255)
+  imageAssetId  String?         @map("image_asset_id") @db.Uuid
+  imageStatus   CardImageStatus @default(PENDING) @map("image_status")
+  shareEnabled  Boolean         @default(true) @map("share_enabled")
+  generatedAt   DateTime?       @map("generated_at")
+  createdAt     DateTime        @default(now()) @map("created_at")
+  updatedAt     DateTime        @updatedAt @map("updated_at")
+  aiJudgment    AiJudgment?
+  imageAsset    MediaAsset?     @relation(fields: [imageAssetId], references: [id])
+
+  @@map("judgement_result_cards")
+}
+
+model AiJudgment {
+  id                     String               @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  disputeId              String               @unique @map("dispute_id") @db.Uuid
+  verdictScoreA          Int                  @map("verdict_score_a")
+  verdictScoreB          Int                  @map("verdict_score_b")
+  moreResponsibleRole    ResponsibleRole?     @map("more_responsible_role")
+  issueSummary           String               @map("issue_summary")
+  aFault                 String?              @map("a_fault")
+  bFault                 String?              @map("b_fault")
+  aSuggestedLine         String?              @map("a_suggested_line")
+  bSuggestedLine         String?              @map("b_suggested_line")
+  resultConflictGroupId  String               @map("result_conflict_group_id") @db.Uuid
+  resultConflictDetailId String               @map("result_conflict_detail_id") @db.Uuid
+  resultCardId           String?              @unique @map("result_card_id") @db.Uuid
+  aiNoticeId             String?              @map("ai_notice_id") @db.Uuid
+  resultCardSummary      String?              @map("result_card_summary")
+  shareMessage           String?              @map("share_message") @db.VarChar(255)
+  rawResponse            Json?                @map("raw_response")
+  modelName              String               @map("model_name") @db.VarChar(100)
+  createdAt              DateTime             @default(now()) @map("created_at")
+  updatedAt              DateTime             @updatedAt @map("updated_at")
+  aiNotice               AiResultNotice?      @relation(fields: [aiNoticeId], references: [id])
+  dispute                Dispute              @relation(fields: [disputeId], references: [id], onDelete: Cascade)
+  resultCard             JudgmentResultCard?  @relation(fields: [resultCardId], references: [id])
+  resultConflictDetail   ConflictTypeDetail   @relation(fields: [resultConflictDetailId], references: [id])
+  resultConflictGroup    ConflictTypeGroup    @relation(fields: [resultConflictGroupId], references: [id])
+  giftRecommendations    GiftRecommendation[]
+
+  @@map("ai_judgements")
+}
+
+model GiftRecommendation {
+  id                     String                   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  judgmentId             String                   @map("judgement_id") @db.Uuid
+  disputeId              String                   @map("dispute_id") @db.Uuid
+  giftSenderUserId       String                   @map("gift_sender_user_id") @db.Uuid
+  giftReceiverUserId     String                   @map("gift_receiver_user_id") @db.Uuid
+  senderRole             ParticipantRole          @map("sender_role")
+  receiverRole           ParticipantRole          @map("receiver_role")
+  recipientGender        UserGender?              @map("recipient_gender")
+  recipientAgeGroup      AgeGroup?                @map("recipient_age_group")
+  recipientMbti          String?                  @map("recipient_mbti") @db.VarChar(4)
+  recipientProfileSource RecipientProfileSource   @default(USER_PROFILE) @map("recipient_profile_source")
+  recommendationReason   String?                  @map("recommendation_reason")
+  messageCardText        String?                  @map("message_card_text")
+  status                 GiftRecommendationStatus @default(PENDING)
+  createdAt              DateTime                 @default(now()) @map("created_at")
+  updatedAt              DateTime                 @updatedAt @map("updated_at")
+  items                  GiftRecommendationItem[]
+  dispute                Dispute                  @relation(fields: [disputeId], references: [id], onDelete: Cascade)
+  giftReceiver           User                     @relation("GiftReceiver", fields: [giftReceiverUserId], references: [id], onDelete: Cascade)
+  giftSender             User                     @relation("GiftSender", fields: [giftSenderUserId], references: [id], onDelete: Cascade)
+  judgment               AiJudgment               @relation(fields: [judgmentId], references: [id], onDelete: Cascade)
+
+  @@map("gift_recommendations")
+}
+
+model GiftRecommendationItem {
+  id               String             @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  recommendationId String             @map("recommendation_id") @db.Uuid
+  itemName         String             @map("item_name") @db.VarChar(200)
+  priceRange       String?            @map("price_range") @db.VarChar(100)
+  category         String?            @db.VarChar(100)
+  imageUrl         String?            @map("image_url")
+  externalUrl      String?            @map("external_url")
+  reason           String?
+  sortOrder        Int                @default(0) @map("sort_order")
+  createdAt        DateTime           @default(now()) @map("created_at")
+  updatedAt        DateTime           @updatedAt @map("updated_at")
+  recommendation   GiftRecommendation @relation(fields: [recommendationId], references: [id], onDelete: Cascade)
+
+  @@map("gift_recommendation_items")
+}
+
+model EmotionDiary {
+  id              String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId          String           @map("user_id") @db.Uuid
+  diaryDate       DateTime         @map("diary_date") @db.Date
+  emotionType     String?          @map("emotion_type") @db.VarChar(80)
+  content         String
+  createdAt       DateTime         @default(now()) @map("created_at")
+  updatedAt       DateTime         @updatedAt @map("updated_at")
+  deletedAt       DateTime?        @map("deleted_at")
+  calendarRecords CalendarRecord[]
+  user            User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("emotion_diaries")
+}
+
+model CalendarRecord {
+  id             String              @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId         String              @map("user_id") @db.Uuid
+  roomId         String?             @map("room_id") @db.Uuid
+  disputeId      String?             @map("dispute_id") @db.Uuid
+  conversationId String?             @map("conversation_id") @db.Uuid
+  emotionDiaryId String?             @map("emotion_diary_id") @db.Uuid
+  recordDate     DateTime            @map("record_date") @db.Date
+  recordType     CalendarRecordType  @map("record_type")
+  createdAt      DateTime            @default(now()) @map("created_at")
+  updatedAt      DateTime            @updatedAt @map("updated_at")
+  conversation   RoomAiConversation? @relation(fields: [conversationId], references: [id])
+  dispute        Dispute?            @relation(fields: [disputeId], references: [id])
+  emotionDiary   EmotionDiary?       @relation(fields: [emotionDiaryId], references: [id])
+  room           DisputeRoom?        @relation(fields: [roomId], references: [id])
+  user           User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("calendar_records")
+}
+
+model RoomAccessLog {
+  id        String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  roomId    String?      @map("room_id") @db.Uuid
+  userId    String?      @map("user_id") @db.Uuid
+  result    AccessResult
+  reason    String?      @db.VarChar(100)
+  createdAt DateTime     @default(now()) @map("created_at")
+  room      DisputeRoom? @relation(fields: [roomId], references: [id])
+
+  @@map("room_access_logs")
+}
+
+model ModerationLog {
+  id              String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  roomId          String?           @map("room_id") @db.Uuid
+  conversationId  String?           @map("conversation_id") @db.Uuid
+  disputeId       String?           @map("dispute_id") @db.Uuid
+  statementId     String?           @map("statement_id") @db.Uuid
+  userId          String?           @map("user_id") @db.Uuid
+  target          ModerationTarget
+  isBlocked       Boolean           @map("is_blocked")
+  reason          String?           @db.VarChar(255)
+  confidenceScore Decimal?          @map("confidence_score") @db.Decimal(5, 4)
+  durationMs      Int?              @map("duration_ms")
+  modelName       String?           @map("model_name") @db.VarChar(100)
+  createdAt       DateTime          @default(now()) @map("created_at")
+  statement       DisputeStatement? @relation(fields: [statementId], references: [id])
+
+  @@map("moderation_logs")
+}
+
+model ApiErrorLog {
+  id             String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId         String?    @map("user_id") @db.Uuid
+  roomId         String?    @map("room_id") @db.Uuid
+  conversationId String?    @map("conversation_id") @db.Uuid
+  disputeId      String?    @map("dispute_id") @db.Uuid
+  endpoint       String     @db.VarChar(255)
+  httpMethod     HttpMethod @map("http_method")
+  statusCode     Int        @map("status_code")
+  errorCode      String     @map("error_code") @db.VarChar(100)
+  errorMessage   String?    @map("error_message")
+  errorContext   Json?      @map("error_context")
+  createdAt      DateTime   @default(now()) @map("created_at")
+
+  @@map("api_error_logs")
+}
 
 enum CategoryGroup {
   ROMANCE @map("romance")
@@ -117,7 +556,6 @@ enum MediaAssetType {
   RESULT_CARD @map("result_card")
   CHARACTER   @map("character")
   SYSTEM      @map("system")
-  // SHOP_ITEM @map("shop_item") // v2.0
 
   @@map("media_asset_type")
 }
@@ -208,571 +646,47 @@ enum HttpMethod {
   @@map("http_method")
 }
 
-// ============================================================
-// NEXTAUTH + TALKY-OWL USER
-// ============================================================
-
-model User {
-  id            String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  name          String?
-  email         String?   @unique
-  emailVerified DateTime? @map("email_verified")
-  image         String?
-
-  // TALKY-OWL 서비스 필드
-  kakaoId             String?    @unique @map("kakao_id") @db.VarChar(100)
-  nickname            String?    @unique @db.VarChar(100)
-  profileImageUrl     String?    @map("profile_image_url")
-  profileMediaAssetId String?    @map("profile_media_asset_id") @db.Uuid
-  gender              UserGender?
-  ageGroup            AgeGroup?  @map("age_group")
-  mbti                String?    @db.VarChar(4)
-  termsAgreedAt       DateTime?  @map("terms_agreed_at")
-
-  // 회원탈퇴 soft delete
-  deletedAt           DateTime? @map("deleted_at")
-  deactivatedAt       DateTime? @map("deactivated_at")
-  deletionRequestedAt DateTime? @map("deletion_requested_at")
-
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
-
-  // NextAuth relations
-  accounts Account[]
-  sessions Session[]
-
-  // TALKY-OWL relations
-  profileMediaAsset           MediaAsset?          @relation("UserProfileAsset", fields: [profileMediaAssetId], references: [id], onDelete: SetNull)
-  ownedMediaAssets            MediaAsset[]         @relation("MediaAssetOwner")
-  termsAgreements             UserTermsAgreement[]
-  createdRooms                DisputeRoom[]
-  aiConversations             RoomAiConversation[]
-  aiMessages                  RoomAiMessage[]
-  disputeParticipations       DisputeParticipant[]
-  disputeStatements           DisputeStatement[]
-  giftSentRecommendations     GiftRecommendation[] @relation("GiftSender")
-  giftReceivedRecommendations GiftRecommendation[] @relation("GiftReceiver")
-  emotionDiaries              EmotionDiary[]
-  calendarRecords             CalendarRecord[]
-
-  @@map("users")
+enum ai_error_type {
+  timeout
+  json_parse
+  model_error
+  network_error
+  unknown
 }
 
-model Account {
-  id                String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  userId            String  @map("user_id") @db.Uuid
-  type              String
-  provider          String
-  providerAccountId String  @map("provider_account_id")
-  refresh_token     String? @db.Text
-  access_token      String? @db.Text
-  expires_at        Int?
-  token_type        String?
-  scope             String?
-  id_token          String? @db.Text
-  session_state     String?
-
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([provider, providerAccountId])
-  @@map("accounts")
+enum ai_log_type {
+  ai_chat
+  judgement
 }
 
-model Session {
-  id           String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  sessionToken String   @unique @map("session_token")
-  userId       String   @map("user_id") @db.Uuid
-  expires      DateTime
-
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@map("sessions")
+enum deletion_type {
+  soft_delete
+  anonymize
+  hard_delete
 }
 
-model VerificationToken {
-  identifier String
-  token      String   @unique
-  expires    DateTime
-
-  @@unique([identifier, token])
-  @@map("verification_tokens")
+enum point_transaction_type {
+  judgement_reward
+  purchase
+  refund
+  admin_adjustment
 }
 
-// ============================================================
-// 약관 동의
-// ============================================================
-
-model UserTermsAgreement {
-  id           String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  userId       String    @map("user_id") @db.Uuid
-  termsType    TermsType @map("terms_type")
-  termsVersion String    @map("terms_version") @db.VarChar(50)
-  isRequired   Boolean   @default(true) @map("is_required")
-  agreedAt     DateTime  @default(now()) @map("agreed_at")
-  createdAt    DateTime  @default(now()) @map("created_at")
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@map("user_terms_agreements")
+enum request_status {
+  pending
+  success
+  failed
+  timeout
+  parse_failed
 }
 
-// ============================================================
-// 미디어 자산 (Supabase Storage 메타데이터)
-// ============================================================
-
-model MediaAsset {
-  id                String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  ownerUserId       String?        @map("owner_user_id") @db.Uuid
-  assetType         MediaAssetType @map("asset_type")
-  bucketName        String         @map("bucket_name") @db.VarChar(100)
-  storagePath       String         @unique @map("storage_path")
-  publicUrl         String?        @map("public_url")
-  signedUrlRequired Boolean        @default(false) @map("signed_url_required")
-  mimeType          ImageMimeType? @map("mime_type")
-  sizeBytes         Int?           @map("size_bytes")
-  width             Int?
-  height            Int?
-  createdAt         DateTime       @default(now()) @map("created_at")
-  updatedAt         DateTime       @updatedAt @map("updated_at")
-  deletedAt         DateTime?      @map("deleted_at")
-
-  ownerUser           User?                @relation("MediaAssetOwner", fields: [ownerUserId], references: [id], onDelete: SetNull)
-  profileUsers        User[]               @relation("UserProfileAsset")
-  judgmentResultCards JudgmentResultCard[]
-
-  @@map("media_assets")
+enum shop_item_type {
+  theme
+  profile_decoration
 }
 
-// ============================================================
-// AI 판결 고지 문구 (버전 관리)
-// ============================================================
-
-model AiResultNotice {
-  id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  noticeType String   @map("notice_type") @db.VarChar(50)
-  title      String   @db.VarChar(200)
-  content    String
-  version    String   @db.VarChar(50)
-  isActive   Boolean  @default(true) @map("is_active")
-  createdAt  DateTime @default(now()) @map("created_at")
-  updatedAt  DateTime @updatedAt @map("updated_at")
-
-  aiJudgments AiJudgment[]
-
-  @@map("ai_result_notices")
+enum statistics_source_type {
+  ai_chat
+  one_to_one_judgement
+  combined
 }
-
-// ============================================================
-// 갈등 결과 유형 마스터 데이터 (DB 기반, Enum 하드코딩 금지)
-// ============================================================
-
-model ConflictTypeDetail {
-  id           String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  detailCode   String   @unique @map("detail_code") @db.VarChar(80)
-  displayName  String   @map("display_name") @db.VarChar(100)
-  description  String?
-  cardImageUrl String?  @map("card_image_url")
-  sortOrder    Int      @map("sort_order")
-  isActive     Boolean  @default(true) @map("is_active")
-  createdAt    DateTime @default(now()) @map("created_at")
-  updatedAt    DateTime @updatedAt @map("updated_at")
-
-  aiJudgments AiJudgment[]
-
-  @@map("conflict_type_details")
-}
-
-// ============================================================
-// 방 (AI 대화방 → 1:1 조정방)
-// ============================================================
-
-model DisputeRoom {
-  id              String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  roomNo          String        @unique @map("room_no") @db.VarChar(50)
-  creatorUserId   String        @map("creator_user_id") @db.Uuid
-  categoryGroup   CategoryGroup @map("category_group")
-  roomMode        RoomMode      @default(AI_CHAT) @map("room_mode")
-  roomTokenHash   String?       @unique @map("room_token_hash") @db.VarChar(255)
-  inviteCreatedAt DateTime?     @map("invite_created_at")
-  expiresAt       DateTime?     @map("expires_at")
-  closedAt        DateTime?     @map("closed_at")
-  deletedAt       DateTime?     @map("deleted_at")
-  createdAt       DateTime      @default(now()) @map("created_at")
-  updatedAt       DateTime      @updatedAt @map("updated_at")
-
-  creator         User                 @relation(fields: [creatorUserId], references: [id], onDelete: Restrict)
-  aiConversations RoomAiConversation[]
-  aiMessages      RoomAiMessage[]
-  dispute         Dispute?
-  calendarRecords CalendarRecord[]
-  roomAccessLogs  RoomAccessLog[]
-
-  @@map("dispute_rooms")
-}
-
-// ============================================================
-// AI 대화 세션 & 메시지
-// ============================================================
-
-model RoomAiConversation {
-  id                String                   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  roomId            String                   @map("room_id") @db.Uuid
-  userId            String                   @map("user_id") @db.Uuid
-  categoryGroup     CategoryGroup            @map("category_group")
-  title             String?                  @db.VarChar(200)
-  initialSituation  String?                  @map("initial_situation")
-  aiSummary         String?                  @map("ai_summary")
-  aiAdvice          String?                  @map("ai_advice")
-  conversationDraft String?                  @map("conversation_draft")
-  modelName         String?                  @map("model_name") @db.VarChar(100)
-  status            RoomAiConversationStatus @default(ACTIVE)
-  createdAt         DateTime                 @default(now()) @map("created_at")
-  updatedAt         DateTime                 @updatedAt @map("updated_at")
-  deletedAt         DateTime?                @map("deleted_at")
-
-  room            DisputeRoom      @relation(fields: [roomId], references: [id], onDelete: Cascade)
-  user            User             @relation(fields: [userId], references: [id], onDelete: Cascade)
-  messages        RoomAiMessage[]
-  disputes        Dispute[]
-  calendarRecords CalendarRecord[]
-
-  @@map("room_ai_conversations")
-}
-
-model RoomAiMessage {
-  id             String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  roomId         String            @map("room_id") @db.Uuid
-  conversationId String            @map("conversation_id") @db.Uuid
-  userId         String?           @map("user_id") @db.Uuid
-  senderType     MessageSenderType @map("sender_type")
-  content        String
-  messageOrder   Int               @map("message_order")
-  modelName      String?           @map("model_name") @db.VarChar(100)
-  createdAt      DateTime          @default(now()) @map("created_at")
-  deletedAt      DateTime?         @map("deleted_at")
-
-  room         DisputeRoom        @relation(fields: [roomId], references: [id], onDelete: Cascade)
-  conversation RoomAiConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
-  user         User?              @relation(fields: [userId], references: [id], onDelete: SetNull)
-
-  @@map("room_ai_messages")
-}
-
-// ============================================================
-// 1:1 조정 사건
-// ============================================================
-
-model Dispute {
-  id                   String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  roomId               String        @unique @map("room_id") @db.Uuid
-  sourceConversationId String?       @map("source_conversation_id") @db.Uuid
-  categoryGroup        CategoryGroup @map("category_group")
-  title                String        @db.VarChar(200)
-  description          String?
-  status               DisputeStatus @default(DRAFT)
-  deletedAt            DateTime?     @map("deleted_at")
-  anonymizedAt         DateTime?     @map("anonymized_at")
-  createdAt            DateTime      @default(now()) @map("created_at")
-  updatedAt            DateTime      @updatedAt @map("updated_at")
-
-  room               DisputeRoom          @relation(fields: [roomId], references: [id], onDelete: Cascade)
-  sourceConversation RoomAiConversation?  @relation(fields: [sourceConversationId], references: [id], onDelete: SetNull)
-  participants       DisputeParticipant[]
-  statements         DisputeStatement[]
-  aiJudgment         AiJudgment?
-  giftRecommendations GiftRecommendation[]
-  calendarRecords    CalendarRecord[]
-
-  @@map("disputes")
-}
-
-model DisputeParticipant {
-  id        String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  disputeId String          @map("dispute_id") @db.Uuid
-  userId    String          @map("user_id") @db.Uuid
-  role      ParticipantRole
-  joinedAt  DateTime        @default(now()) @map("joined_at")
-  createdAt DateTime        @default(now()) @map("created_at")
-  updatedAt DateTime        @updatedAt @map("updated_at")
-
-  dispute    Dispute            @relation(fields: [disputeId], references: [id], onDelete: Cascade)
-  user       User               @relation(fields: [userId], references: [id], onDelete: Cascade)
-  statements DisputeStatement[]
-
-  @@unique([disputeId, role])
-  @@unique([disputeId, userId])
-  @@map("dispute_participants")
-}
-
-model DisputeStatement {
-  id               String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  disputeId        String          @map("dispute_id") @db.Uuid
-  participantId    String          @map("participant_id") @db.Uuid
-  userId           String          @map("user_id") @db.Uuid
-  role             ParticipantRole
-  content          String
-  moderationStatus String          @default("pending") @map("moderation_status") @db.VarChar(30)
-  submittedAt      DateTime?       @map("submitted_at")
-  anonymizedAt     DateTime?       @map("anonymized_at")
-  createdAt        DateTime        @default(now()) @map("created_at")
-  updatedAt        DateTime        @updatedAt @map("updated_at")
-
-  dispute        Dispute            @relation(fields: [disputeId], references: [id], onDelete: Cascade)
-  participant    DisputeParticipant @relation(fields: [participantId], references: [id], onDelete: Cascade)
-  user           User               @relation(fields: [userId], references: [id], onDelete: Cascade)
-  moderationLogs ModerationLog[]
-
-  @@unique([disputeId, role])
-  @@unique([disputeId, participantId])
-  @@map("dispute_statements")
-}
-
-// ============================================================
-// AI 판결 결과
-// ============================================================
-
-model JudgmentResultCard {
-  id            String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  characterType String?         @map("character_type") @db.VarChar(80)
-  cardTitle     String          @map("card_title") @db.VarChar(200)
-  cardSummary   String          @map("card_summary")
-  shareMessage  String?         @map("share_message") @db.VarChar(255)
-  imageAssetId  String?         @map("image_asset_id") @db.Uuid
-  imageStatus   CardImageStatus @default(PENDING) @map("image_status")
-  shareEnabled  Boolean         @default(true) @map("share_enabled")
-  generatedAt   DateTime?       @map("generated_at")
-  createdAt     DateTime        @default(now()) @map("created_at")
-  updatedAt     DateTime        @updatedAt @map("updated_at")
-
-  imageAsset MediaAsset? @relation(fields: [imageAssetId], references: [id], onDelete: SetNull)
-  aiJudgment AiJudgment?
-
-  @@map("judgement_result_cards")
-}
-
-model AiJudgment {
-  id                     String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  disputeId              String           @unique @map("dispute_id") @db.Uuid
-  verdictScoreA          Int              @map("verdict_score_a")
-  verdictScoreB          Int              @map("verdict_score_b")
-  moreResponsibleRole    ResponsibleRole? @map("more_responsible_role")
-  issueSummary           String           @map("issue_summary")
-  reasoning              String
-  advice                 String
-  resultConflictDetailId String           @map("result_conflict_detail_id") @db.Uuid
-  resultCardId           String?          @unique @map("result_card_id") @db.Uuid
-  aiNoticeId             String?          @map("ai_notice_id") @db.Uuid
-  resultCardSummary      String?          @map("result_card_summary")
-  shareMessage           String?          @map("share_message") @db.VarChar(255)
-  rawResponse            Json?            @map("raw_response")
-  modelName              String           @map("model_name") @db.VarChar(100)
-  createdAt              DateTime         @default(now()) @map("created_at")
-  updatedAt              DateTime         @updatedAt @map("updated_at")
-
-  dispute              Dispute             @relation(fields: [disputeId], references: [id], onDelete: Cascade)
-  resultConflictDetail ConflictTypeDetail  @relation(fields: [resultConflictDetailId], references: [id], onDelete: Restrict)
-  resultCard           JudgmentResultCard? @relation(fields: [resultCardId], references: [id], onDelete: SetNull)
-  aiNotice             AiResultNotice?     @relation(fields: [aiNoticeId], references: [id], onDelete: SetNull)
-  giftRecommendations  GiftRecommendation[]
-
-  @@map("ai_judgements")
-}
-
-// ============================================================
-// 선물 추천
-// ============================================================
-
-model GiftRecommendation {
-  id                     String                   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  judgmentId             String                   @map("judgement_id") @db.Uuid
-  disputeId              String                   @map("dispute_id") @db.Uuid
-  giftSenderUserId       String                   @map("gift_sender_user_id") @db.Uuid
-  giftReceiverUserId     String                   @map("gift_receiver_user_id") @db.Uuid
-  senderRole             ParticipantRole          @map("sender_role")
-  receiverRole           ParticipantRole          @map("receiver_role")
-  recipientGender        UserGender?              @map("recipient_gender")
-  recipientAgeGroup      AgeGroup?                @map("recipient_age_group")
-  recipientMbti          String?                  @map("recipient_mbti") @db.VarChar(4)
-  recipientProfileSource RecipientProfileSource   @default(USER_PROFILE) @map("recipient_profile_source")
-  recommendationReason   String?                  @map("recommendation_reason")
-  messageCardText        String?                  @map("message_card_text")
-  status                 GiftRecommendationStatus @default(PENDING)
-  createdAt              DateTime                 @default(now()) @map("created_at")
-  updatedAt              DateTime                 @updatedAt @map("updated_at")
-
-  judgment     AiJudgment              @relation(fields: [judgmentId], references: [id], onDelete: Cascade)
-  dispute      Dispute                 @relation(fields: [disputeId], references: [id], onDelete: Cascade)
-  giftSender   User                    @relation("GiftSender", fields: [giftSenderUserId], references: [id], onDelete: Cascade)
-  giftReceiver User                    @relation("GiftReceiver", fields: [giftReceiverUserId], references: [id], onDelete: Cascade)
-  items        GiftRecommendationItem[]
-
-  @@map("gift_recommendations")
-}
-
-model GiftRecommendationItem {
-  id               String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  recommendationId String   @map("recommendation_id") @db.Uuid
-  itemName         String   @map("item_name") @db.VarChar(200)
-  priceRange       String?  @map("price_range") @db.VarChar(100)
-  category         String?  @db.VarChar(100)
-  imageUrl         String?  @map("image_url")
-  externalUrl      String?  @map("external_url")
-  reason           String?
-  sortOrder        Int      @default(0) @map("sort_order")
-  createdAt        DateTime @default(now()) @map("created_at")
-  updatedAt        DateTime @updatedAt @map("updated_at")
-
-  recommendation GiftRecommendation @relation(fields: [recommendationId], references: [id], onDelete: Cascade)
-
-  @@map("gift_recommendation_items")
-}
-
-// ============================================================
-// 감정 일기
-// ============================================================
-
-model EmotionDiary {
-  id          String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  userId      String    @map("user_id") @db.Uuid
-  diaryDate   DateTime  @map("diary_date") @db.Date
-  emotionType String?   @map("emotion_type") @db.VarChar(80)
-  content     String
-  createdAt   DateTime  @default(now()) @map("created_at")
-  updatedAt   DateTime  @updatedAt @map("updated_at")
-  deletedAt   DateTime? @map("deleted_at")
-
-  user            User             @relation(fields: [userId], references: [id], onDelete: Cascade)
-  calendarRecords CalendarRecord[]
-
-  @@map("emotion_diaries")
-}
-
-// ============================================================
-// 달력 기록
-// ============================================================
-
-model CalendarRecord {
-  id             String             @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  userId         String             @map("user_id") @db.Uuid
-  roomId         String?            @map("room_id") @db.Uuid
-  disputeId      String?            @map("dispute_id") @db.Uuid
-  conversationId String?            @map("conversation_id") @db.Uuid
-  emotionDiaryId String?            @map("emotion_diary_id") @db.Uuid
-  recordDate     DateTime           @map("record_date") @db.Date
-  recordType     CalendarRecordType @map("record_type")
-  createdAt      DateTime           @default(now()) @map("created_at")
-  updatedAt      DateTime           @updatedAt @map("updated_at")
-
-  user         User                @relation(fields: [userId], references: [id], onDelete: Cascade)
-  room         DisputeRoom?        @relation(fields: [roomId], references: [id], onDelete: SetNull)
-  dispute      Dispute?            @relation(fields: [disputeId], references: [id], onDelete: SetNull)
-  conversation RoomAiConversation? @relation(fields: [conversationId], references: [id], onDelete: SetNull)
-  emotionDiary EmotionDiary?       @relation(fields: [emotionDiaryId], references: [id], onDelete: SetNull)
-
-  @@map("calendar_records")
-}
-
-// ============================================================
-// 로그 테이블 (cascade delete 금지)
-// ============================================================
-
-// 초대 링크 접근 기록
-model RoomAccessLog {
-  id        String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  roomId    String?      @map("room_id") @db.Uuid
-  userId    String?      @map("user_id") @db.Uuid
-  result    AccessResult
-  reason    String?      @db.VarChar(100)
-  createdAt DateTime     @default(now()) @map("created_at")
-
-  room DisputeRoom? @relation(fields: [roomId], references: [id], onDelete: SetNull)
-
-  @@map("room_access_logs")
-}
-
-// 욕설/혐오/개인정보 필터링 결과
-model ModerationLog {
-  id              String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  roomId          String?          @map("room_id") @db.Uuid
-  conversationId  String?          @map("conversation_id") @db.Uuid
-  disputeId       String?          @map("dispute_id") @db.Uuid
-  statementId     String?          @map("statement_id") @db.Uuid
-  userId          String?          @map("user_id") @db.Uuid
-  target          ModerationTarget
-  isBlocked       Boolean          @map("is_blocked")
-  reason          String?          @db.VarChar(255)
-  confidenceScore Decimal?         @map("confidence_score") @db.Decimal(5, 4)
-  durationMs      Int?             @map("duration_ms")
-  modelName       String?          @map("model_name") @db.VarChar(100)
-  createdAt       DateTime         @default(now()) @map("created_at")
-
-  statement DisputeStatement? @relation(fields: [statementId], references: [id], onDelete: SetNull)
-
-  @@map("moderation_logs")
-}
-
-// 범용 감사 로그 (방 생성, 초대, 참여, 판결 생성 등)
-// actorUserId / roomId / disputeId 는 FK 없이 UUID 값만 보관 → 원본 삭제 시 로그 유지
-model AuditLog {
-  id           String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  eventType    AuditEventType @map("event_type")
-  actorUserId  String?        @map("actor_user_id") @db.Uuid
-  targetUserId String?        @map("target_user_id") @db.Uuid
-  roomId       String?        @map("room_id") @db.Uuid
-  disputeId    String?        @map("dispute_id") @db.Uuid
-  ipHash       String?        @map("ip_hash")
-  userAgent    String?        @map("user_agent")
-  metadata     Json?
-  createdAt    DateTime       @default(now()) @map("created_at")
-
-  @@map("audit_logs")
-}
-
-// API 오류 로그
-// FK 없이 UUID 값만 보관 → 원본 삭제 시 로그 유지
-model ApiErrorLog {
-  id             String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  userId         String?    @map("user_id") @db.Uuid
-  roomId         String?    @map("room_id") @db.Uuid
-  conversationId String?    @map("conversation_id") @db.Uuid
-  disputeId      String?    @map("dispute_id") @db.Uuid
-  endpoint       String     @db.VarChar(255)
-  httpMethod     HttpMethod @map("http_method")
-  statusCode     Int        @map("status_code")
-  errorCode      String     @map("error_code") @db.VarChar(100)
-  errorMessage   String?    @map("error_message")
-  errorContext   Json?      @map("error_context")
-  createdAt      DateTime   @default(now()) @map("created_at")
-
-  @@map("api_error_logs")
-}
-
-// 회원 탈퇴 / 비식별 처리 로그
-// User 삭제 후에도 반드시 유지 → FK 없이 UUID/String 값만 보관
-model UserDeletionLog {
-  id                   String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  deletedUserId        String?   @map("deleted_user_id") @db.Uuid
-  deletedUserEmailHash String?   @map("deleted_user_email_hash")
-  provider             String?   @db.VarChar(50)
-  reason               String?
-  requestedAt          DateTime? @map("requested_at")
-  completedAt          DateTime? @map("completed_at")
-  metadata             Json?
-  createdAt            DateTime  @default(now()) @map("created_at")
-
-  @@map("user_deletion_logs")
-}
-
-// ============================================================
-// v2.0 TODO (MVP 제외)
-// ============================================================
-// model ShopItem { ... }          // v2.0 - 포인트 상점 아이템
-// model PointTransaction { ... }  // v2.0 - 포인트 지급/차감
-// model UserItem { ... }          // v2.0 - 사용자 보유 아이템
-// model DisputeStatistic { ... }  // v2.0 - 통계 독립 화면
