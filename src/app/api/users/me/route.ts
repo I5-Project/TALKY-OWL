@@ -4,13 +4,8 @@ import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/db'
 import { getSessionUserId } from '@/lib/auth/session'
 import type { ApiResponse } from '@/types/common'
-
-interface UserMeDto {
-  id: string
-  name: string | null
-  nickname: string | null
-  mbti: string | null
-}
+import type { UserMeDto, PatchUserBody } from '@/types/user'
+import { VALID_MBTI } from '@/types/user'
 
 export async function GET() {
   const session = await getServerSession(authOptions)
@@ -50,19 +45,6 @@ export async function GET() {
   }
 }
 
-const VALID_MBTI = [
-  'INTJ', 'INTP', 'ENTJ', 'ENTP',
-  'INFJ', 'INFP', 'ENFJ', 'ENFP',
-  'ISTJ', 'ISFJ', 'ESTJ', 'ESFJ',
-  'ISTP', 'ISFP', 'ESTP', 'ESFP',
-]
-
-interface PatchBody {
-  name?: string
-  nickname?: string
-  mbti?: string | null
-}
-
 export async function PATCH(request: NextRequest) {
   const session = await getServerSession(authOptions)
   const userId = getSessionUserId(session)
@@ -75,7 +57,7 @@ export async function PATCH(request: NextRequest) {
   }
 
   try {
-    const body = (await request.json()) as PatchBody
+    const body = (await request.json()) as PatchUserBody
     const data: Record<string, string | null> = {}
     const fieldErrors: { field: string; code: string; message: string }[] = []
 
@@ -100,7 +82,7 @@ export async function PATCH(request: NextRequest) {
     if (body.mbti !== undefined) {
       if (body.mbti === null || body.mbti === '') {
         data.mbti = null
-      } else if (!VALID_MBTI.includes(body.mbti.toUpperCase())) {
+      } else if (!(VALID_MBTI as readonly string[]).includes(body.mbti.toUpperCase())) {
         fieldErrors.push({ field: 'mbti', code: 'INVALID_MBTI', message: '올바른 MBTI를 선택해주세요.' })
       } else {
         data.mbti = body.mbti.toUpperCase()
