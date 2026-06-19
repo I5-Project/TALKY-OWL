@@ -1,3 +1,6 @@
+'use client'
+
+import { useState } from 'react'
 import Image from 'next/image'
 import styles from './HomeServiceInfo.module.scss'
 
@@ -9,19 +12,26 @@ const LINKS = [
 ]
 
 export default function HomeServiceInfo() {
+  const [logoError, setLogoError] = useState(false)
+
   return (
     <div className={styles.box}>
-      <Image
-        src="/images/common/logo.png"
-        alt="말해부엉"
-        width={66}
-        height={19}
-        className={styles.logo}
-      />
+      {logoError ? (
+        <span className={styles.logoFallback}>말해부엉</span>
+      ) : (
+        <Image
+          src="/images/common/logo.png"
+          alt="말해부엉"
+          width={66}
+          height={19}
+          className={styles.logo}
+          onError={() => setLogoError(true)}
+        />
+      )}
       <nav className={styles.links} aria-label="서비스 정보">
         {LINKS.map(({ label, href }) => (
           <a key={label} href={href} className={styles.link}>
-            {label}
+
           </a>
         ))}
       </nav>

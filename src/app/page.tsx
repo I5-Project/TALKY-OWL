@@ -1,4 +1,3 @@
-import Image from 'next/image'
 import Link from 'next/link'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
@@ -8,24 +7,19 @@ import StatsCategorySection from '@/components/home/StatsCategorySection'
 import ActiveCasesSection from '@/components/home/ActiveCasesSection'
 import NewCaseButton from '@/components/home/NewCaseButton'
 import HomeServiceInfo from '@/components/home/HomeServiceInfo'
+import HomeCharacterImage from '@/components/home/HomeCharacterImage'
 import styles from './page.module.scss'
 
 export default async function HomePage() {
   const session = await getServerSession(authOptions)
   const isLoggedIn = !!session
-  const userName = session?.user?.name ?? ''
+  const userName = session?.user?.name ?? '사용자'
 
   return (
     <div className={styles.page}>
       <Header variant="logo" />
 
-      <Image
-        src="/images/characters/character-home.png"
-        alt="말해부엉 캐릭터"
-        width={169}
-        height={138}
-        className={styles.characterImage}
-      />
+      <HomeCharacterImage />
 
       <main className={styles.container}>
         {/* 인사 */}
