@@ -3,7 +3,6 @@
 import { useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import Spinner from '@/components/ui/Spinner';
 import styles from './callback.module.scss';
 
 export default function AuthCallbackPage() {
@@ -28,7 +27,7 @@ export default function AuthCallbackPage() {
 
   return (
     <div className={styles.page}>
-      <Spinner />
+      <div className={styles.spinner} />
       <p className={styles.text}>로그인 처리 중...</p>
     </div>
   );
