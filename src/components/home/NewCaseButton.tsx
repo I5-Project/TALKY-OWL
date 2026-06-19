@@ -16,6 +16,7 @@ const CATEGORY_ITEMS: { category: CategoryGroup; label: string }[] = [
 
 export default function NewCaseButton() {
   const [isOpen, setIsOpen] = useState(false)
+  const [isCreating, setIsCreating] = useState(false)
   const router = useRouter()
 
   useEffect(() => {
@@ -24,18 +25,26 @@ export default function NewCaseButton() {
   }, [isOpen])
 
   const handleCategoryClick = async (category: CategoryGroup) => {
+    if (isCreating) return
     setIsOpen(false)
+    setIsCreating(true)
+    const controller = new AbortController()
+    const timeout = setTimeout(() => controller.abort(), 5000)
     try {
       const res = await fetch('/api/rooms', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ categoryGroup: category }),
+        signal: controller.signal,
       })
       const json = await res.json()
       if (!json.success) throw new Error()
       router.push(`/disputes/new/statement?category=${category}&roomId=${json.data.id}`)
     } catch {
       router.push(`/disputes/new/statement?category=${category}`)
+    } finally {
+      clearTimeout(timeout)
+      setIsCreating(false)
     }
   }
 
@@ -51,7 +60,7 @@ export default function NewCaseButton() {
           <div className={styles.panel} onClick={(e) => e.stopPropagation()}>
             <div className={styles.categoryBox}>
               {CATEGORY_ITEMS.map(({ category, label }) => (
-                <button key={category} className={styles.item} onClick={() => handleCategoryClick(category)}>
+                <button key={category} className={styles.item} onClick={() => handleCategoryClick(category)} disabled={isCreating}>
                   <CategoryIcon category={category} />
                   <span className={styles.itemLabel}>{label}</span>
                 </button>
