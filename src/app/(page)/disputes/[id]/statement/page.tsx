@@ -7,10 +7,9 @@ import Button from '@/components/ui/Button'
 import Select from '@/components/ui/Select'
 import Textarea from '@/components/ui/Textarea'
 import { CATEGORY_ICON_MAP, CATEGORY_LABEL_MAP } from '@/components/ui/CategoryIcon'
-import type { CategoryGroup } from '@/types/common'
+import { useDispute, useSaveStatement } from '@/domains/dispute/dispute.hooks'
+import Spinner from '@/components/ui/Spinner'
 import styles from './StatementPage.module.scss'
-
-const VALID_CATEGORIES: CategoryGroup[] = ['romance', 'work', 'friend', 'family']
 
 const MBTI_OPTIONS = [
   'INTJ', 'INTP', 'ENTJ', 'ENTP',
@@ -21,29 +20,22 @@ const MBTI_OPTIONS = [
 
 export default function StatementPage({
   params,
-  searchParams,
 }: {
   params: Promise<{ id: string }>
-  searchParams: Promise<{ category?: string }>
 }) {
   const { id } = React.use(params)
-  const { category: rawCategory } = React.use(searchParams)
   const router = useRouter()
 
-  // TODO: 이전 페이지 카테고리 데이터 연동 후 null 처리로 교체
-  const category: CategoryGroup = VALID_CATEGORIES.includes(rawCategory as CategoryGroup)
-    ? (rawCategory as CategoryGroup)
-    : 'romance'
+  const { data: dispute, isLoading } = useDispute(id)
+  const { mutate: saveStatement, isPending } = useSaveStatement(id)
+  const category = dispute?.categoryGroup ?? null
 
   const [mbti, setMbti] = React.useState('')
   const [content, setContent] = React.useState('')
-  const [isLoading, setIsLoading] = React.useState(false)
   const [filterMessage, setFilterMessage] = React.useState<string | null>(null)
   const [showPersonalInfoWarning, setShowPersonalInfoWarning] = React.useState(false)
 
-  const handleSave = async () => {
-    if (isLoading) return
-    setIsLoading(true)
+  const handleSave = () => {
     setFilterMessage(null)
 
     try {
@@ -72,16 +64,13 @@ export default function StatementPage({
     }
   }
 
-  if (!category) {
+  if (isLoading) return <Spinner />
+
+  if (!dispute || !category) {
     return (
       <div className={styles.page}>
         <Header title="사건작성" onBack={() => router.back()} />
-        <div className={styles.modalOverlay}>
-          <div className={styles.modal}>
-            <p className={styles.modalText}>카테고리를 선택해주세요</p>
-            <Button onClick={() => router.back()}>확인</Button>
-          </div>
-        </div>
+        <p className={styles.empty}>사건을 찾을 수 없습니다.</p>
       </div>
     )
   }
@@ -131,8 +120,8 @@ export default function StatementPage({
       </div>
 
       <div className={styles.footer}>
-        <Button onClick={handleSave} disabled={!content.trim() || isLoading}>
-          {isLoading ? '저장 중...' : '진술저장'}
+        <Button onClick={handleSave} disabled={!content.trim() || isPending}>
+          {isPending ? '저장 중...' : '진술저장'}
         </Button>
       </div>
 
