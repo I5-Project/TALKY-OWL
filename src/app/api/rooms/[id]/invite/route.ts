@@ -73,7 +73,7 @@ export async function POST(
     }).catch(() => {})
 
     const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3030'
-    const inviteUrl = `${appUrl}/join?token=${token}`
+    const inviteUrl = `${appUrl}/join/${token}`
 
     return NextResponse.json<ApiResponse<InviteResponse>>(
       { success: true, data: { inviteUrl, expiresAt: expiresAt.toISOString() } },
