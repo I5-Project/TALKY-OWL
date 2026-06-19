@@ -90,8 +90,7 @@ export async function POST(
 
     // 판결 가능 여부 확인
     if (isSolo) {
-      // 1인: 본인 진술 제출 여부만 확인
-      if (dispute.statements.length === 0) {
+      if (dispute.status !== 'WAITING_OPPONENT') {
         return NextResponse.json<ApiResponse>(
           {
             success: false,
@@ -175,7 +174,7 @@ export async function POST(
     } catch (aiError) {
       // AI 요청 실패 시 상태 원복
       await prisma.dispute
-        .update({ where: { id }, data: { status: 'BOTH_SUBMITTED' } })
+        .update({ where: { id }, data: { status: previousStatus } })
         .catch(() => {})
       statusSetToJudging = false
 
@@ -214,7 +213,7 @@ export async function POST(
     // 외부 catch에서도 JUDGING 상태가 남아있으면 원복
     if (statusSetToJudging) {
       await prisma.dispute
-        .update({ where: { id }, data: { status: 'BOTH_SUBMITTED' } })
+        .update({ where: { id }, data: { status: previousStatus } })
         .catch(() => {})
     }
     return NextResponse.json<ApiResponse>(
