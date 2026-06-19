@@ -3,16 +3,17 @@ import Link from 'next/link'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import Header from '@/components/layout/Header'
+import BottomNavigation from '@/components/layout/BottomNavigation'
 import StatsCategorySection from '@/components/home/StatsCategorySection'
 import ActiveCasesSection from '@/components/home/ActiveCasesSection'
+import NewCaseButton from '@/components/home/NewCaseButton'
+import HomeServiceInfo from '@/components/home/HomeServiceInfo'
 import styles from './page.module.scss'
 
 export default async function HomePage() {
   const session = await getServerSession(authOptions)
-  // TODO: [개발 완료 후 반드시 제거] 개발 편의를 위해 로그인 상태 강제 설정
-  // 실제 배포 전 아래 줄을 삭제하고 const isLoggedIn = !!session 으로 교체할 것
-  const isLoggedIn = true
-  const userName = session?.user?.name ?? '테스트유저'
+  const isLoggedIn = !!session
+  const userName = session?.user?.name ?? ''
 
   return (
     <div className={styles.page}>
@@ -63,6 +64,14 @@ export default async function HomePage() {
           </Link>
         )}
       </main>
+
+      {/* 서비스 정보 푸터 — 스크롤 시 탭바 바로 위에 sticky */}
+      <div className={styles.serviceInfoWrapper}>
+        <HomeServiceInfo />
+      </div>
+
+      {isLoggedIn && <NewCaseButton />}
+      <BottomNavigation />
     </div>
   )
 }
