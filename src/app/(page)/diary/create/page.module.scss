@@ -1,0 +1,33 @@
+@use '@/styles/abstracts/functions' as fn;
+@use '@/styles/abstracts/mixins' as typo;
+
+.create-diary {
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+  padding: fn.r(16);
+  padding-bottom: fn.r(96);
+
+  &__section {
+    margin-bottom: fn.r(24);
+  }
+
+  &__title {
+    margin: fn.r(16) 0;
+    @include typo.text-body-s;
+  }
+
+  &__form {
+    display: flex;
+    flex-direction: column;
+    gap: fn.r(12);
+  }
+
+  &__textarea {
+    min-height: fn.r(350);
+  }
+
+  &__submit {
+    margin-top: fn.r(100);
+  }
+}
