@@ -23,18 +23,11 @@ export function toAiJudgmentDto(j: AiJudgmentWithRelations): AiJudgmentDto {
     bFault: j.bFault ?? null,
     aSuggestedLine: j.aSuggestedLine ?? null,
     bSuggestedLine: j.bSuggestedLine ?? null,
-    resultConflictGroup: {
-      id: j.resultConflictGroup.id,
-      groupCode: j.resultConflictGroup.groupCode,
-      displayName: j.resultConflictGroup.displayName,
-      description: j.resultConflictGroup.description ?? null,
-    },
     resultConflictDetail: {
       id: j.resultConflictDetail.id,
       detailCode: j.resultConflictDetail.detailCode,
       displayName: j.resultConflictDetail.displayName,
       description: j.resultConflictDetail.description ?? null,
-      cardImageUrl: j.resultConflictDetail.cardImageUrl ?? null,
     },
     resultCard: j.resultCard
       ? {
