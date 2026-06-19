@@ -1,26 +1,36 @@
 'use client'
 
-import { useQuery } from '@tanstack/react-query'
-import type { ApiResponse } from '@/types/common'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { fetchUserMe, updateUserProfile, uploadProfileImage } from './api'
+import type { UpdateProfileParams } from './api'
 
-interface UserMeData {
-  id: string
-  nickname: string | null
-  mbti: string | null
-}
-
-async function fetchUserMe(): Promise<UserMeData | null> {
-  const res = await fetch('/api/user/me')
-  if (res.status === 401) return null
-  if (!res.ok) throw new Error('사용자 정보를 불러오지 못했습니다.')
-  const json: ApiResponse<UserMeData> = await res.json()
-  return json.data ?? null
-}
+export const USER_ME_KEY = ['user', 'me'] as const
 
 export function useUserMe() {
   return useQuery({
-    queryKey: ['user', 'me'],
+    queryKey: USER_ME_KEY,
     queryFn: fetchUserMe,
-    staleTime: 1000 * 60 * 5,
+  })
+}
+
+export function useUpdateProfile() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: (params: UpdateProfileParams) => updateUserProfile(params),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: USER_ME_KEY })
+    },
+  })
+}
+
+export function useUploadProfileImage() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: (file: File) => uploadProfileImage(file),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: USER_ME_KEY })
+    },
   })
 }
