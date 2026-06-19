@@ -127,7 +127,7 @@ export async function POST(
     try {
       // DB에서 갈등 유형 마스터 데이터 조회 (AI 프롬프트에 전달)
       const conflictTypeDetails = await prisma.conflictTypeDetail.findMany({
-        select: { id: true, detailCode: true, displayName: true, groupId: true },
+        select: { id: true, detailCode: true, displayName: true },
       })
 
       const statementA = dispute.statements.find((s) => s.role === 'ROLE_A' && s.submittedAt)?.content
@@ -178,7 +178,6 @@ export async function POST(
             aSuggestedLine: aiResult.aSuggestedLine,
             bSuggestedLine: aiResult.bSuggestedLine,
             resultConflictDetailId: matchedDetail.id,
-            resultConflictGroupId: matchedDetail.groupId,
             resultCardId: resultCard.id,
             modelName: aiResult.modelName,
           },
@@ -188,7 +187,7 @@ export async function POST(
 
         return tx.aiJudgment.findUniqueOrThrow({
           where: { id: created.id },
-          include: { resultConflictGroup: true, resultConflictDetail: true, resultCard: true, aiNotice: true },
+          include: { resultConflictDetail: true, resultCard: true, aiNotice: true },
         })
       })
 

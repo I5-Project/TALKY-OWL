@@ -75,6 +75,7 @@ model UserTermsAgreement {
   createdAt    DateTime  @default(now()) @map("created_at")
   user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
+  @@unique([userId, termsType, termsVersion], map: "user_terms_agreements_user_terms_unique")
   @@map("user_terms_agreements")
 }
 
@@ -93,7 +94,6 @@ model MediaAsset {
   createdAt           DateTime             @default(now()) @map("created_at")
   updatedAt           DateTime             @updatedAt @map("updated_at")
   deletedAt           DateTime?            @map("deleted_at")
-  conflictTypeDetails ConflictTypeDetail[]
   judgmentResultCards JudgmentResultCard[]
   ownerUser           User?                @relation("MediaAssetOwner", fields: [ownerUserId], references: [id])
   profileUsers        User[]               @relation("UserProfileAsset")
@@ -115,35 +115,17 @@ model AiResultNotice {
   @@map("ai_result_notices")
 }
 
-model ConflictTypeGroup {
-  id                  String               @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  groupCode           String               @unique @map("group_code") @db.VarChar(80)
-  displayName         String               @map("display_name") @db.VarChar(100)
-  description         String?
-  sortOrder           Int                  @map("sort_order")
-  isActive            Boolean              @default(true) @map("is_active")
-  createdAt           DateTime             @default(now()) @map("created_at")
-  updatedAt           DateTime             @updatedAt @map("updated_at")
-  aiJudgments         AiJudgment[]
-  conflictTypeDetails ConflictTypeDetail[]
-
-  @@map("conflict_type_groups")
-}
-
 model ConflictTypeDetail {
-  id               String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  groupId          String            @map("group_id") @db.Uuid
-  detailCode       String            @unique @map("detail_code") @db.VarChar(80)
-  displayName      String            @map("display_name") @db.VarChar(100)
-  description      String?
-  characterAssetId String?           @map("character_asset_id") @db.Uuid
-  sortOrder        Int               @map("sort_order")
-  isActive         Boolean           @default(true) @map("is_active")
-  createdAt        DateTime          @default(now()) @map("created_at")
-  updatedAt        DateTime          @updatedAt @map("updated_at")
-  aiJudgments      AiJudgment[]
-  characterAsset   MediaAsset?       @relation(fields: [characterAssetId], references: [id])
-  group            ConflictTypeGroup @relation(fields: [groupId], references: [id])
+  id             String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  detailCode     String       @unique @map("detail_code") @db.VarChar(80)
+  displayName    String       @map("display_name") @db.VarChar(100)
+  description    String?
+  sortOrder      Int          @map("sort_order")
+  isActive       Boolean      @default(true) @map("is_active")
+  createdAt      DateTime     @default(now()) @map("created_at")
+  updatedAt      DateTime     @updatedAt @map("updated_at")
+  card_image_url String?
+  aiJudgments    AiJudgment[]
 
   @@map("conflict_type_details")
 }
@@ -301,11 +283,6 @@ model AiJudgment {
   verdictScoreB          Int                  @map("verdict_score_b")
   moreResponsibleRole    ResponsibleRole?     @map("more_responsible_role")
   issueSummary           String               @map("issue_summary")
-  aFault                 String?              @map("a_fault")
-  bFault                 String?              @map("b_fault")
-  aSuggestedLine         String?              @map("a_suggested_line")
-  bSuggestedLine         String?              @map("b_suggested_line")
-  resultConflictGroupId  String               @map("result_conflict_group_id") @db.Uuid
   resultConflictDetailId String               @map("result_conflict_detail_id") @db.Uuid
   resultCardId           String?              @unique @map("result_card_id") @db.Uuid
   aiNoticeId             String?              @map("ai_notice_id") @db.Uuid
@@ -315,11 +292,14 @@ model AiJudgment {
   modelName              String               @map("model_name") @db.VarChar(100)
   createdAt              DateTime             @default(now()) @map("created_at")
   updatedAt              DateTime             @updatedAt @map("updated_at")
+  aFault                 String?              @map("a_fault")
+  bFault                 String?              @map("b_fault")
+  aSuggestedLine         String?              @map("a_suggested_line")
+  bSuggestedLine         String?              @map("b_suggested_line")
   aiNotice               AiResultNotice?      @relation(fields: [aiNoticeId], references: [id])
   dispute                Dispute              @relation(fields: [disputeId], references: [id], onDelete: Cascade)
   resultCard             JudgmentResultCard?  @relation(fields: [resultCardId], references: [id])
   resultConflictDetail   ConflictTypeDetail   @relation(fields: [resultConflictDetailId], references: [id])
-  resultConflictGroup    ConflictTypeGroup    @relation(fields: [resultConflictGroupId], references: [id])
   giftRecommendations    GiftRecommendation[]
 
   @@map("ai_judgements")
