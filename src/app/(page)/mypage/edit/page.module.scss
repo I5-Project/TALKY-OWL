@@ -27,6 +27,7 @@
     border-radius: fn.r(20);
     cursor: pointer;
     @include m.text-caption;
+
     color: var(--text-secondary);
 
     &:active {

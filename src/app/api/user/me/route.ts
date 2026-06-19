@@ -81,7 +81,24 @@ export async function PATCH(request: NextRequest) {
   if (!userId) return getAuthErrorResponse()
 
   try {
-    const body = (await request.json()) as PatchBody
+    let rawBody: unknown
+    try {
+      rawBody = await request.json()
+    } catch {
+      return NextResponse.json<ApiResponse>(
+        { success: false, error: { code: 'INVALID_JSON', message: '요청 본문이 올바른 JSON이 아닙니다.' } },
+        { status: 400 },
+      )
+    }
+
+    if (!rawBody || typeof rawBody !== 'object' || Array.isArray(rawBody)) {
+      return NextResponse.json<ApiResponse>(
+        { success: false, error: { code: 'INVALID_BODY', message: '요청 본문 형식이 올바르지 않습니다.' } },
+        { status: 400 },
+      )
+    }
+
+    const body = rawBody as PatchBody
     const data: Record<string, string | null> = {}
     const fieldErrors: { field: string; code: string; message: string }[] = []
 
@@ -123,6 +140,18 @@ export async function PATCH(request: NextRequest) {
       return NextResponse.json<ApiResponse>(
         { success: false, error: { code: 'NO_CHANGES', message: '변경할 항목이 없습니다.' } },
         { status: 400 },
+      )
+    }
+
+    const existing = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { id: true },
+    })
+
+    if (!existing) {
+      return NextResponse.json<ApiResponse>(
+        { success: false, error: { code: 'USER_NOT_FOUND', message: '사용자를 찾을 수 없습니다.' } },
+        { status: 404 },
       )
     }
 

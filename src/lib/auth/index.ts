@@ -52,6 +52,7 @@ async function saveFirstLoginFields(userId: string, kakaoId: string): Promise<vo
             isRequired: terms.isRequired,
             agreedAt: now,
           })),
+          skipDuplicates: true,
         }),
       ])
       return

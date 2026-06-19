@@ -9,6 +9,31 @@ import type { ApiResponse } from '@/types/common'
 const MAX_FILE_SIZE = 5 * 1024 * 1024 // 5MB
 const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp']
 
+function hasAllowedImageSignature(bytes: Uint8Array): boolean {
+  const isJpeg = bytes.length >= 3 && bytes[0] === 0xff && bytes[1] === 0xd8 && bytes[2] === 0xff
+  const isPng =
+    bytes.length >= 8 &&
+    bytes[0] === 0x89 &&
+    bytes[1] === 0x50 &&
+    bytes[2] === 0x4e &&
+    bytes[3] === 0x47 &&
+    bytes[4] === 0x0d &&
+    bytes[5] === 0x0a &&
+    bytes[6] === 0x1a &&
+    bytes[7] === 0x0a
+  const isWebp =
+    bytes.length >= 12 &&
+    bytes[0] === 0x52 &&
+    bytes[1] === 0x49 &&
+    bytes[2] === 0x46 &&
+    bytes[3] === 0x46 &&
+    bytes[8] === 0x57 &&
+    bytes[9] === 0x45 &&
+    bytes[10] === 0x42 &&
+    bytes[11] === 0x50
+  return isJpeg || isPng || isWebp
+}
+
 export async function POST(request: NextRequest) {
   const session = await getServerSession(authOptions)
   const userId = getSessionUserId(session)
@@ -45,10 +70,18 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    const bytes = new Uint8Array(await file.arrayBuffer())
+    if (!hasAllowedImageSignature(bytes)) {
+      return NextResponse.json<ApiResponse>(
+        { success: false, error: { code: 'INVALID_FILE_TYPE', message: 'JPG, PNG, WEBP 파일만 업로드 가능합니다.' } },
+        { status: 400 },
+      )
+    }
+
     const ext = file.type.split('/')[1] === 'jpeg' ? 'jpg' : file.type.split('/')[1]
     const filePath = `${userId}/profile.${ext}`
 
-    const buffer = Buffer.from(await file.arrayBuffer())
+    const buffer = Buffer.from(bytes)
 
     const { error: uploadError } = await supabaseAdmin.storage
       .from(PROFILE_IMAGES_BUCKET)
@@ -71,10 +104,15 @@ export async function POST(request: NextRequest) {
 
     const profileImageUrl = `${urlData.publicUrl}?t=${Date.now()}`
 
-    await prisma.user.update({
-      where: { id: userId },
-      data: { profileImageUrl },
-    })
+    try {
+      await prisma.user.update({
+        where: { id: userId },
+        data: { profileImageUrl },
+      })
+    } catch (dbError) {
+      await supabaseAdmin.storage.from(PROFILE_IMAGES_BUCKET).remove([filePath])
+      throw dbError
+    }
 
     return NextResponse.json<ApiResponse<{ profileImageUrl: string }>>({
       success: true,

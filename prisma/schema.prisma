@@ -319,6 +319,7 @@ model UserTermsAgreement {
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
+  @@unique([userId, termsType, termsVersion])
   @@map("user_terms_agreements")
 }
 
