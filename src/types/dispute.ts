@@ -37,6 +37,7 @@ export interface DisputeStatementDto {
   role: ParticipantRole
   content: string
   moderationStatus: string
+  hasPersonalInfo: boolean
   submittedAt: string | null
   createdAt: string
   updatedAt: string

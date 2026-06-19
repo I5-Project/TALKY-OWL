@@ -7,7 +7,7 @@ import Button from '@/components/ui/Button'
 import Select from '@/components/ui/Select'
 import Textarea from '@/components/ui/Textarea'
 import { CATEGORY_ICON_MAP, CATEGORY_LABEL_MAP } from '@/components/ui/CategoryIcon'
-import { useDispute } from '@/domains/dispute/dispute.hooks'
+import { useDispute, useSaveStatement } from '@/domains/dispute/dispute.hooks'
 import Spinner from '@/components/ui/Spinner'
 import styles from './StatementPage.module.scss'
 
@@ -27,47 +27,29 @@ export default function StatementPage({
   const router = useRouter()
 
   const { data: dispute, isLoading } = useDispute(id)
+  const { mutate: saveStatement, isPending } = useSaveStatement(id)
   const category = dispute?.categoryGroup ?? null
 
   const [mbti, setMbti] = React.useState('')
   const [content, setContent] = React.useState('')
-  const [isLoading, setIsLoading] = React.useState(false)
   const [filterMessage, setFilterMessage] = React.useState<string | null>(null)
   const [showPersonalInfoWarning, setShowPersonalInfoWarning] = React.useState(false)
 
-  const handleSave = async () => {
-    if (isLoading) return
-    setIsLoading(true)
+  const handleSave = () => {
     setFilterMessage(null)
-
-    try {
-      const res = await fetch(`/api/disputes/${id}/statements`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ content }),
-      })
-      const json = await res.json()
-
-      if (!json.success) {
-        if (json.error?.code === 'CONTENT_BLOCKED') {
-          setFilterMessage(json.error.message)
-        } else {
-          setFilterMessage('저장 중 오류가 발생했습니다. 다시 시도해주세요.')
+    saveStatement(content, {
+      onSuccess: (data) => {
+        if (data.hasPersonalInfo) {
+          setShowPersonalInfoWarning(true)
+          return
         }
-        return
-      }
-
-      if (json.data?.hasPersonalInfo) {
-        setShowPersonalInfoWarning(true)
-        return
-      }
-
-      router.push(`/disputes/${id}`)
-    } catch {
-      setFilterMessage('네트워크 오류가 발생했습니다. 다시 시도해주세요.')
-    } finally {
-      setIsLoading(false)
-    }
+        router.push(`/disputes/${id}`)
+      },
+      onError: (error) => {
+        const message = error instanceof Error ? error.message : '저장 중 오류가 발생했습니다.'
+        setFilterMessage(message)
+      },
+    })
   }
 
   if (isLoading) return <Spinner />
@@ -126,8 +108,8 @@ export default function StatementPage({
       </div>
 
       <div className={styles.footer}>
-        <Button onClick={handleSave} disabled={!content.trim() || isLoading}>
-          {isLoading ? '저장 중...' : '진술저장'}
+        <Button onClick={handleSave} disabled={!content.trim() || isPending}>
+          {isPending ? '저장 중...' : '진술저장'}
         </Button>
       </div>
 
