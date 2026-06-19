@@ -9,18 +9,10 @@ interface CaseCardProps {
   date: string;
   categoryGroup?: CategoryGroup;
   disputeStatus?: DisputeStatus;
-  status?: 'progress' | null;
   onClick?: () => void;
 }
 
-export default function CaseCard({
-  title,
-  preview,
-  date,
-  categoryGroup,
-  disputeStatus,
-  onClick,
-}: CaseCardProps) {
+export default function CaseCard({ title, preview, date, categoryGroup, disputeStatus, onClick }: CaseCardProps) {
   return (
     <article
       className={[

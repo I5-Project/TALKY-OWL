@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import CategoryFilter, { type Category } from '@/components/ui/CategoryFilter'
 import CaseCard from '@/components/ui/CaseCard'
 import Avatar from '@/components/ui/Avatar'
@@ -61,11 +61,10 @@ const DUMMY_RECORDS: RecordItem[] = [
 ]
 
 function formatDate(dateStr: string): string {
-  return dateStr.slice(2)
+  return dateStr.slice(2, 10)
 }
 
 export default function RecordListSection() {
-  const router = useRouter()
   const [selectedCategory, setSelectedCategory] = useState<Category>('all')
 
   const filtered = selectedCategory === 'all'
@@ -84,11 +83,9 @@ export default function RecordListSection() {
         <ul className={styles.list}>
           {filtered.map((record) => (
             <li key={record.id}>
-              <div
+              <Link
+                href={`/disputes/${record.disputeId}`}
                 className={styles.cardWrapper}
-                onClick={() => router.push(`/disputes/${record.disputeId}`)}
-                role="button"
-                tabIndex={0}
               >
                 <CaseCard
                   title={record.title}
@@ -103,7 +100,7 @@ export default function RecordListSection() {
                   </div>
                   <StatusBadge status={record.disputeStatus} />
                 </div>
-              </div>
+              </Link>
             </li>
           ))}
         </ul>
