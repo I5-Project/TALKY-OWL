@@ -56,6 +56,7 @@ export async function POST(
     })
 
     if (!room) {
+      prisma.roomAccessLog.create({ data: { roomId: id, userId, result: 'DENIED', reason: 'invalid_token' } }).catch(() => {})
       return NextResponse.json<ApiResponse>(
         { success: false, error: { code: 'NOT_FOUND', message: '유효하지 않은 초대 링크입니다.' } },
         { status: 404 },
@@ -63,6 +64,7 @@ export async function POST(
     }
 
     if (room.roomMode === 'EXPIRED' || room.roomMode === 'DELETED' || room.roomMode === 'CLOSED') {
+      prisma.roomAccessLog.create({ data: { roomId: id, userId, result: 'DENIED', reason: 'room_unavailable' } }).catch(() => {})
       return NextResponse.json<ApiResponse>(
         { success: false, error: { code: 'INVALID_STATUS', message: '만료되었거나 사용할 수 없는 초대 링크입니다.' } },
         { status: 422 },
@@ -70,6 +72,7 @@ export async function POST(
     }
 
     if (room.roomMode !== 'INVITE_READY') {
+      prisma.roomAccessLog.create({ data: { roomId: id, userId, result: 'DENIED', reason: 'not_invite_ready' } }).catch(() => {})
       return NextResponse.json<ApiResponse>(
         { success: false, error: { code: 'INVALID_STATUS', message: '참여할 수 없는 상태입니다.' } },
         { status: 422 },
@@ -82,6 +85,7 @@ export async function POST(
         where: { id },
         data: { roomMode: 'EXPIRED' },
       })
+      prisma.roomAccessLog.create({ data: { roomId: id, userId, result: 'DENIED', reason: 'invite_expired' } }).catch(() => {})
       return NextResponse.json<ApiResponse>(
         { success: false, error: { code: 'INVALID_STATUS', message: '만료된 초대 링크입니다.' } },
         { status: 422 },
@@ -90,6 +94,7 @@ export async function POST(
 
     // 생성자 본인 참여 차단
     if (room.creatorUserId === userId) {
+      prisma.roomAccessLog.create({ data: { roomId: id, userId, result: 'DENIED', reason: 'self_join' } }).catch(() => {})
       return NextResponse.json<ApiResponse>(
         { success: false, error: { code: 'FORBIDDEN', message: '본인이 만든 초대 링크로는 참여할 수 없습니다.' } },
         { status: 403 },
@@ -104,6 +109,7 @@ export async function POST(
     if (existingDispute) {
       const hasRoleB = existingDispute.participants.some((p) => p.role === 'ROLE_B')
       if (hasRoleB) {
+        prisma.roomAccessLog.create({ data: { roomId: id, userId, result: 'DENIED', reason: 'role_b_exists' } }).catch(() => {})
         return NextResponse.json<ApiResponse>(
           { success: false, error: { code: 'CONFLICT', message: '이미 참여자가 존재하는 방입니다.' } },
           { status: 409 },
@@ -150,6 +156,11 @@ export async function POST(
 
       return targetDispute
     })
+
+    prisma.auditLog.create({
+      data: { eventType: 'USER_JOINED_ROOM', actorUserId: userId, roomId: id, disputeId: dispute.id },
+    }).catch(() => {})
+    prisma.roomAccessLog.create({ data: { roomId: id, userId, result: 'ALLOWED' } }).catch(() => {})
 
     return NextResponse.json<ApiResponse<JoinResponse>>({
       success: true,

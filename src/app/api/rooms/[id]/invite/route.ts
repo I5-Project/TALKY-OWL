@@ -68,6 +68,10 @@ export async function POST(
       },
     })
 
+    prisma.auditLog.create({
+      data: { eventType: 'INVITE_LINK_CREATED', actorUserId: userId, roomId: id },
+    }).catch(() => {})
+
     const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3030'
     const inviteUrl = `${appUrl}/join?token=${token}`
 
