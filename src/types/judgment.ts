@@ -14,7 +14,6 @@ export interface ConflictTypeDetailDto {
   detailCode: string
   displayName: string
   description: string | null
-  cardImageUrl: string | null
 }
 
 export interface JudgmentResultCardDto {
