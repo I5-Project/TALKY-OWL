@@ -113,12 +113,23 @@ export default function ProfileEditPage() {
     );
   }
 
-  if (isError || !user) {
+  if (isError) {
     return (
       <>
         <Header title="개인정보 수정" onBack={() => router.back()} />
         <main className={styles.loading}>
           <span>{error instanceof Error ? error.message : '사용자 정보를 불러오지 못했습니다.'}</span>
+        </main>
+      </>
+    );
+  }
+
+  if (!user) {
+    return (
+      <>
+        <Header title="개인정보 수정" onBack={() => router.back()} />
+        <main className={styles.loading}>
+          <span>사용자 정보가 존재하지 않습니다.</span>
         </main>
       </>
     );
@@ -133,7 +144,7 @@ export default function ProfileEditPage() {
           <input
             ref={fileInputRef}
             type="file"
-            accept="image/jpeg,image/png,image/webp"
+            accept="image/jpeg,image/png,image/webp,image/svg+xml"
             hidden
             onChange={handleImageChange}
           />
@@ -181,7 +192,7 @@ export default function ProfileEditPage() {
           />
 
           {errors.general && (
-            <span style={{ color: 'var(--text-danger)', fontSize: '0.875rem' }}>
+            <span className={styles.errorMessage}>
               {errors.general}
             </span>
           )}

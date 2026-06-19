@@ -7,7 +7,7 @@ import { supabaseAdmin, PROFILE_IMAGES_BUCKET } from '@/lib/storage'
 import type { ApiResponse } from '@/types/common'
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024 // 5MB
-const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp']
+const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/svg+xml']
 
 function hasAllowedImageSignature(bytes: Uint8Array): boolean {
   const isJpeg = bytes.length >= 3 && bytes[0] === 0xff && bytes[1] === 0xd8 && bytes[2] === 0xff
@@ -31,7 +31,11 @@ function hasAllowedImageSignature(bytes: Uint8Array): boolean {
     bytes[9] === 0x45 &&
     bytes[10] === 0x42 &&
     bytes[11] === 0x50
-  return isJpeg || isPng || isWebp
+  const isSvg =
+    bytes.length >= 5 &&
+    bytes[0] === 0x3c &&
+    (bytes[1] === 0x3f || bytes[1] === 0x73 || bytes[1] === 0x53)
+  return isJpeg || isPng || isWebp || isSvg
 }
 
 export async function POST(request: NextRequest) {
