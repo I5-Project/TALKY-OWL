@@ -5,40 +5,57 @@
 .main {
   display: flex;
   flex-direction: column;
-  padding: fn.r(24) fn.r(20);
-  gap: fn.r(24);
   min-height: calc(100dvh - fn.r(56));
+  padding: fn.r(24) fn.r(20);
+  padding-bottom: fn.r(100);
 }
 
 .avatar {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: fn.r(8);
+  gap: fn.r(12);
+  margin-bottom: fn.r(32);
 
   &__button {
-    @include m.text-caption;
     display: flex;
     align-items: center;
     gap: fn.r(4);
-    padding: fn.r(4) fn.r(12);
+    padding: fn.r(6) fn.r(12);
     background: none;
     border: 1px solid var(--border-default);
-    border-radius: fn.r(16);
+    border-radius: fn.r(20);
     cursor: pointer;
+    @include m.text-caption;
+
     color: var(--text-secondary);
+
+    &:active {
+      background-color: var(--bg-secondary);
+    }
   }
 }
 
 .form {
   display: flex;
   flex-direction: column;
-  gap: fn.r(16);
+  gap: fn.r(20);
+  flex: 1;
 }
 
 .footer {
-  margin-top: auto;
-  padding-top: fn.r(16);
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: fn.r(16) fn.r(20);
+  background-color: var(--bg-base);
+}
+
+.errorMessage {
+  @include m.text-body-s;
+
+  color: var(--text-danger);
 }
 
 .loading {

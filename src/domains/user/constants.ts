@@ -1,4 +1,5 @@
 export const MBTI_OPTIONS = [
+  { value: '', label: '없음' },
   { value: 'INTJ', label: 'INTJ' },
   { value: 'INTP', label: 'INTP' },
   { value: 'ENTJ', label: 'ENTJ' },

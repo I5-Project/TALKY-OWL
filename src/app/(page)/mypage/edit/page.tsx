@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Header from '@/components/layout/Header';
 import Avatar from '@/components/ui/Avatar';
@@ -11,49 +11,60 @@ import Spinner from '@/components/ui/Spinner';
 import PhotoCameraRoundedIcon from '@mui/icons-material/PhotoCameraRounded';
 import { useUserMe, useUpdateProfile } from '@/domains/user/hooks';
 import { MBTI_OPTIONS } from '@/domains/user/constants';
+import { useProfileEditStore } from '@/stores/profileEditStore';
 import styles from './page.module.scss';
 
 export default function ProfileEditPage() {
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const { data: user, isLoading } = useUserMe();
+  const { data: user, isLoading, isError, error } = useUserMe();
   const updateProfile = useUpdateProfile();
 
-  const [name, setName] = useState('');
-  const [nickname, setNickname] = useState('');
-  const [mbti, setMbti] = useState('');
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-  const [errors, setErrors] = useState<Record<string, string>>({});
+  const {
+    email, nickname, mbti, previewUrl, errors,
+    setEmail, setNickname, setMbti, setPreviewUrl,
+    setErrors, setFieldError, clearFieldError, reset,
+  } = useProfileEditStore();
 
   useEffect(() => {
     if (user) {
-      setName(user.name ?? '');
-      setNickname(user.nickname ?? '');
-      setMbti(user.mbti ?? '');
-      setPreviewUrl(null);
+      reset({
+        email: user.email ?? '',
+        nickname: user.nickname ?? '',
+        mbti: user.mbti ?? '',
+        previewUrl: user.profileImageUrl,
+      });
     }
-  }, [user]);
+  }, [user, reset]);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
+    if (previewUrl?.startsWith('blob:')) {
+      URL.revokeObjectURL(previewUrl);
+    }
     const objectUrl = URL.createObjectURL(file);
     setPreviewUrl(objectUrl);
   };
 
+  useEffect(() => {
+    return () => {
+      if (previewUrl?.startsWith('blob:')) URL.revokeObjectURL(previewUrl);
+    };
+  }, [previewUrl]);
+
   const validate = () => {
     const next: Record<string, string> = {};
 
-    const trimmedName = name.trim();
-    if (trimmedName && (trimmedName.length < 1 || trimmedName.length > 50)) {
-      next.name = '이름은 1~50자로 입력해주세요.';
+    if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      next.email = '올바른 이메일 형식이 아닙니다.';
     }
 
     const trimmedNickname = nickname.trim();
-    if (trimmedNickname && (trimmedNickname.length < 2 || trimmedNickname.length > 20)) {
-      next.nickname = '닉네임은 2~20자로 입력해주세요.';
+    if (!trimmedNickname || trimmedNickname.length < 2 || trimmedNickname.length > 100) {
+      next.nickname = '닉네임은 2~100자로 입력해주세요.';
     }
 
     setErrors(next);
@@ -64,37 +75,22 @@ export default function ProfileEditPage() {
     if (!validate()) return;
 
     try {
-      const params: Record<string, string | null> = {};
+      await updateProfile.mutateAsync({
+        email: email || undefined,
+        nickname: nickname.trim(),
+        mbti: mbti || null,
+        profileImage: fileInputRef.current?.files?.[0] ?? undefined,
+      });
 
-      const trimmedName = name.trim();
-      if (trimmedName !== (user?.name ?? '')) {
-        params.name = trimmedName;
-      }
-
-      const trimmedNickname = nickname.trim();
-      if (trimmedNickname !== (user?.nickname ?? '')) {
-        params.nickname = trimmedNickname;
-      }
-
-      if (mbti !== (user?.mbti ?? '')) {
-        params.mbti = mbti || null;
-      }
-
-      if (Object.keys(params).length === 0) {
-        router.back();
-        return;
-      }
-
-      await updateProfile.mutateAsync(params as Parameters<typeof updateProfile.mutateAsync>[0]);
       router.back();
     } catch (error) {
       const message = error instanceof Error ? error.message : '수정에 실패했습니다.';
       if (message.includes('닉네임')) {
-        setErrors((prev) => ({ ...prev, nickname: message }));
-      } else if (message.includes('이름')) {
-        setErrors((prev) => ({ ...prev, name: message }));
+        setFieldError('nickname', message);
+      } else if (message.includes('이메일')) {
+        setFieldError('email', message);
       } else {
-        setErrors((prev) => ({ ...prev, general: message }));
+        setFieldError('general', message);
       }
     }
   };
@@ -112,6 +108,28 @@ export default function ProfileEditPage() {
     );
   }
 
+  if (isError) {
+    return (
+      <>
+        <Header title="개인정보 수정" onBack={() => router.back()} />
+        <main className={styles.loading}>
+          <span>{error instanceof Error ? error.message : '사용자 정보를 불러오지 못했습니다.'}</span>
+        </main>
+      </>
+    );
+  }
+
+  if (!user) {
+    return (
+      <>
+        <Header title="개인정보 수정" onBack={() => router.back()} />
+        <main className={styles.loading}>
+          <span>사용자 정보가 존재하지 않습니다.</span>
+        </main>
+      </>
+    );
+  }
+
   return (
     <>
       <Header title="개인정보 수정" onBack={() => router.back()} />
@@ -121,7 +139,7 @@ export default function ProfileEditPage() {
           <input
             ref={fileInputRef}
             type="file"
-            accept="image/jpeg,image/png,image/webp"
+            accept="image/jpeg,image/png,image/webp,image/svg+xml"
             hidden
             onChange={handleImageChange}
           />
@@ -137,31 +155,31 @@ export default function ProfileEditPage() {
 
         <div className={styles.form}>
           <Input
-            label="이름"
-            value={name}
+            label="계정"
+            type="email"
+            value={email}
             onChange={(e) => {
-              setName(e.target.value);
-              setErrors((prev) => ({ ...prev, name: '' }));
+              setEmail(e.target.value);
+              clearFieldError('email');
             }}
-            placeholder="이름을 입력해주세요"
-            maxLength={50}
-            error={errors.name || undefined}
+            placeholder="이메일을 입력해주세요"
+            error={errors.email || undefined}
           />
 
           <Input
-            label="닉네임"
+            label="이름"
             value={nickname}
             onChange={(e) => {
               setNickname(e.target.value);
-              setErrors((prev) => ({ ...prev, nickname: '' }));
+              clearFieldError('nickname');
             }}
             placeholder="닉네임을 입력해주세요"
-            maxLength={20}
+            maxLength={100}
             error={errors.nickname || undefined}
           />
 
           <Select
-            label="MBTI"
+            label="MBTI 변경"
             options={[...MBTI_OPTIONS]}
             value={mbti}
             onChange={(e) => setMbti(e.target.value)}
@@ -169,7 +187,7 @@ export default function ProfileEditPage() {
           />
 
           {errors.general && (
-            <span style={{ color: 'var(--text-danger)', fontSize: '0.875rem' }}>
+            <span className={styles.errorMessage}>
               {errors.general}
             </span>
           )}

@@ -51,6 +51,7 @@ async function saveFirstLoginFields(userId: string, kakaoId: string): Promise<vo
           isRequired: terms.isRequired,
           agreedAt: now,
         })),
+        skipDuplicates: true,
       }),
     ])
     return
@@ -76,6 +77,7 @@ async function saveFirstLoginFields(userId: string, kakaoId: string): Promise<vo
             isRequired: terms.isRequired,
             agreedAt: now,
           })),
+          skipDuplicates: true,
         }),
       ])
       return
@@ -132,7 +134,6 @@ export const authOptions: NextAuthOptions = {
   },
   events: {
     async createUser({ user }) {
-      // PrismaAdapter가 User를 생성한 직후 호출됨 — 신규 사용자 커스텀 필드 설정
       const account = await prisma.account.findFirst({
         where: { userId: user.id, provider: 'kakao' },
         select: { providerAccountId: true },

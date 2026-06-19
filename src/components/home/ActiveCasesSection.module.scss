@@ -64,10 +64,23 @@
   color: v.$color-black-400;
 }
 
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: fn.r(12);
+  padding: fn.r(24) 0;
+}
+
+.emptyImage {
+  width: fn.r(80);
+  height: fn.r(80);
+  object-fit: contain;
+}
+
 .empty {
   @include m.text-body-s;
 
   color: v.$color-black-400;
   text-align: center;
-  padding: fn.r(24) 0;
 }

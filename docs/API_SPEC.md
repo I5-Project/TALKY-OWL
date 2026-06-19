@@ -199,7 +199,8 @@ YYYY-MM-DDTHH:mm:ssZ
 | `GET` | `/api/rooms` | 방 목록 조회 | 🔒 |
 | `GET` | `/api/rooms/{roomId}` | 방 상세 조회 | 🔒 |
 | `POST` | `/api/rooms/{roomId}/invite` | 초대 링크 발급 | 🔒 |
-| `POST` | `/api/rooms/{roomId}/join` | 초대 링크로 참여 | 🔒 |
+| `GET` | `/api/rooms/join/{token}` | 초대 토큰으로 방 정보 조회 | 🔒 |
+| `POST` | `/api/rooms/join/{token}` | 초대 토큰으로 참여 확정 | 🔒 |
 | `POST` | `/api/rooms/{roomId}/close` | 방 종료 | 🔒 |
 | `DELETE` | `/api/rooms/{roomId}` | 방 삭제 | 🔒 |
 
@@ -580,22 +581,56 @@ YYYY-MM-DDTHH:mm:ssZ
   - `room_token` 원문 DB 저장 금지, `room_token_hash`만 저장 (CLAUDE.md §7)
   - `room_mode` → `invite_ready` 전환
 - **로그 정책:** `AuditLog` — `INVITE_LINK_CREATED` 기록
-- **확정 필요:** 초대 링크 만료 시간 정책
+- **만료 정책:** 초대 링크 만료 시간 72시간 (PR #69 구현 기준)
 
 ---
 
-#### `POST /api/rooms/{roomId}/join`
+#### `GET /api/rooms/join/{token}`
 
 - **인증:** 🔒
-- **설명:** 초대 토큰 검증 후 상대방이 방에 참여한다. 성공 시 `room_mode` → `one_to_one`, `Dispute` 생성.
-- **Request Body:**
+- **설명:** 초대 토큰으로 방 정보를 조회한다. 참여 확인 화면에서 초대자 닉네임, 카테고리 등을 표시하기 위해 사용한다.
+- **Path Params:** `token` (UUID 형식 초대 토큰)
+- **Request Body:** 없음
+- **Response 200:**
 
 ```json
 {
-  "token": "string"
+  "success": true,
+  "data": {
+    "roomId": "uuid",
+    "categoryGroup": "string",
+    "roomMode": "string",
+    "expiresAt": "ISO8601 | null",
+    "inviterNickname": "string | null"
+  },
+  "error": null
 }
 ```
 
+- **Error Code:**
+
+| 코드 | HTTP | 설명 |
+|------|------|------|
+| `UNAUTHORIZED` | 401 | 비인증 사용자 |
+| `FORBIDDEN` | 403 | 생성자 본인의 조회 시도 |
+| `NOT_FOUND` | 404 | 유효하지 않은 토큰 |
+| `INVALID_STATUS` | 422 | 만료·삭제·종료된 방 또는 invite_ready 아닌 상태 |
+
+- **처리 정책:**
+  - `room_token_hash` 검증
+  - 만료된 초대 링크 차단 (만료 시 `room_mode` → `expired` 자동 전환)
+  - 생성자 본인 조회 차단
+  - 삭제/종료/만료 상태 방 차단
+- **로그 정책:** 실패 시 `RoomAccessLog(DENIED)` 기록
+
+---
+
+#### `POST /api/rooms/join/{token}`
+
+- **인증:** 🔒
+- **설명:** 초대 토큰 검증 후 상대방이 방에 참여한다. 성공 시 `room_mode` → `one_to_one`, 생성자 `role_a` 확정, 참여자 `role_b` 확정.
+- **Path Params:** `token` (UUID 형식 초대 토큰)
+- **Request Body:** 없음
 - **Response 200:**
 
 ```json
@@ -614,19 +649,21 @@ YYYY-MM-DDTHH:mm:ssZ
 
 | 코드 | HTTP | 설명 |
 |------|------|------|
+| `UNAUTHORIZED` | 401 | 비인증 사용자 |
 | `FORBIDDEN` | 403 | 생성자 본인의 참여 시도 |
 | `CONFLICT` | 409 | role_b 이미 존재 |
 | `NOT_FOUND` | 404 | 유효하지 않은 토큰 |
-| `INVALID_STATUS` | 422 | 만료 또는 삭제된 방 |
+| `INVALID_STATUS` | 422 | 만료·삭제·종료된 방 또는 invite_ready 아닌 상태 |
 
 - **처리 정책:**
   - `room_token_hash` 검증
-  - 만료된 초대 링크 차단
+  - 만료된 초대 링크 차단 (만료 시 `room_mode` → `expired` 자동 전환)
   - 생성자 본인 참여 차단
   - role_b 중복 참여 차단
   - 멱등성 처리 필요 (CLAUDE.md §8)
   - 참여 성공 시 `room_mode` → `one_to_one`, 생성자 `role_a` 확정, 참여자 `role_b` 확정
-- **로그 정책:** `AuditLog` — `USER_JOINED_ROOM`, `RoomAccessLog` 기록
+  - dispute 미존재 시 트랜잭션 내 자동 생성
+- **로그 정책:** `AuditLog` — `USER_JOINED_ROOM`, `RoomAccessLog` — 성공 시 `ALLOWED`, 실패 시 `DENIED` 기록
 
 ---
 
@@ -1256,14 +1293,15 @@ src/app/api/
 │       └── route.ts              # GET, PATCH, DELETE(회원탈퇴)
 ├── rooms/
 │   ├── route.ts                  # GET 목록, POST 생성
-│   └── [roomId]/
-│       ├── route.ts              # GET 상세, DELETE
-│       ├── invite/
-│       │   └── route.ts          # POST
-│       ├── join/
-│       │   └── route.ts          # POST
-│       └── close/
-│           └── route.ts          # POST
+│   ├── [roomId]/
+│   │   ├── route.ts              # GET 상세, DELETE
+│   │   ├── invite/
+│   │   │   └── route.ts          # POST
+│   │   └── close/
+│   │       └── route.ts          # POST
+│   └── join/
+│       └── [token]/
+│           └── route.ts          # GET 방 정보 조회, POST 참여 확정
 ├── disputes/
 │   ├── route.ts                  # POST 생성
 │   └── [disputeId]/
@@ -1320,6 +1358,7 @@ src/app/api/
 | 항목 | 문서 A | 문서 B | 상태 |
 |------|--------|--------|------|
 | 회원탈퇴 경로 | `POST /api/auth/withdraw` (AUTH.md) | `DELETE /api/users/me` (USER.md) | **구현 필수: `DELETE /api/users/me` 채택** |
+| 초대 참여 경로 | `/api/rooms/{roomId}/join` (초기 명세) | `/api/rooms/join/{token}` (PR #69 구현) | **확정: `/api/rooms/join/{token}` 채택 — 상대방이 roomId를 알 수 없으므로 토큰 기반 경로로 변경** |
 | 판결 요청 경로 | `/judge` (JUDGEMENT.md, 실제 라우트 파일) | `/judgement` (검토 메모) | **확정 필요** |
 | 판결 결과 조회 경로 | `/result` (JUDGEMENT.md, 실제 라우트 파일) | `/judgement` (검토 메모) | **확정 필요** |
 | 일기 API 경로 | `/api/diary` (스캐폴딩) | `/api/diaries` (DIARY.md) | **확정 필요** |
@@ -1348,7 +1387,8 @@ src/app/api/
 - [ ] 탈퇴 계정 응답 처리 기준 (404 vs 403)
 
 ### Room
-- [ ] 초대 링크 만료 시간 정책
+- [x] 초대 링크 만료 시간 정책: 72시간 (PR #69 구현 기준)
+- [x] 초대 참여 경로: `/api/rooms/join/{token}` 채택 (PR #69 — 상대방이 roomId를 알 수 없으므로 토큰 기반 경로로 변경)
 - [x] 방 목록 Pagination 구조: 공통 Pagination 구조 적용
 - [ ] 방 종료/삭제 가능 조건 및 권한 기준
 

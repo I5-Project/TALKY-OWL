@@ -1,30 +1,22 @@
 'use client';
 
 import DiaryCard from '@/components/diary/DiaryCard';
-import type { EmotionType } from '@/components/diary/DiaryCard';
-import styles from './EmotionDiaryList.module.scss';
-
-interface DiaryItem {
-  id: string;
-  title: string;
-  content: string;
-  date: string;
-  emotionType: EmotionType;
-}
+import type { DiaryItem } from '@/types/diary';
+import styles from '@/components/diary/EmotionDiaryList.module.scss';
 
 const DUMMY_ITEMS: DiaryItem[] = [
   {
     id: '1',
     title: '비가온다',
     content: '우르르쾅쾅 마음이 무겁다',
-    date: '2026-06-14',
+    date: '26-06-14',
     emotionType: 'sad',
   },
   {
     id: '2',
     title: '오늘은 기분이 좋아',
     content: '오랜만에 친구를 만났다. 별거 아닌 얘기를 나눴는데 기분이 한결 가벼워졌다.',
-    date: '2026-06-14',
+    date: '26-06-14',
     emotionType: 'happy',
   },
 ];

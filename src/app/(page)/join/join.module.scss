@@ -46,3 +46,10 @@
 .footer {
   padding-top: fn.r(16);
 }
+
+.modalTitle {
+  @include m.text-title-s;
+
+  text-align: center;
+  margin-bottom: fn.r(16);
+}

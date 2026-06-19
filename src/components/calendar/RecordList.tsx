@@ -2,7 +2,7 @@
 
 import CaseCard from '@/components/ui/CaseCard';
 import type { CategoryGroup } from '@/types/common';
-import styles from './RecordList.module.scss';
+import styles from '@/components/calendar/RecordList.module.scss';
 
 type Props = {
   selectedDate: string;
