@@ -25,15 +25,36 @@ export async function POST(
   const { id: disputeId } = await params
 
   try {
-    const participant = await prisma.disputeParticipant.findFirst({
-      where: { disputeId, userId },
-      include: { statements: true },
-    })
+    const [participant, dispute] = await Promise.all([
+      prisma.disputeParticipant.findFirst({
+        where: { disputeId, userId },
+        include: { statements: true },
+      }),
+      prisma.dispute.findFirst({ where: { id: disputeId } }),
+    ])
 
     if (!participant) {
       return NextResponse.json<ApiResponse>(
         { success: false, error: { code: 'FORBIDDEN', message: '해당 사건의 참여자가 아닙니다.' } },
         { status: 403 },
+      )
+    }
+
+    if (!dispute) {
+      return NextResponse.json<ApiResponse>(
+        { success: false, error: { code: 'DISPUTE_NOT_FOUND', message: '사건을 찾을 수 없습니다.' } },
+        { status: 404 },
+      )
+    }
+
+    // ROLE_B는 ROLE_A가 진술 저장 완료(OPPONENT_JOINED) 후에만 제출 가능
+    if (participant.role === 'ROLE_B' && dispute.status !== 'OPPONENT_JOINED' && dispute.status !== 'BOTH_SUBMITTED') {
+      return NextResponse.json<ApiResponse>(
+        {
+          success: false,
+          error: { code: 'DISPUTE_NOT_READY', message: '상대방이 아직 진술을 작성하지 않았습니다.' },
+        },
+        { status: 422 },
       )
     }
 

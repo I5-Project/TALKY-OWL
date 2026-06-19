@@ -160,7 +160,7 @@ export async function POST(
       const judgment = await prisma.$transaction(async (tx) => {
         const resultCard = await tx.judgmentResultCard.create({
           data: {
-            cardTitle: aiResult.summary.slice(0, 50),
+            cardTitle: dispute.title,
             cardSummary: aiResult.summary,
             imageStatus: 'PENDING',
             shareEnabled: false,

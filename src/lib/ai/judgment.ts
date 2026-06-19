@@ -2,6 +2,13 @@ import { GoogleGenerativeAI } from '@google/generative-ai'
 
 const MODEL_NAME = 'gemini-2.5-flash'
 
+const CATEGORY_GROUP_KO: Record<string, string> = {
+  ROMANCE: '연애',
+  FAMILY: '가족',
+  FRIEND: '친구',
+  WORK: '직장',
+}
+
 // ============================================================
 // Types
 // ============================================================
@@ -157,9 +164,10 @@ export async function generateAiJudgment(input: JudgmentInput): Promise<Judgment
   const conflictTypesText = input.conflictTypes
     .map((t) => `- ${t.code}: ${t.name}`)
     .join('\n')
+  const categoryKo = CATEGORY_GROUP_KO[input.categoryGroup.toUpperCase()] ?? input.categoryGroup
 
   const prompt = (isSolo ? JUDGMENT_PROMPT_SOLO : JUDGMENT_PROMPT_DUO)
-    .replace('{categoryGroup}', input.categoryGroup)
+    .replace('{categoryGroup}', categoryKo)
     .replace('{statementA}', input.statementA)
     .replace('{statementB}', input.statementB ?? '')
     .replace('{conflictTypes}', conflictTypesText)
