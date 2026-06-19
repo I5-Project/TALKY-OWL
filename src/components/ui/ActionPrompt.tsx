@@ -2,6 +2,7 @@
 
 import Button from './Button';
 import styles from './ActionPrompt.module.scss';
+import clsx from 'clsx';
 
 interface ActionPromptProps {
   primaryLabel: string;
@@ -10,6 +11,7 @@ interface ActionPromptProps {
   onSecondary: () => void;
   secondaryVariant?: 'outline' | 'soft';
   size?: 'md' | 'sm';
+  className?: string;
 }
 
 export default function ActionPrompt({
@@ -19,9 +21,10 @@ export default function ActionPrompt({
   onSecondary,
   secondaryVariant = 'outline',
   size = 'md',
+  className,
 }: ActionPromptProps) {
   return (
-    <div className={styles.prompt}>
+    <div className={clsx(styles.prompt, className)}>
       <div className={styles.prompt__actions}>
         <Button variant={secondaryVariant} size={size} onClick={onSecondary}>
           {secondaryLabel}

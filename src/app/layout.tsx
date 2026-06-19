@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import localFont from 'next/font/local';
 import AuthProvider from '@/components/providers/AuthProvider';
 import QueryProvider from '@/components/providers/QueryProvider';
+import Toast from '@/components/feedback/Toast';
 import './globals.scss';
 
 const pretendard = localFont({
@@ -27,6 +28,7 @@ export default function RootLayout({
         <AuthProvider>
           <QueryProvider>
             <main className="container">{children}</main>
+            <Toast />
           </QueryProvider>
         </AuthProvider>
       </body>
