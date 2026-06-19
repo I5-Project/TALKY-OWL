@@ -33,9 +33,9 @@ export default function NewCaseButton() {
       })
       const json = await res.json()
       if (!json.success) throw new Error()
-      router.push(`/disputes/${json.data.id}/statement?category=${category}`)
+      router.push(`/disputes/new/statement?category=${category}&roomId=${json.data.id}`)
     } catch {
-      router.push(`/disputes/test/statement?category=${category}`)
+      router.push(`/disputes/new/statement?category=${category}`)
     }
   }
 
