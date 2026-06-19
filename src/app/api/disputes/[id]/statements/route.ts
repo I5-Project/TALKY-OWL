@@ -6,6 +6,7 @@ import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/db'
 import { getSessionUserId } from '@/lib/auth/session'
 import { moderateContent } from '@/lib/ai/moderation'
+import { extractDisputeMeta } from '@/lib/ai/judgment'
 import type { ApiResponse } from '@/types/common'
 
 const DEV_BYPASS = process.env.NODE_ENV === 'development'
@@ -24,13 +25,6 @@ const statementSchema = z.object({
     .min(1, '진술 내용을 입력해주세요.')
     .refine((val) => getByteLength(val) <= 1000, '진술 내용은 1000바이트 이하로 입력해주세요.'),
 })
-
-// 동시 제출 경쟁 조건에서 발생하는 충돌을 outer catch까지 전달하기 위한 sentinel
-class StatementConflictError extends Error {
-  constructor() {
-    super('STATEMENT_ALREADY_SUBMITTED')
-  }
-}
 
 interface StatementData {
   id: string
@@ -137,10 +131,13 @@ export async function POST(
   }
 
   try {
-    const participant = await prisma.disputeParticipant.findFirst({
-      where: { disputeId, userId },
-      include: { statements: true },
-    })
+    const [participant, dispute] = await Promise.all([
+      prisma.disputeParticipant.findFirst({
+        where: { disputeId, userId },
+        include: { statements: true },
+      }),
+      prisma.dispute.findFirst({ where: { id: disputeId } }),
+    ])
 
     if (!participant) {
       return NextResponse.json<ApiResponse>(
@@ -149,25 +146,39 @@ export async function POST(
       )
     }
 
-    const existingStatement = participant.statements[0] ?? null
-
-    if (existingStatement?.submittedAt) {
+    if (!dispute) {
       return NextResponse.json<ApiResponse>(
-        { success: false, error: { code: 'CONFLICT', message: '이미 제출된 진술은 수정할 수 없습니다.' } },
+        { success: false, error: { code: 'DISPUTE_NOT_FOUND', message: '사건을 찾을 수 없습니다.' } },
+        { status: 404 },
+      )
+    }
+
+    // 판결 이후 상태에서는 진술 수정 불가
+    const immutableStatuses: DisputeStatus[] = ['JUDGING', 'JUDGED', 'CLOSED', 'DELETED', 'EXPIRED']
+    if (immutableStatuses.includes(dispute.status)) {
+      return NextResponse.json<ApiResponse>(
+        { success: false, error: { code: 'CONFLICT', message: '현재 상태에서는 진술을 수정할 수 없습니다.' } },
         { status: 409 },
       )
     }
 
+    const existingStatement = participant.statements[0] ?? null
     const isNew = !existingStatement
-    const newDisputeStatus: DisputeStatus = participant.role === 'ROLE_A' ? 'WAITING_OPPONENT' : 'BOTH_SUBMITTED'
 
-    // 욕설 감지 모더레이션
+    // 최초 저장 시에만 상태 전이 적용
+    let newDisputeStatus: DisputeStatus | null = null
+    if (participant.role === 'ROLE_A' && dispute.status === 'DRAFT') {
+      newDisputeStatus = 'WAITING_OPPONENT'
+    } else if (participant.role === 'ROLE_B' && dispute.status === 'OPPONENT_JOINED') {
+      newDisputeStatus = 'BOTH_SUBMITTED'
+    }
+
+    // AI 1: 욕설 감지 모더레이션
     let moderation
     try {
       moderation = await moderateContent(content)
     } catch (err) {
-      // Gemini 실패 시 fail open — pending 상태로 저장, ModerationLog 생략
-      // create/updateMany(where: submittedAt: null)로 원자적 중복 제출 방지
+      // Gemini 실패 시 fail open — pending 상태로 저장
       console.error('[moderation] Gemini call failed:', err)
 
       let statement: DisputeStatement
@@ -187,26 +198,20 @@ export async function POST(
           })
         } catch (e) {
           if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === 'P2002') {
-            throw new StatementConflictError()
+            throw e
           }
           throw e
         }
       } else {
-        const { count } = await prisma.disputeStatement.updateMany({
-          where: { id: existingStatement.id, submittedAt: null },
+        statement = await prisma.disputeStatement.update({
+          where: { id: existingStatement.id },
           data: { content, moderationStatus: 'pending', submittedAt: new Date() },
         })
-        if (count === 0) throw new StatementConflictError()
-        statement = {
-          ...existingStatement,
-          content,
-          moderationStatus: 'pending',
-          submittedAt: new Date(),
-          updatedAt: new Date(),
-        }
       }
 
-      await prisma.dispute.update({ where: { id: disputeId }, data: { status: newDisputeStatus } })
+      if (newDisputeStatus) {
+        await prisma.dispute.update({ where: { id: disputeId }, data: { status: newDisputeStatus } })
+      }
 
       return NextResponse.json<ApiResponse<StatementData>>(
         {
@@ -270,17 +275,15 @@ export async function POST(
           })
         } catch (e) {
           if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === 'P2002') {
-            throw new StatementConflictError()
+            throw e
           }
           throw e
         }
       } else {
-        const { count } = await tx.disputeStatement.updateMany({
-          where: { id: existingStatement!.id, submittedAt: null },
+        stmt = await tx.disputeStatement.update({
+          where: { id: existingStatement.id },
           data: { content, moderationStatus: 'approved', submittedAt: new Date() },
         })
-        if (count === 0) throw new StatementConflictError()
-        stmt = await tx.disputeStatement.findUniqueOrThrow({ where: { id: existingStatement!.id } })
       }
 
       await tx.moderationLog.create({
@@ -297,10 +300,24 @@ export async function POST(
         },
       })
 
-      await tx.dispute.update({ where: { id: disputeId }, data: { status: newDisputeStatus } })
+      if (newDisputeStatus) {
+        await tx.dispute.update({ where: { id: disputeId }, data: { status: newDisputeStatus } })
+      }
 
       return stmt
     })
+
+    // AI 2: title/description 추출 — ROLE_A 최초 저장 시에만 실행 (ROLE_B가 덮어쓰지 않도록)
+    if (participant.role === 'ROLE_A' && isNew) {
+      extractDisputeMeta(content)
+        .then((meta) =>
+          prisma.dispute.update({
+            where: { id: disputeId },
+            data: { title: meta.title, description: meta.summary },
+          }),
+        )
+        .catch((err) => console.error('[statements] extractDisputeMeta failed:', err))
+    }
 
     return NextResponse.json<ApiResponse<StatementData>>(
       {
@@ -317,12 +334,6 @@ export async function POST(
       { status: isNew ? 201 : 200 },
     )
   } catch (error) {
-    if (error instanceof StatementConflictError) {
-      return NextResponse.json<ApiResponse>(
-        { success: false, error: { code: 'CONFLICT', message: '이미 제출된 진술은 수정할 수 없습니다.' } },
-        { status: 409 },
-      )
-    }
     const message = error instanceof Error ? error.message : String(error)
     console.error('[disputes/statements] api error', { message })
     return NextResponse.json<ApiResponse>(

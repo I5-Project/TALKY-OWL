@@ -9,7 +9,8 @@ import Tabs from '@/components/ui/Tabs'
 import Spinner from '@/components/ui/Spinner'
 import StatusBadge from '@/components/ui/StatusBadge'
 import CategoryIcon from '@/components/ui/CategoryIcon'
-import type { DisputeDto } from '@/types/dispute'
+import { useDispute, useRequestJudgment } from '@/domains/dispute/dispute.hooks'
+import { useToastStore } from '@/stores/toastStore'
 import styles from './DisputePage.module.scss'
 
 const COMPLETED_STATUSES = ['judged', 'closed'] as const
@@ -28,34 +29,25 @@ export default function DisputePage({ params }: { params: Promise<{ id: string }
   const { id } = React.use(params)
   const router = useRouter()
 
-  const [dispute, setDispute] = React.useState<DisputeDto | null>(null)
-  const [fetchLoading, setFetchLoading] = React.useState(true)
+  const { data: dispute, isLoading: fetchLoading } = useDispute(id)
+  const { mutate: requestJudgment, isPending: isJudging } = useRequestJudgment(id)
+  const showToast = useToastStore((s) => s.show)
+
   const [activeTab, setActiveTab] = React.useState('statement')
   const [showSoloModal, setShowSoloModal] = React.useState(false)
-  const [isJudging, setIsJudging] = React.useState(false)
 
-  React.useEffect(() => {
-    fetch(`/api/disputes/${id}`)
-      .then((r) => r.json())
-      .then((json) => { if (json.success) setDispute(json.data) })
-      .finally(() => setFetchLoading(false))
-  }, [id])
-
-  const isCompleted = dispute !== null && (COMPLETED_STATUSES as readonly string[]).includes(dispute.status)
+  const isCompleted = dispute !== undefined && (COMPLETED_STATUSES as readonly string[]).includes(dispute.status)
   const canJudge = dispute?.status === 'waiting_opponent' || dispute?.status === 'both_submitted'
-  const isSolo = dispute !== null && dispute.participants.length === 1
+  const isSolo = dispute !== undefined && dispute.participants.length === 1
   const roleAStatement = dispute?.statements?.find((s) => s.role === 'role_a')
   const roleBStatement = dispute?.statements?.find((s) => s.role === 'role_b')
 
-  const runJudge = async () => {
+  const runJudge = () => {
     setShowSoloModal(false)
-    setIsJudging(true)
-    try {
-      await fetch(`/api/disputes/${id}/judge`, { method: 'POST' })
-      router.refresh()
-    } catch {
-      setIsJudging(false)
-    }
+    requestJudgment(undefined, {
+      onError: (error) => showToast(error instanceof Error ? error.message : 'AI 판결 요청에 실패했습니다.'),
+      onSuccess: () => router.refresh(),
+    })
   }
 
   if (fetchLoading) return null
