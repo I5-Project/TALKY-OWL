@@ -1,30 +1,18 @@
 import type { CategoryGroup } from '@/types/common';
 import CategoryIcon from './CategoryIcon';
+import StatusBadge, { type DisputeStatus } from './StatusBadge';
 import styles from './CaseCard.module.scss';
-
-type CaseCardStatus = 'progress' | null;
 
 interface CaseCardProps {
   title: string;
   preview: string;
   date: string;
   categoryGroup?: CategoryGroup;
-  status?: CaseCardStatus;
+  disputeStatus?: DisputeStatus;
   onClick?: () => void;
 }
 
-const STATUS_LABEL: Record<string, string> = {
-  progress: '진행중',
-};
-
-export default function CaseCard({
-  title,
-  preview,
-  date,
-  categoryGroup,
-  status = null,
-  onClick,
-}: CaseCardProps) {
+export default function CaseCard({ title, preview, date, categoryGroup, disputeStatus, onClick }: CaseCardProps) {
   return (
     <article
       className={[
@@ -43,16 +31,16 @@ export default function CaseCard({
           )}
           <h3 className={styles.card__title}>{title}</h3>
         </div>
-        {status && (
-          <span
-            className={`${styles.card__badge} ${styles[`card__badge--${status}`]}`}
-          >
-            {STATUS_LABEL[status]}
-          </span>
-        )}
       </div>
       <p className={styles.card__preview}>{preview}</p>
-      <time className={styles.card__date}>{date}</time>
+      {disputeStatus ? (
+        <div className={styles.card__footer}>
+          <time className={styles.card__date}>{date}</time>
+          <StatusBadge status={disputeStatus} />
+        </div>
+      ) : (
+        <time className={styles.card__date}>{date}</time>
+      )}
     </article>
   );
 }

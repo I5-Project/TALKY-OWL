@@ -72,6 +72,12 @@
     word-break: keep-all;
   }
 
+  &__footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
   &__date {
     display: block;
     font-family: v.$font-family-base;

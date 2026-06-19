@@ -16,7 +16,7 @@ const disputeTitle = '';
 export default function JoinPage() {
   const router = useRouter();
 
-  const goToMain = () => router.push('/home');
+  const goToMain = () => router.push('/');
 
   if (currentState === 'error') {
     return (
