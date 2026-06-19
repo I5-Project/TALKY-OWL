@@ -233,6 +233,8 @@ export async function POST(
     if (moderation.isBlocked) {
       await prisma.moderationLog.create({
         data: {
+          roomId: dispute.roomId,
+          conversationId: dispute.sourceConversationId,
           disputeId,
           userId,
           target: 'STATEMENT',
@@ -288,6 +290,8 @@ export async function POST(
 
       await tx.moderationLog.create({
         data: {
+          roomId: dispute.roomId,
+          conversationId: dispute.sourceConversationId,
           disputeId,
           statementId: stmt.id,
           userId,
