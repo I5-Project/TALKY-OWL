@@ -1,17 +1,7 @@
 'use client';
 
-import styles from './Tabs.module.scss';
-
-interface Tab {
-  id: string;
-  label: string;
-}
-
-interface TabsProps {
-  tabs: Tab[];
-  activeId: string;
-  onChange: (id: string) => void;
-}
+import type { TabsProps } from '@/types/ui';
+import styles from '@/components/ui/Tabs.module.scss';
 
 export default function Tabs({ tabs, activeId, onChange }: TabsProps) {
   return (

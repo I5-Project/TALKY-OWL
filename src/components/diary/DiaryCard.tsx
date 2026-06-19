@@ -2,18 +2,8 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
-import styles from './DiaryCard.module.scss';
-
-export type EmotionType = 'happy' | 'sad' | 'angry' | 'annoyed' | 'neutral';
-
-interface DiaryCardProps {
-  id: string;
-  title: string;
-  content: string;
-  date: string;
-  emotionType: EmotionType;
-  onClick?: () => void;
-}
+import styles from '@/components/diary/DiaryCard.module.scss';
+import type { DiaryCardProps } from '@/types/diary';
 
 export default function DiaryCard({ id, title, content, date, emotionType, onClick }: DiaryCardProps) {
   return (

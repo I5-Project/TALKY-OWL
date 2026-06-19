@@ -1,13 +1,6 @@
 import Image from 'next/image';
-import styles from './EmotionIcon.module.scss';
-
-type Feel = '기쁨' | '슬픔' | '보통' | '짜증' | '화남';
-
-type Props = {
-  feel: string;
-  size?: number;
-  count?: number;
-};
+import styles from '@/components/calendar/EmotionIcon.module.scss';
+import type { Feel, EmotionIconProps } from '@/types/diary';
 
 const EMOTION_ICON_MAP: Record<Feel, string> = {
   기쁨: '/images/icons/emotions/emotion-happy.svg',
@@ -17,7 +10,7 @@ const EMOTION_ICON_MAP: Record<Feel, string> = {
   화남: '/images/icons/emotions/emotion-angry.svg',
 };
 
-export default function EmotionIcon({ feel, size = 20, count }: Props) {
+export default function EmotionIcon({ feel, size = 20, count }: EmotionIconProps) {
   const src = EMOTION_ICON_MAP[feel as Feel];
   if (!src) return null;
 

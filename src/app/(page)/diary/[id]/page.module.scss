@@ -1,6 +1,6 @@
-@use '../../../../styles/abstracts/variables' as v;
-@use '../../../../styles/abstracts/mixins' as typo;
-@use '../../../../styles/abstracts/functions' as fn;
+@use '@/styles/abstracts/variables' as v;
+@use '@/styles/abstracts/mixins' as typo;
+@use '@/styles/abstracts/functions' as fn;
 
 .diary {
   padding: fn.r(20);
@@ -47,4 +47,8 @@
     gap: fn.r(8);
     margin-top: fn.r(121);
   }
+}
+
+.diaryActions{
+  width: 100%;
 }

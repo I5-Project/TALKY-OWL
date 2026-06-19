@@ -344,7 +344,6 @@ model MediaAsset {
 
   ownerUser           User?                @relation("MediaAssetOwner", fields: [ownerUserId], references: [id], onDelete: SetNull)
   profileUsers        User[]               @relation("UserProfileAsset")
-  conflictTypeDetails ConflictTypeDetail[]
   judgmentResultCards JudgmentResultCard[]
 
   @@map("media_assets")
@@ -373,37 +372,18 @@ model AiResultNotice {
 // 갈등 결과 유형 마스터 데이터 (DB 기반, Enum 하드코딩 금지)
 // ============================================================
 
-model ConflictTypeGroup {
-  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  groupCode   String   @unique @map("group_code") @db.VarChar(80)
-  displayName String   @map("display_name") @db.VarChar(100)
-  description String?
-  sortOrder   Int      @map("sort_order")
-  isActive    Boolean  @default(true) @map("is_active")
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
-
-  conflictTypeDetails ConflictTypeDetail[]
-  aiJudgments         AiJudgment[]
-
-  @@map("conflict_type_groups")
-}
-
 model ConflictTypeDetail {
-  id               String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  groupId          String   @map("group_id") @db.Uuid
-  detailCode       String   @unique @map("detail_code") @db.VarChar(80)
-  displayName      String   @map("display_name") @db.VarChar(100)
-  description      String?
-  characterAssetId String?  @map("character_asset_id") @db.Uuid
-  sortOrder        Int      @map("sort_order")
-  isActive         Boolean  @default(true) @map("is_active")
-  createdAt        DateTime @default(now()) @map("created_at")
-  updatedAt        DateTime @updatedAt @map("updated_at")
+  id           String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  detailCode   String   @unique @map("detail_code") @db.VarChar(80)
+  displayName  String   @map("display_name") @db.VarChar(100)
+  description  String?
+  cardImageUrl String?  @map("card_image_url")
+  sortOrder    Int      @map("sort_order")
+  isActive     Boolean  @default(true) @map("is_active")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
 
-  group          ConflictTypeGroup @relation(fields: [groupId], references: [id], onDelete: Restrict)
-  characterAsset MediaAsset?       @relation(fields: [characterAssetId], references: [id], onDelete: SetNull)
-  aiJudgments    AiJudgment[]
+  aiJudgments AiJudgment[]
 
   @@map("conflict_type_details")
 }
@@ -585,7 +565,6 @@ model AiJudgment {
   issueSummary           String           @map("issue_summary")
   reasoning              String
   advice                 String
-  resultConflictGroupId  String           @map("result_conflict_group_id") @db.Uuid
   resultConflictDetailId String           @map("result_conflict_detail_id") @db.Uuid
   resultCardId           String?          @unique @map("result_card_id") @db.Uuid
   aiNoticeId             String?          @map("ai_notice_id") @db.Uuid
@@ -597,7 +576,6 @@ model AiJudgment {
   updatedAt              DateTime         @updatedAt @map("updated_at")
 
   dispute              Dispute             @relation(fields: [disputeId], references: [id], onDelete: Cascade)
-  resultConflictGroup  ConflictTypeGroup   @relation(fields: [resultConflictGroupId], references: [id], onDelete: Restrict)
   resultConflictDetail ConflictTypeDetail  @relation(fields: [resultConflictDetailId], references: [id], onDelete: Restrict)
   resultCard           JudgmentResultCard? @relation(fields: [resultCardId], references: [id], onDelete: SetNull)
   aiNotice             AiResultNotice?     @relation(fields: [aiNoticeId], references: [id], onDelete: SetNull)
