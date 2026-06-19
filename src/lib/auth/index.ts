@@ -6,6 +6,8 @@ import { prisma } from '@/lib/db'
 import { generateNickname, generateFallbackNickname } from './nickname'
 import { CURRENT_TERMS_VERSIONS } from '@/domains/auth/constants'
 
+const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+
 const ACCOUNT_FIELDS = new Set([
   'id', 'userId', 'type', 'provider', 'providerAccountId',
   'refresh_token', 'access_token', 'expires_at', 'token_type',
@@ -104,7 +106,7 @@ export const authOptions: NextAuthOptions = {
   },
   callbacks: {
     async signIn({ user, account }) {
-      if (account?.provider === 'kakao' && user.id) {
+      if (account?.provider === 'kakao' && user.id && UUID_REGEX.test(user.id)) {
         const existing = await prisma.user.findUnique({
           where: { id: user.id },
           select: { kakaoId: true },
