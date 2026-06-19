@@ -31,7 +31,17 @@
       "Bash(git -C \"c:\\\\team-project\\\\talky-owl\" show 1f30c28 --stat)",
       "Bash(git -C \"c:\\\\team-project\\\\talky-owl\" show 8c70a4b --stat)",
       "Bash(git -C \"c:\\\\team-project\\\\talky-owl\" add .claude/settings.json)",
-      "Bash(git -C 'c:\\\\team-project\\\\talky-owl' commit -m 'merge: origin/dev 반영 및 settings.json 충돌 해결 *)"
+      "Bash(git -C 'c:\\\\team-project\\\\talky-owl' commit -m 'merge: origin/dev 반영 및 settings.json 충돌 해결 *)",
+      "PowerShell(npx next lint --file \"src/app/\\(page\\)/login/page.tsx\" 2>&1)",
+      "Bash(findstr DATABASE_URL)",
+      "PowerShell(if \\(Test-Path \"c:\\\\team-project\\\\talky-owl\\\\.env\"\\) { Select-String -Path \"c:\\\\team-project\\\\talky-owl\\\\.env\" -Pattern \"DATABASE_URL\" | ForEach-Object { $_.Line.Substring\\(0, [Math]::Min\\($_.Line.Length, 30\\)\\) + \"...\" } } else { \"No .env file found\"; if \\(Test-Path \"c:\\\\team-project\\\\talky-owl\\\\.env.local\"\\) { \".env.local exists\" } })",
+      "Read(//c/team-project/talky-owl/**)",
+      "PowerShell(Select-String -Path \"c:\\\\team-project\\\\talky-owl\\\\.env\" -Pattern \"DATABASE\" | ForEach-Object { $line = $_.Line; if \\($line.Length -gt 40\\) { $line.Substring\\(0,40\\) + \"...\" } else { $line } })",
+      "PowerShell(Select-String -Path \"c:\\\\team-project\\\\talky-owl\\\\.env.local\" -Pattern \"DATABASE\" | ForEach-Object { $line = $_.Line; if \\($line.Length -gt 40\\) { $line.Substring\\(0,40\\) + \"...\" } else { $line } })",
+      "PowerShell(Select-String -Path \"c:\\\\team-project\\\\talky-owl\\\\.env.local\" -Pattern \"DIRECT_URL\" | ForEach-Object { $line = $_.Line; if \\($line.Length -gt 40\\) { $line.Substring\\(0,40\\) + \"...\" } else { $line } })",
+      "PowerShell($env:DATABASE_URL = \\(Select-String -Path \".env.local\" -Pattern \"^DATABASE_URL=\" | ForEach-Object { $_.Line -replace '^DATABASE_URL=\"?|\"?$','' }\\); $env:DIRECT_URL = \\(Select-String -Path \".env.local\" -Pattern \"^DIRECT_URL=\" | ForEach-Object { $_.Line -replace '^DIRECT_URL=\"?|\"?$','' }\\); npx prisma migrate status --schema prisma/schema.prisma 2>&1)",
+      "PowerShell($env:DATABASE_URL = \\(Select-String -Path \".env.local\" -Pattern \"^DATABASE_URL=\" | ForEach-Object { $_.Line -replace '^DATABASE_URL=\"?|\"?$','' }\\); $env:DIRECT_URL = \\(Select-String -Path \".env.local\" -Pattern \"^DIRECT_URL=\" | ForEach-Object { $_.Line -replace '^DIRECT_URL=\"?|\"?$','' }\\); npx prisma db push --schema prisma/schema.prisma 2>&1)",
+      "PowerShell($env:DATABASE_URL = \\(Select-String -Path \".env.local\" -Pattern \"^DATABASE_URL=\" | ForEach-Object { $_.Line -replace '^DATABASE_URL=\"?|\"?$','' }\\); $env:DIRECT_URL = \\(Select-String -Path \".env.local\" -Pattern \"^DIRECT_URL=\" | ForEach-Object { $_.Line -replace '^DIRECT_URL=\"?|\"?$','' }\\); node -e \"const { PrismaClient } = require\\('@prisma/client'\\); const p = new PrismaClient\\(\\); p.`$queryRaw`\\(require\\('@prisma/client'\\).Prisma.sql``SELECT table_name FROM information_schema.tables WHERE table_schema='public' AND table_type='BASE TABLE' ORDER BY table_name``\\).then\\(r => { console.log\\(r.map\\(t => t.table_name\\).join\\('\\\\n'\\)\\); p.`$disconnect`\\(\\) }\\).catch\\(e => { console.error\\(e.message\\); p.`$disconnect`\\(\\) }\\)\")"
     ]
   }
 }
