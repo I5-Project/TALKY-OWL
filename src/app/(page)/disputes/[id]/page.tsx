@@ -42,6 +42,7 @@ export default function DisputePage({ params }: { params: Promise<{ id: string }
   }, [id])
 
   const isCompleted = dispute !== null && (COMPLETED_STATUSES as readonly string[]).includes(dispute.status)
+  const canJudge = dispute?.status === 'waiting_opponent' || dispute?.status === 'both_submitted'
   const isSolo = dispute !== null && dispute.participants.length === 1
   const roleAStatement = dispute?.statements?.find((s) => s.role === 'role_a')
   const roleBStatement = dispute?.statements?.find((s) => s.role === 'role_b')
@@ -161,6 +162,7 @@ export default function DisputePage({ params }: { params: Promise<{ id: string }
       {!isCompleted && (
         <div className={styles.footer}>
           <Button
+            disabled={!canJudge}
             onClick={() => isSolo ? setShowSoloModal(true) : void runJudge()}
           >
             판결받기

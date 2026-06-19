@@ -1,0 +1,15 @@
+@use '@/styles/abstracts/variables' as v;
+@use '@/styles/abstracts/functions' as fn;
+@use '@/styles/abstracts/mixins' as m;
+
+.message {
+  @include m.text-title-s;
+  text-align: center;
+  color: var(--text-primary);
+  margin-bottom: fn.r(20);
+}
+
+.actions {
+  display: flex;
+  gap: fn.r(12);
+}
