@@ -56,6 +56,7 @@ function toStatementDto(s: DisputeForDetail['statements'][number]): DisputeState
     role: s.role.toLowerCase() as DisputeStatementDto['role'],
     content: s.content,
     moderationStatus: s.moderationStatus,
+    hasPersonalInfo: s.hasPersonalInfo,
     submittedAt: s.submittedAt?.toISOString() ?? null,
     createdAt: s.createdAt.toISOString(),
     updatedAt: s.updatedAt.toISOString(),
