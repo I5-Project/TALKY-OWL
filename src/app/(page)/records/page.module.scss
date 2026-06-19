@@ -1,0 +1,7 @@
+@use '@/styles/abstracts/functions' as fn;
+
+.page {
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+}
