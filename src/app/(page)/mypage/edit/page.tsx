@@ -17,7 +17,7 @@ export default function ProfileEditPage() {
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const { data: user, isLoading } = useUserMe();
+  const { data: user, isLoading, isError, error } = useUserMe();
   const updateProfile = useUpdateProfile();
   const uploadImage = useUploadProfileImage();
 
@@ -40,9 +40,18 @@ export default function ProfileEditPage() {
     const file = e.target.files?.[0];
     if (!file) return;
 
+    if (previewUrl?.startsWith('blob:')) {
+      URL.revokeObjectURL(previewUrl);
+    }
     const objectUrl = URL.createObjectURL(file);
     setPreviewUrl(objectUrl);
   };
+
+  useEffect(() => {
+    return () => {
+      if (previewUrl?.startsWith('blob:')) URL.revokeObjectURL(previewUrl);
+    };
+  }, [previewUrl]);
 
   const validate = () => {
     const next: Record<string, string> = {};
@@ -52,8 +61,8 @@ export default function ProfileEditPage() {
     }
 
     const trimmedNickname = nickname.trim();
-    if (!trimmedNickname || trimmedNickname.length < 2 || trimmedNickname.length > 20) {
-      next.nickname = '닉네임은 2~20자로 입력해주세요.';
+    if (!trimmedNickname || trimmedNickname.length < 2 || trimmedNickname.length > 100) {
+      next.nickname = '닉네임은 2~100자로 입력해주세요.';
     }
 
     setErrors(next);
@@ -96,6 +105,17 @@ export default function ProfileEditPage() {
         <Header title="개인정보 수정" onBack={() => router.back()} />
         <main className={styles.loading}>
           <Spinner />
+        </main>
+      </>
+    );
+  }
+
+  if (isError || !user) {
+    return (
+      <>
+        <Header title="개인정보 수정" onBack={() => router.back()} />
+        <main className={styles.loading}>
+          <span>{error instanceof Error ? error.message : '사용자 정보를 불러오지 못했습니다.'}</span>
         </main>
       </>
     );
@@ -145,7 +165,7 @@ export default function ProfileEditPage() {
               setErrors((prev) => ({ ...prev, nickname: '' }));
             }}
             placeholder="닉네임을 입력해주세요"
-            maxLength={20}
+            maxLength={100}
             error={errors.nickname || undefined}
           />
 

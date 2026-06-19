@@ -95,8 +95,8 @@ export async function PATCH(request: NextRequest) {
 
     if (body.nickname !== undefined) {
       const trimmed = body.nickname.trim()
-      if (!trimmed || trimmed.length < 2 || trimmed.length > 20) {
-        fieldErrors.push({ field: 'nickname', code: 'INVALID_NICKNAME', message: '닉네임은 2~20자로 입력해주세요.' })
+      if (!trimmed || trimmed.length < 2 || trimmed.length > 100) {
+        fieldErrors.push({ field: 'nickname', code: 'INVALID_NICKNAME', message: '닉네임은 2~100자로 입력해주세요.' })
       } else {
         data.nickname = trimmed
       }
