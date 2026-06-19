@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Header from '@/components/layout/Header';
 import Avatar from '@/components/ui/Avatar';
@@ -9,40 +9,51 @@ import Select from '@/components/ui/Select';
 import Button from '@/components/ui/Button';
 import Spinner from '@/components/ui/Spinner';
 import PhotoCameraRoundedIcon from '@mui/icons-material/PhotoCameraRounded';
-import { useUserMe, useUpdateProfile, useUploadProfileImage } from '@/domains/user/hooks';
+import { useUserMe, useUpdateProfile } from '@/domains/user/hooks';
 import { MBTI_OPTIONS } from '@/domains/user/constants';
+import { useProfileEditStore } from '@/stores/profileEditStore';
 import styles from './page.module.scss';
 
 export default function ProfileEditPage() {
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const { data: user, isLoading } = useUserMe();
+  const { data: user, isLoading, isError, error } = useUserMe();
   const updateProfile = useUpdateProfile();
-  const uploadImage = useUploadProfileImage();
 
-  const [email, setEmail] = useState('');
-  const [nickname, setNickname] = useState('');
-  const [mbti, setMbti] = useState('');
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-  const [errors, setErrors] = useState<Record<string, string>>({});
+  const {
+    email, nickname, mbti, previewUrl, errors,
+    setEmail, setNickname, setMbti, setPreviewUrl,
+    setErrors, setFieldError, clearFieldError, reset,
+  } = useProfileEditStore();
 
   useEffect(() => {
     if (user) {
-      setEmail(user.email ?? '');
-      setNickname(user.nickname ?? '');
-      setMbti(user.mbti ?? '');
-      setPreviewUrl(user.profileImageUrl);
+      reset({
+        email: user.email ?? '',
+        nickname: user.nickname ?? '',
+        mbti: user.mbti ?? '',
+        previewUrl: user.profileImageUrl,
+      });
     }
-  }, [user]);
+  }, [user, reset]);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
+    if (previewUrl?.startsWith('blob:')) {
+      URL.revokeObjectURL(previewUrl);
+    }
     const objectUrl = URL.createObjectURL(file);
     setPreviewUrl(objectUrl);
   };
+
+  useEffect(() => {
+    return () => {
+      if (previewUrl?.startsWith('blob:')) URL.revokeObjectURL(previewUrl);
+    };
+  }, [previewUrl]);
 
   const validate = () => {
     const next: Record<string, string> = {};
@@ -52,8 +63,8 @@ export default function ProfileEditPage() {
     }
 
     const trimmedNickname = nickname.trim();
-    if (!trimmedNickname || trimmedNickname.length < 2 || trimmedNickname.length > 20) {
-      next.nickname = '닉네임은 2~20자로 입력해주세요.';
+    if (!trimmedNickname || trimmedNickname.length < 2 || trimmedNickname.length > 100) {
+      next.nickname = '닉네임은 2~100자로 입력해주세요.';
     }
 
     setErrors(next);
@@ -64,31 +75,27 @@ export default function ProfileEditPage() {
     if (!validate()) return;
 
     try {
-      const file = fileInputRef.current?.files?.[0];
-      if (file) {
-        await uploadImage.mutateAsync(file);
-      }
-
       await updateProfile.mutateAsync({
         email: email || undefined,
         nickname: nickname.trim(),
         mbti: mbti || null,
+        profileImage: fileInputRef.current?.files?.[0] ?? undefined,
       });
 
       router.back();
     } catch (error) {
       const message = error instanceof Error ? error.message : '수정에 실패했습니다.';
       if (message.includes('닉네임')) {
-        setErrors((prev) => ({ ...prev, nickname: message }));
+        setFieldError('nickname', message);
       } else if (message.includes('이메일')) {
-        setErrors((prev) => ({ ...prev, email: message }));
+        setFieldError('email', message);
       } else {
-        setErrors((prev) => ({ ...prev, general: message }));
+        setFieldError('general', message);
       }
     }
   };
 
-  const isSaving = updateProfile.isPending || uploadImage.isPending;
+  const isSaving = updateProfile.isPending;
 
   if (isLoading) {
     return (
@@ -96,6 +103,28 @@ export default function ProfileEditPage() {
         <Header title="개인정보 수정" onBack={() => router.back()} />
         <main className={styles.loading}>
           <Spinner />
+        </main>
+      </>
+    );
+  }
+
+  if (isError) {
+    return (
+      <>
+        <Header title="개인정보 수정" onBack={() => router.back()} />
+        <main className={styles.loading}>
+          <span>{error instanceof Error ? error.message : '사용자 정보를 불러오지 못했습니다.'}</span>
+        </main>
+      </>
+    );
+  }
+
+  if (!user) {
+    return (
+      <>
+        <Header title="개인정보 수정" onBack={() => router.back()} />
+        <main className={styles.loading}>
+          <span>사용자 정보가 존재하지 않습니다.</span>
         </main>
       </>
     );
@@ -110,7 +139,7 @@ export default function ProfileEditPage() {
           <input
             ref={fileInputRef}
             type="file"
-            accept="image/jpeg,image/png,image/webp"
+            accept="image/jpeg,image/png,image/webp,image/svg+xml"
             hidden
             onChange={handleImageChange}
           />
@@ -131,7 +160,7 @@ export default function ProfileEditPage() {
             value={email}
             onChange={(e) => {
               setEmail(e.target.value);
-              setErrors((prev) => ({ ...prev, email: '' }));
+              clearFieldError('email');
             }}
             placeholder="이메일을 입력해주세요"
             error={errors.email || undefined}
@@ -142,10 +171,10 @@ export default function ProfileEditPage() {
             value={nickname}
             onChange={(e) => {
               setNickname(e.target.value);
-              setErrors((prev) => ({ ...prev, nickname: '' }));
+              clearFieldError('nickname');
             }}
             placeholder="닉네임을 입력해주세요"
-            maxLength={20}
+            maxLength={100}
             error={errors.nickname || undefined}
           />
 
@@ -158,7 +187,7 @@ export default function ProfileEditPage() {
           />
 
           {errors.general && (
-            <span style={{ color: 'var(--text-danger)', fontSize: '0.875rem' }}>
+            <span className={styles.errorMessage}>
               {errors.general}
             </span>
           )}

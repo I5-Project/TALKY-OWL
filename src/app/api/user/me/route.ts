@@ -3,6 +3,7 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/db'
 import { getSessionUserId } from '@/lib/auth/session'
+import { supabaseAdmin, PROFILE_IMAGES_BUCKET } from '@/lib/storage'
 import type { ApiResponse } from '@/types/common'
 
 interface UserMeDto {
@@ -21,6 +22,37 @@ const VALID_MBTI = [
 ]
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+const MAX_FILE_SIZE = 5 * 1024 * 1024
+const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/svg+xml']
+
+function hasAllowedImageSignature(bytes: Uint8Array): boolean {
+  const isJpeg = bytes.length >= 3 && bytes[0] === 0xff && bytes[1] === 0xd8 && bytes[2] === 0xff
+  const isPng =
+    bytes.length >= 8 &&
+    bytes[0] === 0x89 &&
+    bytes[1] === 0x50 &&
+    bytes[2] === 0x4e &&
+    bytes[3] === 0x47 &&
+    bytes[4] === 0x0d &&
+    bytes[5] === 0x0a &&
+    bytes[6] === 0x1a &&
+    bytes[7] === 0x0a
+  const isWebp =
+    bytes.length >= 12 &&
+    bytes[0] === 0x52 &&
+    bytes[1] === 0x49 &&
+    bytes[2] === 0x46 &&
+    bytes[3] === 0x46 &&
+    bytes[8] === 0x57 &&
+    bytes[9] === 0x45 &&
+    bytes[10] === 0x42 &&
+    bytes[11] === 0x50
+  const isSvg =
+    bytes.length >= 5 &&
+    bytes[0] === 0x3c &&
+    (bytes[1] === 0x3f || bytes[1] === 0x73 || bytes[1] === 0x53)
+  return isJpeg || isPng || isWebp || isSvg
+}
 
 function getAuthErrorResponse() {
   return NextResponse.json<ApiResponse>(
@@ -68,12 +100,6 @@ export async function GET() {
   }
 }
 
-interface PatchBody {
-  email?: string
-  nickname?: string
-  mbti?: string | null
-}
-
 export async function PATCH(request: NextRequest) {
   const session = await getServerSession(authOptions)
   const userId = getSessionUserId(session)
@@ -81,34 +107,57 @@ export async function PATCH(request: NextRequest) {
   if (!userId) return getAuthErrorResponse()
 
   try {
-    const body = (await request.json()) as PatchBody
+    let formData: FormData
+    try {
+      formData = await request.formData()
+    } catch {
+      return NextResponse.json<ApiResponse>(
+        { success: false, error: { code: 'INVALID_BODY', message: '요청 본문 형식이 올바르지 않습니다.' } },
+        { status: 400 },
+      )
+    }
+
     const data: Record<string, string | null> = {}
     const fieldErrors: { field: string; code: string; message: string }[] = []
 
-    if (body.email !== undefined) {
-      if (!body.email || !EMAIL_REGEX.test(body.email)) {
+    const emailValue = formData.get('email')
+    if (emailValue !== null) {
+      const email = String(emailValue)
+      if (!email || !EMAIL_REGEX.test(email)) {
         fieldErrors.push({ field: 'email', code: 'INVALID_EMAIL', message: '올바른 이메일 형식이 아닙니다.' })
       } else {
-        data.email = body.email
+        data.email = email
       }
     }
 
-    if (body.nickname !== undefined) {
-      const trimmed = body.nickname.trim()
-      if (!trimmed || trimmed.length < 2 || trimmed.length > 20) {
-        fieldErrors.push({ field: 'nickname', code: 'INVALID_NICKNAME', message: '닉네임은 2~20자로 입력해주세요.' })
+    const nicknameValue = formData.get('nickname')
+    if (nicknameValue !== null) {
+      const trimmed = String(nicknameValue).trim()
+      if (!trimmed || trimmed.length < 2 || trimmed.length > 100) {
+        fieldErrors.push({ field: 'nickname', code: 'INVALID_NICKNAME', message: '닉네임은 2~100자로 입력해주세요.' })
       } else {
         data.nickname = trimmed
       }
     }
 
-    if (body.mbti !== undefined) {
-      if (body.mbti === null || body.mbti === '') {
+    const mbtiValue = formData.get('mbti')
+    if (mbtiValue !== null) {
+      const mbti = String(mbtiValue)
+      if (mbti === '') {
         data.mbti = null
-      } else if (!VALID_MBTI.includes(body.mbti.toUpperCase())) {
+      } else if (!VALID_MBTI.includes(mbti.toUpperCase())) {
         fieldErrors.push({ field: 'mbti', code: 'INVALID_MBTI', message: '올바른 MBTI를 선택해주세요.' })
       } else {
-        data.mbti = body.mbti.toUpperCase()
+        data.mbti = mbti.toUpperCase()
+      }
+    }
+
+    const file = formData.get('profileImage') as File | null
+    if (file && file.size > 0) {
+      if (!ALLOWED_TYPES.includes(file.type)) {
+        fieldErrors.push({ field: 'profileImage', code: 'INVALID_FILE_TYPE', message: 'JPG, PNG, WEBP, SVG 파일만 업로드 가능합니다.' })
+      } else if (file.size > MAX_FILE_SIZE) {
+        fieldErrors.push({ field: 'profileImage', code: 'FILE_TOO_LARGE', message: '파일 크기는 5MB 이하만 가능합니다.' })
       }
     }
 
@@ -119,11 +168,59 @@ export async function PATCH(request: NextRequest) {
       )
     }
 
-    if (Object.keys(data).length === 0) {
+    const hasFile = file && file.size > 0
+    if (Object.keys(data).length === 0 && !hasFile) {
       return NextResponse.json<ApiResponse>(
         { success: false, error: { code: 'NO_CHANGES', message: '변경할 항목이 없습니다.' } },
         { status: 400 },
       )
+    }
+
+    const existing = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { id: true },
+    })
+
+    if (!existing) {
+      return NextResponse.json<ApiResponse>(
+        { success: false, error: { code: 'USER_NOT_FOUND', message: '사용자를 찾을 수 없습니다.' } },
+        { status: 404 },
+      )
+    }
+
+    if (hasFile) {
+      const bytes = new Uint8Array(await file.arrayBuffer())
+      if (!hasAllowedImageSignature(bytes)) {
+        return NextResponse.json<ApiResponse>(
+          { success: false, error: { code: 'INVALID_FILE_TYPE', message: 'JPG, PNG, WEBP, SVG 파일만 업로드 가능합니다.' } },
+          { status: 400 },
+        )
+      }
+
+      const ext = file.type === 'image/jpeg' ? 'jpg' : file.type === 'image/svg+xml' ? 'svg' : file.type.split('/')[1]
+      const filePath = `${userId}/profile.${ext}`
+      const buffer = Buffer.from(bytes)
+
+      const { error: uploadError } = await supabaseAdmin.storage
+        .from(PROFILE_IMAGES_BUCKET)
+        .upload(filePath, buffer, {
+          contentType: file.type,
+          upsert: true,
+        })
+
+      if (uploadError) {
+        console.error('[user/me] profile image upload error', { message: uploadError.message })
+        return NextResponse.json<ApiResponse>(
+          { success: false, error: { code: 'UPLOAD_FAILED', message: '이미지 업로드에 실패했습니다.' } },
+          { status: 500 },
+        )
+      }
+
+      const { data: urlData } = supabaseAdmin.storage
+        .from(PROFILE_IMAGES_BUCKET)
+        .getPublicUrl(filePath)
+
+      data.profileImageUrl = `${urlData.publicUrl}?t=${Date.now()}`
     }
 
     const updated = await prisma.user.update({
