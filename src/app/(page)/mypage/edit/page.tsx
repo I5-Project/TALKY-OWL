@@ -9,7 +9,7 @@ import Select from '@/components/ui/Select';
 import Button from '@/components/ui/Button';
 import Spinner from '@/components/ui/Spinner';
 import PhotoCameraRoundedIcon from '@mui/icons-material/PhotoCameraRounded';
-import { useUserMe, useUpdateProfile, useUploadProfileImage } from '@/domains/user/hooks';
+import { useUserMe, useUpdateProfile } from '@/domains/user/hooks';
 import { MBTI_OPTIONS } from '@/domains/user/constants';
 import { useProfileEditStore } from '@/stores/profileEditStore';
 import styles from './page.module.scss';
@@ -20,7 +20,6 @@ export default function ProfileEditPage() {
 
   const { data: user, isLoading, isError, error } = useUserMe();
   const updateProfile = useUpdateProfile();
-  const uploadImage = useUploadProfileImage();
 
   const {
     email, nickname, mbti, previewUrl, errors,
@@ -76,15 +75,11 @@ export default function ProfileEditPage() {
     if (!validate()) return;
 
     try {
-      const file = fileInputRef.current?.files?.[0];
-      if (file) {
-        await uploadImage.mutateAsync(file);
-      }
-
       await updateProfile.mutateAsync({
         email: email || undefined,
         nickname: nickname.trim(),
         mbti: mbti || null,
+        profileImage: fileInputRef.current?.files?.[0] ?? undefined,
       });
 
       router.back();
@@ -100,7 +95,7 @@ export default function ProfileEditPage() {
     }
   };
 
-  const isSaving = updateProfile.isPending || uploadImage.isPending;
+  const isSaving = updateProfile.isPending;
 
   if (isLoading) {
     return (

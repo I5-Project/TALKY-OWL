@@ -12,6 +12,7 @@ export interface UpdateProfileParams {
   email?: string
   nickname?: string
   mbti?: string | null
+  profileImage?: File
 }
 
 export async function fetchUserMe(): Promise<UserProfile> {
@@ -23,25 +24,18 @@ export async function fetchUserMe(): Promise<UserProfile> {
 }
 
 export async function updateUserProfile(params: UpdateProfileParams): Promise<UserProfile> {
+  const formData = new FormData()
+
+  if (params.email !== undefined) formData.append('email', params.email)
+  if (params.nickname !== undefined) formData.append('nickname', params.nickname)
+  if (params.mbti !== undefined) formData.append('mbti', params.mbti ?? '')
+  if (params.profileImage) formData.append('profileImage', params.profileImage)
+
   const res = await fetch('/api/user/me', {
     method: 'PATCH',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(params),
-  })
-  const json: ApiResponse<UserProfile> = await res.json()
-  if (!json.success || !json.data) throw new Error(json.error?.message ?? '알 수 없는 오류')
-  return json.data
-}
-
-export async function uploadProfileImage(file: File): Promise<string> {
-  const formData = new FormData()
-  formData.append('file', file)
-
-  const res = await fetch('/api/user/me/profile-image', {
-    method: 'POST',
     body: formData,
   })
-  const json: ApiResponse<{ profileImageUrl: string }> = await res.json()
-  if (!json.success || !json.data) throw new Error(json.error?.message ?? '알 수 없는 오류')
-  return json.data.profileImageUrl
+  const json: ApiResponse<UserProfile> = await res.json()
+  if (!json.success || !json.data) throw new Error(json.error?.message ?? '수정에 실패했습니다.')
+  return json.data
 }
