@@ -20,8 +20,10 @@ export function toAiJudgmentDto(j: AiJudgmentWithRelations): AiJudgmentDto {
       ? (j.moreResponsibleRole.toLowerCase() as ResponsibleRole)
       : null,
     issueSummary: j.issueSummary,
-    reasoning: j.reasoning,
-    advice: j.advice,
+    aFault: j.aFault ?? null,
+    bFault: j.bFault ?? null,
+    aSuggestedLine: j.aSuggestedLine ?? null,
+    bSuggestedLine: j.bSuggestedLine ?? null,
     resultConflictGroup: {
       id: j.resultConflictGroup.id,
       groupCode: j.resultConflictGroup.groupCode,

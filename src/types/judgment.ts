@@ -57,10 +57,12 @@ export interface AiJudgmentDto {
   moreResponsibleRole: ResponsibleRole | null
   // 핵심 쟁점 요약
   issueSummary: string
-  // 판결 근거
-  reasoning: string
-  // 화해 제안
-  advice: string
+  // 판결 근거 (역할별)
+  aFault: string | null
+  bFault: string | null
+  // 화해 제안 (역할별)
+  aSuggestedLine: string | null
+  bSuggestedLine: string | null
   // 세부 결과 유형 (DB 마스터 기반)
   resultConflictGroup: ConflictTypeGroupDto
   resultConflictDetail: ConflictTypeDetailDto
