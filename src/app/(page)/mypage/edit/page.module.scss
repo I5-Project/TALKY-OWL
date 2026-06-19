@@ -1,0 +1,66 @@
+@use '@/styles/abstracts/variables' as v;
+@use '@/styles/abstracts/functions' as fn;
+@use '@/styles/abstracts/mixins' as m;
+
+.main {
+  display: flex;
+  flex-direction: column;
+  min-height: calc(100dvh - fn.r(56));
+  padding: fn.r(24) fn.r(20);
+  padding-bottom: fn.r(100);
+}
+
+.avatar {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: fn.r(12);
+  margin-bottom: fn.r(32);
+
+  &__button {
+    display: flex;
+    align-items: center;
+    gap: fn.r(4);
+    padding: fn.r(6) fn.r(12);
+    background: none;
+    border: 1px solid var(--border-default);
+    border-radius: fn.r(20);
+    cursor: pointer;
+    @include m.text-caption;
+
+    color: var(--text-secondary);
+
+    &:active {
+      background-color: var(--bg-secondary);
+    }
+  }
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: fn.r(20);
+  flex: 1;
+}
+
+.footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: fn.r(16) fn.r(20);
+  background-color: var(--bg-base);
+}
+
+.errorMessage {
+  @include m.text-body2;
+
+  color: var(--text-danger);
+}
+
+.loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: calc(100dvh - fn.r(56));
+}
