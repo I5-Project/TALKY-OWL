@@ -61,6 +61,14 @@
   gap: fn.r(8);
 }
 
+.errorMessage {
+  @include m.text-label-s;
+
+  color: #e53e3e;
+  text-align: center;
+  width: 100%;
+}
+
 .item {
   display: flex;
   align-items: center;

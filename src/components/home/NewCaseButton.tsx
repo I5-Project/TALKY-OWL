@@ -17,6 +17,7 @@ const CATEGORY_ITEMS: { category: CategoryGroup; label: string }[] = [
 export default function NewCaseButton() {
   const [isOpen, setIsOpen] = useState(false)
   const [isCreating, setIsCreating] = useState(false)
+  const [errorMessage, setErrorMessage] = useState<string | null>(null)
   const router = useRouter()
 
   useEffect(() => {
@@ -28,6 +29,7 @@ export default function NewCaseButton() {
     if (isCreating) return
     setIsOpen(false)
     setIsCreating(true)
+    setErrorMessage(null)
     const controller = new AbortController()
     const timeout = setTimeout(() => controller.abort(), 5000)
     try {
@@ -38,10 +40,11 @@ export default function NewCaseButton() {
         signal: controller.signal,
       })
       const json = await res.json()
-      if (!json.success) throw new Error()
-      router.push(`/disputes/new/statement?category=${category}&roomId=${json.data.id}`)
-    } catch {
-      router.push(`/disputes/new/statement?category=${category}`)
+      if (!json.success) throw new Error(json.error?.message)
+      router.push(`/disputes/${json.data.id}/statement?category=${category}`)
+    } catch (err) {
+      setErrorMessage(err instanceof Error && err.message ? err.message : '사건 생성에 실패했습니다. 다시 시도해주세요.')
+      setIsOpen(true)
     } finally {
       clearTimeout(timeout)
       setIsCreating(false)
@@ -59,6 +62,9 @@ export default function NewCaseButton() {
         >
           <div className={styles.panel} onClick={(e) => e.stopPropagation()}>
             <div className={styles.categoryBox}>
+              {errorMessage && (
+                <p className={styles.errorMessage}>{errorMessage}</p>
+              )}
               {CATEGORY_ITEMS.map(({ category, label }) => (
                 <button key={category} className={styles.item} onClick={() => handleCategoryClick(category)} disabled={isCreating}>
                   <CategoryIcon category={category} />
