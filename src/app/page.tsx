@@ -1,41 +1,77 @@
-import Spinner from '@/components/ui/Spinner';
-import Avatar, { AvatarGroup } from '@/components/ui/Avatar';
+import Image from 'next/image'
+import Link from 'next/link'
+import { getServerSession } from 'next-auth'
+import { authOptions } from '@/lib/auth'
+import Header from '@/components/layout/Header'
+import BottomNavigation from '@/components/layout/BottomNavigation'
+import StatsCategorySection from '@/components/home/StatsCategorySection'
+import ActiveCasesSection from '@/components/home/ActiveCasesSection'
+import NewCaseButton from '@/components/home/NewCaseButton'
+import HomeServiceInfo from '@/components/home/HomeServiceInfo'
+import styles from './page.module.scss'
 
-export default function RootPage() {
+export default async function HomePage() {
+  const session = await getServerSession(authOptions)
+  const isLoggedIn = !!session
+  const userName = session?.user?.name ?? ''
+
   return (
-    <main style={{ padding: '40px', display: 'flex', flexDirection: 'column', gap: '40px' }}>
-      <section>
-        <h2>Spinner</h2>
-        <Spinner />
-      </section>
-      <section>
-        <h2>Avatar — 기본</h2>
-        <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
-          <Avatar size="s" />
-          <Avatar size="m" />
-          <Avatar size="l" />
-          <Avatar src="https://i.pravatar.cc/150?img=1" alt="사용자1" size="s" />
-          <Avatar src="https://i.pravatar.cc/150?img=1" alt="사용자1" size="m" />
-          <Avatar src="https://i.pravatar.cc/150?img=1" alt="사용자1" size="l" />
-        </div>
-      </section>
-      <section>
-        <h2>AvatarGroup</h2>
-        <div style={{ display: 'flex', justifyContent: 'flex-start', gap: '16px' }}>
-          <AvatarGroup size="s">
-            <Avatar />
-            <Avatar />
-          </AvatarGroup>
-          <AvatarGroup size="s">
-            <Avatar src="https://i.pravatar.cc/150?img=1" alt="사용자1" />
-            <Avatar src="https://i.pravatar.cc/150?img=2" alt="사용자2" />
-          </AvatarGroup>
-          <AvatarGroup size="m">
-            <Avatar src="https://i.pravatar.cc/150?img=1" alt="사용자1" />
-            <Avatar src="https://i.pravatar.cc/150?img=2" alt="사용자2" />
-          </AvatarGroup>
-        </div>
-      </section>
-    </main>
-  );
+    <div className={styles.page}>
+      <Header variant="logo" />
+
+      <Image
+        src="/images/characters/character-home.png"
+        alt="말해부엉 캐릭터"
+        width={169}
+        height={138}
+        className={styles.characterImage}
+      />
+
+      <main className={styles.container}>
+        {/* 인사 */}
+        <section className={styles.greeting}>
+          <p className={styles.userName}>{isLoggedIn ? `${userName}님` : '안녕하세요'}</p>
+          <p className={styles.greetingText}>오늘 감정은 어떠신가요?</p>
+        </section>
+
+        {/* 오늘의 일기 박스 */}
+        <Link href="/diary/new" className={styles.diaryBox} aria-label="감정일기 작성">
+          <div className={styles.diaryTextGroup}>
+            <p className={styles.diaryTitle}>오늘의 일기를 적어보세요</p>
+            <p className={styles.diarySubtitle}>감정일기 작성하러가기</p>
+          </div>
+          <span className={styles.diaryButton} aria-hidden="true">+</span>
+        </Link>
+
+        {/* 고민 카테고리 TOP4 */}
+        <StatsCategorySection />
+
+        {/* 구분선 */}
+        <div className={styles.divider} />
+
+        {/* 진행중인 사건(로그인) or 말해부엉 알아보기(비로그인) */}
+        {isLoggedIn ? (
+          <div className={styles.activeCasesSection}>
+            <ActiveCasesSection />
+          </div>
+        ) : (
+          <Link href="/login" className={styles.introBox} aria-label="말해부엉 알아보기">
+            <div className={styles.diaryTextGroup}>
+              <p className={styles.diaryTitle}>말해부엉이 궁금하신가요?</p>
+              <p className={styles.diarySubtitle}>말해부엉 알아보기</p>
+            </div>
+            <span className={styles.introArrow} aria-hidden="true">›</span>
+          </Link>
+        )}
+      </main>
+
+      {/* 서비스 정보 푸터 — 스크롤 시 탭바 바로 위에 sticky */}
+      <div className={styles.serviceInfoWrapper}>
+        <HomeServiceInfo />
+      </div>
+
+      {isLoggedIn && <NewCaseButton />}
+      <BottomNavigation />
+    </div>
+  )
 }

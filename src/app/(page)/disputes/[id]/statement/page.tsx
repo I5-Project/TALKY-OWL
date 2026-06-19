@@ -37,10 +37,43 @@ export default function StatementPage({
 
   const [mbti, setMbti] = React.useState('')
   const [content, setContent] = React.useState('')
+  const [isLoading, setIsLoading] = React.useState(false)
+  const [filterMessage, setFilterMessage] = React.useState<string | null>(null)
+  const [showPersonalInfoWarning, setShowPersonalInfoWarning] = React.useState(false)
 
-  const handleSave = () => {
-    // TODO: API 연결 — 진술 저장 후 사건 상세 페이지로 이동
-    router.push(`/disputes/${id}`)
+  const handleSave = async () => {
+    if (isLoading) return
+    setIsLoading(true)
+    setFilterMessage(null)
+
+    try {
+      const res = await fetch(`/api/disputes/${id}/statements`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ content }),
+      })
+      const json = await res.json()
+
+      if (!json.success) {
+        if (json.error?.code === 'CONTENT_BLOCKED') {
+          setFilterMessage(json.error.message)
+        } else {
+          setFilterMessage('저장 중 오류가 발생했습니다. 다시 시도해주세요.')
+        }
+        return
+      }
+
+      if (json.data?.hasPersonalInfo) {
+        setShowPersonalInfoWarning(true)
+        return
+      }
+
+      router.push(`/disputes/${id}`)
+    } catch {
+      setFilterMessage('네트워크 오류가 발생했습니다. 다시 시도해주세요.')
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   if (!category) {
@@ -91,20 +124,41 @@ export default function StatementPage({
             />
             <Textarea
               value={content}
-              onChange={(e) => setContent(e.target.value)}
+              onChange={(e) => { setContent(e.target.value); setFilterMessage(null) }}
               maxLength={1000}
               placeholder={"사건내용을 작성해주세요.\n욕설의 경우 가리기 처리 될 수 있어요"}
               className={styles.textarea}
+              filterMessage={filterMessage ?? undefined}
             />
           </div>
         </section>
       </div>
 
       <div className={styles.footer}>
-        <Button onClick={handleSave} disabled={!content.trim()}>
-          진술저장
+        <Button onClick={handleSave} disabled={!content.trim() || isLoading}>
+          {isLoading ? '저장 중...' : '진술저장'}
         </Button>
       </div>
+
+      {showPersonalInfoWarning && (
+        <div className={styles.modalOverlay}>
+          <div className={styles.modal}>
+            <p className={styles.modalText}>개인정보가 포함된 것 같아요</p>
+            <p className={styles.modalSubText}>
+              전화번호, 주소 등 민감한 정보가 포함되어 있을 수 있어요.
+              진술 내용을 다시 확인해주세요.
+            </p>
+            <div className={styles.modalActions}>
+              <Button onClick={() => router.push(`/disputes/${id}`)}>
+                계속 진행
+              </Button>
+              <Button variant="outline" onClick={() => setShowPersonalInfoWarning(false)}>
+                돌아가서 수정
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

@@ -25,6 +25,7 @@
 
 .label {
   @include m.text-body-s;
+
   color: v.$color-black;
   margin: 0;
 }
@@ -106,4 +107,18 @@
   color: var(--text-primary);
   margin: 0;
   text-align: center;
+}
+
+.modalSubText {
+  @include m.text-body-s;
+
+  color: var(--text-secondary);
+  margin: fn.r(-12) 0 0;
+  text-align: center;
+}
+
+.modalActions {
+  display: flex;
+  flex-direction: column;
+  gap: fn.r(8);
 }

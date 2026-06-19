@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import localFont from 'next/font/local';
+import AuthProvider from '@/components/providers/AuthProvider';
 import QueryProvider from '@/components/providers/QueryProvider';
 import './globals.scss';
 
@@ -21,11 +22,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="ko" className={pretendard.variable}>
-      <body>
-        <QueryProvider>
-          <main className="container">{children}</main>
-        </QueryProvider>
+    <html lang="ko" className={pretendard.variable} suppressHydrationWarning>
+      <body suppressHydrationWarning>
+        <AuthProvider>
+          <QueryProvider>
+            <main className="container">{children}</main>
+          </QueryProvider>
+        </AuthProvider>
       </body>
     </html>
   );

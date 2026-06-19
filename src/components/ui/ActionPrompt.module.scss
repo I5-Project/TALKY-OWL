@@ -2,10 +2,6 @@
 @use '@/styles/abstracts/functions' as fn;
 
 .prompt {
-  border: 1px dashed var(--border-brand);
-  border-radius: fn.r(12);
-  padding: fn.r(20) fn.r(16);
-
   &__actions {
     display: flex;
     gap: fn.r(8);
