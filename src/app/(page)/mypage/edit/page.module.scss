@@ -53,7 +53,7 @@
 }
 
 .errorMessage {
-  @include m.text-body2;
+  @include m.text-body-s;
 
   color: var(--text-danger);
 }
