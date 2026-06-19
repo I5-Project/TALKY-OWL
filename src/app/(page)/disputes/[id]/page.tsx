@@ -9,6 +9,7 @@ import Tabs from '@/components/ui/Tabs'
 import Spinner from '@/components/ui/Spinner'
 import StatusBadge from '@/components/ui/StatusBadge'
 import CategoryIcon from '@/components/ui/CategoryIcon'
+import InviteChoiceModal from '@/components/room/InviteChoiceModal'
 import { useDispute, useRequestJudgment } from '@/domains/dispute/dispute.hooks'
 import { useToastStore } from '@/stores/toastStore'
 import styles from './DisputePage.module.scss'
@@ -35,12 +36,33 @@ export default function DisputePage({ params }: { params: Promise<{ id: string }
 
   const [activeTab, setActiveTab] = React.useState('statement')
   const [showSoloModal, setShowSoloModal] = React.useState(false)
+  const [isInviting, setIsInviting] = React.useState(false)
 
   const isCompleted = dispute !== undefined && (COMPLETED_STATUSES as readonly string[]).includes(dispute.status)
   const canJudge = dispute?.status === 'waiting_opponent' || dispute?.status === 'both_submitted'
   const isSolo = dispute !== undefined && dispute.participants.length === 1
   const roleAStatement = dispute?.statements?.find((s) => s.role === 'role_a')
   const roleBStatement = dispute?.statements?.find((s) => s.role === 'role_b')
+
+  const handleInvite = async () => {
+    if (isInviting || !dispute) return
+    setIsInviting(true)
+    setShowSoloModal(false)
+    try {
+      const res = await fetch(`/api/rooms/${dispute.roomId}/invite`, { method: 'POST' })
+      const data = await res.json()
+      if (!res.ok) {
+        showToast('초대 링크 발급에 실패했어요.')
+        return
+      }
+      await navigator.clipboard.writeText(data.data.inviteUrl)
+      showToast('초대 링크가 복사되었어요!')
+    } catch {
+      showToast('초대 링크 발급에 실패했어요.')
+    } finally {
+      setIsInviting(false)
+    }
+  }
 
   const runJudge = () => {
     setShowSoloModal(false)
@@ -179,18 +201,12 @@ export default function DisputePage({ params }: { params: Promise<{ id: string }
         </div>
       )}
 
-      {/* 1인 판결 모달 — 추후 공통 Modal 컴포넌트로 교체 예정 */}
-      {showSoloModal && (
-        <div className={styles.modalOverlay}>
-          <div className={styles.modal}>
-            <p className={styles.modalText}>{'정확한 결과를 위해\n상대를 초대해 판결을 진행하세요!'}</p>
-            <div className={styles.modalActions}>
-              <Button variant="outline" onClick={() => void runJudge()}>혼자서 진행</Button>
-              <Button onClick={() => router.push(`/rooms/${dispute.roomId}/invite`)}>상대방 초대</Button>
-            </div>
-          </div>
-        </div>
-      )}
+      <InviteChoiceModal
+        open={showSoloModal}
+        onClose={() => setShowSoloModal(false)}
+        onAlone={() => void runJudge()}
+        onInvite={() => void handleInvite()}
+      />
     </div>
   )
 }

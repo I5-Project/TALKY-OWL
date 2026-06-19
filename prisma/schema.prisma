@@ -616,6 +616,21 @@ enum AuditEventType {
   @@map("audit_event_type")
 }
 
+model AuditLog {
+  id           String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  eventType    AuditEventType @map("event_type")
+  actorUserId  String?        @map("actor_user_id") @db.Uuid
+  targetUserId String?        @map("target_user_id") @db.Uuid
+  roomId       String?        @map("room_id") @db.Uuid
+  disputeId    String?        @map("dispute_id") @db.Uuid
+  ipHash       String?        @map("ip_hash")
+  userAgent    String?        @map("user_agent")
+  metadata     Json?
+  createdAt    DateTime       @default(now()) @map("created_at")
+
+  @@map("audit_logs")
+}
+
 enum HttpMethod {
   GET    @map("GET")
   POST   @map("POST")
