@@ -1,0 +1,48 @@
+import type { ApiResponse } from '@/types/common'
+import type {
+  DisputeDto,
+  DisputeStatementDto,
+  StatementSubmitResponse,
+} from '@/types/dispute'
+
+async function parseJson<T>(res: Response, fallbackMessage: string): Promise<ApiResponse<T>> {
+  const text = await res.text()
+  try {
+    return JSON.parse(text) as ApiResponse<T>
+  } catch {
+    throw new Error(res.ok ? fallbackMessage : `서버 오류 (${res.status})`)
+  }
+}
+
+export async function fetchDispute(disputeId: string): Promise<DisputeDto> {
+  const res = await fetch(`/api/disputes/${disputeId}`)
+  const json = await parseJson<DisputeDto>(res, '사건 조회 실패')
+  if (!json.success || !json.data) throw new Error(json.error?.message ?? '사건 조회 실패')
+  return json.data
+}
+
+export async function saveStatement(disputeId: string, content: string): Promise<DisputeStatementDto> {
+  const res = await fetch(`/api/disputes/${disputeId}/statements`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ content }),
+  })
+  const json = await parseJson<DisputeStatementDto>(res, '진술 저장 실패')
+  if (!json.success || !json.data) throw new Error(json.error?.message ?? '진술 저장 실패')
+  return json.data
+}
+
+export async function submitStatement(disputeId: string): Promise<StatementSubmitResponse> {
+  const res = await fetch(`/api/disputes/${disputeId}/statements/submit`, {
+    method: 'POST',
+  })
+  const json = await parseJson<StatementSubmitResponse>(res, '진술 제출 실패')
+  if (!json.success || !json.data) throw new Error(json.error?.message ?? '진술 제출 실패')
+  return json.data
+}
+
+export async function requestJudgment(disputeId: string): Promise<void> {
+  const res = await fetch(`/api/disputes/${disputeId}/judge`, { method: 'POST' })
+  const json = await parseJson(res, 'AI 판결 요청 실패')
+  if (!json.success) throw new Error(json.error?.message ?? 'AI 판결 요청 실패')
+}

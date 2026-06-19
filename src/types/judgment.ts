@@ -8,22 +8,12 @@ export type CardImageStatus = 'pending' | 'generated' | 'failed'
 // Response DTOs
 // ============================================================
 
-// 갈등 결과 유형 - 상위 그룹 (DB 마스터 데이터 기반, Enum 하드코딩 금지)
-export interface ConflictTypeGroupDto {
-  id: string
-  groupCode: string
-  displayName: string
-  description: string | null
-}
-
-// 갈등 결과 유형 - 세부 유형 (16가지 중 AI가 도출)
+// 갈등 결과 유형 - 세부 유형 (16가지 중 AI가 도출, DB 마스터 데이터 기반)
 export interface ConflictTypeDetailDto {
   id: string
-  groupId: string
   detailCode: string
   displayName: string
   description: string | null
-  characterAssetId: string | null
 }
 
 export interface JudgmentResultCardDto {
@@ -57,12 +47,13 @@ export interface AiJudgmentDto {
   moreResponsibleRole: ResponsibleRole | null
   // 핵심 쟁점 요약
   issueSummary: string
-  // 판결 근거
-  reasoning: string
-  // 화해 제안
-  advice: string
+  // 판결 근거 (역할별)
+  aFault: string | null
+  bFault: string | null
+  // 화해 제안 (역할별)
+  aSuggestedLine: string | null
+  bSuggestedLine: string | null
   // 세부 결과 유형 (DB 마스터 기반)
-  resultConflictGroup: ConflictTypeGroupDto
   resultConflictDetail: ConflictTypeDetailDto
   // 결과 카드
   resultCard: JudgmentResultCardDto | null
