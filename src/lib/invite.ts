@@ -18,7 +18,3 @@ export function getInviteExpiresAt(): Date {
   return expiresAt
 }
 
-export function isInviteExpired(expiresAt: Date | null): boolean {
-  if (!expiresAt) return true
-  return new Date() > expiresAt
-}

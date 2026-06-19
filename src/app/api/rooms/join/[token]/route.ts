@@ -4,7 +4,7 @@ import { type CategoryGroup as PrismaCategoryGroup } from '@prisma/client'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/db'
 import { getSessionUserId } from '@/lib/auth/session'
-import { hashInviteToken, isInviteExpired } from '@/lib/invite'
+import { hashInviteToken } from '@/lib/invite'
 import type { ApiResponse } from '@/types/common'
 
 interface JoinInfoResponse {
@@ -56,7 +56,7 @@ export async function GET(
     if (room.roomMode === 'EXPIRED' || room.roomMode === 'DELETED' || room.roomMode === 'CLOSED') {
       prisma.roomAccessLog.create({ data: { roomId: room.id, userId, result: 'DENIED', reason: 'room_unavailable' } }).catch(() => {})
       return NextResponse.json<ApiResponse>(
-        { success: false, error: { code: 'INVALID_STATUS', message: '만료되었거나 사용할 수 없는 초대 링크입니다.' } },
+        { success: false, error: { code: 'ROOM_UNAVAILABLE', message: '만료되었거나 사용할 수 없는 초대 링크입니다.' } },
         { status: 422 },
       )
     }
@@ -64,16 +64,16 @@ export async function GET(
     if (room.roomMode !== 'INVITE_READY') {
       prisma.roomAccessLog.create({ data: { roomId: room.id, userId, result: 'DENIED', reason: 'not_invite_ready' } }).catch(() => {})
       return NextResponse.json<ApiResponse>(
-        { success: false, error: { code: 'INVALID_STATUS', message: '참여할 수 없는 상태입니다.' } },
+        { success: false, error: { code: 'ROOM_UNAVAILABLE', message: '참여할 수 없는 상태입니다.' } },
         { status: 422 },
       )
     }
 
-    if (isInviteExpired(room.expiresAt)) {
+    if (!room.expiresAt || room.expiresAt <= new Date()) {
       await prisma.disputeRoom.update({ where: { id: room.id }, data: { roomMode: 'EXPIRED' } })
       prisma.roomAccessLog.create({ data: { roomId: room.id, userId, result: 'DENIED', reason: 'invite_expired' } }).catch(() => {})
       return NextResponse.json<ApiResponse>(
-        { success: false, error: { code: 'INVALID_STATUS', message: '만료된 초대 링크입니다.' } },
+        { success: false, error: { code: 'INVITE_EXPIRED', message: '만료된 초대 링크입니다.' } },
         { status: 422 },
       )
     }
@@ -138,7 +138,7 @@ export async function POST(
     if (room.roomMode === 'EXPIRED' || room.roomMode === 'DELETED' || room.roomMode === 'CLOSED') {
       prisma.roomAccessLog.create({ data: { roomId: room.id, userId, result: 'DENIED', reason: 'room_unavailable' } }).catch(() => {})
       return NextResponse.json<ApiResponse>(
-        { success: false, error: { code: 'INVALID_STATUS', message: '만료되었거나 사용할 수 없는 초대 링크입니다.' } },
+        { success: false, error: { code: 'ROOM_UNAVAILABLE', message: '만료되었거나 사용할 수 없는 초대 링크입니다.' } },
         { status: 422 },
       )
     }
@@ -146,16 +146,16 @@ export async function POST(
     if (room.roomMode !== 'INVITE_READY') {
       prisma.roomAccessLog.create({ data: { roomId: room.id, userId, result: 'DENIED', reason: 'not_invite_ready' } }).catch(() => {})
       return NextResponse.json<ApiResponse>(
-        { success: false, error: { code: 'INVALID_STATUS', message: '참여할 수 없는 상태입니다.' } },
+        { success: false, error: { code: 'ROOM_UNAVAILABLE', message: '참여할 수 없는 상태입니다.' } },
         { status: 422 },
       )
     }
 
-    if (isInviteExpired(room.expiresAt)) {
+    if (!room.expiresAt || room.expiresAt <= new Date()) {
       await prisma.disputeRoom.update({ where: { id: room.id }, data: { roomMode: 'EXPIRED' } })
       prisma.roomAccessLog.create({ data: { roomId: room.id, userId, result: 'DENIED', reason: 'invite_expired' } }).catch(() => {})
       return NextResponse.json<ApiResponse>(
-        { success: false, error: { code: 'INVALID_STATUS', message: '만료된 초대 링크입니다.' } },
+        { success: false, error: { code: 'INVITE_EXPIRED', message: '만료된 초대 링크입니다.' } },
         { status: 422 },
       )
     }
