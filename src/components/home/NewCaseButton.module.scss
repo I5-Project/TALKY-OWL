@@ -7,13 +7,11 @@
   position: fixed;
   bottom: fn.r(81);
   right: max(fn.r(16), calc((100vw - #{v.$container-max-width}) / 2 + #{fn.r(16)}));
-
   display: flex;
   align-items: center;
   justify-content: center;
   width: fn.r(115);
   height: fn.r(48);
-
   background-color: v.$color-black-700;
   border: none;
   border-radius: fn.r(100);
@@ -43,7 +41,6 @@
   position: absolute;
   bottom: fn.r(81);
   right: max(fn.r(16), calc((100vw - #{v.$container-max-width}) / 2 + #{fn.r(16)}));
-
   display: flex;
   flex-direction: column;
   align-items: flex-end;
@@ -57,7 +54,6 @@
   border-radius: fn.r(12);
   box-sizing: border-box;
   padding: fn.r(20) fn.r(16);
-
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -85,7 +81,6 @@
   background-color: #ffffff;
   border: none;
   cursor: pointer;
-
   display: flex;
   align-items: center;
   justify-content: center;

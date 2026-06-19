@@ -1,0 +1,87 @@
+@use '@/styles/abstracts/variables' as v;
+@use '@/styles/abstracts/functions' as fn;
+@use '@/styles/abstracts/mixins' as m;
+
+.main {
+  padding-bottom: fn.r(80);
+}
+
+.profile {
+  display: flex;
+  align-items: center;
+  gap: fn.r(12);
+  padding: fn.r(20);
+  margin: fn.r(8) fn.r(16);
+  background-color: var(--bg-surface);
+  border-radius: fn.r(16);
+
+  &__info {
+    display: flex;
+    flex-direction: column;
+    gap: fn.r(4);
+    flex: 1;
+    min-width: 0;
+  }
+
+  &__name {
+    @include m.text-title-s;
+    color: var(--text-primary);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__badge {
+    @include m.text-caption;
+    align-self: flex-start;
+    padding: fn.r(2) fn.r(8);
+    background-color: var(--bg-secondary);
+    color: var(--text-secondary);
+    border-radius: fn.r(12);
+  }
+
+  &__setting {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: fn.r(32);
+    height: fn.r(32);
+    flex-shrink: 0;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--icon-secondary);
+  }
+}
+
+.menu {
+  display: flex;
+  flex-direction: column;
+  padding: fn.r(8) 0;
+
+  &__item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: fn.r(16) fn.r(20);
+    background: none;
+    border: none;
+    cursor: pointer;
+    text-decoration: none;
+    color: var(--text-primary);
+
+    &--danger {
+      color: var(--text-danger, #e74c3c);
+    }
+  }
+
+  &__label {
+    @include m.text-title-s;
+  }
+
+  &__arrow {
+    color: var(--icon-secondary);
+    font-size: fn.r(20);
+  }
+}

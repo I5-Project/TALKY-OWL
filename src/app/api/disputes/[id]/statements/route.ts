@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { z } from 'zod'
-import { Prisma, type DisputeStatement } from '@prisma/client'
+import { Prisma, type DisputeStatus, type DisputeStatement } from '@prisma/client'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/db'
 import { getSessionUserId } from '@/lib/auth/session'
@@ -159,6 +159,7 @@ export async function POST(
     }
 
     const isNew = !existingStatement
+    const newDisputeStatus: DisputeStatus = participant.role === 'ROLE_A' ? 'WAITING_OPPONENT' : 'BOTH_SUBMITTED'
 
     // 욕설 감지 모더레이션
     let moderation
@@ -204,6 +205,8 @@ export async function POST(
           updatedAt: new Date(),
         }
       }
+
+      await prisma.dispute.update({ where: { id: disputeId }, data: { status: newDisputeStatus } })
 
       return NextResponse.json<ApiResponse<StatementData>>(
         {
@@ -293,6 +296,8 @@ export async function POST(
           modelName: moderation.modelName,
         },
       })
+
+      await tx.dispute.update({ where: { id: disputeId }, data: { status: newDisputeStatus } })
 
       return stmt
     })

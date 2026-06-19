@@ -14,7 +14,6 @@ interface DummyItem {
   preview: string;
   date: string;
   categoryGroup: CategoryGroup;
-  status?: 'progress' | null;
 }
 
 const DUMMY_ITEMS: DummyItem[] = [
@@ -24,7 +23,6 @@ const DUMMY_ITEMS: DummyItem[] = [
     preview: '매번 제가 더 많이 내는 것 같아서 억울한 마음이 들었어요.',
     date: '2026.06.18',
     categoryGroup: 'romance',
-    status: null,
   },
   {
     id: 2,
@@ -32,7 +30,6 @@ const DUMMY_ITEMS: DummyItem[] = [
     preview: '갑작스러운 야근 요청이 너무 잦아서 힘들었어요.',
     date: '2026.06.15',
     categoryGroup: 'work',
-    status: null,
   },
 ];
 
@@ -53,7 +50,6 @@ export default function RecordList({ selectedDate }: Props) {
             preview={item.preview}
             date={item.date}
             categoryGroup={item.categoryGroup}
-            status={item.status ?? null}
           />
         </li>
       ))}

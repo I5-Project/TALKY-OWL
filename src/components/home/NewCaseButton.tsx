@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import CloseIcon from '@mui/icons-material/Close'
 import CategoryIcon from '@/components/ui/CategoryIcon'
 import type { CategoryGroup } from '@/types/common'
@@ -13,19 +14,19 @@ const CATEGORY_ITEMS: { category: CategoryGroup; label: string }[] = [
   { category: 'family',  label: '가족관계' },
 ]
 
-// TODO: 새 사건 작성 페이지(/rooms/new 등) 생성 후 카테고리별 실제 경로로 교체
-// 현재는 페이지가 없어 '#'으로 임시 처리
-function getCategoryHref(_category: CategoryGroup): string {
-  return '#'
-}
-
 export default function NewCaseButton() {
   const [isOpen, setIsOpen] = useState(false)
+  const router = useRouter()
 
   useEffect(() => {
     document.body.style.overflow = isOpen ? 'hidden' : ''
     return () => { document.body.style.overflow = '' }
   }, [isOpen])
+
+  const handleCategoryClick = (category: CategoryGroup) => {
+    setIsOpen(false)
+    router.push(`/disputes/test/statement?category=${category}`)
+  }
 
   return (
     <>
@@ -39,10 +40,10 @@ export default function NewCaseButton() {
           <div className={styles.panel} onClick={(e) => e.stopPropagation()}>
             <div className={styles.categoryBox}>
               {CATEGORY_ITEMS.map(({ category, label }) => (
-                <a key={category} href={getCategoryHref(category)} className={styles.item}>
+                <button key={category} className={styles.item} onClick={() => handleCategoryClick(category)}>
                   <CategoryIcon category={category} />
                   <span className={styles.itemLabel}>{label}</span>
-                </a>
+                </button>
               ))}
             </div>
             <button

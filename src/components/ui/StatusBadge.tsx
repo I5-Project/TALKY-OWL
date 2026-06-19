@@ -1,6 +1,6 @@
 import styles from './StatusBadge.module.scss';
 
-type DisputeStatus =
+export type DisputeStatus =
   | 'draft'
   | 'waiting_opponent'
   | 'opponent_joined'
