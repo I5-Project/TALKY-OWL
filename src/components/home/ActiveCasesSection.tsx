@@ -1,5 +1,6 @@
 'use client'
 
+import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import CaseCard from '@/components/ui/CaseCard'
 import Avatar, { AvatarGroup } from '@/components/ui/Avatar'
@@ -28,7 +29,16 @@ export default function ActiveCasesSection() {
       <h2 className={styles.title}>진행중인 사건</h2>
 
       {cases.length === 0 ? (
-        <p className={styles.empty}>아직 진행중인 사건이 없어요</p>
+        <div className={styles.emptyState}>
+          <Image
+            src="/images/characters/character-case.png"
+            alt="진행중인 사건 없음"
+            width={80}
+            height={80}
+            className={styles.emptyImage}
+          />
+          <p className={styles.empty}>아직 진행중인 사건이 없어요</p>
+        </div>
       ) : (
         <ul className={styles.list}>
           {cases.map((item) => (
