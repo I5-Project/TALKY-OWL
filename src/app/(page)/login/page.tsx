@@ -2,11 +2,18 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 import { signIn } from 'next-auth/react';
 import Button from '@/components/ui/Button';
 import styles from './login.module.scss';
 
 export default function LoginPage() {
+  const searchParams = useSearchParams();
+  const returnTo = searchParams.get('callbackUrl');
+  const callbackUrl = returnTo
+    ? `/auth/callback?callbackUrl=${encodeURIComponent(returnTo)}`
+    : '/auth/callback';
+
   return (
     <div className={styles.page}>
       <div className={styles.content}>
@@ -31,21 +38,21 @@ export default function LoginPage() {
       <div className={styles.footer}>
         <Button
           className={styles.kakaoButton}
-          onClick={() => signIn('kakao', { callbackUrl: '/' })}
+          onClick={() => signIn('kakao', { callbackUrl })}
         >
           <KakaoIcon />
           카카오로 로그인 하기
         </Button>
         <p className={styles.disclaimer}>
-          로그인 시{' '}
+          소셜 로그인 가입 시 본{' '}
           <Link href="/terms" className={styles.disclaimerLink}>
-            이용약관
+            서비스이용약관
           </Link>{' '}
           및{' '}
           <Link href="/privacy" className={styles.disclaimerLink}>
-            개인정보 처리방침
+            개인정보처리방침
           </Link>
-          에 동의한 것으로 간주합니다.
+          에 동의하시는 것으로 간주됩니다
         </p>
       </div>
     </div>
