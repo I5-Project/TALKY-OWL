@@ -116,7 +116,21 @@ export default function DisputePage({ params }: { params: Promise<{ id: string }
         </div>
       </section>
 
-      {/* 탭 (진행완료만) */}
+      {/* 초대 배너 (단독 + 미완료) */}
+      {isSolo && !isCompleted && (
+        <button
+          className={styles.inviteBanner}
+          onClick={() => router.push(`/rooms/${dispute.roomId}/invite`)}
+        >
+          <div className={styles.inviteBannerText}>
+            <span className={styles.inviteBannerTitle}>상대를 초대해</span>
+            <span className={styles.inviteBannerDesc}>더 좋은 판결 결과를 얻어보세요</span>
+          </div>
+          <span className={styles.inviteBannerPlus}>+</span>
+        </button>
+      )}
+
+      {/* 탭 (판결 완료 후) */}
       {isCompleted && (
         <Tabs tabs={TABS} activeId={activeTab} onChange={setActiveTab} />
       )}
@@ -150,15 +164,18 @@ export default function DisputePage({ params }: { params: Promise<{ id: string }
         )}
       </div>
 
-      {/* 판결받기 푸터 (진행중만) */}
+      {/* 푸터 (진행중만) */}
       {!isCompleted && (
         <div className={styles.footer}>
-          <Button
-            disabled={!canJudge}
-            onClick={() => isSolo ? setShowSoloModal(true) : void runJudge()}
-          >
-            판결받기
-          </Button>
+          <div className={styles.footerRow}>
+            <Button variant="outline">사건종료</Button>
+            <Button
+              disabled={!canJudge}
+              onClick={() => isSolo ? setShowSoloModal(true) : void runJudge()}
+            >
+              판결받기
+            </Button>
+          </div>
         </div>
       )}
 

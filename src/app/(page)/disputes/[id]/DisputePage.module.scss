@@ -223,6 +223,53 @@
 }
 
 // ===========================
+// Invite Banner
+// ===========================
+
+.inviteBanner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: fn.r(16) fn.r(20);
+  margin: 0 fn.r(20) fn.r(12);
+  background: #{v.$color-primary-100};
+  border-radius: fn.r(8);
+  border: none;
+  cursor: pointer;
+  width: calc(100% - fn.r(40));
+  text-align: left;
+}
+
+.inviteBannerText {
+  display: flex;
+  flex-direction: column;
+  gap: fn.r(2);
+}
+
+.inviteBannerTitle {
+  font-family: v.$font-family-base;
+  font-size: v.$font-size-body-s;
+  font-weight: v.$font-weight-semibold;
+  line-height: v.$line-height-body-s;
+  color: var(--text-brand);
+}
+
+.inviteBannerDesc {
+  font-family: v.$font-family-base;
+  font-size: v.$font-size-body-m;
+  font-weight: v.$font-weight-semibold;
+  line-height: v.$line-height-body-m;
+  color: var(--text-primary);
+}
+
+.inviteBannerPlus {
+  font-size: fn.r(24);
+  font-weight: v.$font-weight-regular;
+  color: var(--text-primary);
+  flex-shrink: 0;
+}
+
+// ===========================
 // Footer
 // ===========================
 
@@ -234,6 +281,15 @@
   padding: fn.r(16) fn.r(20);
   background: var(--bg-page);
   border-top: 1px solid var(--border-default);
+}
+
+.footerRow {
+  display: flex;
+  gap: fn.r(8);
+
+  > * {
+    flex: 1;
+  }
 }
 
 // ===========================
