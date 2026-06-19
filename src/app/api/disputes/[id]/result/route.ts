@@ -77,6 +77,7 @@ export async function GET(
     const judgment = await prisma.aiJudgment.findFirst({
       where: { disputeId: id },
       include: {
+        resultConflictGroup: true,
         resultConflictDetail: true,
         resultCard: true,
         aiNotice: true,

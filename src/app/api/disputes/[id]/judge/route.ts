@@ -55,6 +55,7 @@ export async function POST(
       const existing = await prisma.aiJudgment.findFirst({
         where: { disputeId: id },
         include: {
+          resultConflictGroup: true,
           resultConflictDetail: true,
           resultCard: true,
           aiNotice: true,
@@ -177,8 +178,8 @@ export async function POST(
             bFault: aiResult.bFault,
             aSuggestedLine: aiResult.aSuggestedLine,
             bSuggestedLine: aiResult.bSuggestedLine,
-            resultConflictDetailId: matchedDetail.id,
             resultConflictGroupId: matchedDetail.groupId,
+            resultConflictDetailId: matchedDetail.id,
             resultCardId: resultCard.id,
             modelName: aiResult.modelName,
           },

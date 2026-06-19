@@ -3,6 +3,7 @@ import type { AiJudgmentDto, ResponsibleRole, CardImageStatus } from '@/types/ju
 
 export type AiJudgmentWithRelations = Prisma.AiJudgmentGetPayload<{
   include: {
+    resultConflictGroup: true
     resultConflictDetail: true
     resultCard: true
     aiNotice: true
@@ -34,7 +35,7 @@ export function toAiJudgmentDto(j: AiJudgmentWithRelations): AiJudgmentDto {
       detailCode: j.resultConflictDetail.detailCode,
       displayName: j.resultConflictDetail.displayName,
       description: j.resultConflictDetail.description ?? null,
-      cardImageUrl: j.resultConflictDetail.cardImageUrl ?? null,
+      cardImageUrl: j.resultConflictDetail.characterAssetId ?? null,
     },
     resultCard: j.resultCard
       ? {
