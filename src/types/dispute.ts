@@ -37,10 +37,18 @@ export interface DisputeStatementDto {
   role: ParticipantRole
   content: string
   moderationStatus: string
-  hasPersonalInfo: boolean
   submittedAt: string | null
   createdAt: string
   updatedAt: string
+}
+
+export interface SaveStatementResponse {
+  id: string
+  disputeId: string
+  role: string
+  content: string
+  submittedAt: string | null
+  hasPersonalInfo: boolean
 }
 
 export interface DisputeDto {

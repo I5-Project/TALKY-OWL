@@ -2,6 +2,7 @@ import type { ApiResponse } from '@/types/common'
 import type {
   DisputeDto,
   DisputeStatementDto,
+  SaveStatementResponse,
   StatementSubmitResponse,
 } from '@/types/dispute'
 
@@ -21,13 +22,13 @@ export async function fetchDispute(disputeId: string): Promise<DisputeDto> {
   return json.data
 }
 
-export async function saveStatement(disputeId: string, content: string): Promise<DisputeStatementDto> {
+export async function saveStatement(disputeId: string, content: string): Promise<SaveStatementResponse> {
   const res = await fetch(`/api/disputes/${disputeId}/statements`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ content }),
   })
-  const json = await parseJson<DisputeStatementDto>(res, '진술 저장 실패')
+  const json = await parseJson<SaveStatementResponse>(res, '진술 저장 실패')
   if (!json.success || !json.data) throw new Error(json.error?.message ?? '진술 저장 실패')
   return json.data
 }
