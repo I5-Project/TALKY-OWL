@@ -12,6 +12,7 @@ interface JoinInfoResponse {
   categoryGroup: string
   roomMode: string
   expiresAt: string | null
+  inviterNickname: string | null
 }
 
 interface JoinResponse {
@@ -41,6 +42,7 @@ export async function GET(
     const tokenHash = hashInviteToken(token)
     const room = await prisma.disputeRoom.findFirst({
       where: { roomTokenHash: tokenHash, deletedAt: null },
+      include: { creator: { select: { nickname: true } } },
     })
 
     if (!room) {
@@ -91,6 +93,7 @@ export async function GET(
         categoryGroup: room.categoryGroup.toLowerCase(),
         roomMode: room.roomMode.toLowerCase(),
         expiresAt: room.expiresAt?.toISOString() ?? null,
+        inviterNickname: room.creator.nickname ?? null,
       },
     })
   } catch {
