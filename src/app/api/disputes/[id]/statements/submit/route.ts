@@ -47,6 +47,18 @@ export async function POST(
       )
     }
 
+    // 삭제/종료/판결 완료 상태 차단
+    const blockedStatuses = ['DELETED', 'CLOSED', 'EXPIRED', 'JUDGED', 'JUDGING']
+    if (blockedStatuses.includes(dispute.status)) {
+      return NextResponse.json<ApiResponse>(
+        {
+          success: false,
+          error: { code: 'DISPUTE_NOT_MODIFIABLE', message: '현재 상태에서는 진술을 제출할 수 없습니다.' },
+        },
+        { status: 409 },
+      )
+    }
+
     // ROLE_B는 ROLE_A가 진술 저장 완료(OPPONENT_JOINED) 후에만 제출 가능
     if (participant.role === 'ROLE_B' && dispute.status !== 'OPPONENT_JOINED' && dispute.status !== 'BOTH_SUBMITTED') {
       return NextResponse.json<ApiResponse>(

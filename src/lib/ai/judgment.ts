@@ -153,25 +153,12 @@ const JUDGMENT_PROMPT_DUO = `당신은 한국어 갈등 조정 서비스 TALKY-O
   }
 }`
 
-export async function generateAiJudgment(input: JudgmentInput): Promise<JudgmentResult> {
-  const apiKey = process.env.GEMINI_API_KEY
-  if (!apiKey) throw new Error('GEMINI_API_KEY is not configured')
+const MAX_SCORE_RETRIES = 2
 
-  const genAI = new GoogleGenerativeAI(apiKey)
-  const model = genAI.getGenerativeModel({ model: MODEL_NAME })
-
-  const isSolo = !input.statementB
-  const conflictTypesText = input.conflictTypes
-    .map((t) => `- ${t.code}: ${t.name}`)
-    .join('\n')
-  const categoryKo = CATEGORY_GROUP_KO[input.categoryGroup.toUpperCase()] ?? input.categoryGroup
-
-  const prompt = (isSolo ? JUDGMENT_PROMPT_SOLO : JUDGMENT_PROMPT_DUO)
-    .replace('{categoryGroup}', categoryKo)
-    .replace('{statementA}', input.statementA)
-    .replace('{statementB}', input.statementB ?? '')
-    .replace('{conflictTypes}', conflictTypesText)
-
+async function callJudgmentAi(
+  model: ReturnType<InstanceType<typeof GoogleGenerativeAI>['getGenerativeModel']>,
+  prompt: string,
+): Promise<Record<string, unknown>> {
   const result = await model.generateContent(prompt)
   const text = result.response.text().trim()
 
@@ -185,15 +172,39 @@ export async function generateAiJudgment(input: JudgmentInput): Promise<Judgment
     throw new Error('JSON')
   }
 
-  const conflictType = parsed.conflictType as { code?: unknown; name?: unknown } | undefined
-
+  const conflictType = parsed.conflictType as { code?: unknown } | undefined
   if (typeof parsed.summary !== 'string' || typeof conflictType?.code !== 'string') {
     throw new Error('JSON')
   }
 
+  return parsed
+}
+
+export async function generateAiJudgment(input: JudgmentInput): Promise<JudgmentResult> {
+  const apiKey = process.env.GEMINI_API_KEY
+  if (!apiKey) throw new Error('GEMINI_API_KEY is not configured')
+
+  const genAI = new GoogleGenerativeAI(apiKey)
+  const model = genAI.getGenerativeModel({ model: MODEL_NAME })
+
+  const isSolo = !input.statementB || input.statementB.trim() === ''
+  const conflictTypesText = input.conflictTypes
+    .map((t) => `- ${t.code}: ${t.name}`)
+    .join('\n')
+  const categoryKo = CATEGORY_GROUP_KO[input.categoryGroup.toUpperCase()] ?? input.categoryGroup
+
+  const prompt = (isSolo ? JUDGMENT_PROMPT_SOLO : JUDGMENT_PROMPT_DUO)
+    .replace('{categoryGroup}', categoryKo)
+    .replace('{statementA}', input.statementA)
+    .replace('{statementB}', input.statementB ?? '')
+    .replace('{conflictTypes}', conflictTypesText)
+
+  const parsed = await callJudgmentAi(model, prompt)
+  const conflictType = parsed.conflictType as { code: string }
+
   if (isSolo) {
     return {
-      summary: parsed.summary,
+      summary: parsed.summary as string,
       scoreA: 0,
       scoreB: 0,
       moreResponsibleRole: null,
@@ -206,19 +217,42 @@ export async function generateAiJudgment(input: JudgmentInput): Promise<Judgment
     }
   }
 
+  // 2인 판결: scoreA + scoreB === 100 검증, 불일치 시 재시도
+  let attempt = parsed
+  let rawA = typeof attempt.scoreA === 'number' ? Math.round(attempt.scoreA) : 0
+  let rawB = typeof attempt.scoreB === 'number' ? Math.round(attempt.scoreB) : 0
+
+  for (let retry = 0; retry < MAX_SCORE_RETRIES && rawA + rawB !== 100; retry++) {
+    console.warn(`[judgment] scoreA+scoreB=${rawA + rawB} ≠ 100, retry ${retry + 1}/${MAX_SCORE_RETRIES}`)
+    attempt = await callJudgmentAi(model, prompt)
+    rawA = typeof attempt.scoreA === 'number' ? Math.round(attempt.scoreA) : 0
+    rawB = typeof attempt.scoreB === 'number' ? Math.round(attempt.scoreB) : 0
+  }
+
+  // 재시도 후에도 합산이 100이 아니면 수학적 정규화
+  let scoreA = rawA
+  let scoreB = rawB
+  if (scoreA + scoreB !== 100) {
+    const total = scoreA + scoreB || 100
+    scoreA = Math.round((scoreA / total) * 100)
+    scoreB = 100 - scoreA
+  }
+
+  const finalConflictType = attempt.conflictType as { code: string }
+
   return {
-    summary: parsed.summary,
-    scoreA: typeof parsed.scoreA === 'number' ? Math.round(parsed.scoreA) : 0,
-    scoreB: typeof parsed.scoreB === 'number' ? Math.round(parsed.scoreB) : 0,
+    summary: attempt.summary as string,
+    scoreA,
+    scoreB,
     moreResponsibleRole:
-      parsed.moreResponsibleRole === 'ROLE_A' || parsed.moreResponsibleRole === 'ROLE_B' || parsed.moreResponsibleRole === 'EQUAL'
-        ? parsed.moreResponsibleRole
+      attempt.moreResponsibleRole === 'ROLE_A' || attempt.moreResponsibleRole === 'ROLE_B' || attempt.moreResponsibleRole === 'EQUAL'
+        ? attempt.moreResponsibleRole
         : null,
-    aFault: typeof parsed.aFault === 'string' ? parsed.aFault : null,
-    bFault: typeof parsed.bFault === 'string' ? parsed.bFault : null,
-    aSuggestedLine: typeof parsed.aSuggestedLine === 'string' ? parsed.aSuggestedLine : null,
-    bSuggestedLine: typeof parsed.bSuggestedLine === 'string' ? parsed.bSuggestedLine : null,
-    conflictTypeCode: conflictType.code,
+    aFault: typeof attempt.aFault === 'string' ? attempt.aFault : null,
+    bFault: typeof attempt.bFault === 'string' ? attempt.bFault : null,
+    aSuggestedLine: typeof attempt.aSuggestedLine === 'string' ? attempt.aSuggestedLine : null,
+    bSuggestedLine: typeof attempt.bSuggestedLine === 'string' ? attempt.bSuggestedLine : null,
+    conflictTypeCode: finalConflictType.code,
     modelName: MODEL_NAME,
   }
 }
