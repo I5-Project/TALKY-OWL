@@ -283,8 +283,6 @@ model AiJudgment {
   verdictScoreB          Int                  @map("verdict_score_b")
   moreResponsibleRole    ResponsibleRole?     @map("more_responsible_role")
   issueSummary           String               @map("issue_summary")
-  reasoning              String
-  advice                 String
   resultConflictDetailId String               @map("result_conflict_detail_id") @db.Uuid
   resultCardId           String?              @unique @map("result_card_id") @db.Uuid
   aiNoticeId             String?              @map("ai_notice_id") @db.Uuid

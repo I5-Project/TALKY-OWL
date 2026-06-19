@@ -173,8 +173,6 @@ export async function POST(
             verdictScoreB: aiResult.scoreB,
             moreResponsibleRole: aiResult.moreResponsibleRole ?? undefined,
             issueSummary: aiResult.summary,
-            reasoning: aiResult.summary,
-            advice: [aiResult.aSuggestedLine, aiResult.bSuggestedLine].filter(Boolean).join(' / ') || '-',
             aFault: aiResult.aFault,
             bFault: aiResult.bFault,
             aSuggestedLine: aiResult.aSuggestedLine,
