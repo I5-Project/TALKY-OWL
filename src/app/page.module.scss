@@ -1,8 +1,12 @@
 @use '@/styles/abstracts/variables' as v;
 @use '@/styles/abstracts/mixins' as m;
+@use '@/styles/abstracts/functions' as fn;
 
 .page {
   position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
   overflow-x: hidden;
 }
 
@@ -23,6 +27,7 @@
   display: flex;
   flex-direction: column;
   padding: 20px 16px;
+  padding-bottom: fn.r(60);
   gap: 16px;
 }
 
@@ -107,6 +112,12 @@
 // 진행중인 사건 섹션 (구분선 아래 gap 20px = container gap 16 + 4)
 .activeCasesSection {
   margin-top: 4px;
+}
+
+// 서비스 정보 박스 — 탭바 뒤에 위치, 스크롤로 노출
+.serviceInfoWrapper {
+  margin-top: auto;
+  padding-bottom: fn.r(65);
 }
 
 // 비로그인 알아보기 박스
