@@ -29,8 +29,23 @@ function createAdapter(): Adapter {
 
 const MAX_NICKNAME_RETRIES = 10
 
+async function clearDuplicateKakaoId(kakaoId: string, currentUserId: string): Promise<void> {
+  const existing = await prisma.user.findUnique({
+    where: { kakaoId },
+    select: { id: true },
+  })
+  if (existing && existing.id !== currentUserId) {
+    await prisma.user.update({
+      where: { id: existing.id },
+      data: { kakaoId: null },
+    })
+  }
+}
+
 async function saveFirstLoginFields(userId: string, kakaoId: string): Promise<void> {
   const now = new Date()
+
+  await clearDuplicateKakaoId(kakaoId, userId)
 
   const user = await prisma.user.findUnique({
     where: { id: userId },
