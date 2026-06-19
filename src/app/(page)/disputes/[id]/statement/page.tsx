@@ -55,11 +55,7 @@ export default function StatementPage({
       const json = await res.json()
 
       if (!json.success) {
-        if (json.error?.code === 'CONTENT_BLOCKED') {
-          setFilterMessage(json.error.message)
-        } else {
-          setFilterMessage('저장 중 오류가 발생했습니다. 다시 시도해주세요.')
-        }
+        setFilterMessage(json.error?.message ?? '저장 중 오류가 발생했습니다. 다시 시도해주세요.')
         return
       }
 
