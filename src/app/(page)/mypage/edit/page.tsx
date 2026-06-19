@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Header from '@/components/layout/Header';
 import Avatar from '@/components/ui/Avatar';
@@ -11,6 +11,7 @@ import Spinner from '@/components/ui/Spinner';
 import PhotoCameraRoundedIcon from '@mui/icons-material/PhotoCameraRounded';
 import { useUserMe, useUpdateProfile, useUploadProfileImage } from '@/domains/user/hooks';
 import { MBTI_OPTIONS } from '@/domains/user/constants';
+import { useProfileEditStore } from '@/stores/profileEditStore';
 import styles from './page.module.scss';
 
 export default function ProfileEditPage() {
@@ -21,20 +22,22 @@ export default function ProfileEditPage() {
   const updateProfile = useUpdateProfile();
   const uploadImage = useUploadProfileImage();
 
-  const [email, setEmail] = useState('');
-  const [nickname, setNickname] = useState('');
-  const [mbti, setMbti] = useState('');
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-  const [errors, setErrors] = useState<Record<string, string>>({});
+  const {
+    email, nickname, mbti, previewUrl, errors,
+    setEmail, setNickname, setMbti, setPreviewUrl,
+    setErrors, setFieldError, clearFieldError, reset,
+  } = useProfileEditStore();
 
   useEffect(() => {
     if (user) {
-      setEmail(user.email ?? '');
-      setNickname(user.nickname ?? '');
-      setMbti(user.mbti ?? '');
-      setPreviewUrl(user.profileImageUrl);
+      reset({
+        email: user.email ?? '',
+        nickname: user.nickname ?? '',
+        mbti: user.mbti ?? '',
+        previewUrl: user.profileImageUrl,
+      });
     }
-  }, [user]);
+  }, [user, reset]);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -88,11 +91,11 @@ export default function ProfileEditPage() {
     } catch (error) {
       const message = error instanceof Error ? error.message : '수정에 실패했습니다.';
       if (message.includes('닉네임')) {
-        setErrors((prev) => ({ ...prev, nickname: message }));
+        setFieldError('nickname', message);
       } else if (message.includes('이메일')) {
-        setErrors((prev) => ({ ...prev, email: message }));
+        setFieldError('email', message);
       } else {
-        setErrors((prev) => ({ ...prev, general: message }));
+        setFieldError('general', message);
       }
     }
   };
@@ -151,7 +154,7 @@ export default function ProfileEditPage() {
             value={email}
             onChange={(e) => {
               setEmail(e.target.value);
-              setErrors((prev) => ({ ...prev, email: '' }));
+              clearFieldError('email');
             }}
             placeholder="이메일을 입력해주세요"
             error={errors.email || undefined}
@@ -162,7 +165,7 @@ export default function ProfileEditPage() {
             value={nickname}
             onChange={(e) => {
               setNickname(e.target.value);
-              setErrors((prev) => ({ ...prev, nickname: '' }));
+              clearFieldError('nickname');
             }}
             placeholder="닉네임을 입력해주세요"
             maxLength={100}
