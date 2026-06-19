@@ -4,12 +4,10 @@ import type { DisputeStatus } from '@prisma/client'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/db'
 import { getSessionUserId } from '@/lib/auth/session'
+import { generateAiJudgment } from '@/lib/ai/judgment'
 import { toAiJudgmentDto } from '@/domains/judgement/judgment.mapper'
 import type { ApiResponse } from '@/types/common'
 import type { AiJudgmentDto } from '@/types/judgment'
-
-// TODO: src/lib/ai 구현 후 import 추가
-// import { generateAiJudgment } from '@/lib/ai/judgment'
 
 // POST /api/disputes/:id/judge
 // AI 판결 요청. both_submitted 상태일 때만 가능. 중복 요청 방지 (멱등성)
@@ -57,7 +55,6 @@ export async function POST(
       const existing = await prisma.aiJudgment.findFirst({
         where: { disputeId: id },
         include: {
-          resultConflictGroup: true,
           resultConflictDetail: true,
           resultCard: true,
           aiNotice: true,
@@ -90,8 +87,7 @@ export async function POST(
 
     // 판결 가능 여부 확인
     if (isSolo) {
-      // 1인: 본인 진술 제출 여부만 확인
-      if (dispute.statements.length === 0) {
+      if (dispute.status !== 'WAITING_OPPONENT') {
         return NextResponse.json<ApiResponse>(
           {
             success: false,
@@ -129,53 +125,78 @@ export async function POST(
     statusSetToJudging = true
 
     try {
-      // AI 판결 생성
-      // TODO: src/lib/ai/judgment.ts 구현 후 아래 로직으로 교체
-      //
-      // const aiResult = await generateAiJudgment({
-      //   disputeId: id,
-      //   categoryGroup: dispute.categoryGroup,
-      //   statements: dispute.statements.map((s) => ({
-      //     role: s.role,
-      //     content: s.content,
-      //   })),
-      // })
-      //
-      // const judgment = await prisma.$transaction(async (tx) => {
-      //   const resultCard = await tx.judgmentResultCard.create({ data: { ... } })
-      //   const created = await tx.aiJudgment.create({
-      //     data: {
-      //       disputeId: id,
-      //       ...aiResult,
-      //       resultCardId: resultCard.id,
-      //     },
-      //   })
-      //   await tx.dispute.update({ where: { id }, data: { status: 'JUDGED' } })
-      //   return tx.aiJudgment.findUniqueOrThrow({
-      //     where: { id: created.id },
-      //     include: { resultConflictGroup: true, resultConflictDetail: true, resultCard: true, aiNotice: true },
-      //   })
-      // })
-      //
-      // return NextResponse.json<ApiResponse<AiJudgmentDto>>({ success: true, data: toAiJudgmentDto(judgment) })
-
-      // AI 모듈 미구현 — 상태 원복 후 503 반환
-      await prisma.dispute.update({
-        where: { id },
-        data: { status: previousStatus },
+      // DB에서 갈등 유형 마스터 데이터 조회 (AI 프롬프트에 전달)
+      const conflictTypeDetails = await prisma.conflictTypeDetail.findMany({
+        select: { id: true, detailCode: true, displayName: true },
       })
+
+      const statementA = dispute.statements.find((s) => s.role === 'ROLE_A' && s.submittedAt)?.content
+      const statementB = dispute.statements.find((s) => s.role === 'ROLE_B' && s.submittedAt)?.content
+
+      if (!statementA) {
+        await prisma.dispute.update({ where: { id }, data: { status: previousStatus } })
+        statusSetToJudging = false
+        return NextResponse.json<ApiResponse>(
+          { success: false, error: { code: 'STATEMENT_NOT_FOUND', message: 'A측 진술을 찾을 수 없습니다.' } },
+          { status: 422 },
+        )
+      }
+
+      // AI 판결 생성
+      const aiResult = await generateAiJudgment({
+        categoryGroup: dispute.categoryGroup,
+        statementA,
+        statementB,
+        conflictTypes: conflictTypeDetails.map((d) => ({ code: d.detailCode, name: d.displayName })),
+      })
+
+      // AI가 반환한 code로 ConflictTypeDetail 매핑
+      const matchedDetail = conflictTypeDetails.find((d) => d.detailCode === aiResult.conflictTypeCode)
+      if (!matchedDetail) {
+        throw new Error(`JSON: unknown conflictTypeCode ${aiResult.conflictTypeCode}`)
+      }
+
+      const judgment = await prisma.$transaction(async (tx) => {
+        const resultCard = await tx.judgmentResultCard.create({
+          data: {
+            cardTitle: dispute.title,
+            cardSummary: aiResult.summary,
+            imageStatus: 'PENDING',
+            shareEnabled: false,
+          },
+        })
+
+        const created = await tx.aiJudgment.create({
+          data: {
+            disputeId: id,
+            verdictScoreA: aiResult.scoreA,
+            verdictScoreB: aiResult.scoreB,
+            moreResponsibleRole: aiResult.moreResponsibleRole ?? undefined,
+            issueSummary: aiResult.summary,
+            aFault: aiResult.aFault,
+            bFault: aiResult.bFault,
+            aSuggestedLine: aiResult.aSuggestedLine,
+            bSuggestedLine: aiResult.bSuggestedLine,
+            resultConflictDetailId: matchedDetail.id,
+            resultCardId: resultCard.id,
+            modelName: aiResult.modelName,
+          },
+        })
+
+        await tx.dispute.update({ where: { id }, data: { status: 'JUDGED' } })
+
+        return tx.aiJudgment.findUniqueOrThrow({
+          where: { id: created.id },
+          include: { resultConflictDetail: true, resultCard: true, aiNotice: true },
+        })
+      })
+
       statusSetToJudging = false
-      return NextResponse.json<ApiResponse>(
-        {
-          success: false,
-          error: { code: 'AI_NOT_IMPLEMENTED', message: 'AI 판결 모듈이 아직 준비되지 않았습니다.' },
-        },
-        { status: 503 },
-      )
+      return NextResponse.json<ApiResponse<AiJudgmentDto>>({ success: true, data: toAiJudgmentDto(judgment) })
     } catch (aiError) {
       // AI 요청 실패 시 상태 원복
       await prisma.dispute
-        .update({ where: { id }, data: { status: 'BOTH_SUBMITTED' } })
+        .update({ where: { id }, data: { status: previousStatus } })
         .catch(() => {})
       statusSetToJudging = false
 
@@ -214,7 +235,7 @@ export async function POST(
     // 외부 catch에서도 JUDGING 상태가 남아있으면 원복
     if (statusSetToJudging) {
       await prisma.dispute
-        .update({ where: { id }, data: { status: 'BOTH_SUBMITTED' } })
+        .update({ where: { id }, data: { status: previousStatus } })
         .catch(() => {})
     }
     return NextResponse.json<ApiResponse>(

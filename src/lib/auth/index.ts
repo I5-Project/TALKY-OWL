@@ -4,6 +4,7 @@ import KakaoProvider from 'next-auth/providers/kakao'
 import { PrismaAdapter } from '@auth/prisma-adapter'
 import { prisma } from '@/lib/db'
 import { generateNickname, generateFallbackNickname } from './nickname'
+import { CURRENT_TERMS_VERSIONS } from '@/domains/auth/constants'
 
 const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 
@@ -29,6 +30,8 @@ function createAdapter(): Adapter {
 const MAX_NICKNAME_RETRIES = 10
 
 async function saveFirstLoginFields(userId: string, kakaoId: string): Promise<void> {
+  const now = new Date()
+
   for (let attempt = 0; attempt < MAX_NICKNAME_RETRIES; attempt++) {
     const isLastAttempt = attempt === MAX_NICKNAME_RETRIES - 1
     const nickname = isLastAttempt
@@ -36,10 +39,22 @@ async function saveFirstLoginFields(userId: string, kakaoId: string): Promise<vo
       : generateNickname()
 
     try {
-      await prisma.user.update({
-        where: { id: userId },
-        data: { kakaoId, nickname, termsAgreedAt: new Date() },
-      })
+      await prisma.$transaction([
+        prisma.user.update({
+          where: { id: userId },
+          data: { kakaoId, nickname, termsAgreedAt: now },
+        }),
+        prisma.userTermsAgreement.createMany({
+          data: Object.values(CURRENT_TERMS_VERSIONS).map((terms) => ({
+            userId,
+            termsType: terms.type,
+            termsVersion: terms.version,
+            isRequired: terms.isRequired,
+            agreedAt: now,
+          })),
+          skipDuplicates: true,
+        }),
+      ])
       return
     } catch (e) {
       const err = e as { code?: string; meta?: { target?: string[] } }

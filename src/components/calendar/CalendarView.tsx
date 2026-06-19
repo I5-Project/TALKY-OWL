@@ -6,19 +6,9 @@ import { DateCalendar } from '@mui/x-date-pickers/DateCalendar';
 import { PickerDay } from '@mui/x-date-pickers';
 import dayjs, { Dayjs } from 'dayjs';
 import 'dayjs/locale/ko';
-import EmotionIcon from './EmotionIcon';
-import styles from './CalendarView.module.scss';
-
-type DiaryDaySummary = {
-  feel: string;
-  count: number;
-};
-
-type Props = {
-  onDateChange: (date: string) => void;
-  selectedDate?: string;
-  diaryData?: Record<string, DiaryDaySummary>;
-};
+import EmotionIcon from '@/components/calendar/EmotionIcon';
+import styles from '@/components/calendar/CalendarView.module.scss';
+import type { DiaryDaySummary, CalendarViewProps } from '@/types/diary';
 
 type CustomDayProps = React.ComponentProps<typeof PickerDay> & {
   diaryData?: Record<string, DiaryDaySummary>;
@@ -76,7 +66,7 @@ export default function CalendarView({
   onDateChange,
   selectedDate,
   diaryData = DUMMY_DIARY_DATA,
-}: Props) {
+}: CalendarViewProps) {
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="ko">
       <div>

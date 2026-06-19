@@ -8,12 +8,12 @@ import StatsCategorySection from '@/components/home/StatsCategorySection'
 import ActiveCasesSection from '@/components/home/ActiveCasesSection'
 import NewCaseButton from '@/components/home/NewCaseButton'
 import HomeServiceInfo from '@/components/home/HomeServiceInfo'
+import HomeGreeting from '@/components/home/HomeGreeting'
 import styles from './page.module.scss'
 
 export default async function HomePage() {
   const session = await getServerSession(authOptions)
   const isLoggedIn = !!session
-  const userName = session?.user?.name ?? ''
 
   return (
     <div className={styles.page}>
@@ -29,10 +29,7 @@ export default async function HomePage() {
 
       <main className={styles.container}>
         {/* 인사 */}
-        <section className={styles.greeting}>
-          <p className={styles.userName}>{isLoggedIn ? `${userName}님` : '안녕하세요'}</p>
-          <p className={styles.greetingText}>오늘 감정은 어떠신가요?</p>
-        </section>
+        <HomeGreeting />
 
         {/* 오늘의 일기 박스 */}
         <Link href="/diary/new" className={styles.diaryBox} aria-label="감정일기 작성">

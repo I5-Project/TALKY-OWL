@@ -90,3 +90,13 @@ export interface DisputeListResponse {
   page: number
   limit: number
 }
+
+// ============================================================
+// Statement Submit
+// ============================================================
+
+export interface StatementSubmitResponse {
+  id: string
+  submittedAt: string
+  disputeStatus: DisputeStatus
+}

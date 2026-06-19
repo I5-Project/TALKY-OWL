@@ -10,8 +10,8 @@ import Spinner from '@/components/ui/Spinner'
 import StatusBadge from '@/components/ui/StatusBadge'
 import CategoryIcon from '@/components/ui/CategoryIcon'
 import InviteChoiceModal from '@/components/room/InviteChoiceModal'
+import { useDispute, useRequestJudgment } from '@/domains/dispute/dispute.hooks'
 import { useToastStore } from '@/stores/toastStore'
-import type { DisputeDto } from '@/types/dispute'
 import styles from './DisputePage.module.scss'
 
 const COMPLETED_STATUSES = ['judged', 'closed'] as const
@@ -30,23 +30,17 @@ export default function DisputePage({ params }: { params: Promise<{ id: string }
   const { id } = React.use(params)
   const router = useRouter()
 
-  const [dispute, setDispute] = React.useState<DisputeDto | null>(null)
-  const [fetchLoading, setFetchLoading] = React.useState(true)
+  const { data: dispute, isLoading: fetchLoading } = useDispute(id)
+  const { mutate: requestJudgment, isPending: isJudging } = useRequestJudgment(id)
+  const showToast = useToastStore((s) => s.show)
+
   const [activeTab, setActiveTab] = React.useState('statement')
   const [showSoloModal, setShowSoloModal] = React.useState(false)
-  const [isJudging, setIsJudging] = React.useState(false)
   const [isInviting, setIsInviting] = React.useState(false)
-  const toast = useToastStore()
 
-  React.useEffect(() => {
-    fetch(`/api/disputes/${id}`)
-      .then((r) => r.json())
-      .then((json) => { if (json.success) setDispute(json.data) })
-      .finally(() => setFetchLoading(false))
-  }, [id])
-
-  const isCompleted = dispute !== null && (COMPLETED_STATUSES as readonly string[]).includes(dispute.status)
-  const isSolo = dispute !== null && dispute.participants.length === 1
+  const isCompleted = dispute !== undefined && (COMPLETED_STATUSES as readonly string[]).includes(dispute.status)
+  const canJudge = dispute?.status === 'waiting_opponent' || dispute?.status === 'both_submitted'
+  const isSolo = dispute !== undefined && dispute.participants.length === 1
   const roleAStatement = dispute?.statements?.find((s) => s.role === 'role_a')
   const roleBStatement = dispute?.statements?.find((s) => s.role === 'role_b')
 
@@ -58,27 +52,24 @@ export default function DisputePage({ params }: { params: Promise<{ id: string }
       const res = await fetch(`/api/rooms/${dispute.roomId}/invite`, { method: 'POST' })
       const data = await res.json()
       if (!res.ok) {
-        toast.show('초대 링크 발급에 실패했어요.')
+        showToast('초대 링크 발급에 실패했어요.')
         return
       }
       await navigator.clipboard.writeText(data.data.inviteUrl)
-      toast.show('초대 링크가 복사되었어요!')
+      showToast('초대 링크가 복사되었어요!')
     } catch {
-      toast.show('초대 링크 발급에 실패했어요.')
+      showToast('초대 링크 발급에 실패했어요.')
     } finally {
       setIsInviting(false)
     }
   }
 
-  const runJudge = async () => {
+  const runJudge = () => {
     setShowSoloModal(false)
-    setIsJudging(true)
-    try {
-      await fetch(`/api/disputes/${id}/judge`, { method: 'POST' })
-      router.refresh()
-    } catch {
-      setIsJudging(false)
-    }
+    requestJudgment(undefined, {
+      onError: (error) => showToast(error instanceof Error ? error.message : 'AI 판결 요청에 실패했습니다.'),
+      onSuccess: () => router.refresh(),
+    })
   }
 
   if (fetchLoading) return null
@@ -185,6 +176,7 @@ export default function DisputePage({ params }: { params: Promise<{ id: string }
       {!isCompleted && (
         <div className={styles.footer}>
           <Button
+            disabled={!canJudge}
             onClick={() => isSolo ? setShowSoloModal(true) : void runJudge()}
           >
             판결받기
