@@ -3,12 +3,11 @@
 import { useState } from 'react';
 import dayjs from 'dayjs';
 import CalendarView from '@/components/calendar/CalendarView';
-import styles from './page.module.scss';
+import styles from '@/app/(page)/calendar/page.module.scss';
 import EmotionDiaryList from '@/components/diary/EmotionDiaryList';
 import RecordList from '@/components/calendar/RecordList';
 import Tabs from '@/components/ui/Tabs';
-
-type DiaryTab = 'emotion' | 'record';
+import type { DiaryTab } from '@/types/diary';
 
 const tabItems = [
   { id: 'emotion', label: '감정일기' },

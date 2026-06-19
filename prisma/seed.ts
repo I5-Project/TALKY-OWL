@@ -39,59 +39,56 @@ async function main() {
   ]);
 
   // ==================================================
-  // CONFLICT GROUP
-  // ==================================================
-  const groups = await Promise.all([
-    prisma.conflictTypeGroup.create({
-      data: {
-        groupCode: "COMMUNICATION",
-        displayName: "소통 갈등",
-        sortOrder: 1,
-      },
-    }),
-    prisma.conflictTypeGroup.create({
-      data: {
-        groupCode: "TRUST",
-        displayName: "신뢰 갈등",
-        sortOrder: 2,
-      },
-    }),
-    prisma.conflictTypeGroup.create({
-      data: {
-        groupCode: "BOUNDARY",
-        displayName: "경계 갈등",
-        sortOrder: 3,
-      },
-    }),
-  ]);
-
-  // ==================================================
   // CONFLICT DETAIL
   // ==================================================
   const details = await Promise.all([
     prisma.conflictTypeDetail.create({
-      data: {
-        groupId: groups[0].id,
-        detailCode: "NO_LISTEN",
-        displayName: "대화 단절",
-        sortOrder: 1,
-      },
+      data: { detailCode: "value_difference",           displayName: "가치관 차이형",    sortOrder: 1 },
     }),
     prisma.conflictTypeDetail.create({
-      data: {
-        groupId: groups[1].id,
-        detailCode: "BROKEN_TRUST",
-        displayName: "신뢰 훼손",
-        sortOrder: 2,
-      },
+      data: { detailCode: "emotional_invalidation",     displayName: "감정 미인정형",    sortOrder: 2 },
     }),
     prisma.conflictTypeDetail.create({
-      data: {
-        groupId: groups[2].id,
-        detailCode: "OVER_INTERFERENCE",
-        displayName: "과도한 간섭",
-        sortOrder: 3,
-      },
+      data: { detailCode: "space_occupation",           displayName: "공간점유형",       sortOrder: 3 },
+    }),
+    prisma.conflictTypeDetail.create({
+      data: { detailCode: "fairness_perception",        displayName: "공정성인식형",     sortOrder: 4 },
+    }),
+    prisma.conflictTypeDetail.create({
+      data: { detailCode: "money_borrowing",            displayName: "금전차용형",       sortOrder: 5 },
+    }),
+    prisma.conflictTypeDetail.create({
+      data: { detailCode: "expectation_mismatch",       displayName: "기대 불일치형",    sortOrder: 6 },
+    }),
+    prisma.conflictTypeDetail.create({
+      data: { detailCode: "split_bill_conflict",        displayName: "더치페이갈등형",   sortOrder: 7 },
+    }),
+    prisma.conflictTypeDetail.create({
+      data: { detailCode: "lifestyle_noise_conflict",   displayName: "소음생활패턴형",   sortOrder: 8 },
+    }),
+    prisma.conflictTypeDetail.create({
+      data: { detailCode: "communication_breakdown",    displayName: "소통단절형",       sortOrder: 9 },
+    }),
+    prisma.conflictTypeDetail.create({
+      data: { detailCode: "punctuality_issue",          displayName: "시간약속형",       sortOrder: 10 },
+    }),
+    prisma.conflictTypeDetail.create({
+      data: { detailCode: "role_distribution_conflict", displayName: "역할분담형",       sortOrder: 11 },
+    }),
+    prisma.conflictTypeDetail.create({
+      data: { detailCode: "priority_conflict",          displayName: "우선순위충돌형",   sortOrder: 12 },
+    }),
+    prisma.conflictTypeDetail.create({
+      data: { detailCode: "decision_conflict",          displayName: "의사결정충돌형",   sortOrder: 13 },
+    }),
+    prisma.conflictTypeDetail.create({
+      data: { detailCode: "jealousy_comparison",        displayName: "질투비교형",       sortOrder: 14 },
+    }),
+    prisma.conflictTypeDetail.create({
+      data: { detailCode: "responsibility_avoidance",   displayName: "책임회피형",       sortOrder: 15 },
+    }),
+    prisma.conflictTypeDetail.create({
+      data: { detailCode: "expression_style_difference",displayName: "표현방식차이형",  sortOrder: 16 },
     }),
   ]);
 
@@ -307,7 +304,6 @@ async function main() {
       issueSummary: "연락 빈도 차이",
       reasoning: "상호 소통 부족",
       advice: "기대치를 공유하세요",
-      resultConflictGroupId: groups[0].id,
       resultConflictDetailId: details[0].id,
       resultCardId: card.id,
       aiNoticeId: notices[0].id,
