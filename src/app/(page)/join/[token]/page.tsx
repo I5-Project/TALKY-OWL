@@ -70,7 +70,6 @@ export default function JoinPage() {
           setShowLoginModal(true);
           return;
         }
-        const data = await res.json();
         const code = data?.error?.code;
         if (code === 'INVITE_EXPIRED') {
           setState('expired');
