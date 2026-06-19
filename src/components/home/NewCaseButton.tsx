@@ -23,9 +23,20 @@ export default function NewCaseButton() {
     return () => { document.body.style.overflow = '' }
   }, [isOpen])
 
-  const handleCategoryClick = (category: CategoryGroup) => {
+  const handleCategoryClick = async (category: CategoryGroup) => {
     setIsOpen(false)
-    router.push(`/disputes/test/statement?category=${category}`)
+    try {
+      const res = await fetch('/api/rooms', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ categoryGroup: category }),
+      })
+      const json = await res.json()
+      if (!json.success) throw new Error()
+      router.push(`/disputes/${json.data.id}/statement?category=${category}`)
+    } catch {
+      router.push(`/disputes/test/statement?category=${category}`)
+    }
   }
 
   return (
