@@ -8,6 +8,7 @@ import type { ApiResponse } from '@/types/common'
 
 interface UserMeDto {
   id: string
+  name: string | null
   email: string | null
   nickname: string | null
   profileImageUrl: string | null
@@ -70,7 +71,7 @@ export async function GET() {
   try {
     const user = await prisma.user.findUnique({
       where: { id: userId },
-      select: { id: true, email: true, nickname: true, profileImageUrl: true, mbti: true },
+      select: { id: true, name: true, email: true, nickname: true, profileImageUrl: true, mbti: true },
     })
 
     if (!user) {
@@ -84,6 +85,7 @@ export async function GET() {
       success: true,
       data: {
         id: user.id,
+        name: user.name,
         email: user.email,
         nickname: user.nickname,
         profileImageUrl: user.profileImageUrl,
@@ -225,7 +227,7 @@ export async function PATCH(request: NextRequest) {
 
     const updated = await prisma.user.update({
       where: { id: userId },
-      select: { id: true, email: true, nickname: true, profileImageUrl: true, mbti: true },
+      select: { id: true, name: true, email: true, nickname: true, profileImageUrl: true, mbti: true },
       data,
     })
 
@@ -233,6 +235,7 @@ export async function PATCH(request: NextRequest) {
       success: true,
       data: {
         id: updated.id,
+        name: updated.name,
         email: updated.email,
         nickname: updated.nickname,
         profileImageUrl: updated.profileImageUrl,
