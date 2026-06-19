@@ -1,7 +1,4 @@
 import { NextResponse } from 'next/server'
-import { getServerSession } from 'next-auth'
-import { authOptions } from '@/lib/auth'
-import { getSessionUserId } from '@/lib/auth/session'
 import { prisma } from '@/lib/db'
 import type { ApiResponse } from '@/types/common'
 
@@ -14,15 +11,6 @@ const ALL_CATEGORIES = ['ROMANCE', 'FAMILY', 'FRIEND', 'WORK'] as const
 // 판결 완료 사건 기준 카테고리별(연애/가족/친구/직장) count 반환
 // 비율 계산은 프론트 훅(useStatistics)에서 처리
 export async function GET() {
-  const session = await getServerSession(authOptions)
-  const userId = getSessionUserId(session)
-  if (!userId) {
-    return NextResponse.json<ApiResponse>(
-      { success: false, error: { code: 'UNAUTHORIZED', message: '로그인이 필요합니다.' } },
-      { status: 401 },
-    )
-  }
-
   try {
     const grouped = await prisma.dispute.groupBy({
       by: ['categoryGroup'],
