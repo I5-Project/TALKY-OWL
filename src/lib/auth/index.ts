@@ -32,6 +32,31 @@ const MAX_NICKNAME_RETRIES = 10
 async function saveFirstLoginFields(userId: string, kakaoId: string): Promise<void> {
   const now = new Date()
 
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { name: true },
+  })
+
+  if (user?.name) {
+    await prisma.$transaction([
+      prisma.user.update({
+        where: { id: userId },
+        data: { kakaoId, termsAgreedAt: now },
+      }),
+      prisma.userTermsAgreement.createMany({
+        data: Object.values(CURRENT_TERMS_VERSIONS).map((terms) => ({
+          userId,
+          termsType: terms.type,
+          termsVersion: terms.version,
+          isRequired: terms.isRequired,
+          agreedAt: now,
+        })),
+        skipDuplicates: true,
+      }),
+    ])
+    return
+  }
+
   for (let attempt = 0; attempt < MAX_NICKNAME_RETRIES; attempt++) {
     const isLastAttempt = attempt === MAX_NICKNAME_RETRIES - 1
     const nickname = isLastAttempt
@@ -109,7 +134,6 @@ export const authOptions: NextAuthOptions = {
   },
   events: {
     async createUser({ user }) {
-      // PrismaAdapter가 User를 생성한 직후 호출됨 — 신규 사용자 커스텀 필드 설정
       const account = await prisma.account.findFirst({
         where: { userId: user.id, provider: 'kakao' },
         select: { providerAccountId: true },
