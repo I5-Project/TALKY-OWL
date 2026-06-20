@@ -34,7 +34,7 @@ function toRoomDto(room: {
 }
 
 function hasAccess(room: { creatorUserId: string; roomMode: PrismaRoomMode; dispute: { participants: { userId: string }[] } | null }, userId: string): boolean {
-  if (room.roomMode === 'AI_CHAT' || room.roomMode === 'INVITE_READY') {
+  if (room.roomMode === 'AI_ROOM' || room.roomMode === 'INVITE_READY') {
     return room.creatorUserId === userId
   }
   return (

@@ -195,6 +195,7 @@ export async function POST(
           where: { id: targetDispute.id },
           data: { status: 'OPPONENT_JOINED' },
         })
+        // WAITING_OPPONENT(초대 발급 시 설정)에서 OPPONENT_JOINED로 전환
       }
 
       await tx.disputeParticipant.create({

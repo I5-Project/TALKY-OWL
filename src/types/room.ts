@@ -2,7 +2,7 @@ import type { CategoryGroup } from './common'
 
 // DB RoomMode enum @map 값 기준
 export type RoomMode =
-  | 'ai_chat'
+  | 'ai_room'
   | 'invite_ready'
   | 'one_to_one'
   | 'closed'

@@ -59,7 +59,8 @@ export async function POST(
       )
     }
 
-    // ROLE_B는 ROLE_A가 진술 저장 완료(OPPONENT_JOINED) 후에만 제출 가능
+    // ROLE_B는 상대방이 참여 완료(OPPONENT_JOINED) 후에만 제출 가능
+    // BOTH_SUBMITTED 허용: 이미 제출한 경우 재시도 시 아래 멱등성 체크까지 도달해야 함
     if (participant.role === 'ROLE_B' && dispute.status !== 'OPPONENT_JOINED' && dispute.status !== 'BOTH_SUBMITTED') {
       return NextResponse.json<ApiResponse>(
         {
