@@ -6,6 +6,8 @@ import { getSessionUserId } from '@/lib/auth/session'
 import { supabaseAdmin, PROFILE_IMAGES_BUCKET } from '@/lib/storage'
 import type { ApiResponse } from '@/types/common'
 
+export const dynamic = 'force-dynamic'
+
 const MAX_FILE_SIZE = 5 * 1024 * 1024 // 5MB
 const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp']
 

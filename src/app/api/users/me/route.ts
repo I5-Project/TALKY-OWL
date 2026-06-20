@@ -5,6 +5,8 @@ import { prisma } from '@/lib/db'
 import { getSessionUserId } from '@/lib/auth/session'
 import type { ApiResponse } from '@/types/common'
 
+export const dynamic = 'force-dynamic'
+
 interface UserMeDto {
   id: string
   nickname: string | null
