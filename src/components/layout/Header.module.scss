@@ -5,6 +5,10 @@
   width: 100%;
   background-color: var(--bg-page);
 
+  &--transparent {
+    background-color: transparent;
+  }
+
   &__logo {
     display: flex;
     align-items: center;

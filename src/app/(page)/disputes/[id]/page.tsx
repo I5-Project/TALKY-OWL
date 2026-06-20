@@ -102,7 +102,7 @@ export default function DisputePage({ params }: { params: Promise<{ id: string }
       setIsRefreshing(false)
     }
   }
-  
+
   const isSolo = dispute !== undefined && dispute.participants.length === 1
   const roleAStatement = dispute?.statements?.find((s) => s.role === 'role_a')
   const roleBStatement = dispute?.statements?.find((s) => s.role === 'role_b')

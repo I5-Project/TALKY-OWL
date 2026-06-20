@@ -16,7 +16,7 @@ export default async function HomePage() {
 
   return (
     <div className={styles.page}>
-      <Header variant="logo" />
+      <Header variant="logo" transparent />
 
       <Image
         src="/images/characters/character-home.png"
