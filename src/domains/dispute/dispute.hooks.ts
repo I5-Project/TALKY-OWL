@@ -18,11 +18,15 @@ export function useCompletedCases(categoryGroup?: CategoryGroup) {
   })
 }
 
-export function useDispute(disputeId: string) {
+export function useDispute(
+  disputeId: string,
+  options?: Pick<UseQueryOptions<DisputeDto>, 'refetchInterval'>,
+) {
   return useQuery({
     queryKey: disputeKeys.detail(disputeId),
     queryFn: () => fetchDispute(disputeId),
     enabled: !!disputeId,
+    refetchInterval: options?.refetchInterval,
   })
 }
 
