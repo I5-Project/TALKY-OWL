@@ -29,7 +29,8 @@
   border: 1px solid var(--border-default);
   color: var(--icon-secondary);
 
-  svg {
+  svg,
+  img {
     width: fn.r(24);
     height: fn.r(24);
     display: block;
@@ -38,6 +39,10 @@
   &--selected {
     border-color: var(--border-brand);
     color: var(--icon-primary);
+
+    img {
+      filter: brightness(0.25);
+    }
   }
 }
 
