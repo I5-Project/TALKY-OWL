@@ -154,6 +154,7 @@
 .content {
   flex: 1;
   overflow-y: auto;
+  padding-bottom: fn.r(80);
 }
 
 .contentWithFooter {
