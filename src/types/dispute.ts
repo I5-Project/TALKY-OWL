@@ -5,6 +5,7 @@ export type DisputeStatus =
   | 'draft'
   | 'waiting_opponent'
   | 'opponent_joined'
+  | 'a_submitted'
   | 'both_submitted'
   | 'judging'
   | 'judged'

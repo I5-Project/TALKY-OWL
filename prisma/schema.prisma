@@ -135,7 +135,7 @@ model DisputeRoom {
   roomNo          String               @unique @map("room_no") @db.VarChar(50)
   creatorUserId   String               @map("creator_user_id") @db.Uuid
   categoryGroup   CategoryGroup        @map("category_group")
-  roomMode        RoomMode             @default(AI_CHAT) @map("room_mode")
+  roomMode        RoomMode             @default(AI_ROOM) @map("room_mode")
   roomTokenHash   String?              @unique @map("room_token_hash") @db.VarChar(255)
   inviteCreatedAt DateTime?            @map("invite_created_at")
   expiresAt       DateTime?            @map("expires_at")
@@ -441,7 +441,7 @@ enum CategoryGroup {
 }
 
 enum RoomMode {
-  AI_CHAT      @map("ai_chat")
+  AI_ROOM      @map("ai_room")
   INVITE_READY @map("invite_ready")
   ONE_TO_ONE   @map("one_to_one")
   CLOSED       @map("closed")
@@ -472,6 +472,7 @@ enum DisputeStatus {
   DRAFT            @map("draft")
   WAITING_OPPONENT @map("waiting_opponent")
   OPPONENT_JOINED  @map("opponent_joined")
+  A_SUBMITTED      @map("a_submitted")
   BOTH_SUBMITTED   @map("both_submitted")
   JUDGING          @map("judging")
   JUDGED           @map("judged")
