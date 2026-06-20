@@ -10,7 +10,7 @@ import Spinner from '@/components/ui/Spinner'
 import StatusBadge from '@/components/ui/StatusBadge'
 import CategoryIcon from '@/components/ui/CategoryIcon'
 import InviteChoiceModal from '@/components/room/InviteChoiceModal'
-import { useDispute, useRequestJudgment } from '@/domains/dispute/dispute.hooks'
+import { useDispute, useRequestJudgment, useCloseDispute } from '@/domains/dispute/dispute.hooks'
 import { useToastStore } from '@/stores/toastStore'
 import styles from './DisputePage.module.scss'
 
@@ -32,6 +32,7 @@ export default function DisputePage({ params }: { params: Promise<{ id: string }
 
   const { data: dispute, isLoading: fetchLoading } = useDispute(id)
   const { mutate: requestJudgment, isPending: isJudging } = useRequestJudgment(id)
+  const { mutate: closeDispute, isPending: isClosing } = useCloseDispute(id)
   const showToast = useToastStore((s) => s.show)
 
   const [activeTab, setActiveTab] = React.useState('statement')
@@ -190,7 +191,15 @@ export default function DisputePage({ params }: { params: Promise<{ id: string }
       {!isCompleted && (
         <div className={styles.footer}>
           <div className={styles.footerRow}>
-            <Button variant="outline">사건종료</Button>
+            <Button
+              variant="outline"
+              disabled={isClosing}
+              onClick={() => closeDispute(undefined, {
+                onError: (error) => showToast(error instanceof Error ? error.message : '사건 종료에 실패했습니다.'),
+              })}
+            >
+              {isClosing ? '종료 중...' : '사건종료'}
+            </Button>
             <Button
               disabled={!canJudge}
               onClick={() => isSolo ? setShowSoloModal(true) : void runJudge()}

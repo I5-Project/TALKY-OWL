@@ -47,3 +47,13 @@ export async function requestJudgment(disputeId: string): Promise<void> {
   const json = await parseJson(res, 'AI 판결 요청 실패')
   if (!json.success) throw new Error(json.error?.message ?? 'AI 판결 요청 실패')
 }
+
+export async function closeDispute(disputeId: string): Promise<void> {
+  const res = await fetch(`/api/disputes/${disputeId}/status`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ status: 'closed' }),
+  })
+  const json = await parseJson(res, '사건 종료 실패')
+  if (!json.success) throw new Error(json.error?.message ?? '사건 종료 실패')
+}

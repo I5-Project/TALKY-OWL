@@ -1,7 +1,7 @@
 'use client'
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { fetchDispute, saveStatement, submitStatement, requestJudgment } from './dispute.api'
+import { fetchDispute, saveStatement, submitStatement, requestJudgment, closeDispute } from './dispute.api'
 
 export const disputeKeys = {
   detail: (id: string) => ['dispute', id] as const,
@@ -39,6 +39,16 @@ export function useRequestJudgment(disputeId: string) {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: () => requestJudgment(disputeId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: disputeKeys.detail(disputeId) })
+    },
+  })
+}
+
+export function useCloseDispute(disputeId: string) {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: () => closeDispute(disputeId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: disputeKeys.detail(disputeId) })
     },
