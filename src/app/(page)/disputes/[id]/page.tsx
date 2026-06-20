@@ -11,6 +11,10 @@ import StatusBadge from '@/components/ui/StatusBadge'
 import CategoryIcon from '@/components/ui/CategoryIcon'
 import InviteChoiceModal from '@/components/room/InviteChoiceModal'
 import { useDispute, useRequestJudgment } from '@/domains/dispute/dispute.hooks'
+import { useJudgment } from '@/domains/judgement/judgement.hooks'
+import JudgmentResult from '@/components/judgement/JudgmentResult'
+import JudgmentTypeResult from '@/components/judgement/JudgmentTypeResult'
+import Tab from '@/components/ui/Tab'
 import { useToastStore } from '@/stores/toastStore'
 import styles from './DisputePage.module.scss'
 
@@ -32,13 +36,17 @@ export default function DisputePage({ params }: { params: Promise<{ id: string }
 
   const { data: dispute, isLoading: fetchLoading } = useDispute(id)
   const { mutate: requestJudgment, isPending: isJudging } = useRequestJudgment(id)
+
+  // judged(판결완료) + closed(종료) 모두 판결 결과 탭 노출
+  const isCompleted = dispute !== undefined && (COMPLETED_STATUSES as readonly string[]).includes(dispute.status)
+  // 판결 완료/종료 상태일 때만 fetch — 불필요한 API 호출 방지
+  const { data: judgment, isLoading: judgmentLoading } = useJudgment(id, isCompleted)
   const showToast = useToastStore((s) => s.show)
 
   const [activeTab, setActiveTab] = React.useState('statement')
+  const [judgmentSubTab, setJudgmentSubTab] = React.useState<'verdict' | 'type'>('verdict')
   const [showSoloModal, setShowSoloModal] = React.useState(false)
   const [isInviting, setIsInviting] = React.useState(false)
-
-  const isCompleted = dispute !== undefined && (COMPLETED_STATUSES as readonly string[]).includes(dispute.status)
   const canJudge = dispute?.status === 'waiting_opponent' || dispute?.status === 'both_submitted'
   const isSolo = dispute !== undefined && dispute.participants.length === 1
   const roleAStatement = dispute?.statements?.find((s) => s.role === 'role_a')
@@ -180,9 +188,35 @@ export default function DisputePage({ params }: { params: Promise<{ id: string }
         )}
 
         {isCompleted && activeTab === 'judgement' && (
-          <div className={styles.judgementPlaceholder}>
-            <p className={styles.empty}>판결 결과 준비 중</p>
-          </div>
+          <>
+            {/* 판결 / 유형 서브탭 — 공통 Tab 컴포넌트 사용 */}
+            <div className={styles.judgmentSubTabs}>
+              <Tab
+                items={[
+                  { label: '판결', value: 'verdict' },
+                  { label: '유형', value: 'type' },
+                ]}
+                activeValue={judgmentSubTab}
+                onChange={(v) => setJudgmentSubTab(v as 'verdict' | 'type')}
+              />
+            </div>
+
+            {judgmentLoading ? (
+              <div className={styles.judgementPlaceholder}>
+                <Spinner />
+              </div>
+            ) : judgment ? (
+              judgmentSubTab === 'verdict' ? (
+                <JudgmentResult judgment={judgment} participants={dispute.participants} />
+              ) : (
+                <JudgmentTypeResult judgment={judgment} participants={dispute.participants} />
+              )
+            ) : (
+              <div className={styles.judgementPlaceholder}>
+                <p className={styles.empty}>판결 결과를 불러올 수 없습니다.</p>
+              </div>
+            )}
+          </>
         )}
       </div>
 

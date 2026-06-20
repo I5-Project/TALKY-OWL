@@ -31,7 +31,7 @@ export default function NewCaseButton() {
     setIsCreating(true)
     setErrorMessage(null)
     const controller = new AbortController()
-    const timeout = setTimeout(() => controller.abort(), 5000)
+    const timeout = setTimeout(() => controller.abort(), 30000)
     try {
       const roomRes = await fetch('/api/rooms', {
         method: 'POST',
