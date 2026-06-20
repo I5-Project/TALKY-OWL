@@ -70,6 +70,7 @@ export async function GET(request: NextRequest) {
   const rawCategory = searchParams.get('categoryGroup')
   // URL 쿼리 파라미터는 문자열로 전달되므로 "true" 문자열과 비교
   const active = searchParams.get('active') === 'true'
+  const completed = searchParams.get('completed') === 'true'
   const page = Math.max(1, parseInt(searchParams.get('page') ?? '1', 10))
   const limit = Math.min(50, Math.max(1, parseInt(searchParams.get('limit') ?? '20', 10)))
 
@@ -97,8 +98,7 @@ export async function GET(request: NextRequest) {
     deletedAt: null,
     participants: { some: { userId } },
     ...(rawCategory ? { categoryGroup: rawCategory.toUpperCase() as PrismaCategoryGroup } : {}),
-    // active=true 일 때 진행중 상태만 필터링
-    // draft(진술 전), judged(판결 완료), closed/expired/deleted 제외
+    // active=true: 진행중 상태만 필터링 (draft, judged, closed 등 제외)
     ...(active ? {
       status: {
         in: [
@@ -108,6 +108,10 @@ export async function GET(request: NextRequest) {
           DisputeStatus.JUDGING,
         ],
       },
+    } : {}),
+    // completed=true: 판결 완료/종료 상태만 필터링 (사건기록 페이지용)
+    ...(completed ? {
+      status: { in: [DisputeStatus.JUDGED, DisputeStatus.CLOSED] },
     } : {}),
   }
 

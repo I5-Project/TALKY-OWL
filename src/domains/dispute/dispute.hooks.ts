@@ -1,10 +1,20 @@
 'use client'
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { fetchDispute, saveStatement, submitStatement, requestJudgment, closeDispute } from './dispute.api'
+import { fetchDispute, fetchCompletedCases, saveStatement, submitStatement, requestJudgment, closeDispute } from './dispute.api'
+import type { CategoryGroup } from '@/types/common'
 
 export const disputeKeys = {
   detail: (id: string) => ['dispute', id] as const,
+  completedList: (categoryGroup?: CategoryGroup) => ['disputes', 'completed', categoryGroup ?? 'all'] as const,
+}
+
+export function useCompletedCases(categoryGroup?: CategoryGroup) {
+  return useQuery({
+    queryKey: disputeKeys.completedList(categoryGroup),
+    queryFn: () => fetchCompletedCases(categoryGroup),
+    staleTime: 1000 * 60,
+  })
 }
 
 export function useDispute(disputeId: string) {
