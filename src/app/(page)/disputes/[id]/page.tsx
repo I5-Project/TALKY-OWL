@@ -69,13 +69,12 @@ export default function DisputePage({ params }: { params: Promise<{ id: string }
     setShowSoloModal(false)
     requestJudgment(undefined, {
       onError: (error) => showToast(error instanceof Error ? error.message : 'AI 판결 요청에 실패했습니다.'),
-      onSuccess: () => router.refresh(),
     })
   }
 
   if (fetchLoading) return null
 
-  if (isJudging || dispute?.status === 'judging') {
+  if (isJudging) {
     return (
       <div className={styles.judgingScreen}>
         <div className={styles.judgingContent}>
