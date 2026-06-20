@@ -132,7 +132,7 @@ const JUDGMENT_PROMPT_SOLO = `당신은 한국어 갈등 조정 서비스 TALKY-
 {
   "summary": "양측 입장을 균형 있게 반영한 갈등 핵심 쟁점 요약 (100자 이내)",
   "aFault": "A측 표현이나 행동 중 갈등을 키운 부분 (100자 이내, 해당 없으면 null)",
-  "aSuggestedLine": "A가 상대방에게 전할 수 있는 진정성 있는 화해 멘트 (100자 이내, 1인칭)",
+  "aSuggestedLine": "A가 상대방에게 전할 수 있는 진정성 있는 화해 멘트 (100자 이내, 1인칭). A의 진술 말투(반말/존댓말)를 그대로 따를 것.",
   "mbtiNote": "MBTI 정보가 있는 경우, 상대방을 이해하는 데 도움이 되는 MBTI 기반 한 줄 코멘트. MBTI 정보가 없으면 null",
   "conflictType": {
     "code": "위 목록에서 가장 적합한 code",
@@ -176,8 +176,8 @@ const JUDGMENT_PROMPT_DUO = `당신은 한국어 갈등 조정 서비스 TALKY-O
   "moreResponsibleRole": "ROLE_A" | "ROLE_B" | "EQUAL",
   "aFault": "A측 표현이나 행동 중 갈등을 키운 부분 (100자 이내)",
   "bFault": "B측 표현이나 행동 중 갈등을 키운 부분 (100자 이내)",
-  "aSuggestedLine": "A가 B에게 전할 수 있는 진정성 있는 화해 멘트 (100자 이내, 1인칭)",
-  "bSuggestedLine": "B가 A에게 전할 수 있는 진정성 있는 화해 멘트 (100자 이내, 1인칭)",
+  "aSuggestedLine": "A가 B에게 전할 수 있는 진정성 있는 화해 멘트 (100자 이내, 1인칭). A의 진술 말투(반말/존댓말)를 그대로 따를 것.",
+  "bSuggestedLine": "B가 A에게 전할 수 있는 진정성 있는 화해 멘트 (100자 이내, 1인칭). B의 진술 말투(반말/존댓말)를 그대로 따를 것.",
   "mbtiNote": "MBTI 정보가 있는 경우, 양측 MBTI 조합을 바탕으로 서로를 이해하는 데 도움이 되는 한 줄 코멘트. MBTI 정보가 없으면 null",
   "conflictType": {
     "code": "위 목록에서 가장 적합한 code",
