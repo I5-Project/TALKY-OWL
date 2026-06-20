@@ -37,10 +37,10 @@ export default function MyPage() {
       <Header variant="logo" />
       <main className={styles.main}>
         <section className={styles.profile}>
-          <Avatar size="l" />
+          <Avatar size="l" src={user?.profileImageUrl ?? undefined} />
           <div className={styles.profile__info}>
             <span className={styles.profile__name}>{displayName}</span>
-            {user?.mbti && <span className={styles.profile__badge}>{user.mbti}</span>}
+            <span className={styles.profile__badge}>{user?.mbti ?? 'MBTI를 설정해주세요'}</span>
           </div>
           <Link href="/mypage/edit" className={styles.profile__setting} aria-label="설정">
             <SettingsRoundedIcon sx={{ fontSize: 24 }} />

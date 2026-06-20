@@ -6,6 +6,8 @@ import { getSessionUserId } from '@/lib/auth/session'
 import { supabaseAdmin, PROFILE_IMAGES_BUCKET } from '@/lib/storage'
 import type { ApiResponse } from '@/types/common'
 
+export const dynamic = 'force-dynamic'
+
 interface UserMeDto {
   id: string
   name: string | null
