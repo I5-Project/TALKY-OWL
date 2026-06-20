@@ -14,7 +14,7 @@ function Avatar({ src }: { src: string | null }) {
   return (
     <div className={styles.avatar}>
       {src
-        ? <img src={src} alt="" className={styles.avatarImg} />
+        ? <Image src={src} alt="" width={0} height={0} sizes="100vw" className={styles.avatarImg} />
         : <div className={styles.avatarFallback} />
       }
     </div>
