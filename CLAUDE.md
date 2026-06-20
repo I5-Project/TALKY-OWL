@@ -10,21 +10,19 @@
 
 **단독 판결 흐름**
 ```txt
-AI 대화방 생성
-→ AI 대화
-→ 단독 진술 작성
+방 생성
+→ 진술 작성 및 제출
 → AI 판결 생성 (제한적 결과)
 → 판결 결과 확인
 ```
 
 **1:1 판결 흐름**
 ```txt
-AI 대화방 생성
-→ AI 대화
+방 생성
 → 초대 링크 발급
 → 상대방 참여
 → 1:1 조정 전환
-→ 양측 진술 작성
+→ 양측 진술 작성 및 제출
 → AI 판결 생성 (전체 결과)
 → 판결 결과 확인
 → 선물추천
@@ -39,8 +37,7 @@ AI 대화방 생성
 ```txt
 - 카카오 로그인
 - 약관 동의
-- AI 대화방 생성
-- AI와 갈등 상황 정리
+- 방 생성
 - 단독 판결 (진술 1건 기반, 제한적 결과 제공)
 - 초대 링크 발급
 - 상대방 참여
@@ -102,15 +99,15 @@ MVP 제외 기능은 구현하지 않는다.
 역할
 ```
 
-### AI 대화방 정책
+### 방 정책
 
 ```txt
-- 모든 방은 먼저 AI 대화방으로 생성한다.
-- AI 대화방 단계에서는 갈등 정리, 감정 정리, 대화 방향 조언만 제공한다.
-- AI 대화방 단계에서는 판결 점수를 생성하지 않는다.
-- 진술저장 후 분기:
-  - 혼자서 진행: disputes/[id]/statement에서 진술 작성 후 단독 AI 판결 가능
-  - 상대방 초대: disputes/[id]/statement에서 진술 작성 후 초대 링크 발급 → 1:1 AI 판결은 상대방 참여 후 가능
+- 방 생성 시 roomMode = ai_room 상태로 시작한다.
+- 진술 작성 후 분기:
+  - 혼자서 진행: disputes/[id]/statement에서 진술 제출 후 단독 AI 판결 가능
+  - 상대방 초대: 초대 링크 발급 → roomMode = invite_ready, dispute status = waiting_opponent
+                상대방 참여 → roomMode = one_to_one, dispute status = opponent_joined
+                이후 양측 진술 제출 후 1:1 AI 판결 가능
 - 단독 판결과 1:1 판결 모두 disputes/[id]/statement를 거친다.
 ```
 
@@ -246,7 +243,7 @@ src/domains/user-items  생성 금지
 ### room_mode
 
 ```txt
-ai_chat
+ai_room
 → invite_ready
 → one_to_one
 → closed / expired / deleted
@@ -260,6 +257,7 @@ ai_chat
 draft
 → waiting_opponent
 → opponent_joined
+→ a_submitted
 → both_submitted
 → judging
 → judged
@@ -270,6 +268,7 @@ draft
 
 ```txt
 draft
+→ a_submitted
 → judging
 → judged
 → closed / expired / deleted
@@ -284,7 +283,7 @@ draft
 ### 권한 기준
 
 ```txt
-AI 대화방 조회:
+방 조회 (open/invite_ready):
 creator_user_id 기준
 
 1:1 사건 조회:
