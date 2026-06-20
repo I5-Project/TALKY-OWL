@@ -1,0 +1,47 @@
+@use '@/styles/abstracts/variables' as v;
+@use '@/styles/abstracts/mixins' as m;
+@use '@/styles/abstracts/functions' as fn;
+
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  box-shadow: inset 0 0 0 2px v.$color-black-700;
+  border-radius: fn.r(12);
+  background-color: var(--bg-surface);
+  overflow: hidden;
+  cursor: pointer;
+
+  &:active {
+    opacity: 0.8;
+  }
+
+  > article {
+    border: none;
+    border-radius: 0;
+    background-color: transparent;
+    padding-bottom: 0;
+
+    time { display: none; }
+
+    > p { margin-bottom: fn.r(8); }
+  }
+}
+
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 fn.r(16) fn.r(16);
+}
+
+.footerLeft {
+  display: flex;
+  align-items: center;
+  gap: fn.r(8);
+}
+
+.date {
+  @include m.text-label-s;
+
+  color: v.$color-black-400;
+}

@@ -2,19 +2,12 @@
 
 import { useState } from 'react'
 import Image from 'next/image'
-import Link from 'next/link'
 import CategoryFilter, { type Category } from '@/components/ui/CategoryFilter'
-import CaseCard from '@/components/ui/CaseCard'
-import Avatar from '@/components/ui/Avatar'
-import StatusBadge from '@/components/ui/StatusBadge'
+import CaseRecordCard from '@/components/ui/CaseRecordCard'
 import Spinner from '@/components/ui/Spinner'
 import { useCompletedCases } from '@/domains/dispute/dispute.hooks'
 import type { CategoryGroup } from '@/types/common'
 import styles from './RecordListSection.module.scss'
-
-function formatDate(dateStr: string): string {
-  return dateStr.slice(2, 10)
-}
 
 export default function RecordListSection() {
   const [selectedCategory, setSelectedCategory] = useState<Category>('all')
@@ -41,28 +34,19 @@ export default function RecordListSection() {
         </div>
       ) : (
         <ul className={styles.list}>
-          {records.map((record) => {
-            const profileImageUrl = record.participants[0]?.profileImageUrl ?? undefined
-            return (
-              <li key={record.id}>
-                <Link href={`/disputes/${record.id}`} className={styles.cardWrapper}>
-                  <CaseCard
-                    title={record.title}
-                    preview={record.description ?? ''}
-                    date={formatDate(record.createdAt)}
-                    categoryGroup={record.categoryGroup}
-                  />
-                  <div className={styles.cardFooter}>
-                    <div className={styles.cardFooterLeft}>
-                      <Avatar src={profileImageUrl} alt="참여자" size="s" />
-                      <time className={styles.cardDate}>{formatDate(record.createdAt)}</time>
-                    </div>
-                    <StatusBadge status={record.status} />
-                  </div>
-                </Link>
-              </li>
-            )
-          })}
+          {records.map((record) => (
+            <li key={record.id}>
+              <CaseRecordCard
+                href={`/disputes/${record.id}`}
+                title={record.title}
+                description={record.description}
+                categoryGroup={record.categoryGroup}
+                status={record.status}
+                createdAt={record.createdAt}
+                participants={record.participants}
+              />
+            </li>
+          ))}
         </ul>
       )}
     </section>
