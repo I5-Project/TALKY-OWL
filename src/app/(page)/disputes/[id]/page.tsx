@@ -128,6 +128,7 @@ export default function DisputePage({ params }: { params: Promise<{ id: string }
   const runJudge = () => {
     setShowSoloModal(false)
     requestJudgment(undefined, {
+      onSuccess: () => window.location.reload(),
       onError: (error) => showToast(error instanceof Error ? error.message : 'AI 판결 요청에 실패했습니다.'),
     })
   }
