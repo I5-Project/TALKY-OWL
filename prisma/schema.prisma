@@ -28,7 +28,6 @@ model User {
   createdAt                   DateTime             @default(now()) @map("created_at")
   updatedAt                   DateTime             @updatedAt @map("updated_at")
   accounts                    Account[]
-  calendarRecords             CalendarRecord[]
   disputeParticipations       DisputeParticipant[]
   createdRooms                DisputeRoom[]
   disputeStatements           DisputeStatement[]
@@ -143,7 +142,6 @@ model DisputeRoom {
   deletedAt       DateTime?            @map("deleted_at")
   createdAt       DateTime             @default(now()) @map("created_at")
   updatedAt       DateTime             @updatedAt @map("updated_at")
-  calendarRecords CalendarRecord[]
   creator         User                 @relation(fields: [creatorUserId], references: [id])
   dispute         Dispute?
   roomAccessLogs  RoomAccessLog[]
@@ -168,7 +166,6 @@ model RoomAiConversation {
   createdAt         DateTime                 @default(now()) @map("created_at")
   updatedAt         DateTime                 @updatedAt @map("updated_at")
   deletedAt         DateTime?                @map("deleted_at")
-  calendarRecords   CalendarRecord[]
   disputes          Dispute[]
   room              DisputeRoom              @relation(fields: [roomId], references: [id], onDelete: Cascade)
   user              User                     @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -208,7 +205,6 @@ model Dispute {
   createdAt            DateTime             @default(now()) @map("created_at")
   updatedAt            DateTime             @updatedAt @map("updated_at")
   aiJudgment           AiJudgment?
-  calendarRecords      CalendarRecord[]
   participants         DisputeParticipant[]
   statements           DisputeStatement[]
   room                 DisputeRoom          @relation(fields: [roomId], references: [id], onDelete: Cascade)
@@ -349,38 +345,18 @@ model GiftRecommendationItem {
 }
 
 model EmotionDiary {
-  id              String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  userId          String           @map("user_id") @db.Uuid
-  diaryDate       DateTime         @map("diary_date") @db.Date
-  emotionType     String?          @map("emotion_type") @db.VarChar(80)
-  content         String
-  createdAt       DateTime         @default(now()) @map("created_at")
-  updatedAt       DateTime         @updatedAt @map("updated_at")
-  deletedAt       DateTime?        @map("deleted_at")
-  calendarRecords CalendarRecord[]
-  user            User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id          String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId      String    @map("user_id") @db.Uuid
+  diaryDate   DateTime  @map("diary_date") @db.Date
+  emotionType String?   @map("emotion_type") @db.VarChar(80)
+  content     String
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+  deletedAt   DateTime? @map("deleted_at")
+  title       String?   @db.VarChar(200)
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("emotion_diaries")
-}
-
-model CalendarRecord {
-  id             String              @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  userId         String              @map("user_id") @db.Uuid
-  roomId         String?             @map("room_id") @db.Uuid
-  disputeId      String?             @map("dispute_id") @db.Uuid
-  conversationId String?             @map("conversation_id") @db.Uuid
-  emotionDiaryId String?             @map("emotion_diary_id") @db.Uuid
-  recordDate     DateTime            @map("record_date") @db.Date
-  recordType     CalendarRecordType  @map("record_type")
-  createdAt      DateTime            @default(now()) @map("created_at")
-  updatedAt      DateTime            @updatedAt @map("updated_at")
-  conversation   RoomAiConversation? @relation(fields: [conversationId], references: [id])
-  dispute        Dispute?            @relation(fields: [disputeId], references: [id])
-  emotionDiary   EmotionDiary?       @relation(fields: [emotionDiaryId], references: [id])
-  room           DisputeRoom?        @relation(fields: [roomId], references: [id])
-  user           User                @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@map("calendar_records")
 }
 
 model RoomAccessLog {
@@ -472,6 +448,7 @@ enum DisputeStatus {
   DRAFT            @map("draft")
   WAITING_OPPONENT @map("waiting_opponent")
   OPPONENT_JOINED  @map("opponent_joined")
+  a_submitted
   BOTH_SUBMITTED   @map("both_submitted")
   JUDGING          @map("judging")
   JUDGED           @map("judged")
@@ -614,21 +591,6 @@ enum AuditEventType {
   MODERATION_FLAGGED
 
   @@map("audit_event_type")
-}
-
-model AuditLog {
-  id           String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  eventType    AuditEventType @map("event_type")
-  actorUserId  String?        @map("actor_user_id") @db.Uuid
-  targetUserId String?        @map("target_user_id") @db.Uuid
-  roomId       String?        @map("room_id") @db.Uuid
-  disputeId    String?        @map("dispute_id") @db.Uuid
-  ipHash       String?        @map("ip_hash")
-  userAgent    String?        @map("user_agent")
-  metadata     Json?
-  createdAt    DateTime       @default(now()) @map("created_at")
-
-  @@map("audit_logs")
 }
 
 enum HttpMethod {
