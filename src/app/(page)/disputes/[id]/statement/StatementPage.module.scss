@@ -122,3 +122,32 @@
   flex-direction: column;
   gap: fn.r(8);
 }
+
+.savingScreen {
+  position: fixed;
+  inset: 0;
+  background: linear-gradient(180deg, #{v.$color-primary-200} 0%, #{v.$color-white} 50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.savingContent {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: fn.r(20);
+  width: min(100%, fn.r(362));
+  padding: 0 fn.r(16);
+}
+
+.savingText {
+  font-family: v.$font-family-base;
+  font-size: v.$font-size-title-m;
+  font-weight: v.$font-weight-semibold;
+  line-height: v.$line-height-title-m;
+  color: var(--text-primary);
+  text-align: center;
+  white-space: pre-line;
+}
+
