@@ -26,7 +26,7 @@ export default function RecordListSection() {
           <Spinner />
         </div>
       ) : isError ? (
-        <p className={styles.empty}>사건 기록을 불러오지 못했어요.</p>
+        <p className={styles.empty}>사건 기록을 불러오지 못했어요. 잠시 후 다시 시도해주세요.</p>
       ) : records.length === 0 ? (
         <div className={styles.empty}>
           <Image src="/images/characters/character-case.png" alt="" width={120} height={120} />

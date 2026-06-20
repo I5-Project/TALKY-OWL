@@ -99,20 +99,20 @@ export async function GET(request: NextRequest) {
     participants: { some: { userId } },
     ...(rawCategory ? { categoryGroup: rawCategory.toUpperCase() as PrismaCategoryGroup } : {}),
     // active=true: 진행중 상태만 필터링 (draft, judged, closed 등 제외)
-    ...(active ? {
-      status: {
-        in: [
-          DisputeStatus.WAITING_OPPONENT,
-          DisputeStatus.OPPONENT_JOINED,
-          DisputeStatus.BOTH_SUBMITTED,
-          DisputeStatus.JUDGING,
-        ],
-      },
-    } : {}),
-    // completed=true: 판결 완료/종료 상태만 필터링 (사건기록 페이지용)
-    ...(completed ? {
-      status: { in: [DisputeStatus.JUDGED, DisputeStatus.CLOSED] },
-    } : {}),
+    ...(active
+      ? {
+          status: {
+            in: [
+              DisputeStatus.WAITING_OPPONENT,
+              DisputeStatus.OPPONENT_JOINED,
+              DisputeStatus.BOTH_SUBMITTED,
+              DisputeStatus.JUDGING,
+            ],
+          },
+        }
+      : completed
+        ? { status: { in: [DisputeStatus.JUDGED, DisputeStatus.CLOSED] } }
+        : {}),
   }
 
   try {

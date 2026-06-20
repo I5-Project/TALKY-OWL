@@ -66,7 +66,7 @@ export default function CaseRecordCard({
               />
             ))}
           </MuiAvatarGroup>
-          <time className={styles.date}>{date}</time>
+          <time className={styles.date} dateTime={createdAt}>{date}</time>
         </div>
         <StatusBadge status={status} />
       </div>
