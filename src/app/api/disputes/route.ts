@@ -106,6 +106,7 @@ export async function GET(request: NextRequest) {
         in: [
           DisputeStatus.WAITING_OPPONENT,
           DisputeStatus.OPPONENT_JOINED,
+          DisputeStatus.A_SUBMITTED,
           DisputeStatus.BOTH_SUBMITTED,
           DisputeStatus.JUDGING,
         ],
