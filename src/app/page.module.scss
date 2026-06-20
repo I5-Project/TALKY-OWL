@@ -8,7 +8,12 @@
   flex-direction: column;
   min-height: 100dvh;
   overflow-x: hidden;
-  background: linear-gradient(180deg, #{v.$color-primary-200} 0%, #{v.$color-white} 50%);
+  background: linear-gradient(180deg, #{v.$color-primary-200} 0%, #{v.$color-white} 15%);
+
+  // 헤더가 페이지 그라데이션을 덮지 않도록 투명 처리
+  :global(header) {
+    background-color: transparent;
+  }
 }
 
 .characterImage {
