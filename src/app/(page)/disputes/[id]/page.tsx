@@ -34,6 +34,7 @@ export default function DisputePage({ params }: { params: Promise<{ id: string }
 
   const pollCountRef = React.useRef(0)
   const MAX_POLL = 15
+  const [pollExhausted, setPollExhausted] = React.useState(false)
 
   const { data: dispute, isLoading: fetchLoading } = useDispute(id, {
     refetchInterval: (query) => {
@@ -42,7 +43,10 @@ export default function DisputePage({ params }: { params: Promise<{ id: string }
       const hasStatement = d.statements?.some((s) => s.role === 'role_a' && s.content)
       const isTerminal = (COMPLETED_STATUSES as readonly string[]).includes(d.status)
       if (d.title === '새 사건' && hasStatement && !isTerminal) {
-        if (pollCountRef.current >= MAX_POLL) return false
+        if (pollCountRef.current >= MAX_POLL) {
+          setPollExhausted(true)
+          return false
+        }
         pollCountRef.current += 1
         return 2000
       }
@@ -61,7 +65,23 @@ export default function DisputePage({ params }: { params: Promise<{ id: string }
     !!dispute &&
     dispute.title === '새 사건' &&
     dispute.statements?.some((s) => s.role === 'role_a' && s.content) &&
-    !isCompleted
+    !isCompleted &&
+    !pollExhausted
+
+  const META_MESSAGES = [
+    '사건 정보를 분석하고 있어요',
+    'AI가 핵심 쟁점을 파악하고 있어요',
+    '진술 내용을 정리하고 있어요',
+    '거의 다 됐어요, 잠시만요',
+  ]
+  const [metaMsgIdx, setMetaMsgIdx] = React.useState(0)
+  React.useEffect(() => {
+    if (!isExtractingMeta) return
+    const timer = setInterval(() => {
+      setMetaMsgIdx((i) => (i + 1) % META_MESSAGES.length)
+    }, 2500)
+    return () => clearInterval(timer)
+  }, [isExtractingMeta])
   // 판결 완료/종료 상태일 때만 fetch — 불필요한 API 호출 방지
   const { data: judgment, isLoading: judgmentLoading, isError: judgmentError } = useJudgment(id, isCompleted)
 
@@ -111,7 +131,7 @@ export default function DisputePage({ params }: { params: Promise<{ id: string }
       <div className={styles.judgingScreen}>
         <div className={styles.judgingContent}>
           <Spinner />
-          <p className={styles.judgingText}>{'사건 정보를 분석하고 있어요\n잠시만 기다려주세요'}</p>
+          <p className={styles.judgingText}>{META_MESSAGES[metaMsgIdx]}</p>
         </div>
       </div>
     )
