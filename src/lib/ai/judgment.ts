@@ -48,7 +48,7 @@ export interface JudgmentResult {
 // Step 1: 진술 저장 시 — title / summary 추출
 // ============================================================
 
-const META_MODEL = 'gemini-2.0-flash-lite'
+const META_MODEL = 'gemini-2.5-flash'
 
 const META_PROMPT = `당신은 한국어 갈등 조정 서비스 TALKY-OWL의 AI입니다.
 사용자가 작성한 갈등 진술을 바탕으로 사건 제목과 요약을 추출하세요.
