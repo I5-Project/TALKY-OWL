@@ -91,8 +91,8 @@ export async function extractDisputeMeta(statement: string): Promise<DisputeMeta
   }
 
   return {
-    title: parsed.title.slice(0, 20),
-    summary: parsed.summary.slice(0, 50),
+    title: Array.from(parsed.title as string).slice(0, 20).join(''),
+    summary: Array.from(parsed.summary as string).slice(0, 50).join(''),
     modelName: META_MODEL,
   }
 }

@@ -137,7 +137,8 @@
   flex-direction: column;
   align-items: center;
   gap: fn.r(20);
-  width: fn.r(362);
+  width: min(100%, fn.r(362));
+  padding: 0 fn.r(16);
 }
 
 .savingText {

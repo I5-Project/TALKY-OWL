@@ -72,6 +72,14 @@ export async function PATCH(
       )
     }
 
+    // 이미 목표 상태면 멱등 성공 반환
+    if (dispute.status === newStatus.toUpperCase()) {
+      return NextResponse.json<ApiResponse<{ status: DisputeStatus }>>({
+        success: true,
+        data: { status: dispute.status.toLowerCase() as DisputeStatus },
+      })
+    }
+
     const terminalStatuses = ['JUDGED', 'CLOSED', 'DELETED', 'EXPIRED']
     if (terminalStatuses.includes(dispute.status)) {
       return NextResponse.json<ApiResponse>(
