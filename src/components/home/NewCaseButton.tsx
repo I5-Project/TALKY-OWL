@@ -30,12 +30,15 @@ export default function NewCaseButton() {
     setIsOpen(false)
     setIsCreating(true)
     setErrorMessage(null)
+    const controller = new AbortController()
+    // 방 생성 + 사건 생성 두 번의 순차 API 호출을 커버할 수 있도록 30초로 설정
+    const timeout = setTimeout(() => controller.abort(), 30000)
     try {
       const roomRes = await fetch('/api/rooms', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ categoryGroup: category }),
-        signal: AbortSignal.timeout(8000),
+        signal: controller.signal,
       })
       const roomJson = await roomRes.json() as { success: boolean; data?: { id: string }; error?: { message?: string } }
       if (!roomJson.success || !roomJson.data) throw new Error(roomJson.error?.message)
@@ -44,7 +47,7 @@ export default function NewCaseButton() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ roomId: roomJson.data.id, categoryGroup: category, title: '새 사건' }),
-        signal: AbortSignal.timeout(8000),
+        signal: controller.signal,
       })
       const disputeJson = await disputeRes.json() as { success: boolean; data?: { id: string }; error?: { message?: string } }
       if (!disputeJson.success || !disputeJson.data) throw new Error(disputeJson.error?.message)
@@ -54,6 +57,7 @@ export default function NewCaseButton() {
       setErrorMessage(err instanceof Error && err.message ? err.message : '사건 생성에 실패했습니다. 다시 시도해주세요.')
       setIsOpen(true)
     } finally {
+      clearTimeout(timeout)
       setIsCreating(false)
     }
   }

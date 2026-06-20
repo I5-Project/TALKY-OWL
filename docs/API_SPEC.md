@@ -333,7 +333,8 @@ YYYY-MM-DDTHH:mm:ssZ
   "success": true,
   "data": {
     "id": "uuid",
-    "nickname": "string",
+    "name": "string | null",
+    "nickname": "string | null",
     "profileImageUrl": "string | null",
     "gender": "male | female | other | unknown | no_answer | null",
     "ageGroup": "under_10 | teens | twenties | thirties | forties | fifties | sixties_plus | unknown | no_answer | null",
@@ -354,6 +355,7 @@ YYYY-MM-DDTHH:mm:ssZ
 
 - **처리 정책:**
   - 본인 정보만 조회 가능
+  - `name`이 있으면 name 우선 표시, null이면 nickname 표시
   - `deletedAt`이 있는 탈퇴 계정 처리 기준 확정 필요
   - MVP에서 `profileImageUrl`은 카카오 프로필 이미지 URL 그대로 반환 (Supabase Storage 미사용)
 - **확정 필요:**
@@ -370,7 +372,8 @@ YYYY-MM-DDTHH:mm:ssZ
 
 ```json
 {
-  "nickname": "string (optional)",
+  "name": "string (optional, 1~50자)",
+  "nickname": "string (optional, 2~20자)",
   "gender": "male | female | other | no_answer (optional)",
   "ageGroup": "string (optional)",
   "mbti": "string (optional, 4자)"
@@ -384,7 +387,8 @@ YYYY-MM-DDTHH:mm:ssZ
   "success": true,
   "data": {
     "id": "uuid",
-    "nickname": "string",
+    "name": "string | null",
+    "nickname": "string | null",
     "gender": "string | null",
     "ageGroup": "string | null",
     "mbti": "string | null"

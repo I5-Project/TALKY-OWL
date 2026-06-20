@@ -2,6 +2,7 @@ import type { ApiResponse } from '@/types/common'
 
 export interface UserProfile {
   id: string
+  name: string | null
   email: string | null
   nickname: string | null
   profileImageUrl: string | null
