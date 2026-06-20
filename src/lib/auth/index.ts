@@ -135,10 +135,15 @@ export const authOptions: NextAuthOptions = {
           await saveFirstLoginFields(user.id, account.providerAccountId, user.image)
         } else if (!existing.profileImageUrl && user.image) {
           // 기존 유저 중 profileImageUrl 미저장 상태면 카카오 이미지로 채움
-          await prisma.user.update({
-            where: { id: user.id },
-            data: { profileImageUrl: user.image },
-          })
+          // 백필 실패는 로그인을 차단하지 않음
+          try {
+            await prisma.user.update({
+              where: { id: user.id },
+              data: { profileImageUrl: user.image },
+            })
+          } catch {
+            // intentionally swallowed
+          }
         }
       }
 

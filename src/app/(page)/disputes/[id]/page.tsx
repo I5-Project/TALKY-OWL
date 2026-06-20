@@ -40,7 +40,7 @@ export default function DisputePage({ params }: { params: Promise<{ id: string }
   // judged(판결완료) + closed(종료) 모두 판결 결과 탭 노출
   const isCompleted = !!dispute && (COMPLETED_STATUSES as readonly string[]).includes(dispute.status)
   // 판결 완료/종료 상태일 때만 fetch — 불필요한 API 호출 방지
-  const { data: judgment, isLoading: judgmentLoading } = useJudgment(id, isCompleted)
+  const { data: judgment, isLoading: judgmentLoading, isError: judgmentError } = useJudgment(id, isCompleted)
   const showToast = useToastStore((s) => s.show)
 
   const [activeTab, setActiveTab] = React.useState('statement')
@@ -205,16 +205,14 @@ export default function DisputePage({ params }: { params: Promise<{ id: string }
               <div className={styles.judgementPlaceholder}>
                 <Spinner />
               </div>
-            ) : judgment ? (
-              judgmentSubTab === 'verdict' ? (
-                <JudgmentResult judgment={judgment} participants={dispute.participants} />
-              ) : (
-                <JudgmentTypeResult judgment={judgment} participants={dispute.participants} />
-              )
-            ) : (
+            ) : judgmentError ? (
               <div className={styles.judgementPlaceholder}>
                 <p className={styles.empty}>판결 결과를 불러올 수 없습니다.</p>
               </div>
+            ) : judgmentSubTab === 'verdict' ? (
+              <JudgmentResult disputeId={id} />
+            ) : (
+              <JudgmentTypeResult disputeId={id} />
             )}
           </>
         )}

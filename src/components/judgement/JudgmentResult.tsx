@@ -1,13 +1,12 @@
 'use client'
 
 import Image from 'next/image'
-import type { AiJudgmentDto } from '@/types/judgment'
-import type { DisputeParticipantDto } from '@/types/dispute'
+import { useDispute } from '@/domains/dispute/dispute.hooks'
+import { useJudgment } from '@/domains/judgement/judgement.hooks'
 import styles from './JudgmentResult.module.scss'
 
 interface Props {
-  judgment: AiJudgmentDto
-  participants: DisputeParticipantDto[]
+  disputeId: string
 }
 
 function Avatar({ src }: { src: string | null }) {
@@ -21,7 +20,13 @@ function Avatar({ src }: { src: string | null }) {
   )
 }
 
-export default function JudgmentResult({ judgment, participants }: Props) {
+export default function JudgmentResult({ disputeId }: Props) {
+  const { data: dispute } = useDispute(disputeId)
+  const { data: judgment } = useJudgment(disputeId)
+
+  if (!judgment || !dispute) return null
+
+  const { participants } = dispute
   const isSolo = participants.length === 1
   const participantA = participants.find((p) => p.role === 'role_a')
   const participantB = participants.find((p) => p.role === 'role_b')

@@ -12,7 +12,7 @@ async function parseJson<T>(res: Response, fallbackMessage: string): Promise<Api
 
 export async function fetchJudgment(disputeId: string): Promise<AiJudgmentDto> {
   const res = await fetch(`/api/disputes/${disputeId}/result`)
-  const json = await parseJson<AiJudgmentDto>(res, '판결 결과 조회 실패')
-  if (!json.success || !json.data) throw new Error(json.error?.message ?? '판결 결과 조회 실패')
+  const json = await parseJson<AiJudgmentDto>(res, '판결 결과를 불러오지 못했어요. 잠시 후 다시 시도해주세요.')
+  if (!json.success || !json.data) throw new Error(json.error?.message ?? '판결 결과를 불러오지 못했어요. 잠시 후 다시 시도해주세요.')
   return json.data
 }
