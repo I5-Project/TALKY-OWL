@@ -20,6 +20,7 @@
 
   &__title {
     @include m.text-title-s;
+
     color: var(--text-primary);
   }
 
@@ -31,9 +32,10 @@
 
   &__paragraph {
     @include m.text-body-s;
+
     color: var(--text-secondary);
     word-break: keep-all;
-    word-wrap: break-word;
+    overflow-wrap: break-word;
   }
 }
 
