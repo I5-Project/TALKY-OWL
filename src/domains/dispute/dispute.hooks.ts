@@ -1,13 +1,17 @@
 'use client'
 
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { useQuery, useMutation, useQueryClient, UseQueryOptions } from '@tanstack/react-query'
 import { fetchDispute, saveStatement, submitStatement, requestJudgment, closeDispute } from './dispute.api'
+import type { DisputeDto } from '@/types/dispute'
 
 export const disputeKeys = {
   detail: (id: string) => ['dispute', id] as const,
 }
 
-export function useDispute(disputeId: string, options?: { refetchInterval?: number | false }) {
+export function useDispute(
+  disputeId: string,
+  options?: Pick<UseQueryOptions<DisputeDto>, 'refetchInterval'>,
+) {
   return useQuery({
     queryKey: disputeKeys.detail(disputeId),
     queryFn: () => fetchDispute(disputeId),
