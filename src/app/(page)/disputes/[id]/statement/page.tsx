@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import Header from '@/components/layout/Header'
 import Button from '@/components/ui/Button'
 import Select from '@/components/ui/Select'
+import Spinner from '@/components/ui/Spinner'
 import Textarea from '@/components/ui/Textarea'
 import { CATEGORY_ICON_MAP, CATEGORY_LABEL_MAP } from '@/components/ui/CategoryIcon'
 import type { CategoryGroup } from '@/types/common'
@@ -69,6 +70,17 @@ export default function StatementPage({
     } finally {
       setIsLoading(false)
     }
+  }
+
+  if (isLoading) {
+    return (
+      <div className={styles.savingScreen}>
+        <div className={styles.savingContent}>
+          <Spinner />
+          <p className={styles.savingText}>{'사건 정보를 분석하고 있어요\n잠시만 기다려주세요'}</p>
+        </div>
+      </div>
+    )
   }
 
   if (!category) {

@@ -1,20 +1,23 @@
 'use client'
 
 import React from 'react'
+import Image from 'next/image'
 import { useRouter } from 'next/navigation'
+import { useQueryClient } from '@tanstack/react-query'
 import AutorenewRoundedIcon from '@mui/icons-material/AutorenewRounded'
 import Header from '@/components/layout/Header'
 import Button from '@/components/ui/Button'
 import Tabs from '@/components/ui/Tabs'
+import Tab from '@/components/ui/Tab'
 import Spinner from '@/components/ui/Spinner'
 import StatusBadge from '@/components/ui/StatusBadge'
 import CategoryIcon from '@/components/ui/CategoryIcon'
 import InviteChoiceModal from '@/components/room/InviteChoiceModal'
-import { useDispute, useRequestJudgment } from '@/domains/dispute/dispute.hooks'
-import { useJudgment } from '@/domains/judgement/judgement.hooks'
 import JudgmentResult from '@/components/judgement/JudgmentResult'
 import JudgmentTypeResult from '@/components/judgement/JudgmentTypeResult'
-import Tab from '@/components/ui/Tab'
+import { useDispute, useRequestJudgment, useCloseDispute, disputeKeys } from '@/domains/dispute/dispute.hooks'
+import { useJudgment } from '@/domains/judgement/judgement.hooks'
+import { useUserMe } from '@/domains/user/hooks'
 import { useToastStore } from '@/stores/toastStore'
 import styles from './DisputePage.module.scss'
 
@@ -23,34 +26,32 @@ const TABS = [
   { id: 'statement', label: '진술' },
   { id: 'judgement', label: '판결' },
 ]
-const CATEGORY_BG: Record<string, string> = {
-  romance: 'var(--category-love-bg)',
-  work:    'var(--category-work-bg)',
-  friend:  'var(--category-friend-bg)',
-  family:  'var(--category-family-bg)',
-}
 
 export default function DisputePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = React.use(params)
   const router = useRouter()
+  const queryClient = useQueryClient()
 
   const { data: dispute, isLoading: fetchLoading } = useDispute(id)
   const { mutate: requestJudgment, isPending: isJudging } = useRequestJudgment(id)
+  const { mutate: closeDispute, isPending: isClosing } = useCloseDispute(id)
+  const { data: userMe } = useUserMe()
 
   // judged(판결완료) + closed(종료) 모두 판결 결과 탭 노출
   const isCompleted = !!dispute && (COMPLETED_STATUSES as readonly string[]).includes(dispute.status)
   // 판결 완료/종료 상태일 때만 fetch — 불필요한 API 호출 방지
   const { data: judgment, isLoading: judgmentLoading, isError: judgmentError } = useJudgment(id, isCompleted)
+
   const showToast = useToastStore((s) => s.show)
 
   const [activeTab, setActiveTab] = React.useState('statement')
   const [judgmentSubTab, setJudgmentSubTab] = React.useState<'verdict' | 'type'>('verdict')
   const [showSoloModal, setShowSoloModal] = React.useState(false)
   const [isInviting, setIsInviting] = React.useState(false)
-  const canJudge = dispute?.status === 'waiting_opponent' || dispute?.status === 'both_submitted'
   const isSolo = dispute !== undefined && dispute.participants.length === 1
   const roleAStatement = dispute?.statements?.find((s) => s.role === 'role_a')
   const roleBStatement = dispute?.statements?.find((s) => s.role === 'role_b')
+  const canJudge = (isSolo && !!roleAStatement?.content) || dispute?.status === 'both_submitted'
 
   const handleInvite = async () => {
     if (isInviting || !dispute) return
@@ -76,13 +77,12 @@ export default function DisputePage({ params }: { params: Promise<{ id: string }
     setShowSoloModal(false)
     requestJudgment(undefined, {
       onError: (error) => showToast(error instanceof Error ? error.message : 'AI 판결 요청에 실패했습니다.'),
-      onSuccess: () => router.refresh(),
     })
   }
 
   if (fetchLoading) return null
 
-  if (isJudging || dispute?.status === 'judging') {
+  if (isJudging) {
     return (
       <div className={styles.judgingScreen}>
         <div className={styles.judgingContent}>
@@ -112,15 +112,15 @@ export default function DisputePage({ params }: { params: Promise<{ id: string }
       <section className={styles.infoCard}>
         <div className={styles.infoRow}>
           <div className={styles.infoTitleGroup}>
-            <div
-              className={styles.categoryChip}
-              style={{ backgroundColor: CATEGORY_BG[dispute.categoryGroup] }}
-            >
+            <div className={styles.categoryChip}>
               <CategoryIcon category={dispute.categoryGroup} />
             </div>
             <span className={styles.infoTitle}>{dispute.title}</span>
           </div>
-          <AutorenewRoundedIcon sx={{ fontSize: 24, color: 'var(--icon-secondary)', flexShrink: 0 }} />
+          <AutorenewRoundedIcon
+            sx={{ fontSize: 24, color: 'var(--icon-secondary)', flexShrink: 0, cursor: 'pointer' }}
+            onClick={() => queryClient.invalidateQueries({ queryKey: disputeKeys.detail(id) })}
+          />
         </div>
 
         {dispute.description && (
@@ -130,15 +130,16 @@ export default function DisputePage({ params }: { params: Promise<{ id: string }
         <div className={styles.infoMeta}>
           <div className={styles.infoDateGroup}>
             <div className={styles.avatarStack}>
-              {dispute.participants.slice(0, 2).map((p) => (
-                <div key={p.id} className={styles.avatar}>
-                  {p.profileImageUrl ? (
-                    <img src={p.profileImageUrl} alt="" className={styles.avatarImg} />
-                  ) : (
-                    <div className={styles.avatarFallback} />
-                  )}
-                </div>
-              ))}
+              {dispute.participants.slice(0, 2).map((p) => {
+                const imgSrc = p.profileImageUrl
+                  ?? (p.userId === userMe?.id ? userMe?.profileImageUrl : null)
+                  ?? '/images/common/thumbnail-default.png'
+                return (
+                  <div key={p.id} className={styles.avatar}>
+                    <Image src={imgSrc} alt="" fill className={styles.avatarImg} />
+                  </div>
+                )
+              })}
             </div>
             <span className={styles.infoDate}>{formattedDate}</span>
           </div>
@@ -189,7 +190,6 @@ export default function DisputePage({ params }: { params: Promise<{ id: string }
 
         {isCompleted && activeTab === 'judgement' && (
           <>
-            {/* 판결 / 유형 서브탭 — 공통 Tab 컴포넌트 사용 */}
             <div className={styles.judgmentSubTabs}>
               <Tab
                 items={[
@@ -222,7 +222,15 @@ export default function DisputePage({ params }: { params: Promise<{ id: string }
       {!isCompleted && (
         <div className={styles.footer}>
           <div className={styles.footerRow}>
-            <Button variant="outline">사건종료</Button>
+            <Button
+              variant="outline"
+              disabled={isClosing}
+              onClick={() => closeDispute(undefined, {
+                onError: (error) => showToast(error instanceof Error ? error.message : '사건 종료에 실패했습니다.'),
+              })}
+            >
+              {isClosing ? '종료 중...' : '사건종료'}
+            </Button>
             <Button
               disabled={!canJudge}
               onClick={() => isSolo ? setShowSoloModal(true) : void runJudge()}
