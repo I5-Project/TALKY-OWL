@@ -448,6 +448,7 @@ enum DisputeStatus {
   DRAFT            @map("draft")
   WAITING_OPPONENT @map("waiting_opponent")
   OPPONENT_JOINED  @map("opponent_joined")
+  a_submitted
   BOTH_SUBMITTED   @map("both_submitted")
   JUDGING          @map("judging")
   JUDGED           @map("judged")
