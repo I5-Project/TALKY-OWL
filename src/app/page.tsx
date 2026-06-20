@@ -1,7 +1,6 @@
 import Image from 'next/image'
 import Link from 'next/link'
-import { getServerSession } from 'next-auth'
-import { authOptions } from '@/lib/auth'
+import { getCachedSession } from '@/lib/auth/getSession'
 import Header from '@/components/layout/Header'
 import BottomNavigation from '@/components/layout/BottomNavigation'
 import StatsCategorySection from '@/components/home/StatsCategorySection'
@@ -12,7 +11,7 @@ import HomeGreeting from '@/components/home/HomeGreeting'
 import styles from './page.module.scss'
 
 export default async function HomePage() {
-  const session = await getServerSession(authOptions)
+  const session = await getCachedSession()
   const isLoggedIn = !!session
 
   return (
