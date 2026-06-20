@@ -272,9 +272,26 @@ export async function POST(
         disputeMeta = { title: meta.title, description: meta.summary }
       } catch (err) {
         const msg = err instanceof Error ? err.message : String(err)
-        console.error('[statements] extractDisputeMeta failed:', msg, err)
+        const isTimeout = msg.includes('timeout')
+        const isParseError = msg.includes('JSON')
+
+        if (isTimeout) {
+          console.error('[statements] extractDisputeMeta timeout')
+          return NextResponse.json<ApiResponse>(
+            { success: false, error: { code: 'AI_EXTRACTION_TIMEOUT', message: 'AI 분석 시간이 초과됐습니다. 다시 시도해주세요.' } },
+            { status: 504 },
+          )
+        }
+        if (isParseError) {
+          console.error('[statements] extractDisputeMeta parse error')
+          return NextResponse.json<ApiResponse>(
+            { success: false, error: { code: 'AI_EXTRACTION_PARSE_ERROR', message: 'AI 응답 처리 중 오류가 발생했습니다. 다시 시도해주세요.' } },
+            { status: 502 },
+          )
+        }
+        console.error('[statements] extractDisputeMeta failed:', msg)
         return NextResponse.json<ApiResponse>(
-          { success: false, error: { code: 'AI_EXTRACTION_FAILED', message: 'AI 추출이 실패했습니다. 다시 시도해주세요.' } },
+          { success: false, error: { code: 'AI_EXTRACTION_FAILED', message: 'AI 분석에 실패했습니다. 다시 시도해주세요.' } },
           { status: 503 },
         )
       }

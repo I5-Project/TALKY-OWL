@@ -55,8 +55,9 @@ export default function StatementPage({
 
       if (!json.success) {
         setIsLoading(false)
-        if (json.error?.code === 'AI_EXTRACTION_FAILED') {
-          alert('AI 추출이 실패했습니다. 다시 시도해주세요.')
+        const AI_EXTRACTION_CODES = ['AI_EXTRACTION_FAILED', 'AI_EXTRACTION_TIMEOUT', 'AI_EXTRACTION_PARSE_ERROR']
+        if (json.error?.code && AI_EXTRACTION_CODES.includes(json.error.code)) {
+          alert(json.error.message ?? 'AI 분석에 실패했습니다. 다시 시도해주세요.')
           return
         }
         setFilterMessage(json.error?.message ?? '저장 중 오류가 발생했습니다. 다시 시도해주세요.')

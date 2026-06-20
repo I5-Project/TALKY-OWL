@@ -96,8 +96,11 @@ export default function DisputePage({ params }: { params: Promise<{ id: string }
 
   const handleRefresh = async () => {
     setIsRefreshing(true)
-    await queryClient.invalidateQueries({ queryKey: disputeKeys.detail(id) })
-    setIsRefreshing(false)
+    try {
+      await queryClient.invalidateQueries({ queryKey: disputeKeys.detail(id) })
+    } finally {
+      setIsRefreshing(false)
+    }
   }
   
   const isSolo = dispute !== undefined && dispute.participants.length === 1
