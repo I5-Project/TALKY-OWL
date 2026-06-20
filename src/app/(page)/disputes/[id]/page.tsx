@@ -2,6 +2,7 @@
 
 import React from 'react'
 import { useRouter } from 'next/navigation'
+import { useQueryClient } from '@tanstack/react-query'
 import AutorenewRoundedIcon from '@mui/icons-material/AutorenewRounded'
 import Header from '@/components/layout/Header'
 import Button from '@/components/ui/Button'
@@ -10,7 +11,7 @@ import Spinner from '@/components/ui/Spinner'
 import StatusBadge from '@/components/ui/StatusBadge'
 import CategoryIcon from '@/components/ui/CategoryIcon'
 import InviteChoiceModal from '@/components/room/InviteChoiceModal'
-import { useDispute, useRequestJudgment, useCloseDispute } from '@/domains/dispute/dispute.hooks'
+import { useDispute, useRequestJudgment, useCloseDispute, disputeKeys } from '@/domains/dispute/dispute.hooks'
 import { useToastStore } from '@/stores/toastStore'
 import styles from './DisputePage.module.scss'
 
@@ -29,6 +30,7 @@ const CATEGORY_BG: Record<string, string> = {
 export default function DisputePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = React.use(params)
   const router = useRouter()
+  const queryClient = useQueryClient()
 
   const { data: dispute, isLoading: fetchLoading } = useDispute(id)
   const { mutate: requestJudgment, isPending: isJudging } = useRequestJudgment(id)
@@ -112,7 +114,10 @@ export default function DisputePage({ params }: { params: Promise<{ id: string }
             </div>
             <span className={styles.infoTitle}>{dispute.title}</span>
           </div>
-          <AutorenewRoundedIcon sx={{ fontSize: 24, color: 'var(--icon-secondary)', flexShrink: 0 }} />
+          <AutorenewRoundedIcon
+            sx={{ fontSize: 24, color: 'var(--icon-secondary)', flexShrink: 0, cursor: 'pointer' }}
+            onClick={() => queryClient.invalidateQueries({ queryKey: disputeKeys.detail(id) })}
+          />
         </div>
 
         {dispute.description && (
