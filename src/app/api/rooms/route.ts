@@ -96,7 +96,7 @@ export async function GET(request: NextRequest) {
 }
 
 // POST /api/rooms
-// AI 대화방 생성. 기본 roomMode = ai_chat
+// 방 생성. 기본 roomMode = ai_room
 export async function POST(request: NextRequest) {
   const session = await getServerSession(authOptions)
   const userId = getSessionUserId(session)
@@ -144,7 +144,7 @@ export async function POST(request: NextRequest) {
         roomNo: generateRoomNo(),
         creatorUserId: userId,
         categoryGroup: categoryGroup.toUpperCase() as PrismaCategoryGroup,
-        roomMode: 'AI_CHAT',
+        roomMode: 'AI_ROOM',
       },
     })
 
