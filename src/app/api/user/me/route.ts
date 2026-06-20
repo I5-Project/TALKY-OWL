@@ -302,7 +302,10 @@ export async function DELETE() {
     await prisma.$transaction([
       prisma.user.update({
         where: { id: userId },
-        data: { deletedAt: now, deletionRequestedAt: now },
+        data: { deletedAt: now, deletionRequestedAt: now, kakaoId: null },
+      }),
+      prisma.account.deleteMany({
+        where: { userId },
       }),
       prisma.auditLog.create({
         data: {
