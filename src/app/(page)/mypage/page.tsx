@@ -5,7 +5,6 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { signOut } from 'next-auth/react';
 import Header from '@/components/layout/Header';
-import BottomNavigation from '@/components/layout/BottomNavigation';
 import Avatar from '@/components/ui/Avatar';
 import ConfirmModal from '@/components/ui/ConfirmModal';
 import { useUserMe } from '@/domains/user/hooks';
@@ -74,8 +73,6 @@ export default function MyPage() {
           </button>
         </nav>
       </main>
-
-      <BottomNavigation />
 
       <ConfirmModal
         open={logoutOpen}
