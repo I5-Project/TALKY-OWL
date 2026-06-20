@@ -258,7 +258,25 @@ export async function POST(
       )
     }
 
-    // 정상 저장 + ModerationLog 트랜잭션
+    // AI 2: title/description 추출 — ROLE_A 최초 저장 시에만, DB 저장 전에 실행
+    let disputeMeta: { title: string; description: string } | null = null
+    if (participant.role === 'ROLE_A' && isNew) {
+      const META_TIMEOUT_MS = 10000
+      try {
+        const meta = await Promise.race([
+          extractDisputeMeta(content),
+          new Promise<never>((_, reject) =>
+            setTimeout(() => reject(new Error('extractDisputeMeta timeout')), META_TIMEOUT_MS),
+          ),
+        ])
+        disputeMeta = { title: meta.title, description: meta.summary }
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : String(err)
+        console.error('[statements] extractDisputeMeta failed:', msg, err)
+      }
+    }
+
+    // 정상 저장 + ModerationLog + meta 업데이트 트랜잭션
     const statement = await prisma.$transaction(async (tx) => {
       let stmt: DisputeStatement
 
@@ -304,32 +322,16 @@ export async function POST(
         },
       })
 
-      if (newDisputeStatus) {
-        await tx.dispute.update({ where: { id: disputeId }, data: { status: newDisputeStatus } })
-      }
+      await tx.dispute.update({
+        where: { id: disputeId },
+        data: {
+          ...(newDisputeStatus ? { status: newDisputeStatus } : {}),
+          ...(disputeMeta ? { title: disputeMeta.title, description: disputeMeta.description } : {}),
+        },
+      })
 
       return stmt
     })
-
-    // AI 2: title/description 추출 — ROLE_A 최초 저장 시에만 실행 (ROLE_B가 덮어쓰지 않도록)
-    if (participant.role === 'ROLE_A' && isNew) {
-      const META_TIMEOUT_MS = 10000
-      try {
-        const meta = await Promise.race([
-          extractDisputeMeta(content),
-          new Promise<never>((_, reject) =>
-            setTimeout(() => reject(new Error('extractDisputeMeta timeout')), META_TIMEOUT_MS),
-          ),
-        ])
-        await prisma.dispute.update({
-          where: { id: disputeId },
-          data: { title: meta.title, description: meta.summary },
-        })
-      } catch (err) {
-        const msg = err instanceof Error ? err.message : String(err)
-        console.error('[statements] extractDisputeMeta failed:', msg, err)
-      }
-    }
 
     return NextResponse.json<ApiResponse<StatementData>>(
       {
