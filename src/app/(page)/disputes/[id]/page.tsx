@@ -218,7 +218,7 @@ export default function DisputePage({ params }: { params: Promise<{ id: string }
       {isSolo && !isCompleted && (
         <button
           className={styles.inviteBanner}
-          onClick={() => router.push(`/rooms/${dispute.roomId}/invite`)}
+          onClick={() => void handleInvite()}
         >
           <div className={styles.inviteBannerText}>
             <span className={styles.inviteBannerTitle}>상대를 초대해</span>
