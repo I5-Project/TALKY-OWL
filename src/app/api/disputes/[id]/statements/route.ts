@@ -313,14 +313,15 @@ export async function POST(
 
     // AI 2: title/description 추출 — ROLE_A 최초 저장 시에만 실행 (ROLE_B가 덮어쓰지 않도록)
     if (participant.role === 'ROLE_A' && isNew) {
-      extractDisputeMeta(content)
-        .then((meta) =>
-          prisma.dispute.update({
-            where: { id: disputeId },
-            data: { title: meta.title, description: meta.summary },
-          }),
-        )
-        .catch((err) => console.error('[statements] extractDisputeMeta failed:', err))
+      try {
+        const meta = await extractDisputeMeta(content)
+        await prisma.dispute.update({
+          where: { id: disputeId },
+          data: { title: meta.title, description: meta.summary },
+        })
+      } catch (err) {
+        console.error('[statements] extractDisputeMeta failed:', err)
+      }
     }
 
     return NextResponse.json<ApiResponse<StatementData>>(

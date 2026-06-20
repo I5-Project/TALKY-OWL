@@ -1,6 +1,7 @@
 'use client'
 
 import React from 'react'
+import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { useQueryClient } from '@tanstack/react-query'
 import AutorenewRoundedIcon from '@mui/icons-material/AutorenewRounded'
@@ -12,6 +13,7 @@ import StatusBadge from '@/components/ui/StatusBadge'
 import CategoryIcon from '@/components/ui/CategoryIcon'
 import InviteChoiceModal from '@/components/room/InviteChoiceModal'
 import { useDispute, useRequestJudgment, useCloseDispute, disputeKeys } from '@/domains/dispute/dispute.hooks'
+import { useUserMe } from '@/domains/user/hooks'
 import { useToastStore } from '@/stores/toastStore'
 import styles from './DisputePage.module.scss'
 
@@ -20,12 +22,6 @@ const TABS = [
   { id: 'statement', label: '진술' },
   { id: 'judgement', label: '판결' },
 ]
-const CATEGORY_BG: Record<string, string> = {
-  romance: 'var(--category-love-bg)',
-  work:    'var(--category-work-bg)',
-  friend:  'var(--category-friend-bg)',
-  family:  'var(--category-family-bg)',
-}
 
 export default function DisputePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = React.use(params)
@@ -35,6 +31,7 @@ export default function DisputePage({ params }: { params: Promise<{ id: string }
   const { data: dispute, isLoading: fetchLoading } = useDispute(id)
   const { mutate: requestJudgment, isPending: isJudging } = useRequestJudgment(id)
   const { mutate: closeDispute, isPending: isClosing } = useCloseDispute(id)
+  const { data: userMe } = useUserMe()
   const showToast = useToastStore((s) => s.show)
 
   const [activeTab, setActiveTab] = React.useState('statement')
@@ -106,10 +103,7 @@ export default function DisputePage({ params }: { params: Promise<{ id: string }
       <section className={styles.infoCard}>
         <div className={styles.infoRow}>
           <div className={styles.infoTitleGroup}>
-            <div
-              className={styles.categoryChip}
-              style={{ backgroundColor: CATEGORY_BG[dispute.categoryGroup] }}
-            >
+            <div className={styles.categoryChip}>
               <CategoryIcon category={dispute.categoryGroup} />
             </div>
             <span className={styles.infoTitle}>{dispute.title}</span>
@@ -127,15 +121,16 @@ export default function DisputePage({ params }: { params: Promise<{ id: string }
         <div className={styles.infoMeta}>
           <div className={styles.infoDateGroup}>
             <div className={styles.avatarStack}>
-              {dispute.participants.slice(0, 2).map((p) => (
-                <div key={p.id} className={styles.avatar}>
-                  {p.profileImageUrl ? (
-                    <img src={p.profileImageUrl} alt="" className={styles.avatarImg} />
-                  ) : (
-                    <div className={styles.avatarFallback} />
-                  )}
-                </div>
-              ))}
+              {dispute.participants.slice(0, 2).map((p) => {
+                const imgSrc = p.profileImageUrl
+                  ?? (p.userId === userMe?.id ? userMe?.profileImageUrl : null)
+                  ?? '/images/common/thumbnail-default.png'
+                return (
+                  <div key={p.id} className={styles.avatar}>
+                    <Image src={imgSrc} alt="" fill className={styles.avatarImg} />
+                  </div>
+                )
+              })}
             </div>
             <span className={styles.infoDate}>{formattedDate}</span>
           </div>
