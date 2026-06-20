@@ -61,6 +61,8 @@ export interface AiJudgmentDto {
   resultCardSummary: string | null
   // 화해/선물 메시지
   shareMessage: string | null
+  // MBTI 기반 한 줄 코멘트
+  mbtiNote: string | null
   // AI 판결 고지 문구
   aiNotice: AiResultNoticeDto | null
   modelName: string

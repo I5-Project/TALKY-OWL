@@ -142,12 +142,26 @@ export async function POST(
         )
       }
 
+      // 참여자 MBTI 조회
+      const participantUserIds = dispute.participants.map((p) => p.userId)
+      const users = await prisma.user.findMany({
+        where: { id: { in: participantUserIds } },
+        select: { id: true, mbti: true },
+      })
+      const userMbtiMap = Object.fromEntries(users.map((u) => [u.id, u.mbti]))
+      const participantA = dispute.participants.find((p) => p.role === 'ROLE_A')
+      const participantB = dispute.participants.find((p) => p.role === 'ROLE_B')
+      const mbtiA = participantA ? (userMbtiMap[participantA.userId] ?? null) : null
+      const mbtiB = participantB ? (userMbtiMap[participantB.userId] ?? null) : null
+
       // AI 판결 생성
       const aiResult = await generateAiJudgment({
         categoryGroup: dispute.categoryGroup,
         statementA,
         statementB,
         conflictTypes: conflictTypeDetails.map((d) => ({ code: d.detailCode, name: d.displayName })),
+        mbtiA,
+        mbtiB,
       })
 
       // AI가 반환한 code로 ConflictTypeDetail 매핑
@@ -177,6 +191,7 @@ export async function POST(
             bFault: aiResult.bFault,
             aSuggestedLine: aiResult.aSuggestedLine,
             bSuggestedLine: aiResult.bSuggestedLine,
+            rawResponse: aiResult.mbtiNote ? JSON.stringify({ mbtiNote: aiResult.mbtiNote }) : undefined,
             resultConflictDetailId: matchedDetail.id,
             resultCardId: resultCard.id,
             modelName: aiResult.modelName,
