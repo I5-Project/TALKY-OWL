@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import Image from 'next/image'
 import Link from 'next/link'
 import CategoryFilter, { type Category } from '@/components/ui/CategoryFilter'
 import CaseCard from '@/components/ui/CaseCard'
@@ -34,7 +35,10 @@ export default function RecordListSection() {
       ) : isError ? (
         <p className={styles.empty}>사건 기록을 불러오지 못했어요.</p>
       ) : records.length === 0 ? (
-        <p className={styles.empty}>진행완료된 사건이 없어요</p>
+        <div className={styles.empty}>
+          <Image src="/images/characters/character-case.png" alt="" width={120} height={120} />
+          <p className={styles.emptyText}>등록한 사건이 없어요</p>
+        </div>
       ) : (
         <ul className={styles.list}>
           {records.map((record) => {
