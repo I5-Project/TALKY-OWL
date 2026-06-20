@@ -273,6 +273,10 @@ export async function POST(
       } catch (err) {
         const msg = err instanceof Error ? err.message : String(err)
         console.error('[statements] extractDisputeMeta failed:', msg, err)
+        return NextResponse.json<ApiResponse>(
+          { success: false, error: { code: 'AI_EXTRACTION_FAILED', message: 'AI 추출이 실패했습니다. 다시 시도해주세요.' } },
+          { status: 503 },
+        )
       }
     }
 
