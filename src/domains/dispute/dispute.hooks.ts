@@ -1,8 +1,9 @@
 'use client'
 
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { useQuery, useMutation, useQueryClient, UseQueryOptions } from '@tanstack/react-query'
 import { fetchDispute, fetchCompletedCases, saveStatement, submitStatement, requestJudgment, closeDispute } from './dispute.api'
 import type { CategoryGroup } from '@/types/common'
+import type { DisputeDto } from '@/types/dispute'
 
 export const disputeKeys = {
   detail: (id: string) => ['dispute', id] as const,
