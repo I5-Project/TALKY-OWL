@@ -18,7 +18,7 @@ interface StatusBadgeProps {
 }
 
 const STATUS_MAP: Record<DisputeStatus, { variant: StatusVariant; label: string }> = {
-  draft:             { variant: 'progress', label: '진행중' },
+  draft:             { variant: 'progress', label: '작성중' },
   waiting_opponent:  { variant: 'progress', label: '진행중' },
   opponent_joined:   { variant: 'progress', label: '진행중' },
   both_submitted:    { variant: 'progress', label: '진행중' },
