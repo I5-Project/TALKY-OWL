@@ -257,7 +257,6 @@ ai_room
 draft
 → waiting_opponent
 → opponent_joined
-→ a_submitted
 → both_submitted
 → judging
 → judged
@@ -268,7 +267,7 @@ draft
 
 ```txt
 draft
-→ a_submitted
+→ waiting_opponent
 → judging
 → judged
 → closed / expired / deleted

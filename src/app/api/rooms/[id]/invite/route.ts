@@ -58,10 +58,6 @@ export async function POST(
     const tokenHash = hashInviteToken(token)
     const expiresAt = getInviteExpiresAt()
 
-    const existingDispute = await prisma.dispute.findFirst({
-      where: { roomId: id },
-    })
-
     await prisma.$transaction(async (tx) => {
       await tx.disputeRoom.update({
         where: { id },
@@ -71,6 +67,10 @@ export async function POST(
           expiresAt,
           roomMode: 'INVITE_READY',
         },
+      })
+
+      const existingDispute = await tx.dispute.findFirst({
+        where: { roomId: id },
       })
 
       if (existingDispute && existingDispute.status === 'DRAFT') {
