@@ -1,0 +1,207 @@
+@use '@/styles/abstracts/variables' as v;
+@use '@/styles/abstracts/mixins' as m;
+@use '@/styles/abstracts/functions' as fn;
+
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: fn.r(24);
+  padding: fn.r(16);
+}
+
+/* ──────────────────────────────────────
+   2인 전용: 프로필 + 점수바
+────────────────────────────────────── */
+
+.verdictHeader {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: fn.r(12);
+}
+
+.profileWrapper {
+  width: fn.r(56);
+  height: fn.r(56);
+}
+
+.profileImage {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+/* 프로필 이미지가 없을 때 회색 원 대체 */
+.profileFallback {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background-color: v.$color-black-200;
+}
+
+.responsibleLabel {
+  font-size: v.$font-size-body-m;
+  font-weight: v.$font-weight-semibold;
+  color: v.$color-black-700;
+}
+
+/* 점수바: A(왼쪽)와 B(오른쪽) 두 영역이 딱 붙어 전체 100%를 채움 */
+.scoreBarWrapper {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  height: fn.r(12);
+  border-radius: fn.r(6);
+  overflow: hidden;
+  position: relative;
+}
+
+/* A 영역 — 책임 비율만큼 너비가 설정됨 (인라인 style로 주입) */
+.scoreBarA {
+  height: 100%;
+  background-color: v.$color-black-400;
+  transition: width 0.4s ease;
+}
+
+/* 가운데 구분선 — 시각적으로 A/B 경계 표시 */
+.scoreBarDivider {
+  width: fn.r(2);
+  height: fn.r(20);
+  background-color: v.$color-black-700;
+  flex-shrink: 0;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+/* B 영역 — A를 제외한 나머지 (100 - scoreA)% */
+.scoreBarB {
+  height: 100%;
+  background-color: v.$color-black-200;
+  transition: width 0.4s ease;
+}
+
+.scoreLabels {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.scoreLabelA,
+.scoreLabelB {
+  @include m.text-caption;
+  color: v.$color-black-500;
+}
+
+.scoreLabelCenter {
+  @include m.text-caption;
+  color: v.$color-black-400;
+}
+
+/* ──────────────────────────────────────
+   공통 섹션
+────────────────────────────────────── */
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: fn.r(12);
+}
+
+.sectionTitle {
+  font-size: v.$font-size-body-m;
+  font-weight: v.$font-weight-semibold;
+  color: v.$color-black-700;
+}
+
+/* ──────────────────────────────────────
+   잘못 카드
+────────────────────────────────────── */
+
+.faultCards {
+  display: flex;
+  flex-direction: column;
+  gap: fn.r(8);
+}
+
+/* 카드 배경색을 연하게 처리해 판결 결과임을 시각적으로 구분 */
+.faultCard {
+  display: flex;
+  flex-direction: column;
+  gap: fn.r(8);
+  padding: fn.r(16);
+  border-radius: fn.r(12);
+  background-color: v.$color-black-50;
+}
+
+.faultCardHeader {
+  display: flex;
+  align-items: center;
+  gap: fn.r(8);
+}
+
+/* 프로필 아바타 자리 — 닉네임 DTO 미포함으로 현재는 회색 원 표시 */
+.faultAvatar {
+  width: fn.r(24);
+  height: fn.r(24);
+  border-radius: 50%;
+  background-color: v.$color-black-200;
+  flex-shrink: 0;
+}
+
+.faultRole {
+  @include m.text-body-s;
+  font-weight: v.$font-weight-medium;
+  color: v.$color-black-600;
+}
+
+.faultContent {
+  @include m.text-body-s;
+  color: v.$color-black-700;
+  line-height: 1.6;
+}
+
+/* AI 고지 문구 — 판결 결과가 절대적이지 않음을 강조 */
+.aiNotice {
+  @include m.text-caption;
+  color: v.$color-black-400;
+  text-align: center;
+}
+
+/* ──────────────────────────────────────
+   화해 제안 섹션
+────────────────────────────────────── */
+
+.reconcileHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.reconcileIcon {
+  flex-shrink: 0;
+}
+
+.suggestedLines {
+  display: flex;
+  flex-direction: column;
+  gap: fn.r(8);
+}
+
+/* 화해 멘트 카드 — 잘못 카드와 동일한 스타일 유지 */
+.suggestedCard {
+  display: flex;
+  flex-direction: column;
+  gap: fn.r(8);
+  padding: fn.r(16);
+  border-radius: fn.r(12);
+  background-color: v.$color-black-50;
+}
+
+.suggestedContent {
+  @include m.text-body-s;
+  color: v.$color-black-700;
+  line-height: 1.6;
+}
