@@ -48,6 +48,8 @@ export interface JudgmentResult {
 // Step 1: 진술 저장 시 — title / summary 추출
 // ============================================================
 
+const META_MODEL = 'gemini-2.0-flash-lite'
+
 const META_PROMPT = `당신은 한국어 갈등 조정 서비스 TALKY-OWL의 AI입니다.
 사용자가 작성한 갈등 진술을 바탕으로 사건 제목과 요약을 추출하세요.
 
@@ -59,8 +61,8 @@ const META_PROMPT = `당신은 한국어 갈등 조정 서비스 TALKY-OWL의 AI
 아래 JSON만 반환하세요. 설명이나 마크다운 없이 JSON만 출력하세요.
 
 {
-  "title": "사건을 한 줄로 표현하는 제목 (30자 이내)",
-  "summary": "갈등 상황을 중립적으로 요약한 문장 (100자 이내, 당사자를 '상대방'으로 지칭)"
+  "title": "사건을 한 줄로 표현하는 제목 (20자 이내)",
+  "summary": "갈등 상황을 한 줄로 중립적으로 요약 (50자 이내, 당사자를 '상대방'으로 지칭)"
 }`
 
 export async function extractDisputeMeta(statement: string): Promise<DisputeMetaResult> {
@@ -68,7 +70,7 @@ export async function extractDisputeMeta(statement: string): Promise<DisputeMeta
   if (!apiKey) throw new Error('GEMINI_API_KEY is not configured')
 
   const genAI = new GoogleGenerativeAI(apiKey)
-  const model = genAI.getGenerativeModel({ model: MODEL_NAME })
+  const model = genAI.getGenerativeModel({ model: META_MODEL })
 
   const prompt = META_PROMPT.replace('{statement}', statement)
   const result = await model.generateContent(prompt)
@@ -89,9 +91,9 @@ export async function extractDisputeMeta(statement: string): Promise<DisputeMeta
   }
 
   return {
-    title: parsed.title.slice(0, 30),
-    summary: parsed.summary.slice(0, 100),
-    modelName: MODEL_NAME,
+    title: parsed.title.slice(0, 20),
+    summary: parsed.summary.slice(0, 50),
+    modelName: META_MODEL,
   }
 }
 

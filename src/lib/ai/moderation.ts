@@ -9,7 +9,7 @@ export interface ModerationResult {
   modelName: string
 }
 
-const MODEL_NAME = 'gemini-2.5-flash'
+const MODEL_NAME = 'gemini-2.0-flash-lite'
 
 const PROMPT_TEMPLATE = `You are a content moderation AI for a Korean conflict resolution service called TALKY-OWL.
 Users submit personal dispute statements in Korean.
