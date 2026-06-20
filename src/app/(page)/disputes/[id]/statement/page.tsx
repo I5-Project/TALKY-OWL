@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation'
 import Header from '@/components/layout/Header'
 import Button from '@/components/ui/Button'
 import Select from '@/components/ui/Select'
-import Spinner from '@/components/ui/Spinner'
 import Textarea from '@/components/ui/Textarea'
 import { CATEGORY_ICON_MAP, CATEGORY_LABEL_MAP } from '@/components/ui/CategoryIcon'
 import type { CategoryGroup } from '@/types/common'
@@ -52,10 +51,15 @@ export default function StatementPage({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ content }),
       })
-      const json = await res.json() as { success: boolean; data?: { hasPersonalInfo?: boolean }; error?: { message?: string } }
+      const json = await res.json() as { success: boolean; data?: { hasPersonalInfo?: boolean }; error?: { code?: string; message?: string } }
 
       if (!json.success) {
         setIsLoading(false)
+        const AI_EXTRACTION_CODES = ['AI_EXTRACTION_FAILED', 'AI_EXTRACTION_TIMEOUT', 'AI_EXTRACTION_PARSE_ERROR']
+        if (json.error?.code && AI_EXTRACTION_CODES.includes(json.error.code)) {
+          alert(json.error.message ?? 'AI 분석에 실패했습니다. 다시 시도해주세요.')
+          return
+        }
         setFilterMessage(json.error?.message ?? '저장 중 오류가 발생했습니다. 다시 시도해주세요.')
         return
       }
@@ -72,17 +76,6 @@ export default function StatementPage({
       setIsLoading(false)
       setFilterMessage('네트워크 오류가 발생했습니다. 다시 시도해주세요.')
     }
-  }
-
-  if (isLoading) {
-    return (
-      <div className={styles.savingScreen}>
-        <div className={styles.savingContent}>
-          <Spinner />
-          <p className={styles.savingText}>{'사건 정보를 분석하고 있어요\n잠시만 기다려주세요'}</p>
-        </div>
-      </div>
-    )
   }
 
   if (!category) {

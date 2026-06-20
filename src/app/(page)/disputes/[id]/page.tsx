@@ -5,6 +5,7 @@ import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { useQueryClient } from '@tanstack/react-query'
 import AutorenewRoundedIcon from '@mui/icons-material/AutorenewRounded'
+import CircularProgress from '@mui/material/CircularProgress'
 import Header from '@/components/layout/Header'
 import Button from '@/components/ui/Button'
 import Tabs from '@/components/ui/Tabs'
@@ -91,6 +92,17 @@ export default function DisputePage({ params }: { params: Promise<{ id: string }
   const [judgmentSubTab, setJudgmentSubTab] = React.useState<'verdict' | 'type'>('verdict')
   const [showSoloModal, setShowSoloModal] = React.useState(false)
   const [isInviting, setIsInviting] = React.useState(false)
+  const [isRefreshing, setIsRefreshing] = React.useState(false)
+
+  const handleRefresh = async () => {
+    setIsRefreshing(true)
+    try {
+      await queryClient.invalidateQueries({ queryKey: disputeKeys.detail(id) })
+    } finally {
+      setIsRefreshing(false)
+    }
+  }
+
   const isSolo = dispute !== undefined && dispute.participants.length === 1
   const roleAStatement = dispute?.statements?.find((s) => s.role === 'role_a')
   const roleBStatement = dispute?.statements?.find((s) => s.role === 'role_b')
@@ -119,6 +131,7 @@ export default function DisputePage({ params }: { params: Promise<{ id: string }
   const runJudge = () => {
     setShowSoloModal(false)
     requestJudgment(undefined, {
+      onSuccess: () => window.location.reload(),
       onError: (error) => showToast(error instanceof Error ? error.message : 'AI 판결 요청에 실패했습니다.'),
     })
   }
@@ -171,10 +184,14 @@ export default function DisputePage({ params }: { params: Promise<{ id: string }
             </div>
             <span className={styles.infoTitle}>{dispute.title}</span>
           </div>
-          <AutorenewRoundedIcon
-            sx={{ fontSize: 24, color: 'var(--icon-secondary)', flexShrink: 0, cursor: 'pointer' }}
-            onClick={() => queryClient.invalidateQueries({ queryKey: disputeKeys.detail(id) })}
-          />
+          {isRefreshing ? (
+            <CircularProgress size={24} thickness={3} sx={{ color: 'var(--icon-secondary)', flexShrink: 0 }} />
+          ) : (
+            <AutorenewRoundedIcon
+              sx={{ fontSize: 24, color: 'var(--icon-secondary)', flexShrink: 0, cursor: 'pointer' }}
+              onClick={() => void handleRefresh()}
+            />
+          )}
         </div>
 
         {dispute.description && (
@@ -205,7 +222,7 @@ export default function DisputePage({ params }: { params: Promise<{ id: string }
       {isSolo && !isCompleted && (
         <button
           className={styles.inviteBanner}
-          onClick={() => router.push(`/rooms/${dispute.roomId}/invite`)}
+          onClick={() => void handleInvite()}
         >
           <div className={styles.inviteBannerText}>
             <span className={styles.inviteBannerTitle}>상대를 초대해</span>

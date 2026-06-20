@@ -29,6 +29,8 @@ export interface JudgmentInput {
   statementA: string
   statementB?: string
   conflictTypes: ConflictTypeOption[]
+  mbtiA?: string | null
+  mbtiB?: string | null
 }
 
 export interface JudgmentResult {
@@ -40,6 +42,7 @@ export interface JudgmentResult {
   bFault: string | null
   aSuggestedLine: string | null
   bSuggestedLine: string | null
+  mbtiNote: string | null
   conflictTypeCode: string
   modelName: string
 }
@@ -61,8 +64,8 @@ const META_PROMPT = `당신은 한국어 갈등 조정 서비스 TALKY-OWL의 AI
 아래 JSON만 반환하세요. 설명이나 마크다운 없이 JSON만 출력하세요.
 
 {
-  "title": "사건을 한 줄로 표현하는 제목 (20자 이내)",
-  "summary": "갈등 상황을 한 줄로 중립적으로 요약 (50자 이내, 당사자를 '상대방'으로 지칭)"
+  "title": "사건을 한 줄로 표현하는 제목 (15자 이내, 반드시 15자를 넘지 말 것)",
+  "summary": "갈등 상황을 자연스럽게 한 줄로 표현 (40자 이내). '~로 인한 이야기', '~을 둘러싼 갈등' 같은 서술형으로 작성. '사용자는', '~합니다' 형식 금지. 당사자를 '상대방'으로 지칭."
 }`
 
 export async function extractDisputeMeta(statement: string): Promise<DisputeMetaResult> {
@@ -111,11 +114,16 @@ const JUDGMENT_PROMPT_SOLO = `당신은 한국어 갈등 조정 서비스 TALKY-
 - A의 편을 드는 결론을 내리지 않는다. 단, 근거 없이 B를 비난하는 결론도 금지한다
 - 진술에 없는 발언·사실·감정을 만들어내지 않는다
 
+갈등 유형 선택 원칙:
+- 갈등 유형은 A의 주장만이 아니라, A의 진술에서 추론한 B의 입장까지 종합하여 선택한다
+- 표면적 감정(분노, 서운함)이 아닌 갈등의 구조적 원인을 기준으로 판단한다
+
 카테고리: {categoryGroup}
 
 [A측 진술]
 {statementA}
 
+{mbtiSection}
 사용 가능한 갈등 유형 목록:
 {conflictTypes}
 
@@ -124,7 +132,8 @@ const JUDGMENT_PROMPT_SOLO = `당신은 한국어 갈등 조정 서비스 TALKY-
 {
   "summary": "양측 입장을 균형 있게 반영한 갈등 핵심 쟁점 요약 (100자 이내)",
   "aFault": "A측 표현이나 행동 중 갈등을 키운 부분 (100자 이내, 해당 없으면 null)",
-  "aSuggestedLine": "A가 상대방에게 전할 수 있는 진정성 있는 화해 멘트 (100자 이내, 1인칭)",
+  "aSuggestedLine": "A가 상대방에게 전할 수 있는 진정성 있는 화해 멘트 (100자 이내, 1인칭). A의 진술 말투(반말/존댓말)를 그대로 따를 것.",
+  "mbtiNote": "MBTI 정보가 있는 경우, 상대방을 이해하는 데 도움이 되는 MBTI 기반 한 줄 코멘트. MBTI 정보가 없으면 null",
   "conflictType": {
     "code": "위 목록에서 가장 적합한 code",
     "name": "해당 유형의 name"
@@ -141,6 +150,11 @@ const JUDGMENT_PROMPT_DUO = `당신은 한국어 갈등 조정 서비스 TALKY-O
 - 책임 비율은 진술 내용에 근거하여 산정하며, 근거 없이 50:50으로 처리하지 않는다
 - 진술에 없는 발언·사실·감정을 만들어내지 않는다
 
+갈등 유형 선택 원칙:
+- 갈등 유형은 A와 B 양측의 진술을 모두 종합하여 선택한다
+- 어느 한쪽의 시각이 아닌, 갈등의 구조적 원인을 기준으로 판단한다
+- 표면적 감정(분노, 서운함)이 아닌 두 사람 사이에 실제로 충돌한 가치·기대·행동 패턴을 반영한다
+
 카테고리: {categoryGroup}
 
 [A측 진술]
@@ -149,6 +163,7 @@ const JUDGMENT_PROMPT_DUO = `당신은 한국어 갈등 조정 서비스 TALKY-O
 [B측 진술]
 {statementB}
 
+{mbtiSection}
 사용 가능한 갈등 유형 목록:
 {conflictTypes}
 
@@ -161,8 +176,9 @@ const JUDGMENT_PROMPT_DUO = `당신은 한국어 갈등 조정 서비스 TALKY-O
   "moreResponsibleRole": "ROLE_A" | "ROLE_B" | "EQUAL",
   "aFault": "A측 표현이나 행동 중 갈등을 키운 부분 (100자 이내)",
   "bFault": "B측 표현이나 행동 중 갈등을 키운 부분 (100자 이내)",
-  "aSuggestedLine": "A가 B에게 전할 수 있는 진정성 있는 화해 멘트 (100자 이내, 1인칭)",
-  "bSuggestedLine": "B가 A에게 전할 수 있는 진정성 있는 화해 멘트 (100자 이내, 1인칭)",
+  "aSuggestedLine": "A가 B에게 전할 수 있는 진정성 있는 화해 멘트 (100자 이내, 1인칭). A의 진술 말투(반말/존댓말)를 그대로 따를 것.",
+  "bSuggestedLine": "B가 A에게 전할 수 있는 진정성 있는 화해 멘트 (100자 이내, 1인칭). B의 진술 말투(반말/존댓말)를 그대로 따를 것.",
+  "mbtiNote": "MBTI 정보가 있는 경우, 양측 MBTI 조합을 바탕으로 서로를 이해하는 데 도움이 되는 한 줄 코멘트. MBTI 정보가 없으면 null",
   "conflictType": {
     "code": "위 목록에서 가장 적합한 code",
     "name": "해당 유형의 name"
@@ -209,10 +225,24 @@ export async function generateAiJudgment(input: JudgmentInput): Promise<Judgment
     .join('\n')
   const categoryKo = CATEGORY_GROUP_KO[input.categoryGroup.toUpperCase()] ?? input.categoryGroup
 
+  const mbtiSection = (() => {
+    if (isSolo && input.mbtiA) {
+      return `[MBTI 정보]\nA: ${input.mbtiA}\n※ MBTI는 상대방을 이해하는 참고 정보로만 활용하세요.\n\n`
+    }
+    if (!isSolo && (input.mbtiA || input.mbtiB)) {
+      const lines = []
+      if (input.mbtiA) lines.push(`A: ${input.mbtiA}`)
+      if (input.mbtiB) lines.push(`B: ${input.mbtiB}`)
+      return `[MBTI 정보]\n${lines.join('\n')}\n※ MBTI는 양측을 이해하는 참고 정보로만 활용하세요.\n\n`
+    }
+    return ''
+  })()
+
   const prompt = (isSolo ? JUDGMENT_PROMPT_SOLO : JUDGMENT_PROMPT_DUO)
     .replace('{categoryGroup}', categoryKo)
     .replace('{statementA}', input.statementA)
     .replace('{statementB}', input.statementB ?? '')
+    .replace('{mbtiSection}', mbtiSection)
     .replace('{conflictTypes}', conflictTypesText)
 
   const parsed = await callJudgmentAi(model, prompt)
@@ -228,6 +258,7 @@ export async function generateAiJudgment(input: JudgmentInput): Promise<Judgment
       bFault: null,
       aSuggestedLine: typeof parsed.aSuggestedLine === 'string' ? parsed.aSuggestedLine : null,
       bSuggestedLine: null,
+      mbtiNote: typeof parsed.mbtiNote === 'string' ? parsed.mbtiNote : null,
       conflictTypeCode: conflictType.code,
       modelName: MODEL_NAME,
     }
@@ -268,6 +299,7 @@ export async function generateAiJudgment(input: JudgmentInput): Promise<Judgment
     bFault: typeof attempt.bFault === 'string' ? attempt.bFault : null,
     aSuggestedLine: typeof attempt.aSuggestedLine === 'string' ? attempt.aSuggestedLine : null,
     bSuggestedLine: typeof attempt.bSuggestedLine === 'string' ? attempt.bSuggestedLine : null,
+    mbtiNote: typeof attempt.mbtiNote === 'string' ? attempt.mbtiNote : null,
     conflictTypeCode: finalConflictType.code,
     modelName: MODEL_NAME,
   }
