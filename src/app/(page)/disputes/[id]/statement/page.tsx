@@ -55,20 +55,22 @@ export default function StatementPage({
       const json = await res.json() as { success: boolean; data?: { hasPersonalInfo?: boolean }; error?: { message?: string } }
 
       if (!json.success) {
+        setIsLoading(false)
         setFilterMessage(json.error?.message ?? '저장 중 오류가 발생했습니다. 다시 시도해주세요.')
         return
       }
 
       if (json.data?.hasPersonalInfo) {
+        setIsLoading(false)
         setShowPersonalInfoWarning(true)
         return
       }
 
+      // 성공 시 isLoading을 false로 바꾸지 않음 — 페이지가 unmount될 때까지 스피너 유지
       router.push(`/disputes/${id}`)
     } catch {
-      setFilterMessage('네트워크 오류가 발생했습니다. 다시 시도해주세요.')
-    } finally {
       setIsLoading(false)
+      setFilterMessage('네트워크 오류가 발생했습니다. 다시 시도해주세요.')
     }
   }
 
