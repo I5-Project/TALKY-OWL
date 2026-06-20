@@ -5,6 +5,7 @@ import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { useQueryClient } from '@tanstack/react-query'
 import AutorenewRoundedIcon from '@mui/icons-material/AutorenewRounded'
+import CircularProgress from '@mui/material/CircularProgress'
 import Header from '@/components/layout/Header'
 import Button from '@/components/ui/Button'
 import Tabs from '@/components/ui/Tabs'
@@ -48,6 +49,13 @@ export default function DisputePage({ params }: { params: Promise<{ id: string }
   const [judgmentSubTab, setJudgmentSubTab] = React.useState<'verdict' | 'type'>('verdict')
   const [showSoloModal, setShowSoloModal] = React.useState(false)
   const [isInviting, setIsInviting] = React.useState(false)
+  const [isRefreshing, setIsRefreshing] = React.useState(false)
+
+  const handleRefresh = async () => {
+    setIsRefreshing(true)
+    await queryClient.invalidateQueries({ queryKey: disputeKeys.detail(id) })
+    setIsRefreshing(false)
+  }
   
   const isSolo = dispute !== undefined && dispute.participants.length === 1
   const roleAStatement = dispute?.statements?.find((s) => s.role === 'role_a')
@@ -118,10 +126,14 @@ export default function DisputePage({ params }: { params: Promise<{ id: string }
             </div>
             <span className={styles.infoTitle}>{dispute.title}</span>
           </div>
-          <AutorenewRoundedIcon
-            sx={{ fontSize: 24, color: 'var(--icon-secondary)', flexShrink: 0, cursor: 'pointer' }}
-            onClick={() => queryClient.invalidateQueries({ queryKey: disputeKeys.detail(id) })}
-          />
+          {isRefreshing ? (
+            <CircularProgress size={24} thickness={3} sx={{ color: 'var(--icon-secondary)', flexShrink: 0 }} />
+          ) : (
+            <AutorenewRoundedIcon
+              sx={{ fontSize: 24, color: 'var(--icon-secondary)', flexShrink: 0, cursor: 'pointer' }}
+              onClick={() => void handleRefresh()}
+            />
+          )}
         </div>
 
         {dispute.description && (
