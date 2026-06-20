@@ -28,6 +28,7 @@ export function toAiJudgmentDto(j: AiJudgmentWithRelations): AiJudgmentDto {
       detailCode: j.resultConflictDetail.detailCode,
       displayName: j.resultConflictDetail.displayName,
       description: j.resultConflictDetail.description ?? null,
+      cardImageUrl: j.resultConflictDetail.card_image_url ?? null,
     },
     resultCard: j.resultCard
       ? {

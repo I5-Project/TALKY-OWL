@@ -31,7 +31,6 @@ export default function NewCaseButton() {
     setIsCreating(true)
     setErrorMessage(null)
     const controller = new AbortController()
-    // 방 생성 + 사건 생성 두 번의 순차 API 호출을 커버할 수 있도록 30초로 설정
     const timeout = setTimeout(() => controller.abort(), 30000)
     try {
       const roomRes = await fetch('/api/rooms', {

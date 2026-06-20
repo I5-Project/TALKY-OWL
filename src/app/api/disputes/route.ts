@@ -32,9 +32,7 @@ function toParticipantDto(p: DisputeForList['participants'][number]): DisputePar
     disputeId: p.disputeId,
     userId: p.userId,
     role: p.role.toLowerCase() as DisputeParticipantDto['role'],
-    // DisputeParticipantDto 타입에 nickname이 선언되어 있어 null로 채워 타입 불일치 방지
-    // 닉네임을 DB에서 조회하지 않으므로 null 반환 (타입이 string | null을 허용함)
-    nickname: null,
+    name: null,
     profileImageUrl: p.user.profileImageUrl ?? null,
     joinedAt: p.joinedAt.toISOString(),
     createdAt: p.createdAt.toISOString(),
