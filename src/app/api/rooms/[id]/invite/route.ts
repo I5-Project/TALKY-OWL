@@ -47,9 +47,9 @@ export async function POST(
       )
     }
 
-    if (room.roomMode !== 'AI_CHAT') {
+    if (room.roomMode !== 'AI_ROOM' && room.roomMode !== 'INVITE_READY') {
       return NextResponse.json<ApiResponse>(
-        { success: false, error: { code: 'INVALID_STATUS', message: 'AI 대화방 상태에서만 초대 링크를 발급할 수 있습니다.' } },
+        { success: false, error: { code: 'INVALID_STATUS', message: '초대 링크를 발급할 수 없는 상태입니다.' } },
         { status: 422 },
       )
     }
@@ -58,14 +58,27 @@ export async function POST(
     const tokenHash = hashInviteToken(token)
     const expiresAt = getInviteExpiresAt()
 
-    await prisma.disputeRoom.update({
-      where: { id },
-      data: {
-        roomTokenHash: tokenHash,
-        inviteCreatedAt: new Date(),
-        expiresAt,
-        roomMode: 'INVITE_READY',
-      },
+    await prisma.$transaction(async (tx) => {
+      await tx.disputeRoom.update({
+        where: { id },
+        data: {
+          roomTokenHash: tokenHash,
+          inviteCreatedAt: new Date(),
+          expiresAt,
+          roomMode: 'INVITE_READY',
+        },
+      })
+
+      const existingDispute = await tx.dispute.findFirst({
+        where: { roomId: id },
+      })
+
+      if (existingDispute && existingDispute.status === 'DRAFT') {
+        await tx.dispute.update({
+          where: { id: existingDispute.id },
+          data: { status: 'WAITING_OPPONENT' },
+        })
+      }
     })
 
     const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3030'

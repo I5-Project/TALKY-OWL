@@ -47,10 +47,11 @@ export default function DisputePage({ params }: { params: Promise<{ id: string }
   const [judgmentSubTab, setJudgmentSubTab] = React.useState<'verdict' | 'type'>('verdict')
   const [showSoloModal, setShowSoloModal] = React.useState(false)
   const [isInviting, setIsInviting] = React.useState(false)
-  const canJudge = dispute?.status === 'waiting_opponent' || dispute?.status === 'both_submitted'
+  
   const isSolo = dispute !== undefined && dispute.participants.length === 1
   const roleAStatement = dispute?.statements?.find((s) => s.role === 'role_a')
   const roleBStatement = dispute?.statements?.find((s) => s.role === 'role_b')
+  const canJudge = (isSolo && !!roleAStatement?.content) || dispute?.status === 'both_submitted'
 
   const handleInvite = async () => {
     if (isInviting || !dispute) return

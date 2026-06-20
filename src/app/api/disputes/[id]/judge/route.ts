@@ -10,7 +10,7 @@ import type { ApiResponse } from '@/types/common'
 import type { AiJudgmentDto } from '@/types/judgment'
 
 // POST /api/disputes/:id/judge
-// AI 판결 요청. both_submitted 상태일 때만 가능. 중복 요청 방지 (멱등성)
+// AI 판결 요청. 단독: waiting_opponent, 1:1: both_submitted 상태일 때만 가능. 중복 요청 방지 (멱등성)
 export async function POST(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> },
@@ -28,7 +28,7 @@ export async function POST(
 
   // JUDGING 상태 전환 여부를 추적해 외부 catch에서도 원복할 수 있게 함
   let statusSetToJudging = false
-  let previousStatus: DisputeStatus = 'BOTH_SUBMITTED'
+  let previousStatus: DisputeStatus = 'WAITING_OPPONENT'
 
   try {
     const dispute = await prisma.dispute.findFirst({
