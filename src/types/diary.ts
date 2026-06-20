@@ -20,7 +20,7 @@ export type DiaryTab = 'emotion' | 'record'
 export interface CalendarViewProps {
   onDateChange: (date: string) => void
   selectedDate?: string
-  diaryData?: Record<string, DiaryDaySummary>
+  calendarData?: import('@/types/calendar').CalendarRecordItem[]
 }
 
 /** EmotionIcon 컴포넌트 Props */

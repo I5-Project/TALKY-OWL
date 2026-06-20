@@ -1,56 +1,51 @@
 'use client';
 
+import Link from 'next/link';
 import CaseCard from '@/components/ui/CaseCard';
-import type { CategoryGroup } from '@/types/common';
+import Avatar from '@/components/ui/Avatar';
+import StatusBadge from '@/components/ui/StatusBadge';
+import { useDisputesByDate } from '@/domains/dispute/dispute.hooks';
+import type { DisputeStatus } from '@/components/ui/StatusBadge';
 import styles from '@/components/calendar/RecordList.module.scss';
 
 type Props = {
   selectedDate: string;
 };
 
-interface DummyItem {
-  id: number;
-  title: string;
-  preview: string;
-  date: string;
-  categoryGroup: CategoryGroup;
+function formatDate(dateStr: string): string {
+  return dateStr.slice(2, 10);
 }
 
-const DUMMY_ITEMS: DummyItem[] = [
-  {
-    id: 1,
-    title: '남자친구와 데이트 비용 갈등',
-    preview: '매번 제가 더 많이 내는 것 같아서 억울한 마음이 들었어요.',
-    date: '2026.06.18',
-    categoryGroup: 'romance',
-  },
-  {
-    id: 2,
-    title: '팀장님 업무 지시 방식 문제',
-    preview: '갑작스러운 야근 요청이 너무 잦아서 힘들었어요.',
-    date: '2026.06.15',
-    categoryGroup: 'work',
-  },
-];
-
 export default function RecordList({ selectedDate }: Props) {
-  // TODO: selectedDate 기반 API 연동 시 DUMMY_ITEMS 대체
-  const items = DUMMY_ITEMS;
+  const { data, isLoading } = useDisputesByDate(selectedDate, 'closed');
 
-  if (items.length === 0) {
+  if (isLoading) return <div className={styles.empty}>불러오는 중...</div>;
+
+  const disputes = data?.disputes ?? [];
+
+  if (disputes.length === 0) {
     return <div className={styles.empty}>등록한 기록이 없어요</div>;
   }
 
   return (
     <ul className={styles.list}>
-      {items.map((item) => (
-        <li key={item.id}>
-          <CaseCard
-            title={item.title}
-            preview={item.preview}
-            date={item.date}
-            categoryGroup={item.categoryGroup}
-          />
+      {disputes.map((dispute) => (
+        <li key={dispute.id}>
+          <Link href={`/disputes/${dispute.id}`} className={styles.cardWrapper}>
+            <CaseCard
+              title={dispute.title}
+              preview={dispute.description ?? ''}
+              categoryGroup={dispute.categoryGroup}
+              date={formatDate(dispute.createdAt)}
+            />
+            <div className={styles.cardFooter}>
+              <div className={styles.cardFooterLeft}>
+                <Avatar src={dispute.participants[0]?.profileImageUrl ?? undefined} alt="참여자" size="s" />
+                <time className={styles.cardDate}>{formatDate(dispute.createdAt)}</time>
+              </div>
+              <StatusBadge status={dispute.status as DisputeStatus} />
+            </div>
+          </Link>
         </li>
       ))}
     </ul>

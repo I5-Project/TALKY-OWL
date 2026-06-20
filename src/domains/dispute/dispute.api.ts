@@ -2,10 +2,11 @@ import type { ApiResponse, CategoryGroup } from '@/types/common'
 import type {
   DisputeDto,
   DisputeListResponse,
-  DisputeStatementDto,
+  DisputeStatus,
   SaveStatementResponse,
   StatementSubmitResponse,
 } from '@/types/dispute'
+
 
 async function parseJson<T>(res: Response, fallbackMessage: string): Promise<ApiResponse<T>> {
   const text = await res.text()
@@ -15,7 +16,6 @@ async function parseJson<T>(res: Response, fallbackMessage: string): Promise<Api
     throw new Error(res.ok ? fallbackMessage : `서버 오류 (${res.status})`)
   }
 }
-
 export async function fetchCompletedCases(categoryGroup?: CategoryGroup): Promise<DisputeDto[]> {
   const params = new URLSearchParams({ completed: 'true', limit: '50' })
   if (categoryGroup) params.set('categoryGroup', categoryGroup)
@@ -23,6 +23,15 @@ export async function fetchCompletedCases(categoryGroup?: CategoryGroup): Promis
   const json = await parseJson<DisputeListResponse>(res, '사건 기록을 불러오지 못했어요. 잠시 후 다시 시도해주세요.')
   if (!json.success || !json.data) throw new Error(json.error?.message ?? '사건 기록을 불러오지 못했어요.')
   return json.data.disputes
+}
+
+export async function fetchDisputesByDate(date: string, status?: DisputeStatus): Promise<DisputeListResponse> {
+  const params = new URLSearchParams({ date, limit: '50' })
+  if (status) params.set('status', status)
+  const res = await fetch(`/api/disputes?${params.toString()}`)
+  const json = await parseJson<DisputeListResponse>(res, '사건 목록 조회 실패')
+  if (!json.success || !json.data) throw new Error(json.error?.message ?? '사건 목록 조회 실패')
+  return json.data
 }
 
 export async function fetchDispute(disputeId: string): Promise<DisputeDto> {
