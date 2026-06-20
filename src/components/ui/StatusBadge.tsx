@@ -4,6 +4,7 @@ export type DisputeStatus =
   | 'draft'
   | 'waiting_opponent'
   | 'opponent_joined'
+  | 'a_submitted'
   | 'both_submitted'
   | 'judging'
   | 'judged'
@@ -21,6 +22,7 @@ const STATUS_MAP: Record<DisputeStatus, { variant: StatusVariant; label: string 
   draft:             { variant: 'progress', label: '진행중' },
   waiting_opponent:  { variant: 'progress', label: '진행중' },
   opponent_joined:   { variant: 'progress', label: '진행중' },
+  a_submitted:       { variant: 'progress', label: '진행중' },
   both_submitted:    { variant: 'progress', label: '진행중' },
   judging:           { variant: 'progress', label: '진행중' },
   judged:            { variant: 'done',     label: '진행완료' },
