@@ -159,7 +159,7 @@
 .contentWithFooter {
   flex: 1;
   overflow-y: auto;
-  padding-bottom: fn.r(96);
+  padding-bottom: fn.r(160);
 }
 
 .statements {
@@ -284,7 +284,7 @@
 
 .footer {
   position: fixed;
-  bottom: 0;
+  bottom: fn.r(64);
   left: 0;
   right: 0;
   padding: fn.r(16) fn.r(20);
