@@ -32,13 +32,36 @@ export default function DisputePage({ params }: { params: Promise<{ id: string }
   const router = useRouter()
   const queryClient = useQueryClient()
 
-  const { data: dispute, isLoading: fetchLoading } = useDispute(id)
+  const pollCountRef = React.useRef(0)
+  const MAX_POLL = 15
+
+  const { data: dispute, isLoading: fetchLoading } = useDispute(id, {
+    refetchInterval: (query) => {
+      const d = query.state.data
+      if (!d) return false
+      const hasStatement = d.statements?.some((s) => s.role === 'role_a' && s.content)
+      const isTerminal = (COMPLETED_STATUSES as readonly string[]).includes(d.status)
+      if (d.title === '새 사건' && hasStatement && !isTerminal) {
+        if (pollCountRef.current >= MAX_POLL) return false
+        pollCountRef.current += 1
+        return 2000
+      }
+      pollCountRef.current = 0
+      return false
+    },
+  })
   const { mutate: requestJudgment, isPending: isJudging } = useRequestJudgment(id)
   const { mutate: closeDispute, isPending: isClosing } = useCloseDispute(id)
   const { data: userMe } = useUserMe()
 
   // judged(판결완료) + closed(종료) 모두 판결 결과 탭 노출
   const isCompleted = !!dispute && (COMPLETED_STATUSES as readonly string[]).includes(dispute.status)
+
+  const isExtractingMeta =
+    !!dispute &&
+    dispute.title === '새 사건' &&
+    dispute.statements?.some((s) => s.role === 'role_a' && s.content) &&
+    !isCompleted
   // 판결 완료/종료 상태일 때만 fetch — 불필요한 API 호출 방지
   const { data: judgment, isLoading: judgmentLoading, isError: judgmentError } = useJudgment(id, isCompleted)
 
@@ -82,6 +105,17 @@ export default function DisputePage({ params }: { params: Promise<{ id: string }
   }
 
   if (fetchLoading) return null
+
+  if (isExtractingMeta) {
+    return (
+      <div className={styles.judgingScreen}>
+        <div className={styles.judgingContent}>
+          <Spinner />
+          <p className={styles.judgingText}>{'사건 정보를 분석하고 있어요\n잠시만 기다려주세요'}</p>
+        </div>
+      </div>
+    )
+  }
 
   if (isJudging) {
     return (
@@ -248,6 +282,7 @@ export default function DisputePage({ params }: { params: Promise<{ id: string }
         onAlone={() => void runJudge()}
         onInvite={() => void handleInvite()}
       />
+
     </div>
   )
 }

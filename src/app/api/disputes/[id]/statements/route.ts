@@ -326,7 +326,8 @@ export async function POST(
           data: { title: meta.title, description: meta.summary },
         })
       } catch (err) {
-        console.error('[statements] extractDisputeMeta failed:', err)
+        const msg = err instanceof Error ? err.message : String(err)
+        console.error('[statements] extractDisputeMeta failed:', msg, err)
       }
     }
 

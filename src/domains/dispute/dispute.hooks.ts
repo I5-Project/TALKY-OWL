@@ -7,11 +7,12 @@ export const disputeKeys = {
   detail: (id: string) => ['dispute', id] as const,
 }
 
-export function useDispute(disputeId: string) {
+export function useDispute(disputeId: string, options?: { refetchInterval?: number | false }) {
   return useQuery({
     queryKey: disputeKeys.detail(disputeId),
     queryFn: () => fetchDispute(disputeId),
     enabled: !!disputeId,
+    refetchInterval: options?.refetchInterval,
   })
 }
 
