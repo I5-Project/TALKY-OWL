@@ -1,16 +1,10 @@
-// ============================================================
-// Emotion / Feel
-// ============================================================
-
 /** 감정일기 아이콘 감정 값 (한글) */
 export type Feel = '기쁨' | '슬픔' | '보통' | '짜증' | '화남'
 
 /** EmotionIcon 컴포넌트 이모션 타입 (영문) */
 export type EmotionType = 'happy' | 'sad' | 'angry' | 'annoyed' | 'neutral'
 
-// ============================================================
-// Calendar
-// ============================================================
+
 
 /** 캘린더 날짜별 감정일기 요약 */
 export interface DiaryDaySummary {
@@ -21,9 +15,6 @@ export interface DiaryDaySummary {
 /** 캘린더 탭 구분 */
 export type DiaryTab = 'emotion' | 'record'
 
-// ============================================================
-// Component Props
-// ============================================================
 
 /** CalendarView 컴포넌트 Props */
 export interface CalendarViewProps {
