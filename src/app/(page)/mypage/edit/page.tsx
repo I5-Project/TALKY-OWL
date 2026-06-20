@@ -31,7 +31,7 @@ export default function ProfileEditPage() {
     if (user) {
       reset({
         email: user.email ?? '',
-        nickname: user.nickname ?? '',
+        nickname: user.name ?? user.nickname ?? '',
         mbti: user.mbti ?? '',
         previewUrl: user.profileImageUrl,
       });

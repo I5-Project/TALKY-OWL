@@ -25,7 +25,6 @@ export default function MyPage() {
   const router = useRouter();
   const { data: user } = useUserMe();
   const [logoutOpen, setLogoutOpen] = useState(false);
-  const [withdrawOpen, setWithdrawOpen] = useState(false);
 
   const displayName = user?.name ?? user?.nickname ?? '';
 
@@ -33,20 +32,15 @@ export default function MyPage() {
     signOut({ callbackUrl: '/login' });
   };
 
-  const handleWithdraw = () => {
-    setWithdrawOpen(false);
-    router.push('/mypage/withdraw');
-  };
-
   return (
     <>
       <Header variant="logo" />
       <main className={styles.main}>
         <section className={styles.profile}>
-          <Avatar size="l" />
+          <Avatar size="l" src={user?.profileImageUrl ?? undefined} />
           <div className={styles.profile__info}>
             <span className={styles.profile__name}>{displayName}</span>
-            {user?.mbti && <span className={styles.profile__badge}>{user.mbti}</span>}
+            <span className={styles.profile__badge}>{user?.mbti ?? 'MBTI를 설정해주세요'}</span>
           </div>
           <Link href="/mypage/edit" className={styles.profile__setting} aria-label="설정">
             <SettingsRoundedIcon sx={{ fontSize: 24 }} />
@@ -73,7 +67,7 @@ export default function MyPage() {
           <button
             type="button"
             className={`${styles.menu__item} ${styles['menu__item--danger']}`}
-            onClick={() => setWithdrawOpen(true)}
+            onClick={() => router.push('/mypage/withdraw')}
           >
             <span className={styles.menu__label}>회원탈퇴</span>
             <ChevronRightRoundedIcon className={styles.menu__arrow} />
@@ -88,12 +82,6 @@ export default function MyPage() {
         message="정말 로그아웃 하시겠어요?"
         onClose={() => setLogoutOpen(false)}
         onConfirm={handleLogout}
-      />
-      <ConfirmModal
-        open={withdrawOpen}
-        message="정말 탈퇴 하시겠어요?"
-        onClose={() => setWithdrawOpen(false)}
-        onConfirm={handleWithdraw}
       />
     </>
   );

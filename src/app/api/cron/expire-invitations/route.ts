@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/db'
 import type { ApiResponse } from '@/types/common'
 
+export const dynamic = 'force-dynamic'
+
 interface ExpireResult {
   expiredCount: number
 }

@@ -124,8 +124,12 @@ export const authOptions: NextAuthOptions = {
       if (account?.provider === 'kakao' && user.id && UUID_REGEX.test(user.id)) {
         const existing = await prisma.user.findUnique({
           where: { id: user.id },
-          select: { kakaoId: true, profileImageUrl: true },
+          select: { kakaoId: true, profileImageUrl: true, deletedAt: true },
         })
+
+        if (existing?.deletedAt) {
+          return false
+        }
 
         if (!existing?.kakaoId) {
           await saveFirstLoginFields(user.id, account.providerAccountId, user.image)
