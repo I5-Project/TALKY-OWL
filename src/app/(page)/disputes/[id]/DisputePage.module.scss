@@ -231,12 +231,11 @@
   align-items: center;
   justify-content: space-between;
   padding: fn.r(16) fn.r(20);
-  margin: 0 fn.r(20) fn.r(12);
   background: #{v.$color-primary-100};
   border-radius: fn.r(8);
   border: none;
   cursor: pointer;
-  width: calc(100% - fn.r(40));
+  width: 100%;
   text-align: left;
 }
 
@@ -280,7 +279,6 @@
   right: 0;
   padding: fn.r(16) fn.r(20);
   background: var(--bg-page);
-  border-top: 1px solid var(--border-default);
 }
 
 .footerRow {
