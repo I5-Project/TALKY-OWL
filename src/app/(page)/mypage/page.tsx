@@ -25,17 +25,11 @@ export default function MyPage() {
   const router = useRouter();
   const { data: user } = useUserMe();
   const [logoutOpen, setLogoutOpen] = useState(false);
-  const [withdrawOpen, setWithdrawOpen] = useState(false);
 
   const displayName = user?.name ?? user?.nickname ?? '';
 
   const handleLogout = () => {
     signOut({ callbackUrl: '/login' });
-  };
-
-  const handleWithdraw = () => {
-    setWithdrawOpen(false);
-    router.push('/mypage/withdraw');
   };
 
   return (
@@ -73,7 +67,7 @@ export default function MyPage() {
           <button
             type="button"
             className={`${styles.menu__item} ${styles['menu__item--danger']}`}
-            onClick={() => setWithdrawOpen(true)}
+            onClick={() => router.push('/mypage/withdraw')}
           >
             <span className={styles.menu__label}>회원탈퇴</span>
             <ChevronRightRoundedIcon className={styles.menu__arrow} />
@@ -88,12 +82,6 @@ export default function MyPage() {
         message="정말 로그아웃 하시겠어요?"
         onClose={() => setLogoutOpen(false)}
         onConfirm={handleLogout}
-      />
-      <ConfirmModal
-        open={withdrawOpen}
-        message="정말 탈퇴 하시겠어요?"
-        onClose={() => setWithdrawOpen(false)}
-        onConfirm={handleWithdraw}
       />
     </>
   );
