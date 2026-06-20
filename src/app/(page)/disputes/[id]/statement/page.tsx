@@ -30,7 +30,6 @@ export default function StatementPage({
   const { category: rawCategory } = React.use(searchParams)
   const router = useRouter()
 
-  // TODO: 이전 페이지 카테고리 데이터 연동 후 null 처리로 교체
   const category: CategoryGroup = VALID_CATEGORIES.includes(rawCategory as CategoryGroup)
     ? (rawCategory as CategoryGroup)
     : 'romance'
@@ -52,14 +51,10 @@ export default function StatementPage({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ content }),
       })
-      const json = await res.json()
+      const json = await res.json() as { success: boolean; data?: { hasPersonalInfo?: boolean }; error?: { message?: string } }
 
       if (!json.success) {
-        if (json.error?.code === 'CONTENT_BLOCKED') {
-          setFilterMessage(json.error.message)
-        } else {
-          setFilterMessage('저장 중 오류가 발생했습니다. 다시 시도해주세요.')
-        }
+        setFilterMessage(json.error?.message ?? '저장 중 오류가 발생했습니다. 다시 시도해주세요.')
         return
       }
 
@@ -97,7 +92,6 @@ export default function StatementPage({
       <Header title="사건작성" onBack={() => router.back()} />
 
       <div className={styles.content}>
-        {/* 사건 카테고리 — 이전 페이지에서 선택된 카테고리만 표시 */}
         <section className={styles.section}>
           <p className={styles.label}>사건 카테고리</p>
           <div className={styles.categories}>
@@ -112,7 +106,6 @@ export default function StatementPage({
           </div>
         </section>
 
-        {/* 진술서 */}
         <section className={styles.section}>
           <p className={styles.label}>작성자님의 진술서</p>
           <div className={styles.statementGroup}>
