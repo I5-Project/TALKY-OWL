@@ -64,8 +64,8 @@ const META_PROMPT = `당신은 한국어 갈등 조정 서비스 TALKY-OWL의 AI
 아래 JSON만 반환하세요. 설명이나 마크다운 없이 JSON만 출력하세요.
 
 {
-  "title": "사건을 한 줄로 표현하는 제목 (20자 이내)",
-  "summary": "갈등 상황을 한 줄로 중립적으로 요약 (50자 이내, 당사자를 '상대방'으로 지칭)"
+  "title": "사건을 한 줄로 표현하는 제목 (15자 이내, 반드시 15자를 넘지 말 것)",
+  "summary": "갈등 상황을 자연스럽게 한 줄로 표현 (40자 이내). '~로 인한 이야기', '~을 둘러싼 갈등' 같은 서술형으로 작성. '사용자는', '~합니다' 형식 금지. 당사자를 '상대방'으로 지칭."
 }`
 
 export async function extractDisputeMeta(statement: string): Promise<DisputeMetaResult> {
