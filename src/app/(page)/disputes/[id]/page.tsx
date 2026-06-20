@@ -8,11 +8,15 @@ import AutorenewRoundedIcon from '@mui/icons-material/AutorenewRounded'
 import Header from '@/components/layout/Header'
 import Button from '@/components/ui/Button'
 import Tabs from '@/components/ui/Tabs'
+import Tab from '@/components/ui/Tab'
 import Spinner from '@/components/ui/Spinner'
 import StatusBadge from '@/components/ui/StatusBadge'
 import CategoryIcon from '@/components/ui/CategoryIcon'
 import InviteChoiceModal from '@/components/room/InviteChoiceModal'
+import JudgmentResult from '@/components/judgement/JudgmentResult'
+import JudgmentTypeResult from '@/components/judgement/JudgmentTypeResult'
 import { useDispute, useRequestJudgment, useCloseDispute, disputeKeys } from '@/domains/dispute/dispute.hooks'
+import { useJudgment } from '@/domains/judgement/judgement.hooks'
 import { useUserMe } from '@/domains/user/hooks'
 import { useToastStore } from '@/stores/toastStore'
 import styles from './DisputePage.module.scss'
@@ -32,13 +36,18 @@ export default function DisputePage({ params }: { params: Promise<{ id: string }
   const { mutate: requestJudgment, isPending: isJudging } = useRequestJudgment(id)
   const { mutate: closeDispute, isPending: isClosing } = useCloseDispute(id)
   const { data: userMe } = useUserMe()
+
+  // judged(판결완료) + closed(종료) 모두 판결 결과 탭 노출
+  const isCompleted = !!dispute && (COMPLETED_STATUSES as readonly string[]).includes(dispute.status)
+  // 판결 완료/종료 상태일 때만 fetch — 불필요한 API 호출 방지
+  const { data: judgment, isLoading: judgmentLoading, isError: judgmentError } = useJudgment(id, isCompleted)
+
   const showToast = useToastStore((s) => s.show)
 
   const [activeTab, setActiveTab] = React.useState('statement')
+  const [judgmentSubTab, setJudgmentSubTab] = React.useState<'verdict' | 'type'>('verdict')
   const [showSoloModal, setShowSoloModal] = React.useState(false)
   const [isInviting, setIsInviting] = React.useState(false)
-
-  const isCompleted = dispute !== undefined && (COMPLETED_STATUSES as readonly string[]).includes(dispute.status)
   const canJudge = dispute?.status === 'waiting_opponent' || dispute?.status === 'both_submitted'
   const isSolo = dispute !== undefined && dispute.participants.length === 1
   const roleAStatement = dispute?.statements?.find((s) => s.role === 'role_a')
@@ -180,9 +189,32 @@ export default function DisputePage({ params }: { params: Promise<{ id: string }
         )}
 
         {isCompleted && activeTab === 'judgement' && (
-          <div className={styles.judgementPlaceholder}>
-            <p className={styles.empty}>판결 결과 준비 중</p>
-          </div>
+          <>
+            <div className={styles.judgmentSubTabs}>
+              <Tab
+                items={[
+                  { label: '판결', value: 'verdict' },
+                  { label: '유형', value: 'type' },
+                ]}
+                activeValue={judgmentSubTab}
+                onChange={(v) => setJudgmentSubTab(v as 'verdict' | 'type')}
+              />
+            </div>
+
+            {judgmentLoading ? (
+              <div className={styles.judgementPlaceholder}>
+                <Spinner />
+              </div>
+            ) : judgmentError ? (
+              <div className={styles.judgementPlaceholder}>
+                <p className={styles.empty}>판결 결과를 불러올 수 없습니다.</p>
+              </div>
+            ) : judgmentSubTab === 'verdict' ? (
+              <JudgmentResult disputeId={id} />
+            ) : (
+              <JudgmentTypeResult disputeId={id} />
+            )}
+          </>
         )}
       </div>
 

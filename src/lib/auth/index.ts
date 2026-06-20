@@ -42,7 +42,7 @@ async function clearDuplicateKakaoId(kakaoId: string, currentUserId: string): Pr
   }
 }
 
-async function saveFirstLoginFields(userId: string, kakaoId: string): Promise<void> {
+async function saveFirstLoginFields(userId: string, kakaoId: string, imageUrl?: string | null): Promise<void> {
   const now = new Date()
 
   await clearDuplicateKakaoId(kakaoId, userId)
@@ -56,7 +56,7 @@ async function saveFirstLoginFields(userId: string, kakaoId: string): Promise<vo
     await prisma.$transaction([
       prisma.user.update({
         where: { id: userId },
-        data: { kakaoId, termsAgreedAt: now },
+        data: { kakaoId, termsAgreedAt: now, ...(imageUrl ? { profileImageUrl: imageUrl } : {}) },
       }),
       prisma.userTermsAgreement.createMany({
         data: Object.values(CURRENT_TERMS_VERSIONS).map((terms) => ({
@@ -82,7 +82,7 @@ async function saveFirstLoginFields(userId: string, kakaoId: string): Promise<vo
       await prisma.$transaction([
         prisma.user.update({
           where: { id: userId },
-          data: { kakaoId, nickname, termsAgreedAt: now },
+          data: { kakaoId, nickname, termsAgreedAt: now, ...(imageUrl ? { profileImageUrl: imageUrl } : {}) },
         }),
         prisma.userTermsAgreement.createMany({
           data: Object.values(CURRENT_TERMS_VERSIONS).map((terms) => ({
@@ -124,11 +124,26 @@ export const authOptions: NextAuthOptions = {
       if (account?.provider === 'kakao' && user.id && UUID_REGEX.test(user.id)) {
         const existing = await prisma.user.findUnique({
           where: { id: user.id },
-          select: { kakaoId: true },
+          select: { kakaoId: true, profileImageUrl: true, deletedAt: true },
         })
 
+        if (existing?.deletedAt) {
+          return false
+        }
+
         if (!existing?.kakaoId) {
-          await saveFirstLoginFields(user.id, account.providerAccountId)
+          await saveFirstLoginFields(user.id, account.providerAccountId, user.image)
+        } else if (!existing.profileImageUrl && user.image) {
+          // 기존 유저 중 profileImageUrl 미저장 상태면 카카오 이미지로 채움
+          // 백필 실패는 로그인을 차단하지 않음
+          try {
+            await prisma.user.update({
+              where: { id: user.id },
+              data: { profileImageUrl: user.image },
+            })
+          } catch {
+            // intentionally swallowed
+          }
         }
       }
 
@@ -155,7 +170,7 @@ export const authOptions: NextAuthOptions = {
       })
 
       if (account) {
-        await saveFirstLoginFields(user.id, account.providerAccountId)
+        await saveFirstLoginFields(user.id, account.providerAccountId, user.image)
       }
     },
   },
