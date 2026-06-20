@@ -36,7 +36,7 @@ function toActiveCase(dto: DisputeDto): ActiveCase {
     participants: dto.participants.map((p) => ({
       role: p.role,
       user: {
-        nickname: p.nickname,
+        nickname: p.name,
         profileImageUrl: p.profileImageUrl,
       },
     })),

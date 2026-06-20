@@ -11,6 +11,7 @@
 
 .title {
   @include m.text-title-s;
+
   color: v.$color-black-700;
 }
 

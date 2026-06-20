@@ -30,7 +30,7 @@ const updateDisputeSchema = z
 
 type DisputeForDetail = Prisma.DisputeGetPayload<{
   include: {
-    participants: { include: { user: { select: { nickname: true; profileImageUrl: true } } } }
+    participants: { include: { user: { select: { name: true; profileImageUrl: true } } } }
     statements: true
   }
 }>
@@ -41,7 +41,7 @@ function toParticipantDto(p: DisputeForDetail['participants'][number]): DisputeP
     disputeId: p.disputeId,
     userId: p.userId,
     role: p.role.toLowerCase() as DisputeParticipantDto['role'],
-    nickname: p.user.nickname ?? null,
+    name: p.user.name ?? null,
     profileImageUrl: p.user.profileImageUrl ?? null,
     joinedAt: p.joinedAt.toISOString(),
     createdAt: p.createdAt.toISOString(),
@@ -105,7 +105,7 @@ export async function GET(
         participants: { some: { userId } },
       },
       include: {
-        participants: { include: { user: { select: { nickname: true, profileImageUrl: true } } } },
+        participants: { include: { user: { select: { name: true, profileImageUrl: true } } } },
         statements: true,
       },
     })
@@ -221,7 +221,7 @@ export async function PATCH(
         }),
       },
       include: {
-        participants: { include: { user: { select: { nickname: true, profileImageUrl: true } } } },
+        participants: { include: { user: { select: { name: true, profileImageUrl: true } } } },
         statements: true,
       },
     })

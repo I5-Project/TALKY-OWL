@@ -16,7 +16,7 @@ export default function JudgmentTypeResult({ judgment, participants }: Props) {
   const showToast = useToastStore((s) => s.show)
 
   const roleA = participants.find((p) => p.role === 'role_a')
-  const viewerLabel = roleA?.nickname ?? 'A'
+  const viewerLabel = roleA?.name ?? 'A'
 
   const { cardImageUrl, displayName } = judgment.resultConflictDetail
 

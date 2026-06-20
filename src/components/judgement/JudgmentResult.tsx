@@ -40,7 +40,7 @@ export default function JudgmentResult({ judgment, participants }: Props) {
             <div className={styles.card}>
               <div className={styles.cardHeader}>
                 <Avatar src={participantA?.profileImageUrl ?? null} />
-                <span className={styles.cardLabel}>{participantA?.nickname ?? 'A'}님의 잘못</span>
+                <span className={styles.cardLabel}>{participantA?.name ?? 'A'}님의 잘못</span>
               </div>
               <p className={styles.cardContent}>{judgment.aFault}</p>
             </div>
@@ -51,7 +51,7 @@ export default function JudgmentResult({ judgment, participants }: Props) {
             <div className={styles.card}>
               <div className={styles.cardHeader}>
                 <Avatar src={participantB?.profileImageUrl ?? null} />
-                <span className={styles.cardLabel}>{participantB?.nickname ?? 'B'}님의 잘못</span>
+                <span className={styles.cardLabel}>{participantB?.name ?? 'B'}님의 잘못</span>
               </div>
               <p className={styles.cardContent}>{judgment.bFault}</p>
             </div>
@@ -79,7 +79,7 @@ export default function JudgmentResult({ judgment, participants }: Props) {
               <div className={styles.suggestedCard}>
                 <div className={styles.cardHeader}>
                   <Avatar src={participantA?.profileImageUrl ?? null} />
-                  <span className={styles.cardLabel}>{participantA?.nickname ?? 'A'}님</span>
+                  <span className={styles.cardLabel}>{participantA?.name ?? 'A'}님</span>
                 </div>
                 <p className={styles.cardContent}>{judgment.aSuggestedLine}</p>
               </div>
@@ -89,7 +89,7 @@ export default function JudgmentResult({ judgment, participants }: Props) {
               <div className={styles.suggestedCard}>
                 <div className={styles.cardHeader}>
                   <Avatar src={participantB?.profileImageUrl ?? null} />
-                  <span className={styles.cardLabel}>{participantB?.nickname ?? 'B'}님</span>
+                  <span className={styles.cardLabel}>{participantB?.name ?? 'B'}님</span>
                 </div>
                 <p className={styles.cardContent}>{judgment.bSuggestedLine}</p>
               </div>
