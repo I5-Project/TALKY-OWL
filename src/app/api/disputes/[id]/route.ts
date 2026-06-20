@@ -41,7 +41,6 @@ function toParticipantDto(p: DisputeForDetail['participants'][number]): DisputeP
     disputeId: p.disputeId,
     userId: p.userId,
     role: p.role.toLowerCase() as DisputeParticipantDto['role'],
-    nickname: null,
     profileImageUrl: p.user.profileImageUrl ?? null,
     joinedAt: p.joinedAt.toISOString(),
     createdAt: p.createdAt.toISOString(),

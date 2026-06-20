@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { z } from 'zod'
-import { type Prisma, type CategoryGroup as PrismaCategoryGroup, DisputeStatus } from '@prisma/client'
+import { type Prisma, type CategoryGroup as PrismaCategoryGroup } from '@prisma/client'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/db'
 import { getSessionUserId } from '@/lib/auth/session'
@@ -32,9 +32,6 @@ function toParticipantDto(p: DisputeForList['participants'][number]): DisputePar
     disputeId: p.disputeId,
     userId: p.userId,
     role: p.role.toLowerCase() as DisputeParticipantDto['role'],
-    // DisputeParticipantDto 타입에 nickname이 선언되어 있어 null로 채워 타입 불일치 방지
-    // 닉네임을 DB에서 조회하지 않으므로 null 반환 (타입이 string | null을 허용함)
-    nickname: null,
     profileImageUrl: p.user.profileImageUrl ?? null,
     joinedAt: p.joinedAt.toISOString(),
     createdAt: p.createdAt.toISOString(),
@@ -70,8 +67,6 @@ export async function GET(request: NextRequest) {
 
   const { searchParams } = new URL(request.url)
   const rawCategory = searchParams.get('categoryGroup')
-  // URL 쿼리 파라미터는 문자열로 전달되므로 "true" 문자열과 비교
-  const active = searchParams.get('active') === 'true'
   const page = Math.max(1, parseInt(searchParams.get('page') ?? '1', 10))
   const limit = Math.min(50, Math.max(1, parseInt(searchParams.get('limit') ?? '20', 10)))
 
@@ -99,18 +94,6 @@ export async function GET(request: NextRequest) {
     deletedAt: null,
     participants: { some: { userId } },
     ...(rawCategory ? { categoryGroup: rawCategory.toUpperCase() as PrismaCategoryGroup } : {}),
-    // active=true 일 때 진행중 상태만 필터링
-    // draft(진술 전), judged(판결 완료), closed/expired/deleted 제외
-    ...(active ? {
-      status: {
-        in: [
-          DisputeStatus.WAITING_OPPONENT,
-          DisputeStatus.OPPONENT_JOINED,
-          DisputeStatus.BOTH_SUBMITTED,
-          DisputeStatus.JUDGING,
-        ],
-      },
-    } : {}),
   }
 
   try {
