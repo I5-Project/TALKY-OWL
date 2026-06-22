@@ -12,9 +12,5 @@ export default function AboutPage() {
     return () => setHeader(null)
   }, [])
 
-  return (
-    <>
-      <main />
-    </>
-  );
+  return null;
 }

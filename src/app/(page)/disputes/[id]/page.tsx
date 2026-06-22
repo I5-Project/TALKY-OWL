@@ -263,6 +263,7 @@ export default function DisputePage({ params }: { params: Promise<{ id: string }
               <div
                 className={`${styles.statementCard}${myRole === 'role_a' && !isCompleted ? ` ${styles.statementCardEditable}` : ''}`}
                 onClick={myRole === 'role_a' && !isCompleted ? () => router.push(`/disputes/${id}/statement?edit=true`) : undefined}
+                {...(myRole === 'role_a' && !isCompleted ? { role: 'button', tabIndex: 0, onKeyDown: (e) => { if (e.key === 'Enter' || e.key === ' ') router.push(`/disputes/${id}/statement?edit=true`) } } : {})}
               >
                 <p className={styles.statementLabel}>A의 진술</p>
                 <p className={styles.statementContent}>{roleAStatement.content}</p>
@@ -272,6 +273,7 @@ export default function DisputePage({ params }: { params: Promise<{ id: string }
               <div
                 className={`${styles.statementCard}${myRole === 'role_b' && !isCompleted ? ` ${styles.statementCardEditable}` : ''}`}
                 onClick={myRole === 'role_b' && !isCompleted ? () => router.push(`/disputes/${id}/statement?edit=true`) : undefined}
+                {...(myRole === 'role_b' && !isCompleted ? { role: 'button', tabIndex: 0, onKeyDown: (e) => { if (e.key === 'Enter' || e.key === ' ') router.push(`/disputes/${id}/statement?edit=true`) } } : {})}
               >
                 <p className={styles.statementLabel}>B의 진술</p>
                 <p className={styles.statementContent}>{roleBStatement.content}</p>

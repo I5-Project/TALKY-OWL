@@ -5,7 +5,7 @@ import { useHeaderStore } from '@/stores/headerStore'
 
 type Props =
   | { variant: 'logo'; transparent?: boolean }
-  | { variant?: 'title'; title: string; subtitle?: string; transparent?: boolean }
+  | { variant?: 'title'; title: string; subtitle?: string; onBack?: () => void; transparent?: boolean }
 
 export default function SetHeader(props: Props) {
   const setHeader = useHeaderStore((s) => s.setHeader)
@@ -14,7 +14,7 @@ export default function SetHeader(props: Props) {
     if (props.variant === 'logo') {
       setHeader({ variant: 'logo', transparent: props.transparent })
     } else {
-      setHeader({ variant: 'title', title: props.title, transparent: props.transparent, subtitle: props.subtitle })
+      setHeader({ variant: 'title', title: props.title, subtitle: props.subtitle, onBack: props.onBack, transparent: props.transparent })
     }
     return () => setHeader(null)
   }, [])
