@@ -40,6 +40,63 @@ export default function JudgmentResult({ disputeId }: Props) {
       <section className={styles.section}>
         <h3 className={styles.sectionTitle}>판결결과</h3>
 
+        {/* 점수 그래프 — 2인 판결에서만 노출 */}
+        {!isSolo && (() => {
+          const scoreA = Math.max(0, Number(judgment.verdictScoreA) || 0)
+          const scoreB = Math.max(0, Number(judgment.verdictScoreB) || 0)
+          const total = scoreA + scoreB
+          const ratioA = total === 0 ? 50 : (scoreA / total) * 100
+          const ratioB = total === 0 ? 50 : (scoreB / total) * 100
+
+          const moreGuiltyParticipant =
+            judgment.moreResponsibleRole === 'role_a' ? participantA
+            : judgment.moreResponsibleRole === 'role_b' ? participantB
+            : null
+
+          const guiltText = moreGuiltyParticipant
+            ? `${moreGuiltyParticipant.name ?? '상대방'}님이 더 잘못했어요`
+            : '두 분의 잘못이 비슷해요'
+
+          return (
+            <div className={styles.scoreGraph}>
+              <div className={styles.scoreHeader}>
+                <div className={styles.scoreAvatar}>
+                  <Image
+                    src={moreGuiltyParticipant?.profileImageUrl ?? '/images/common/thumbnail-default.png'}
+                    alt=""
+                    width={48}
+                    height={48}
+                    className={styles.scoreAvatarImg}
+                  />
+                </div>
+                <p className={styles.scoreTitle}>{guiltText}</p>
+              </div>
+
+              <div className={styles.barWrapper}>
+                <div className={styles.bar}>
+                  <div
+                    className={`${styles.barSegment} ${ratioA >= ratioB ? styles.barDark : styles.barLight}`}
+                    style={{ width: `${ratioA}%` }}
+                  />
+                  <div
+                    className={`${styles.barSegment} ${ratioB > ratioA ? styles.barDark : styles.barLight}`}
+                    style={{ width: `${ratioB}%` }}
+                  />
+                </div>
+                <div className={styles.barCenter}>
+                  <div className={styles.centerLine} />
+                  <span className={styles.centerLabel}>잘못한 점수</span>
+                </div>
+              </div>
+
+              <div className={styles.barLabels}>
+                <span>{participantA?.name ?? 'A'}님</span>
+                <span>{participantB?.name ?? 'B'}님</span>
+              </div>
+            </div>
+          )
+        })()}
+
         <div className={styles.cards}>
           {judgment.aFault && (
             <div className={styles.card}>
@@ -105,4 +162,3 @@ export default function JudgmentResult({ disputeId }: Props) {
     </div>
   )
 }
-

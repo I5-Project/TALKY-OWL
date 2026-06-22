@@ -96,6 +96,97 @@
   line-height: 1.6;
 }
 
+/* ──────────────────────────────────────
+   점수 그래프 (2인 판결 전용)
+────────────────────────────────────── */
+
+.scoreGraph {
+  display: flex;
+  flex-direction: column;
+  gap: fn.r(12);
+  margin-bottom: fn.r(16);
+}
+
+.scoreHeader {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: fn.r(8);
+}
+
+.scoreAvatar {
+  width: fn.r(48);
+  height: fn.r(48);
+  border-radius: 50%;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.scoreAvatarImg {
+  border-radius: 50%;
+  object-fit: cover;
+  width: fn.r(48);
+  height: fn.r(48);
+}
+
+.scoreTitle {
+  font-size: v.$font-size-body-m;
+  font-weight: v.$font-weight-semibold;
+  color: v.$color-black-700;
+  text-align: center;
+}
+
+.barWrapper {
+  position: relative;
+  padding-bottom: fn.r(20);
+}
+
+.bar {
+  display: flex;
+  width: 100%;
+  height: fn.r(12);
+  border-radius: fn.r(6);
+  overflow: hidden;
+}
+
+.barSegment {
+  height: 100%;
+  transition: width 0.4s ease;
+}
+
+.barDark  { background-color: v.$color-black-700; }
+.barLight { background-color: v.$color-black-200; }
+
+.barCenter {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.centerLine {
+  width: fn.r(1);
+  height: fn.r(12);
+  border-left: fn.r(1.5) dashed v.$color-black-400;
+}
+
+.centerLabel {
+  margin-top: fn.r(4);
+  font-size: v.$font-size-caption;
+  color: v.$color-black-400;
+  white-space: nowrap;
+}
+
+.barLabels {
+  display: flex;
+  justify-content: space-between;
+  font-size: v.$font-size-caption;
+  color: v.$color-black-500;
+}
+
 /* AI 고지 문구 */
 .aiNotice {
   @include m.text-caption;
