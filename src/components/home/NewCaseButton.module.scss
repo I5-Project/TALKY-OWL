@@ -95,3 +95,45 @@
   color: v.$color-black-700;
   flex-shrink: 0;
 }
+
+// ─── 카테고리 한도 초과 에러 모달 ─────────────────────────────
+.limitOverlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 300;
+}
+
+.limitModal {
+  background-color: #ffffff;
+  border-radius: fn.r(16);
+  padding: fn.r(28) fn.r(24);
+  width: fn.r(280);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: fn.r(20);
+}
+
+.limitMessage {
+  @include m.text-body-m;
+
+  color: var(--text-primary);
+  text-align: center;
+  line-height: 1.5;
+}
+
+.limitCloseButton {
+  @include m.text-label-m;
+
+  width: 100%;
+  height: fn.r(44);
+  background-color: v.$color-black-700;
+  color: #ffffff;
+  border: none;
+  border-radius: fn.r(8);
+  cursor: pointer;
+}

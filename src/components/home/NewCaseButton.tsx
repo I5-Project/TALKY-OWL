@@ -73,15 +73,15 @@ export default function NewCaseButton() {
     <>
       {limitError && (
         <div
-          className={styles.overlay}
+          className={styles.limitOverlay}
           onClick={() => setLimitError(null)}
           role="dialog"
           aria-modal="true"
         >
-          <div className={styles.panel} onClick={(e) => e.stopPropagation()}>
-            <p className={styles.errorMessage}>{limitError}</p>
-            <button className={styles.closeButton} onClick={() => setLimitError(null)} aria-label="닫기">
-              <CloseIcon style={{ width: 24, height: 24 }} />
+          <div className={styles.limitModal} onClick={(e) => e.stopPropagation()}>
+            <p className={styles.limitMessage}>{limitError}</p>
+            <button className={styles.limitCloseButton} onClick={() => setLimitError(null)}>
+              확인
             </button>
           </div>
         </div>
