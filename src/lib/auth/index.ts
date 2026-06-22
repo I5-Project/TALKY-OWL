@@ -128,7 +128,24 @@ export const authOptions: NextAuthOptions = {
         })
 
         if (existing?.deletedAt) {
-          return false
+          await prisma.$transaction([
+            prisma.user.update({
+              where: { id: user.id },
+              data: {
+                deletedAt: null,
+                deletionRequestedAt: null,
+                kakaoId: account.providerAccountId,
+              },
+            }),
+            prisma.auditLog.create({
+              data: {
+                eventType: 'USER_REACTIVATED',
+                actorUserId: user.id,
+                targetUserId: user.id,
+              },
+            }),
+          ])
+          return true
         }
 
         if (!existing?.kakaoId) {
