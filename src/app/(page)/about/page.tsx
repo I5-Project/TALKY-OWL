@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import gsap from 'gsap';
@@ -11,57 +11,12 @@ import styles from './page.module.scss';
 
 gsap.registerPlugin(ScrollTrigger);
 
-const floatingTags = [
-  { text: '나였이면', className: 'tagTopLeft' },
-  { text: '친구랑', className: 'tagTopRight' },
-  { text: '직장상사의 갈등상황', className: 'tagMiddleLeft' },
-  { text: '엄마랑', className: 'tagBottomLeft' },
-];
+const revolvingWords = ['남친이랑', '친구랑', '직장상사와 갈등상황', '엄마랑'];
 
 const featureCards = [
-  {
-    num: 'Feature 01',
-    icon: '/images/characters/character-case.svg',
-    title: '갈등을 AI로\n판결해보세요',
-  },
-  {
-    num: 'Feature 02',
-    icon: '/images/characters/character-home.svg',
-    title: '갈등을 빠르고\n내 갈등유형을\n확인해보세요',
-  },
-  {
-    num: 'Feature 03',
-    icon: '/images/characters/character-gift.svg',
-    title: '감정일기고\n그날부엉 기록하세요',
-  },
-];
-
-const showcaseSections = [
-  {
-    id: 'invite',
-    image: '/images/about/5.png',
-    title: '상대를 초대해\n둘만의 방을 만들어보세요',
-    description: '갈등 갈등, 가치관? 연애?\n상대를 초대해 두근거리는 단 하나의 사건으로 판결을 만들어요.',
-    dark: false,
-    reverse: false,
-  },
-  {
-    id: 'diary',
-    image: '/images/about/3.png',
-    title: '하루의 감정을 기록해 보세요',
-    description: '',
-    dark: true,
-    reverse: true,
-    badge: '배근형',
-  },
-  {
-    id: 'records',
-    image: '/images/about/2.png',
-    title: '쌓인 기록으로\n서로를 이해하는 시간을 가져보세요',
-    description: '많은 거 하지 않아도 돼요.\n말해부엉이 그 사건에 너 또는 내 사건에서 서로를 이해할 수 있게 말해요.',
-    dark: false,
-    reverse: false,
-  },
+  { num: 'feature 01', title: '갈등을 AI로\n판결받아보세요' },
+  { num: 'feature 02', title: '갈등을 해결하고\n내 갈등유형을\n확인해보세요' },
+  { num: 'feature 03', title: '감정일기로\n그날하루를 기록하세요' },
 ];
 
 export default function AboutPage() {
@@ -69,6 +24,7 @@ export default function AboutPage() {
   const setHeader = useHeaderStore((s) => s.setHeader);
   const [phase, setPhase] = useState<'animation' | 'iris-out' | 'content'>('animation');
   const containerRef = useRef<HTMLDivElement>(null);
+  const revolvingRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     return () => setHeader(null);
@@ -91,65 +47,76 @@ export default function AboutPage() {
     return () => clearTimeout(timer);
   }, [phase]);
 
-  useEffect(() => {
-    if (phase !== 'content') return;
+  const setupAnimations = useCallback(() => {
+    if (phase !== 'content' || !containerRef.current) return;
 
     const ctx = gsap.context(() => {
-      gsap.utils.toArray<HTMLElement>(`.${styles.floatingTag}`).forEach((tag, i) => {
-        gsap.fromTo(tag,
-          { opacity: 0, y: 30, scale: 0.8 },
-          { opacity: 1, y: 0, scale: 1, duration: 0.6, delay: 0.3 + i * 0.15, ease: 'back.out(1.4)' }
-        );
-      });
-
+      // Hero phone entrance
       gsap.fromTo(`.${styles.heroPhone}`,
-        { opacity: 0, y: 60 },
-        { opacity: 1, y: 0, duration: 0.8, delay: 0.2, ease: 'power2.out' }
+        { opacity: 0, y: 80, rotateZ: 0 },
+        { opacity: 1, y: 0, duration: 1, delay: 0.2, ease: 'power3.out' }
       );
 
+      // Hero text entrance
       gsap.fromTo(`.${styles.heroTextBlock}`,
         { opacity: 0, y: 40 },
-        { opacity: 1, y: 0, duration: 0.7, delay: 0.5, ease: 'power2.out' }
+        { opacity: 1, y: 0, duration: 0.8, delay: 0.6, ease: 'power2.out' }
       );
 
+      // Revolving words animation
+      if (revolvingRef.current) {
+        const words = revolvingRef.current.querySelectorAll(`.${styles.revolvingWord}`);
+        if (words.length > 0) {
+          gsap.set(words, { opacity: 1 });
+          const tl = gsap.timeline({ repeat: -1, delay: 0.8 });
+          words.forEach((word, i) => {
+            tl.to(words, { color: '#c9cdd1', fontWeight: 400, duration: 0.3 }, i * 2)
+              .to(word, { color: '#1a1d1f', fontWeight: 700, duration: 0.4 }, i * 2 + 0.1);
+          });
+        }
+      }
+
+      // Feature cards scroll trigger
       gsap.utils.toArray<HTMLElement>(`.${styles.featureCard}`).forEach((card, i) => {
         gsap.fromTo(card,
-          { opacity: 0, y: 40 },
+          { opacity: 0, y: 50 },
           {
-            opacity: 1, y: 0, duration: 0.5, delay: i * 0.15,
+            opacity: 1, y: 0, duration: 0.6, delay: i * 0.15,
             scrollTrigger: { trigger: card, start: 'top 85%', toggleActions: 'play none none reverse' },
           }
         );
       });
 
+      // Showcase sections scroll trigger
       gsap.utils.toArray<HTMLElement>(`.${styles.showcaseSection}`).forEach((section) => {
         const text = section.querySelector(`.${styles.showcaseText}`);
-        const phone = section.querySelector(`.${styles.showcasePhone}`);
+        const phone = section.querySelector(`.${styles.showcasePhoneWrap}`);
         const isReverse = section.classList.contains(styles.reverse);
 
         const tl = gsap.timeline({
-          scrollTrigger: { trigger: section, start: 'top 75%', toggleActions: 'play none none reverse' },
+          scrollTrigger: { trigger: section, start: 'top 70%', toggleActions: 'play none none reverse' },
         });
 
         if (text) {
           tl.fromTo(text,
-            { opacity: 0, x: isReverse ? 40 : -40 },
-            { opacity: 1, x: 0, duration: 0.6, ease: 'power2.out' }
+            { opacity: 0, x: isReverse ? 60 : -60 },
+            { opacity: 1, x: 0, duration: 0.7, ease: 'power2.out' }
           );
         }
         if (phone) {
           tl.fromTo(phone,
-            { opacity: 0, x: isReverse ? -40 : 40 },
-            { opacity: 1, x: 0, duration: 0.7, ease: 'power2.out' },
-            '-=0.4'
+            { opacity: 0, x: isReverse ? -60 : 60 },
+            { opacity: 1, x: 0, duration: 0.8, ease: 'power2.out' },
+            '-=0.5'
           );
         }
       });
 
+      // CTA scroll trigger
       const cta = document.querySelector(`.${styles.ctaSection}`);
       if (cta) {
         gsap.fromTo(cta.children, { opacity: 0, y: 30 }, {
-          opacity: 1, y: 0, duration: 0.5, stagger: 0.15,
+          opacity: 1, y: 0, duration: 0.5, stagger: 0.12,
           scrollTrigger: { trigger: cta, start: 'top 80%', toggleActions: 'play none none reverse' },
         });
       }
@@ -158,18 +125,19 @@ export default function AboutPage() {
     return () => ctx.revert();
   }, [phase]);
 
+  useEffect(() => {
+    return setupAnimations();
+  }, [setupAnimations]);
+
   return (
     <div className={styles.page}>
+      {/* Intro Animation */}
       {phase !== 'content' && (
         <div className={`${styles.introOverlay} ${phase === 'iris-out' ? styles['iris-out'] : ''}`}>
           <div className={styles.animationWrapper}>
             <SpriteAnimation
               src="/images/characters-actions/Judge Owl-striking_gavel_down.png"
-              frameCount={25}
-              columns={5}
-              frameWidth={256}
-              frameHeight={256}
-              fps={12}
+              frameCount={25} columns={5} frameWidth={256} frameHeight={256} fps={12}
             />
           </div>
         </div>
@@ -177,17 +145,20 @@ export default function AboutPage() {
 
       {phase === 'content' && (
         <div ref={containerRef} className={styles.content}>
+          {/* ===== TAB 1: HERO ===== */}
           <section className={styles.heroSection}>
             <div className={styles.heroInner}>
               <div className={styles.heroPhoneArea}>
-                {floatingTags.map((tag) => (
-                  <span key={tag.className} className={`${styles.floatingTag} ${styles[tag.className]}`}>
-                    {tag.text}
-                  </span>
-                ))}
+                <div ref={revolvingRef} className={styles.revolvingWords}>
+                  {revolvingWords.map((word) => (
+                    <span key={word} className={styles.revolvingWord}>{word}</span>
+                  ))}
+                </div>
                 <div className={styles.heroPhone}>
-                  <div className={styles.phoneFrame}>
-                    <Image src="/images/about/1.png" alt="말해부엉 홈 화면" width={220} height={440} className={styles.phoneImage} />
+                  <div className={styles.phoneMockupTilted}>
+                    <div className={styles.phoneScreen}>
+                      <Image src="/images/about/1.png" alt="말해부엉 홈 화면" width={260} height={560} className={styles.screenImage} />
+                    </div>
                   </div>
                 </div>
               </div>
@@ -199,47 +170,98 @@ export default function AboutPage() {
             </div>
           </section>
 
+          {/* ===== TAB 2: FEATURE CARDS ===== */}
           <section className={styles.featureCardsSection}>
-            {featureCards.map((card) => (
-              <div key={card.num} className={styles.featureCard}>
-                <span className={styles.featureNum}>{card.num}</span>
-                <div className={styles.featureIconWrap}>
-                  <Image src={card.icon} alt={card.num} width={48} height={48} />
+            <div className={styles.featureCardsInner}>
+              {featureCards.map((card) => (
+                <div key={card.num} className={styles.featureCard}>
+                  <span className={styles.featureNum}>{card.num}</span>
+                  <p className={styles.featureCardTitle}>{card.title}</p>
+                  <div className={styles.featureCardIcon}>
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                      <line x1="16" y1="2" x2="16" y2="6" />
+                      <line x1="8" y1="2" x2="8" y2="6" />
+                      <line x1="3" y1="10" x2="21" y2="10" />
+                    </svg>
+                  </div>
                 </div>
-                <p className={styles.featureCardTitle}>{card.title}</p>
-              </div>
-            ))}
+              ))}
+            </div>
           </section>
 
-          {showcaseSections.map((section) => (
-            <section
-              key={section.id}
-              className={`${styles.showcaseSection} ${section.dark ? styles.dark : ''} ${section.reverse ? styles.reverse : ''}`}
-            >
-              <div className={styles.showcaseText}>
-                <h2 className={styles.showcaseTitle}>{section.title}</h2>
-                {section.description && (
-                  <p className={styles.showcaseDesc}>{section.description}</p>
-                )}
-              </div>
-              <div className={styles.showcasePhone}>
-                {section.badge && (
-                  <span className={styles.showcaseBadge}>{section.badge}</span>
-                )}
-                <div className={styles.phoneFrame}>
-                  <Image src={section.image} alt={section.id} width={260} height={520} className={styles.phoneImage} />
+          {/* ===== TAB 3: 상대 초대 ===== */}
+          <section className={`${styles.showcaseSection} ${styles.bgWhite}`}>
+            <div className={styles.showcaseText}>
+              <h2 className={styles.showcaseTitle}>{'상대를 초대해\n둘만의 방을 만들어보세요'}</h2>
+              <p className={styles.showcaseDesc}>
+                혼자 판결도 가능하지만<br />
+                상대를 초대해 판결받으면 더욱 객관적인 판결결과를 얻을수 있어요
+              </p>
+            </div>
+            <div className={styles.showcasePhoneWrap}>
+              <div className={styles.phoneMockupStraight}>
+                <div className={styles.phoneScreenClipped}>
+                  <Image src="/images/about/8.png" alt="상대 초대" width={260} height={560} className={styles.screenImage} />
                 </div>
               </div>
-            </section>
-          ))}
+            </div>
+          </section>
 
+          {/* ===== TAB 4: 감정일기 ===== */}
+          <section className={`${styles.showcaseSection} ${styles.reverse} ${styles.bgLight}`}>
+            <div className={styles.showcasePhoneWrap}>
+              <div className={styles.phoneMockupTilted}>
+                <div className={styles.phoneScreen}>
+                  <Image src="/images/about/3.png" alt="감정일기" width={260} height={560} className={styles.screenImage} />
+                </div>
+              </div>
+            </div>
+            <div className={styles.showcaseText}>
+              <h2 className={styles.showcaseTitle}>하루의 감정을 기록해 보세요</h2>
+              <p className={styles.showcaseDesc}>
+                오늘 감정을 기록하고 푸른하늘에 묻어버리세요!
+              </p>
+            </div>
+          </section>
+
+          {/* ===== TAB 5: 쌓인 기록 ===== */}
+          <section className={`${styles.showcaseSection} ${styles.bgWhite}`}>
+            <div className={styles.showcaseText}>
+              <h2 className={styles.showcaseTitle}>{'쌓인 기록으로\n서로를 이해하는 시간을 가져보세요'}</h2>
+              <p className={styles.showcaseDesc}>
+                갈등 후 어떻게 사과해야할지 모르겠다면<br />
+                말해부엉이 상대방에게 건네줄 사과 리본까지 만들어드려요
+              </p>
+            </div>
+            <div className={styles.showcasePhoneWrap}>
+              <div className={styles.phoneMockupStraight}>
+                <div className={styles.phoneScreenClipped}>
+                  <Image src="/images/about/6.png" alt="판결 결과" width={260} height={560} className={styles.screenImage} />
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* ===== TAB 6: CTA ===== */}
           <section className={styles.ctaSection}>
-            <Image src="/images/characters/character-welcome.svg" alt="말해부엉" width={56} height={56} className={styles.ctaIcon} />
-            <p className={styles.ctaDesc}>말해부엉으로 어디서나 편하게 갈등해결할 수 있다요</p>
+            <Image src="/images/characters/character-welcome.svg" alt="말해부엉" width={72} height={72} className={styles.ctaOwl} />
+            <p className={styles.ctaMainText}>
+              <span className={styles.highlight}>말해부엉</span>으로 어디서나 편하게 갈등해결할 수 있어요
+            </p>
             <button className={styles.ctaButton} onClick={() => router.push('/login')}>
-              시작하기
+              말해부엉 바로가기
             </button>
-            <span className={styles.ctaFooter}>말해부엉 AI 갈등 조정 판결 서비스</span>
+            <footer className={styles.ctaFooter}>
+              <span className={styles.footerLogo}>말해부엉</span>
+              <div className={styles.footerLinks}>
+                <span>서비스 소개</span>
+                <span>개인정보 처리방침</span>
+                <span>이용약관</span>
+                <span>고객문의</span>
+              </div>
+              <span className={styles.footerCopy}>Copyright © 말해부엉. ALL Rights Reserved.</span>
+            </footer>
           </section>
         </div>
       )}
