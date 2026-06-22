@@ -48,13 +48,10 @@
 }
 
 // ===========================
-// TAB 1: Hero
+// TAB 1: Hero (compact)
 // ===========================
 .heroSection {
-  @include m.flex-center;
-
-  min-height: 100dvh;
-  padding: 40px 24px 60px;
+  padding: 32px 24px 40px;
   background: v.$color-white;
   overflow: hidden;
 }
@@ -62,25 +59,25 @@
 .heroInner {
   position: relative;
   width: 100%;
-  max-width: 960px;
-  min-height: 560px;
+  max-width: 800px;
+  margin: 0 auto;
+  height: 360px;
 }
 
-// Left: revolving text column
 .heroLeft {
   position: absolute;
   left: 0;
-  bottom: 80px;
+  bottom: 24px;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  width: 260px;
+  width: 220px;
   z-index: 2;
 }
 
 .revolvingMask {
   overflow: hidden;
-  max-height: 72px;
+  max-height: 56px;
 }
 
 .revolvingTrack {
@@ -90,10 +87,10 @@
 
 .revolvingWord {
   display: block;
-  height: 36px;
-  line-height: 36px;
+  height: 28px;
+  line-height: 28px;
   font-family: v.$font-family-base;
-  font-size: fn.r(20);
+  font-size: fn.r(17);
   color: v.$color-black-200;
   font-weight: v.$font-weight-regular;
   white-space: nowrap;
@@ -108,8 +105,8 @@
 
 .activeWord {
   font-family: v.$font-family-base;
-  font-size: fn.r(26);
-  line-height: fn.r(34);
+  font-size: fn.r(22);
+  line-height: fn.r(30);
   color: v.$color-black-700;
   font-weight: v.$font-weight-bold;
   white-space: nowrap;
@@ -117,8 +114,8 @@
 
 .fixedSuffix {
   font-family: v.$font-family-base;
-  font-size: fn.r(26);
-  line-height: fn.r(34);
+  font-size: fn.r(22);
+  line-height: fn.r(30);
   color: v.$color-black-700;
   font-weight: v.$font-weight-bold;
   white-space: nowrap;
@@ -126,7 +123,7 @@
 
 .revolvingBelow {
   overflow: hidden;
-  max-height: 36px;
+  max-height: 28px;
 }
 
 .revolvingTrackBelow {
@@ -134,7 +131,6 @@
   flex-direction: column;
 }
 
-// Center: phone image
 .heroCenter {
   position: absolute;
   left: 50%;
@@ -149,17 +145,16 @@
 
 .heroPhoneImage {
   display: block;
-  width: 320px;
+  width: 260px;
   height: auto;
   object-fit: contain;
   mix-blend-mode: multiply;
 }
 
-// Right: title text
 .heroRight {
   position: absolute;
   right: 0;
-  bottom: 120px;
+  bottom: 60px;
   z-index: 2;
   opacity: 0;
   text-align: right;
@@ -167,8 +162,8 @@
 
 .heroTitle {
   font-family: v.$font-family-base;
-  font-size: fn.r(26);
-  line-height: fn.r(34);
+  font-size: fn.r(22);
+  line-height: fn.r(30);
   color: v.$color-black-700;
   letter-spacing: -0.5px;
   white-space: nowrap;
@@ -190,7 +185,7 @@
 // TAB 2: Feature Cards
 // ===========================
 .featureCardsSection {
-  padding: 80px 24px;
+  padding: 48px 24px;
   background: v.$color-primary-100;
 }
 
@@ -206,13 +201,13 @@
 .featureCard {
   display: flex;
   flex-direction: column;
-  gap: v.$spacing-unit * 1.5;
-  padding: 28px 24px;
+  gap: v.$spacing-unit;
+  padding: 24px 20px;
   border-radius: 16px;
   border: 1px solid v.$color-black-100;
   background: v.$color-white;
   width: 200px;
-  min-height: 200px;
+  min-height: 160px;
   opacity: 0;
 }
 
@@ -224,9 +219,10 @@
 }
 
 .featureCardTitle {
-  @include m.text-title-s;
+  @include m.text-body-m;
 
   color: v.$color-black-700;
+  font-weight: v.$font-weight-semibold;
   white-space: pre-line;
   flex: 1;
 }
@@ -242,9 +238,8 @@
 .showcaseSection {
   display: flex;
   align-items: center;
-  gap: v.$spacing-unit * 5;
-  padding: 100px 48px;
-  min-height: 60dvh;
+  gap: v.$spacing-unit * 4;
+  padding: 56px 48px;
   justify-content: center;
   overflow: hidden;
 
@@ -264,13 +259,13 @@
 .showcaseText {
   display: flex;
   flex-direction: column;
-  gap: v.$spacing-unit * 1.5;
-  max-width: 320px;
+  gap: v.$spacing-unit;
+  max-width: 300px;
   opacity: 0;
 }
 
 .showcaseTitle {
-  @include m.text-title-xl;
+  @include m.text-title-l;
 
   color: v.$color-black-700;
   letter-spacing: -0.3px;
@@ -287,23 +282,40 @@
   opacity: 0;
 }
 
-// Straight phone (bottom clipped)
-.phoneMockupStraight {
-  width: 240px;
-  border-radius: 32px 32px 0 0;
+.phoneMockupTilted {
+  width: 200px;
+  border-radius: 28px;
   overflow: hidden;
   background: v.$color-black-700;
-  border: 6px solid v.$color-black-600;
+  border: 5px solid v.$color-black-600;
+  box-shadow:
+    0 20px 40px rgba(0, 0, 0, 0.15),
+    0 8px 16px rgba(0, 0, 0, 0.08);
+  transform: perspective(800px) rotateY(-10deg) rotateX(4deg) rotateZ(-2deg);
+}
+
+.phoneScreen {
+  width: 100%;
+  overflow: hidden;
+  border-radius: 23px;
+}
+
+.phoneMockupStraight {
+  width: 200px;
+  border-radius: 28px 28px 0 0;
+  overflow: hidden;
+  background: v.$color-black-700;
+  border: 5px solid v.$color-black-600;
   border-bottom: none;
   box-shadow:
-    0 30px 60px rgba(0, 0, 0, 0.15),
-    0 10px 20px rgba(0, 0, 0, 0.08);
+    0 20px 40px rgba(0, 0, 0, 0.15),
+    0 8px 16px rgba(0, 0, 0, 0.08);
 }
 
 .phoneScreenClipped {
   width: 100%;
   overflow: hidden;
-  border-radius: 26px 26px 0 0;
+  border-radius: 23px 23px 0 0;
 }
 
 // ===========================
@@ -314,27 +326,27 @@
 
   flex-direction: column;
   text-align: center;
-  padding: 80px 24px 40px;
+  padding: 56px 24px 32px;
   background: linear-gradient(180deg, #{v.$color-primary-100} 0%, #{v.$color-primary-200} 100%);
-  gap: v.$spacing-unit * 2;
+  gap: v.$spacing-unit * 1.5;
 }
 
 .ctaOwl {
-  width: 72px;
-  height: 72px;
+  width: 56px;
+  height: 56px;
   object-fit: contain;
 }
 
 .ctaMainText {
-  @include m.text-body-m;
+  @include m.text-body-s;
 
   color: v.$color-black-500;
 }
 
 .ctaButton {
-  padding: 16px 56px;
+  padding: 12px 40px;
   border: none;
-  border-radius: 12px;
+  border-radius: 10px;
   background: v.$color-primary-600;
   color: v.$color-white;
   @include m.text-label-m;
@@ -356,16 +368,16 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: v.$spacing-unit;
-  margin-top: v.$spacing-unit * 4;
-  padding-top: v.$spacing-unit * 3;
+  gap: v.$spacing-unit * 0.5;
+  margin-top: v.$spacing-unit * 3;
+  padding-top: v.$spacing-unit * 2;
   border-top: 1px solid v.$color-black-100;
   width: 100%;
   max-width: 480px;
 }
 
 .footerLogo {
-  @include m.text-title-s;
+  @include m.text-body-m;
 
   color: v.$color-primary-600;
   font-weight: v.$font-weight-bold;
@@ -373,7 +385,7 @@
 
 .footerLinks {
   display: flex;
-  gap: v.$spacing-unit * 2;
+  gap: v.$spacing-unit * 1.5;
   @include m.text-caption;
 
   color: v.$color-black-400;
@@ -389,10 +401,50 @@
 // Mobile
 // ===========================
 @media (max-width: 640px) {
+  .heroInner {
+    height: 400px;
+  }
+
+  .heroLeft {
+    bottom: 16px;
+    width: 160px;
+  }
+
+  .heroPhoneImage {
+    width: 200px;
+  }
+
+  .heroRight {
+    bottom: 40px;
+  }
+
+  .heroTitle {
+    font-size: fn.r(18);
+  }
+
+  .activeWord,
+  .fixedSuffix {
+    font-size: fn.r(18);
+  }
+
+  .revolvingWord {
+    font-size: fn.r(14);
+    height: 24px;
+    line-height: 24px;
+  }
+
+  .revolvingMask {
+    max-height: 48px;
+  }
+
+  .revolvingBelow {
+    max-height: 24px;
+  }
+
   .showcaseSection {
     flex-direction: column !important;
-    padding: 60px 24px;
-    gap: v.$spacing-unit * 3;
+    padding: 40px 24px;
+    gap: v.$spacing-unit * 2;
   }
 
   .showcaseText {
@@ -400,58 +452,12 @@
     text-align: center;
   }
 
-  .heroInner {
-    min-height: 600px;
-  }
-
-  .heroLeft {
-    bottom: 60px;
+  .phoneMockupTilted {
     width: 180px;
   }
 
-  .heroCenter {
-    top: 20px;
-  }
-
-  .heroPhoneImage {
-    width: 240px;
-  }
-
-  .heroRight {
-    bottom: 80px;
-  }
-
-  .heroTitle {
-    font-size: fn.r(20);
-    white-space: nowrap;
-  }
-
-  .activeWord,
-  .fixedSuffix {
-    font-size: fn.r(20);
-  }
-
-  .revolvingWord {
-    font-size: fn.r(16);
-    height: 30px;
-    line-height: 30px;
-  }
-
-  .revolvingMask {
-    max-height: 60px;
-  }
-
-  .revolvingBelow {
-    max-height: 30px;
-  }
-
-  .phoneMockupTilted {
-    width: 200px;
-    transform: perspective(800px) rotateY(-8deg) rotateX(3deg) rotateZ(-2deg);
-  }
-
   .phoneMockupStraight {
-    width: 200px;
+    width: 180px;
   }
 
   .featureCard {
