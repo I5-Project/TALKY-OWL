@@ -74,8 +74,7 @@ export async function GET(request: NextRequest) {
     );
   }
   const nextDate = new Date(targetDate);
-  // nextDate.setDate(nextDate.getDate() + 1);
-  nextDate.setUTCDate(nextDate.getUTCDate() + 1)
+  nextDate.setUTCDate(nextDate.getUTCDate() + 1);
 
   try {
     const diaries = await prisma.emotionDiary.findMany({
@@ -106,8 +105,7 @@ export async function GET(request: NextRequest) {
       success: true,
       data: { items },
     });
-  } catch (error) {
-    console.log(error);
+  } catch {
     return NextResponse.json<ApiResponse>(
       {
         success: false,

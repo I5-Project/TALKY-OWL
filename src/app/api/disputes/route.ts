@@ -78,14 +78,10 @@ export async function GET(request: NextRequest) {
   const rawCategory = searchParams.get('categoryGroup')
   const date = searchParams.get('date')
   const rawStatus = searchParams.get('status')
-  const date = searchParams.get('date')
-  const rawStatus = searchParams.get('status')
   // URL 쿼리 파라미터는 문자열로 전달되므로 "true" 문자열과 비교
   const active = searchParams.get('active') === 'true'
   const page = Math.max(1, parseInt(searchParams.get('page') ?? '1', 10))
   const limit = Math.min(50, Math.max(1, parseInt(searchParams.get('limit') ?? '20', 10)))
-
-
 
   if (rawCategory !== null && !VALID_CATEGORY_GROUPS.includes(rawCategory as CategoryGroup)) {
     return NextResponse.json<ApiResponse>(
