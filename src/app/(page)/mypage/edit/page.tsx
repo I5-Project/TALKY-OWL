@@ -22,6 +22,7 @@ export default function ProfileEditPage() {
     return () => setHeader(null)
   }, [])
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const blobUrlRef = useRef<string | null>(null);
 
   const { data: user, isLoading, isError, error } = useUserMe();
   const updateProfile = useUpdateProfile();
@@ -43,22 +44,22 @@ export default function ProfileEditPage() {
     }
   }, [user, reset]);
 
+  useEffect(() => {
+    return () => {
+      if (blobUrlRef.current) URL.revokeObjectURL(blobUrlRef.current);
+    };
+  }, []);
+
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    if (previewUrl?.startsWith('blob:')) {
-      URL.revokeObjectURL(previewUrl);
-    }
+    const prevUrl = blobUrlRef.current;
     const objectUrl = URL.createObjectURL(file);
+    blobUrlRef.current = objectUrl;
     setPreviewUrl(objectUrl);
+    if (prevUrl) setTimeout(() => URL.revokeObjectURL(prevUrl), 0);
   };
-
-  useEffect(() => {
-    return () => {
-      if (previewUrl?.startsWith('blob:')) URL.revokeObjectURL(previewUrl);
-    };
-  }, [previewUrl]);
 
   const validate = () => {
     const next: Record<string, string> = {};
