@@ -1,0 +1,60 @@
+@use '@/styles/abstracts/variables' as v;
+@use '@/styles/abstracts/functions' as fn;
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: fn.r(52);
+  padding: 0 fn.r(12);
+  border-radius: fn.r(12);
+  font-family: v.$font-family-base;
+  font-size: v.$font-size-body-m;
+  font-weight: v.$font-weight-semibold;
+  line-height: v.$line-height-body-m;
+  transition: background-color 0.15s ease;
+  cursor: pointer;
+  border: none;
+
+  &--primary {
+    background-color: var(--bg-button-primary);
+    color: var(--text-button-primary);
+
+    &:hover:not(:disabled) {
+      background-color: var(--bg-button-primary-hover);
+    }
+  }
+
+  &--outline {
+    background-color: transparent;
+    color: var(--text-brand);
+    border: 1.5px solid var(--border-brand);
+
+    &:hover:not(:disabled) {
+      background-color: var(--bg-surface-soft);
+    }
+  }
+
+  &--soft {
+    background-color: var(--bg-surface-soft);
+    color: var(--text-brand);
+
+    &:hover:not(:disabled) {
+      background-color: var(--bg-brand-soft);
+    }
+  }
+
+  &--sm {
+    height: fn.r(48);
+  }
+
+  &--disabled,
+  &:disabled {
+    background-color: var(--bg-disabled);
+    color: var(--text-disabled);
+    cursor: not-allowed;
+    border: none;
+    pointer-events: none;
+  }
+}

@@ -1,0 +1,86 @@
+@use '@/styles/abstracts/variables' as v;
+@use '@/styles/abstracts/mixins' as m;
+@use '@/styles/abstracts/functions' as fn;
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: fn.r(16);
+}
+
+.title {
+  @include m.text-title-s;
+
+  color: v.$color-black-700;
+}
+
+.list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: fn.r(12);
+}
+
+.cardWrapper {
+  display: flex;
+  flex-direction: column;
+  box-shadow: inset 0 0 0 2px v.$color-black-700;
+  border-radius: fn.r(12);
+  background-color: var(--bg-surface);
+  overflow: hidden;
+  cursor: pointer;
+
+  &:active {
+    opacity: 0.8;
+  }
+
+  // CaseCard(article) 자체 border/background/radius 제거 — wrapper가 카드 역할을 함
+  > article {
+    border: none;
+    border-radius: 0;
+    background-color: transparent;
+    padding-bottom: 0;
+
+    // 빈 date 태그 공간 제거
+    time { display: none; }
+
+    // preview → footer 간격 8px
+    > p { margin-bottom: fn.r(8); }
+  }
+}
+
+.cardFooter {
+  display: flex;
+  align-items: center;
+  gap: fn.r(8);
+  padding: 0 fn.r(16) fn.r(16);
+}
+
+.cardDate {
+  @include m.text-label-s;
+
+  color: v.$color-black-400;
+}
+
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: fn.r(12);
+  padding: fn.r(24) 0;
+}
+
+.emptyImage {
+  width: fn.r(80);
+  height: fn.r(80);
+  object-fit: contain;
+}
+
+.empty {
+  @include m.text-body-s;
+
+  color: v.$color-black-400;
+  text-align: center;
+}

@@ -1,0 +1,13 @@
+@use '@/styles/abstracts/variables' as v;
+@use '@/styles/abstracts/functions' as fn;
+
+.prompt {
+  &__actions {
+    display: flex;
+    gap: fn.r(8);
+
+    > * {
+      flex: 1;
+    }
+  }
+}

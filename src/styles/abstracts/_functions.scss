@@ -1,0 +1,6 @@
+@use 'sass:math';
+
+// px → rem 변환 함수 (단위 없는 숫자 입력: r(24) → 1.5rem)
+@function r($px) {
+  @return math.div($px, 16) * 1rem;
+}

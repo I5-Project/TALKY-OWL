@@ -1,0 +1,59 @@
+@use '@/styles/abstracts/functions' as fn;
+@use '@/styles/abstracts/variables' as v;
+@use '@/styles/abstracts/mixins' as m;
+
+.section {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding-bottom: fn.r(80);
+}
+
+.filterWrapper {
+  padding: fn.r(16) fn.r(16) fn.r(8);
+  border-bottom: 1px solid var(--border-default);
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: fn.r(12);
+  padding: fn.r(16);
+  list-style: none;
+}
+
+
+.center {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: fn.r(60) 0;
+}
+
+.empty {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: fn.r(16);
+  padding: fn.r(60) 0;
+}
+
+.emptyText {
+  font-size: v.$font-size-body-s;
+  color: var(--text-secondary);
+}
+
+.bottomObserver {
+  display: flex;
+  justify-content: center;
+  padding: fn.r(16) 0;
+}
+
+.allLoaded {
+  @include m.text-caption;
+
+  color: var(--text-secondary);
+}

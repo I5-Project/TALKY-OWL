@@ -7,8 +7,8 @@
 
 ## 1. 도메인 목적
 
-AI 대화방 생성, AI 대화, 초대 링크 발급, room_mode 상태 관리를 담당한다.
-모든 갈등 조정은 AI 대화방에서 시작하며, 상대방 초대 전까지 AI와의 갈등 정리 단계를 유지한다.
+AI 대화방 생성, 자신의 상황 입력 및 AI 분석 제공, 초대 링크 발급, room_mode 상태 관리를 담당한다.
+모든 갈등 조정은 AI 대화방에서 시작하며, 사용자가 텍스트로 입력한 상황을 AI가 정리하고 의견을 제공한다.
 
 ---
 
@@ -46,8 +46,11 @@ TODO: 비기능 요구사항 정의서 확인 후 작성
 
 ```txt
 - AI 대화방 생성 (카테고리 선택 포함)
-- AI와 갈등 상황 정리 대화
-- 초대 링크 발급
+- 자신의 상황 텍스트 입력
+- AI가 입력 내용 기반으로 정리 및 의견 제공 (채팅형 아님)
+- 진술저장 후 [혼자서 진행 / 상대방 초대] 분기 선택
+  - 혼자서 진행: disputes/[id]/statement → 단독 AI 판결
+  - 상대방 초대: disputes/[id]/statement → 초대 링크 발급 → room_mode: invite_ready
 - room_mode 상태 관리
 - 방 목록 / 사건기록 조회
 - 방 종료 / 만료 / 삭제 처리
@@ -58,9 +61,9 @@ TODO: 비기능 요구사항 정의서 확인 후 작성
 ## 6. 제외 기능
 
 ```txt
-- AI 대화방 없이 바로 1:1 사건 생성 (금지)
+- AI 대화방 없이 바로 사건 생성 (금지)
 - AI 대화방 단계의 판결 점수 생성 (금지)
-- 상대방 없는 단독 판결 (MVP 제외)
+- 채팅형 AI 대화 인터페이스 (입력 → AI 분석 구조로 대체)
 ```
 
 ---
@@ -68,25 +71,19 @@ TODO: 비기능 요구사항 정의서 확인 후 작성
 ## 7. 관련 화면
 
 ```txt
-src/app/page/home/
-src/app/page/rooms/
-src/app/page/join/
+src/app/(page)/home/       홈 (새 사건 생성 진입, 진행중인 사건 목록)
+src/app/(page)/rooms/[id]  AI 대화방 (상황 입력 + AI 분석 + 초대 링크 발급)
 ```
+
+홈의 진행중인 사건 클릭 시 분기:
+- room_mode = ai_chat / invite_ready → rooms/[id]
+- room_mode = one_to_one 이후 → disputes/[id]
 
 ---
 
 ## 8. 관련 API
 
-```txt
-POST /api/v1/rooms             방 생성
-GET  /api/v1/rooms             방 목록 조회
-GET  /api/v1/rooms/:id         방 상세 조회
-POST /api/v1/rooms/:id/invite  초대 링크 발급
-POST /api/v1/rooms/:id/close   방 종료
-DELETE /api/v1/rooms/:id       방 삭제
-```
-
-상세 스펙은 `docs/API_SPEC.md` 확정 후 작성.
+→ [`docs/API_SPEC.md`](../API_SPEC.md) §3, §4.4 참조
 
 ---
 
@@ -135,8 +132,8 @@ closed / expired / deleted
 
 ```txt
 도메인 훅:  src/domains/room/
-AI 대화 UI: src/app/page/rooms/
-초대 참여:  src/app/page/join/
+AI 대화 UI: src/app/(page)/rooms/
+초대 참여:  src/app/(page)/join/
 ```
 
 ---

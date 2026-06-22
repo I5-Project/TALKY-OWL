@@ -1,0 +1,73 @@
+@use '@/styles/abstracts/variables' as v;
+@use '@/styles/abstracts/functions' as fn;
+@use '@/styles/abstracts/mixins' as m;
+
+.page {
+  padding: fn.r(16) fn.r(24) fn.r(40);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  height: fn.r(56);
+  border-bottom: 1px solid var(--border-default);
+  margin-bottom: fn.r(24);
+}
+
+.backButton {
+  @include m.flex-center;
+  width: fn.r(40);
+  height: fn.r(40);
+  flex-shrink: 0;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: v.$color-black-500;
+}
+
+.title {
+  flex: 1;
+  text-align: center;
+  @include m.text-title-s;
+}
+
+.spacer {
+  width: fn.r(40);
+  flex-shrink: 0;
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: fn.r(24);
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: fn.r(8);
+}
+
+.sectionTitle {
+  @include m.text-body-m;
+  font-weight: v.$font-weight-semibold;
+}
+
+.intro {
+  @include m.text-body-s;
+  color: v.$color-black-400;
+  margin-bottom: fn.r(8);
+}
+
+.sectionBody {
+  @include m.text-body-s;
+  color: v.$color-black-400;
+
+  p {
+    margin-bottom: fn.r(6);
+  }
+}
+
+.indent {
+  padding-left: fn.r(16);
+}

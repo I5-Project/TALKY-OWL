@@ -1,3 +1,6 @@
+@use './variables' as v;
+@use './functions' as f;
+
 // Flex center
 @mixin flex-center {
   display: flex;
@@ -14,4 +17,89 @@
   } @else if $breakpoint == 'lg' {
     @media (min-width: 1024px) { @content; }
   }
+}
+
+// Typography
+@mixin text-display {
+  font-family: v.$font-family-base;
+  font-size: v.$font-size-display;
+  font-weight: v.$font-weight-bold;
+  line-height: v.$line-height-display;
+}
+
+@mixin text-title-xl {
+  font-family: v.$font-family-base;
+  font-size: v.$font-size-title-xl;
+  font-weight: v.$font-weight-bold;
+  line-height: v.$line-height-title-xl;
+}
+
+@mixin text-title-l {
+  font-family: v.$font-family-base;
+  font-size: v.$font-size-title-l;
+  font-weight: v.$font-weight-bold;
+  line-height: v.$line-height-title-l;
+}
+
+@mixin text-title-m {
+  font-family: v.$font-family-base;
+  font-size: v.$font-size-title-m;
+  font-weight: v.$font-weight-semibold;
+  line-height: v.$line-height-title-m;
+}
+
+@mixin text-title-s {
+  font-family: v.$font-family-base;
+  font-size: v.$font-size-title-s;
+  font-weight: v.$font-weight-semibold;
+  line-height: v.$line-height-title-s;
+}
+
+@mixin text-body-l {
+  font-family: v.$font-family-base;
+  font-size: v.$font-size-body-l;
+  font-weight: v.$font-weight-medium;
+  line-height: v.$line-height-body-l;
+}
+
+@mixin text-body-m {
+  font-family: v.$font-family-base;
+  font-size: v.$font-size-body-m;
+  font-weight: v.$font-weight-regular;
+  line-height: v.$line-height-body-m;
+}
+
+@mixin text-body-s {
+  font-family: v.$font-family-base;
+  font-size: v.$font-size-body-s;
+  font-weight: v.$font-weight-regular;
+  line-height: v.$line-height-body-s;
+}
+
+@mixin text-caption {
+  font-family: v.$font-family-base;
+  font-size: v.$font-size-caption;
+  font-weight: v.$font-weight-regular;
+  line-height: v.$line-height-caption;
+}
+
+@mixin text-label-m {
+  font-family: v.$font-family-base;
+  font-size: v.$font-size-label-m;
+  font-weight: v.$font-weight-medium;
+  line-height: v.$line-height-label-m;
+}
+
+@mixin text-label-s {
+  font-family: v.$font-family-base;
+  font-size: v.$font-size-label-s;
+  font-weight: v.$font-weight-semibold;
+  line-height: v.$line-height-label-s;
+}
+
+@mixin text-value-m {
+  font-family: v.$font-family-base;
+  font-size: v.$font-size-value-m;
+  font-weight: v.$font-weight-regular;
+  line-height: v.$line-height-value-m;
 }

@@ -1,0 +1,22 @@
+@use '@/styles/abstracts/functions' as fn;
+
+.spinner {
+  position: relative;
+  width: fn.r(88);
+  height: fn.r(88);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.progress {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+.image {
+  width: fn.r(56);
+  height: fn.r(56);
+  object-fit: contain;
+}

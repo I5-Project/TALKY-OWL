@@ -1,0 +1,391 @@
+@use '@/styles/abstracts/variables' as v;
+@use '@/styles/abstracts/mixins' as m;
+@use '@/styles/abstracts/functions' as fn;
+
+// ===========================
+// Page
+// ===========================
+
+.page {
+  display: flex;
+  flex-direction: column;
+  background-color: var(--bg-page);
+}
+
+// ===========================
+// Judging (로딩 화면)
+// ===========================
+
+.judgingScreen {
+  position: fixed;
+  inset: 0;
+  background: linear-gradient(180deg, #{v.$color-primary-200} 0%, #{v.$color-white} 50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.judgingContent {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: fn.r(20);
+  width: fn.r(362);
+}
+
+.judgingText {
+  font-family: v.$font-family-base;
+  font-size: v.$font-size-title-m;
+  font-weight: v.$font-weight-semibold;
+  line-height: v.$line-height-title-m;
+  color: var(--text-primary);
+  text-align: center;
+  white-space: pre-line;
+}
+
+// ===========================
+// Info Card
+// ===========================
+
+.infoCard {
+  display: flex;
+  flex-direction: column;
+  gap: fn.r(8);
+  padding: fn.r(30) fn.r(20);
+}
+
+.infoRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.infoTitleGroup {
+  display: flex;
+  align-items: center;
+  gap: fn.r(8);
+  min-width: 0;
+}
+
+.categoryChip {
+  width: fn.r(28);
+  height: fn.r(28);
+  border-radius: fn.r(8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.infoTitle {
+  font-family: v.$font-family-base;
+  font-size: v.$font-size-title-s;
+  font-weight: v.$font-weight-semibold;
+  line-height: v.$line-height-title-s;
+  color: var(--text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.infoDesc {
+  font-family: v.$font-family-base;
+  font-size: v.$font-size-body-s;
+  font-weight: v.$font-weight-regular;
+  line-height: v.$line-height-body-s;
+  color: var(--text-primary);
+}
+
+.infoMeta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.infoDateGroup {
+  display: flex;
+  align-items: center;
+  gap: fn.r(8);
+}
+
+.avatarStack {
+  display: flex;
+  align-items: center;
+}
+
+.avatar {
+  position: relative;
+  width: fn.r(20);
+  height: fn.r(20);
+  border-radius: 50%;
+  overflow: hidden;
+  border: 1px solid var(--bg-page);
+  flex-shrink: 0;
+
+  & + & {
+    margin-left: fn.r(-6);
+  }
+}
+
+.avatarImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.avatarFallback {
+  width: 100%;
+  height: 100%;
+  background-color: var(--bg-disabled);
+}
+
+.infoDate {
+  font-family: v.$font-family-base;
+  font-size: v.$font-size-label-s;
+  font-weight: v.$font-weight-semibold;
+  line-height: v.$line-height-label-s;
+  color: var(--text-secondary);
+}
+
+// ===========================
+// Content
+// ===========================
+
+.content {
+  flex: 1;
+  overflow-y: auto;
+  padding-bottom: fn.r(80);
+}
+
+.contentWithFooter {
+  flex: 1;
+  overflow-y: auto;
+  padding-bottom: fn.r(160);
+}
+
+.statements {
+  display: flex;
+  flex-direction: column;
+  gap: fn.r(12);
+  padding: fn.r(20);
+}
+
+// ===========================
+// Statement Card
+// ===========================
+
+.statementCard {
+  display: flex;
+  flex-direction: column;
+  gap: fn.r(8);
+  padding: fn.r(20) fn.r(16);
+  border: 2px solid #{v.$color-black-700};
+  border-radius: fn.r(8);
+}
+
+.statementCardEditable {
+  cursor: pointer;
+
+  &:focus {
+    border-color: v.$color-primary-500;
+    outline: none;
+  }
+}
+
+.statementLabel {
+  font-family: v.$font-family-base;
+  font-size: v.$font-size-label-m;
+  font-weight: v.$font-weight-medium;
+  line-height: v.$line-height-label-m;
+  color: var(--text-primary);
+}
+
+.statementContent {
+  font-family: v.$font-family-base;
+  font-size: v.$font-size-body-s;
+  font-weight: v.$font-weight-regular;
+  line-height: v.$line-height-body-s;
+  color: var(--text-primary);
+}
+
+.statementFooter {
+  display: flex;
+  align-items: center;
+  gap: fn.r(6);
+}
+
+.statementAvatar {
+  position: relative;
+  width: fn.r(24);
+  height: fn.r(24);
+  border-radius: 50%;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.statementAvatarImg {
+  object-fit: cover;
+}
+
+.statementMbti {
+  @include m.text-label-s;
+
+  color: v.$color-black-400;
+}
+
+// ===========================
+// Judgment Sub-tabs (판결 / 유형)
+// ===========================
+
+.judgmentSubTabs {
+  padding: fn.r(16) fn.r(20) 0;
+}
+
+
+// ===========================
+// Judgement Placeholder
+// ===========================
+
+.judgementPlaceholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: fn.r(60) fn.r(20);
+}
+
+// ===========================
+// Empty / Error
+// ===========================
+
+.empty {
+  font-family: v.$font-family-base;
+  font-size: v.$font-size-body-s;
+  font-weight: v.$font-weight-regular;
+  line-height: v.$line-height-body-s;
+  color: var(--text-secondary);
+  text-align: center;
+  padding: fn.r(40) fn.r(20);
+}
+
+// ===========================
+// Invite Banner
+// ===========================
+
+.inviteBanner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: fn.r(16) fn.r(20);
+  background: #{v.$color-primary-100};
+  border-radius: fn.r(8);
+  border: none;
+  cursor: pointer;
+  width: 100%;
+  text-align: left;
+}
+
+.inviteBannerText {
+  display: flex;
+  flex-direction: column;
+  gap: fn.r(2);
+}
+
+.inviteBannerTitle {
+  font-family: v.$font-family-base;
+  font-size: v.$font-size-body-s;
+  font-weight: v.$font-weight-semibold;
+  line-height: v.$line-height-body-s;
+  color: var(--text-brand);
+}
+
+.inviteBannerDesc {
+  font-family: v.$font-family-base;
+  font-size: v.$font-size-body-m;
+  font-weight: v.$font-weight-semibold;
+  line-height: v.$line-height-body-m;
+  color: var(--text-primary);
+}
+
+.inviteBannerPlus {
+  font-size: fn.r(24);
+  font-weight: v.$font-weight-regular;
+  color: var(--text-primary);
+  flex-shrink: 0;
+}
+
+// ===========================
+// Footer
+// ===========================
+
+.footer {
+  position: fixed;
+  bottom: fn.r(64);
+  left: 0;
+  right: 0;
+  padding: fn.r(16) fn.r(20);
+  background: var(--bg-page);
+}
+
+.footerRow {
+  display: flex;
+  gap: fn.r(8);
+
+  > * {
+    flex: 1;
+  }
+}
+
+// ===========================
+// Modal
+// ===========================
+
+.modalContent {
+  display: flex;
+  flex-direction: column;
+  gap: fn.r(20);
+}
+
+.modalMessage {
+  font-family: v.$font-family-base;
+  font-size: v.$font-size-title-s;
+  font-weight: v.$font-weight-semibold;
+  line-height: v.$line-height-title-s;
+  color: var(--text-primary);
+  white-space: pre-line;
+}
+
+.modalOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(26, 29, 31, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 fn.r(20);
+  z-index: 300;
+}
+
+.modal {
+  width: 100%;
+  background: var(--bg-surface);
+  border: 2px solid #{v.$color-black-700};
+  border-radius: fn.r(8);
+  padding: fn.r(20) fn.r(16);
+  display: flex;
+  flex-direction: column;
+  gap: fn.r(16);
+}
+
+.modalText {
+  font-family: v.$font-family-base;
+  font-size: v.$font-size-title-s;
+  font-weight: v.$font-weight-semibold;
+  line-height: v.$line-height-title-s;
+  color: var(--text-primary);
+  white-space: pre-line;
+}
+
+.modalActions {
+  display: flex;
+  gap: fn.r(8);
+}

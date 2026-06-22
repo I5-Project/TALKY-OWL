@@ -1,0 +1,52 @@
+@use '@/styles/abstracts/variables' as v;
+@use '@/styles/abstracts/functions' as fn;
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: fn.r(8);
+
+  &__label {
+    font-family: v.$font-family-base;
+    font-size: v.$font-size-body-s;
+    font-weight: v.$font-weight-semibold;
+    line-height: v.$line-height-body-s;
+    color: var(--text-primary);
+  }
+
+  &__input {
+    width: 100%;
+    height: fn.r(52);
+    padding: 0 fn.r(16);
+    font-family: v.$font-family-base;
+    font-size: v.$font-size-body-m;
+    font-weight: v.$font-weight-regular;
+    line-height: v.$line-height-body-m;
+    color: var(--text-primary);
+    background-color: var(--bg-surface);
+    border: 1px solid var(--border-default);
+    border-radius: fn.r(8);
+    outline: none;
+    transition: border-color 0.15s;
+
+    &::placeholder {
+      color: var(--text-secondary);
+    }
+
+    &:focus {
+      border-color: var(--border-brand);
+    }
+
+    &--error {
+      border-color: var(--border-danger);
+    }
+  }
+
+  &__error {
+    font-family: v.$font-family-base;
+    font-size: v.$font-size-caption;
+    font-weight: v.$font-weight-regular;
+    line-height: v.$line-height-caption;
+    color: var(--text-danger);
+  }
+}

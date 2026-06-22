@@ -15,7 +15,27 @@
 
 ---
 
-## 2. 네이밍 규칙
+## 2. SCSS import 규칙
+
+SCSS 파일에서 `styles/abstracts`를 가져올 때는 반드시 `@/` 절대경로를 사용한다.
+
+```scss
+/* 올바른 예 */
+@use '@/styles/abstracts/variables' as v;
+@use '@/styles/abstracts/functions' as fn;
+@use '@/styles/abstracts/mixins' as m;
+
+/* 금지 */
+@use '../../styles/abstracts/variables' as v;
+@use '../../../../../styles/abstracts/functions' as fn;
+```
+
+상대경로(`../`)로 작성하지 않는다.
+파일 이동 시 경로가 깨지는 것을 방지하고 일관성을 유지하기 위함이다.
+
+---
+
+## 3. 네이밍 규칙
 
 | 대상 | 규칙 | 예시 |
 |------|------|------|
@@ -29,7 +49,7 @@
 
 ---
 
-## 3. 상태 관리 기준
+## 4. 상태 관리 기준
 
 **Zustand** — UI 상태만 담당
 
@@ -49,7 +69,7 @@
 
 ---
 
-## 4. 폴더 사용 기준
+## 5. 폴더 사용 기준
 
 ```txt
 src/domains/*    도메인별 비즈니스 로직, API client, hooks, constants
@@ -62,7 +82,7 @@ src/styles       전역 SCSS 변수, mixin, base
 
 ---
 
-## 5. 금지 구조
+## 6. 금지 구조
 
 ```txt
 src/features
@@ -71,13 +91,13 @@ src/lib/types
 src/lib/stores
 src/domains/*/types
 src/domains/*/stores
-src/app/page/*/*.type.ts
-src/app/page/*/*.store.ts
+src/app/(page)/*/*.type.ts
+src/app/(page)/*/*.store.ts
 ```
 
 ---
 
-## 6. 보안 주의사항
+## 7. 보안 주의사항
 
 ```txt
 console.log에 사건 원문 / 개인정보 출력 금지
@@ -88,18 +108,20 @@ API 응답에 불필요한 민감 정보 포함 금지
 
 ---
 
-## 7. MUI 사용 기준
+## 8. MUI 사용 기준
 
-MUI는 달력 / 날짜 선택 UI 전용으로만 사용한다.
+MUI는 아래 허용 범위 내에서만 사용한다.
 
 ```txt
 허용 범위:
-  src/components/calendar/ 내 래핑 컴포넌트에서만 MUI import 허용
+  src/components/calendar/  → MUI X Date Pickers (달력 / 날짜 선택 UI)
+  src/components/feedback/  → MUI Snackbar 등 (Toast 피드백 UI)
+  @mui/icons-material       → 감정일기(diary) 기능 제외 전체 허용
 
 금지 사항:
+  - 감정일기(diary) 기능 내 아이콘은 lucide-react 사용 유지
   - 전체 디자인 시스템을 MUI 기반으로 전환하지 않는다
   - 여러 페이지 / 도메인에서 MUI 컴포넌트를 직접 import하지 않는다
-  - @mui/icons-material 사용 금지 (아이콘은 lucide-react 사용)
   - MUI ThemeProvider를 앱 전역에 적용하지 않는다
 ```
 
@@ -114,7 +136,7 @@ MUI는 달력 / 날짜 선택 UI 전용으로만 사용한다.
 래핑 컴포넌트 원칙:
 
 ```txt
-- 달력 UI는 src/components/calendar/ 내 래핑 컴포넌트로 제공한다
+- MUI 컴포넌트는 각 허용 폴더 내 래핑 컴포넌트를 통해서만 사용한다
 - 래핑 컴포넌트를 통해 라이브러리 교체 가능성을 유지한다
 - 래핑 컴포넌트 외부에서는 MUI 직접 의존을 갖지 않는다
 ```

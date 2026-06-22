@@ -1,10 +1,116 @@
-// Color
+// ===========================
+// Global Color Palette
+// ===========================
+
 $color-white: #ffffff;
 $color-black: #000000;
 
+// Primary
+$color-primary-100: #eff8f6;
+$color-primary-200: #ddefea;
+$color-primary-300: #a8d6d0;
+$color-primary-400: #97cac3;
+$color-primary-500: #87bfb6;
+$color-primary-600: #72aea6;
+$color-primary-700: #5e9d96;
+
+// Secondary
+$color-secondary-100: #f5d4c8;
+$color-secondary-200: #f0c0b1;
+$color-secondary-300: #ebad9a;
+$color-secondary-400: #e79a83;
+$color-secondary-500: #da846a;
+$color-secondary-600: #cd6f52;
+$color-secondary-700: #c05a3a;
+
+// Amber
+$color-amber: #e3b85e;
+$color-amber-soft: #fbf0d8;
+
+// Third
+$color-third-100: #f6f1e7;
+$color-third-300: #e9f2d8;
+
+// Fourth
+$color-fourth-500: #7b6a58;
+
+// Fifth
+$color-fifth-100: #ebf0f7;
+$color-fifth-500: #5b7fa6;
+
+// Neutral (Black scale)
+$color-black-100: #e6e9ec;
+$color-black-200: #d7dbde;
+$color-black-300: #c9cdd1;
+$color-black-400: #7f8387;
+$color-black-500: #353a3d;
+$color-black-600: #272b2e;
+$color-black-700: #1a1d1f;
+
+// Type Card
+$color-type-01: #d4d8db;
+$color-type-02: #c8ddd5;
+$color-type-03: #b8d4cf;
+$color-type-04: #f5dfa8;
+$color-type-05: #ddd4ec;
+$color-type-06: #e8d8c4;
+$color-type-07: #e8c8c0;
+$color-type-08: #c4d0df;
+$color-type-09: #e0c8d8;
+$color-type-10: #c8d8ec;
+$color-type-11: #f0c8c0;
+$color-type-12: #c8dcc4;
+$color-type-13: #eae8e4;
+$color-type-14: #f0c4c4;
+$color-type-15: #ddd0c4;
+$color-type-16: #c8cccc;
+
+@use './functions' as fn;
+
+// ===========================
 // Typography
-$font-family-base: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+// ===========================
+
+$font-family-base: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 $font-size-base: 16px;
+
+// Font sizes
+$font-size-display:  fn.r(40);
+$font-size-title-xl: fn.r(28);
+$font-size-title-l:  fn.r(24);
+$font-size-title-m:  fn.r(20);
+$font-size-title-s:  fn.r(18);
+$font-size-body-l:   fn.r(18);
+$font-size-body-m:   fn.r(16);
+$font-size-body-s:   fn.r(14);
+$font-size-caption:  fn.r(12);
+$font-size-label-m:  fn.r(16);
+$font-size-label-s:  fn.r(12);
+$font-size-value-m:  fn.r(16);
+
+// Font weights
+$font-weight-regular:  400;
+$font-weight-medium:   500;
+$font-weight-semibold: 600;
+$font-weight-bold:     700;
+
+// Line heights
+$line-height-display:  fn.r(48);
+$line-height-title-xl: fn.r(36);
+$line-height-title-l:  fn.r(32);
+$line-height-title-m:  fn.r(28);
+$line-height-title-s:  fn.r(24);
+$line-height-body-l:   fn.r(28);
+$line-height-body-m:   fn.r(28);
+$line-height-body-s:   fn.r(24);
+$line-height-caption:  fn.r(20);
+$line-height-label-m:  fn.r(24);
+$line-height-label-s:  fn.r(16);
+$line-height-value-m:  fn.r(24);
 
 // Spacing
 $spacing-unit: 8px;
+
+// Layout
+$container-max-width: 1000px;
+

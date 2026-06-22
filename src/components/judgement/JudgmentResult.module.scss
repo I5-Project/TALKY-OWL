@@ -1,0 +1,222 @@
+@use '@/styles/abstracts/variables' as v;
+@use '@/styles/abstracts/mixins' as m;
+@use '@/styles/abstracts/functions' as fn;
+
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: fn.r(24);
+  padding: fn.r(16);
+}
+
+/* ──────────────────────────────────────
+   공통 섹션
+────────────────────────────────────── */
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: fn.r(16);
+}
+
+.sectionTitle {
+  font-size: v.$font-size-body-m;
+  font-weight: v.$font-weight-semibold;
+  color: v.$color-black-700;
+}
+
+/* ──────────────────────────────────────
+   카드 (잘못 / 화해 공통)
+────────────────────────────────────── */
+
+.cards {
+  display: flex;
+  flex-direction: column;
+  gap: fn.r(8);
+}
+
+/* 잘못 카드 — bg-page + 내부 테두리 */
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: fn.r(8);
+  padding: fn.r(8) fn.r(12);
+  border-radius: fn.r(12);
+  background-color: var(--bg-page);
+  box-shadow: inset 0 0 0 1px var(--border-default);
+}
+
+/* 화해 제안 카드 — bg-surface-soft, 테두리 없음 */
+.suggestedCard {
+  display: flex;
+  flex-direction: column;
+  gap: fn.r(8);
+  padding: fn.r(8) fn.r(12);
+  border-radius: fn.r(12);
+  background-color: var(--bg-surface-soft);
+}
+
+.cardHeader {
+  display: flex;
+  align-items: center;
+  gap: fn.r(8);
+}
+
+/* 아바타: 프로필 이미지 없을 때 회색 원 fallback */
+.avatar {
+  width: fn.r(24);
+  height: fn.r(24);
+  border-radius: 50%;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.avatarImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.avatarFallback {
+  width: 100%;
+  height: 100%;
+  background-color: v.$color-black-200;
+}
+
+.cardLabel {
+  @include m.text-label-s;
+
+  color: v.$color-black-400;
+}
+
+.cardContent {
+  @include m.text-body-s;
+
+  color: v.$color-black-700;
+  line-height: 1.6;
+}
+
+/* ──────────────────────────────────────
+   점수 그래프 (2인 판결 전용)
+────────────────────────────────────── */
+
+.scoreGraph {
+  display: flex;
+  flex-direction: column;
+  gap: fn.r(12);
+  margin-bottom: fn.r(16);
+}
+
+.scoreHeader {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: fn.r(8);
+}
+
+.scoreAvatar {
+  width: fn.r(48);
+  height: fn.r(48);
+  border-radius: 50%;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.scoreAvatarImg {
+  border-radius: 50%;
+  object-fit: cover;
+  width: fn.r(48);
+  height: fn.r(48);
+}
+
+.scoreTitle {
+  @include m.text-body-m;
+
+  color: v.$color-black-700;
+  text-align: center;
+}
+
+.scoreTitleName {
+  font-weight: v.$font-weight-bold;
+}
+
+.barWrapper {
+  position: relative;
+  padding-top: fn.r(10);
+  padding-bottom: fn.r(28);
+}
+
+.bar {
+  display: flex;
+  width: 100%;
+  height: fn.r(16);
+  border-radius: fn.r(4);
+  overflow: hidden;
+}
+
+.barSegment {
+  height: 100%;
+  transition: width 0.4s ease;
+}
+
+.barDark  { background-color: var(--status-disabled-text); }
+.barLight { background-color: v.$color-black-200; }
+
+.barCenter {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.centerLine {
+  width: 0;
+  height: fn.r(36);
+  border-left: fn.r(1.5) dashed var(--border-strong);
+}
+
+.centerLabel {
+  margin-top: fn.r(4);
+  font-size: v.$font-size-caption;
+  color: v.$color-black-400;
+  white-space: nowrap;
+}
+
+.barLabels {
+  display: flex;
+  justify-content: space-between;
+  font-size: v.$font-size-caption;
+  color: v.$color-black-500;
+}
+
+/* AI 고지 문구 */
+.aiNotice {
+  @include m.text-caption;
+
+  color: var(--text-secondary);
+  text-align: center;
+}
+
+/* ──────────────────────────────────────
+   화해 제안 섹션
+   — 선물 아이콘이 절대 위치로 우측 고정되어 아래 카드와 살짝 겹침
+────────────────────────────────────── */
+
+.reconcileSection {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: fn.r(16);
+}
+
+.reconcileIcon {
+  position: absolute;
+  right: 0;
+  /* top 0 기준: 제목 높이(~24px) + gap(16px) = 카드 시작점(~40px)
+     아이콘 높이 52px → 카드에 약 12px 겹침 */
+  top: 0;
+  z-index: 1;
+}

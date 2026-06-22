@@ -1,0 +1,140 @@
+@use '@/styles/abstracts/variables' as v;
+@use '@/styles/abstracts/mixins' as m;
+@use '@/styles/abstracts/functions' as fn;
+
+// ─── 새 사건 + 버튼 ─────────────────────────────────────────
+.button {
+  position: fixed;
+  bottom: fn.r(81);
+  right: max(fn.r(16), calc((100vw - #{v.$container-max-width}) / 2 + #{fn.r(16)}));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: fn.r(115);
+  height: fn.r(48);
+  background-color: v.$color-black-700;
+  border: none;
+  border-radius: fn.r(100);
+  cursor: pointer;
+  z-index: 101;
+
+  @include m.text-title-s;
+
+  color: #ffffff;
+  white-space: nowrap;
+}
+
+// ─── 카테고리 선택 모달 ──────────────────────────────────────
+.overlay {
+  position: fixed;
+  inset: 0;
+
+  // 페이지 배경을 불투명 베이스로 깔아 콘텐츠가 비치지 않게 하고,
+  // 그 위에 color-black-700 40% 틴트를 적용
+  background-color: var(--bg-page);
+  background-image: linear-gradient(rgba(26, 29, 31, 0.4), rgba(26, 29, 31, 0.4));
+  z-index: 200;
+}
+
+// 카테고리 박스 + X버튼 컨테이너 — 새 사건 + 버튼과 동일 위치 기준
+.panel {
+  position: absolute;
+  bottom: fn.r(81);
+  right: max(fn.r(16), calc((100vw - #{v.$container-max-width}) / 2 + #{fn.r(16)}));
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: fn.r(16);
+}
+
+.categoryBox {
+  width: fn.r(133);
+  height: fn.r(176);
+  background-color: #ffffff;
+  border-radius: fn.r(12);
+  box-sizing: border-box;
+  padding: fn.r(20) fn.r(16);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: fn.r(8);
+}
+
+.errorMessage {
+  @include m.text-label-s;
+
+  color: #e53e3e;
+  text-align: center;
+  width: 100%;
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  gap: fn.r(9);
+  text-decoration: none;
+}
+
+.itemLabel {
+  @include m.text-body-m;
+
+  color: var(--text-primary);
+}
+
+.closeButton {
+  width: fn.r(48);
+  height: fn.r(48);
+  border-radius: 50%;
+  background-color: #ffffff;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: v.$color-black-700;
+  flex-shrink: 0;
+}
+
+// ─── 카테고리 한도 초과 에러 모달 ─────────────────────────────
+.limitOverlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 300;
+}
+
+.limitModal {
+  background-color: #ffffff;
+  border-radius: fn.r(16);
+  padding: fn.r(28) fn.r(24);
+  width: fn.r(280);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: fn.r(20);
+}
+
+.limitMessage {
+  @include m.text-body-m;
+
+  color: var(--text-primary);
+  text-align: center;
+  line-height: 1.5;
+  white-space: pre-line;
+}
+
+.limitCloseButton {
+  @include m.text-label-m;
+
+  width: 100%;
+  height: fn.r(44);
+  background-color: v.$color-black-700;
+  color: #ffffff;
+  border: none;
+  border-radius: fn.r(8);
+  cursor: pointer;
+}

@@ -1,0 +1,36 @@
+@use '@/styles/abstracts/functions' as fn;
+
+.tabList {
+  display: inline-flex;
+  gap: fn.r(8);
+}
+
+.label {
+  font-size: fn.r(16);
+  line-height: fn.r(28);
+}
+
+.tabItem {
+  width: fn.r(60);
+  height: fn.r(36);
+  border-radius: fn.r(8);
+  font-family: var(--font-family-base);
+  font-size: 1rem;
+  line-height: 1.5rem;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  border: 1.5px solid var(--border-strong);
+
+  &--inactive {
+    background-color: var(--bg-page);
+    color: var(--text-secondary);
+    font-weight: 400;
+  }
+
+  &--active {
+    background-color: var(--bg-page);
+    color: var(--text-primary);
+    font-weight: 700;
+    border-color: var(--text-primary);
+  }
+}

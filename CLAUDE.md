@@ -4,18 +4,26 @@
 
 이 프로젝트는 **AI 갈등 조정 판결 서비스**이다.
 
-사용자가 갈등 상황을 AI와 먼저 정리한 뒤, 필요 시 상대방을 초대하여 1:1 조정 상태로 전환하고, 양측 진술을 기반으로 AI 판결과 관계 회복 제안을 제공한다.
+사용자가 갈등 상황을 AI와 먼저 정리한 뒤, 단독으로 판결을 받거나 상대방을 초대하여 1:1 조정 상태로 전환하고, 진술을 기반으로 AI 판결과 관계 회복 제안을 제공한다.
 
 ### 핵심 서비스 흐름
 
+**단독 판결 흐름**
 ```txt
-AI 대화방 생성
-→ AI 대화
+방 생성
+→ 진술 작성 및 제출
+→ AI 판결 생성 (제한적 결과)
+→ 판결 결과 확인
+```
+
+**1:1 판결 흐름**
+```txt
+방 생성
 → 초대 링크 발급
 → 상대방 참여
 → 1:1 조정 전환
-→ 양측 진술 작성
-→ AI 판결 생성
+→ 양측 진술 작성 및 제출
+→ AI 판결 생성 (전체 결과)
 → 판결 결과 확인
 → 선물추천
 ```
@@ -29,8 +37,8 @@ AI 대화방 생성
 ```txt
 - 카카오 로그인
 - 약관 동의
-- AI 대화방 생성
-- AI와 갈등 상황 정리
+- 방 생성
+- 단독 판결 (진술 1건 기반, 제한적 결과 제공)
 - 초대 링크 발급
 - 상대방 참여
 - 1:1 조정 전환
@@ -51,7 +59,6 @@ AI 대화방 생성
 ### MVP 제외
 
 ```txt
-- 상대방 없는 단독 판결
 - shop
 - points
 - user-items
@@ -92,13 +99,16 @@ MVP 제외 기능은 구현하지 않는다.
 역할
 ```
 
-### AI 대화방 정책
+### 방 정책
 
 ```txt
-- 모든 방은 먼저 AI 대화방으로 생성한다.
-- AI 대화방 단계에서는 갈등 정리, 감정 정리, 대화 방향 조언만 제공한다.
-- AI 대화방 단계에서는 판결 점수를 생성하지 않는다.
-- 상대방 참여 후 1:1 조정 상태로 전환된 뒤에만 AI 판결을 생성할 수 있다.
+- 방 생성 시 roomMode = ai_room 상태로 시작한다.
+- 진술 작성 후 분기:
+  - 혼자서 진행: disputes/[id]/statement에서 진술 제출 후 단독 AI 판결 가능
+  - 상대방 초대: 초대 링크 발급 → roomMode = invite_ready, dispute status = waiting_opponent
+                상대방 참여 → roomMode = one_to_one, dispute status = opponent_joined
+                이후 양측 진술 제출 후 1:1 AI 판결 가능
+- 단독 판결과 1:1 판결 모두 disputes/[id]/statement를 거친다.
 ```
 
 ### AI 판결 결과
@@ -136,7 +146,7 @@ AI 판결 결과에는 아래 항목을 중심으로 제공한다.
 ### 기본 구조 원칙
 
 ```txt
-src/app/page      → 화면 라우트
+src/app/(page)    → 화면 라우트
 src/app/api       → API Route Handler
 src/domains       → 도메인별 비즈니스 로직, API client, hooks, constants
 src/components    → 공통 UI / 레이아웃 / 피드백 컴포넌트
@@ -155,21 +165,33 @@ src/lib/types
 src/lib/stores
 src/domains/*/types
 src/domains/*/stores
-src/app/page/*/*.type.ts
-src/app/page/*/*.store.ts
+src/app/(page)/*/*.type.ts
+src/app/(page)/*/*.store.ts
 ```
 
 `features` 폴더는 사용하지 않는다.
+
+### MUI 사용 허용 범위
+
+```txt
+허용:
+- 달력 / 날짜 선택 UI: src/components/calendar/ 내 래핑 컴포넌트
+- 피드백 UI (Toast/Snackbar): src/components/feedback/ 내 래핑 컴포넌트
+- 아이콘: @mui/icons-material — 감정일기(diary) 기능 제외 전체 허용
+
+금지:
+- 감정일기(diary) 기능 내 아이콘은 lucide-react 사용 유지
+- 전체 디자인 시스템을 MUI 기반으로 전환하지 않는다.
+- 여러 페이지 / 도메인에서 MUI 컴포넌트를 직접 import하지 않는다.
+- MUI ThemeProvider를 앱 전역에 적용하지 않는다.
+- 전체 스타일 기준은 SCSS / SCSS Module을 유지한다.
+```
 
 ### Calendar UI Rules
 
 ```txt
 - 달력 UI는 MUI X Date Pickers 기반으로 구현한다.
-- MUI는 달력 / 날짜 선택 UI 전용으로만 사용한다. 전체 디자인 시스템에 적용하지 않는다.
-- 전체 스타일 기준은 SCSS / SCSS Module을 유지한다.
 - MUI 컴포넌트는 src/components/calendar/ 내 래핑 컴포넌트를 통해서만 사용한다.
-- 여러 페이지 / 도메인에서 MUI 컴포넌트를 직접 import하지 않는다.
-- 아이콘은 기존 lucide-react를 우선 사용한다.
 - 달력 라이브러리는 래핑 컴포넌트 구조로 교체 가능성을 확보한다.
 ```
 
@@ -183,7 +205,6 @@ src/app/page/*/*.store.ts
 auth
 common
 room
-personal-analysis
 dispute
 judgement
 gift
@@ -222,7 +243,7 @@ src/domains/user-items  생성 금지
 ### room_mode
 
 ```txt
-ai_chat
+ai_room
 → invite_ready
 → one_to_one
 → closed / expired / deleted
@@ -230,11 +251,23 @@ ai_chat
 
 ### dispute_status
 
+1:1 판결 경로:
+
 ```txt
 draft
 → waiting_opponent
 → opponent_joined
 → both_submitted
+→ judging
+→ judged
+→ closed / expired / deleted
+```
+
+단독 판결 경로:
+
+```txt
+draft
+→ waiting_opponent
 → judging
 → judged
 → closed / expired / deleted
@@ -249,7 +282,7 @@ draft
 ### 권한 기준
 
 ```txt
-AI 대화방 조회:
+방 조회 (open/invite_ready):
 creator_user_id 기준
 
 1:1 사건 조회:
@@ -479,7 +512,6 @@ Claude는 작업 시 아래 순서를 따른다.
 - shop / points / user-items 구현이 필요한 경우
 - 6개 카테고리 기준 구현이 필요한 경우
 - 공감 지수 / 소통 태도 점수 구현이 필요한 경우
-- AI 대화방 없이 바로 1:1 사건 생성 흐름이 필요한 경우
 - statistics 독립 화면 생성이 필요한 경우
 - 결과 유형을 Enum으로 하드코딩하려는 경우
 - 브랜치 없이 작업 중인 경우

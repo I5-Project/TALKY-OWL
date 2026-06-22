@@ -36,6 +36,32 @@ main 직접 병합은 최종 배포 시에만 진행
 [Chore] GitHub 협업 템플릿 추가
 ```
 
+### GitHub Ruleset — PR 제목 강제 적용 규칙
+
+PR 생성 시 아래 규칙이 적용된다.
+
+**Must start with a matching pattern**
+
+```
+^(feature|fix|hotfix|chore|docs|refactor|test)/[A-Za-z0-9가-힣._-]+
+```
+
+**적용 기준**
+
+```txt
+- 허용 prefix: feature / fix / hotfix / chore / docs / refactor / test
+- / 이후: 한글, 영문(대소문자), 숫자, 점(.), 언더스코어(_), 하이픈(-) 허용
+- 브랜치명과 달리 한글 사용 가능
+```
+
+**유효 예시**
+
+```txt
+[Feat] 카카오 로그인 구현        ✅
+[Fix] 초대 링크 만료 검증 수정   ✅
+[Chore] GitHub 협업 템플릿 추가  ✅
+```
+
 ---
 
 ## 3. PR 본문 필수 항목
@@ -47,16 +73,15 @@ PR Template(`.github/pull_request_template.md`)을 사용한다.
 ```txt
 1. 작업 내용
 2. 담당 작업 영역 (체크박스)
-3. 관련 Issue (close # 링크)
-4. 관련 기능 요구사항 (FR-)
-5. 관련 비기능 요구사항 (NFR-)
-6. 변경 사항
-7. 테스트 결과 (체크박스)
-8. 작업 범위 확인 (체크박스)
-9. 보안 / 개인정보 확인 (체크박스)
-10. DB / API / Storage 변경 여부 (체크박스)
-11. 스크린샷 (필요 시)
-12. 추가 공유 사항
+3. 관련 기능 요구사항 (FR-)
+4. 관련 비기능 요구사항 (NFR-)
+5. 변경 사항
+6. 테스트 결과 (체크박스)
+7. 작업 범위 확인 (체크박스)
+8. 보안 / 개인정보 확인 (체크박스)
+9. DB / API / Storage 변경 여부 (체크박스)
+10. 스크린샷 (필요 시)
+11. 추가 공유 사항
 ```
 
 ---

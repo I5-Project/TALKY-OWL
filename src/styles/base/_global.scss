@@ -1,10 +1,111 @@
 @use '../abstracts/variables' as v;
 
+// ===========================
+// Semantic Tokens (CSS Custom Properties)
+// ===========================
+
+:root {
+  // Base
+  --color-white: #{v.$color-white};
+  --color-black: #{v.$color-black};
+
+  // Text
+  --text-primary: #{v.$color-black-500};
+  --text-secondary: #{v.$color-black-300};
+  --text-tertiary: #{v.$color-black-100};
+  --text-inverse: #{v.$color-white};
+  --text-brand: #{v.$color-primary-500};
+  --text-danger: #{v.$color-secondary-400};
+  --text-button-primary: #{v.$color-white};
+  --text-disabled: #{v.$color-black-400};
+
+  // Background
+  --bg-page: #{v.$color-white};
+  --bg-surface: #{v.$color-white};
+  --bg-surface-soft: #{v.$color-primary-100};
+  --bg-brand: #{v.$color-primary-500};
+  --bg-brand-soft: #{v.$color-primary-200};
+  --bg-warning: #{v.$color-amber};
+  --bg-disabled: #{v.$color-black-100};
+  --bg-button-primary: #{v.$color-primary-700};
+  --bg-button-primary-hover: #{v.$color-primary-600};
+
+  // Border
+  --border-default: #{v.$color-black-100};
+  --border-strong: #{v.$color-black-300};
+  --border-brand: #{v.$color-primary-500};
+  --border-danger: #{v.$color-secondary-400};
+
+  // Icon
+  --icon-primary: #{v.$color-black-500};
+  --icon-secondary: #{v.$color-black-300};
+  --icon-brand: #{v.$color-primary-500};
+  --icon-disabled: #{v.$color-black-100};
+
+  // Status
+  --status-progress-bg: #{v.$color-amber-soft};
+  --status-progress-text: #{v.$color-amber};
+  --status-done-bg: #{v.$color-primary-100};
+  --status-done-text: #{v.$color-primary-700};
+  --status-disabled-bg: #{v.$color-black-100};
+  --status-disabled-text: #{v.$color-black-400};
+  --status-danger-bg: #{v.$color-secondary-100};
+  --status-danger-text: #{v.$color-secondary-600};
+
+  // Category
+  --category-love-bg: #{v.$color-secondary-100};
+  --category-love-text: #{v.$color-secondary-600};
+  --category-work-bg: #{v.$color-fifth-100};
+  --category-work-text: #{v.$color-fifth-500};
+  --category-friend-bg: #{v.$color-amber-soft};
+  --category-friend-text: #{v.$color-amber};
+  --category-family-bg: #{v.$color-primary-100};
+  --category-family-text: #{v.$color-primary-700};
+
+  // Type Card
+  --type-card-01: #{v.$color-type-01};
+  --type-card-02: #{v.$color-type-02};
+  --type-card-03: #{v.$color-type-03};
+  --type-card-04: #{v.$color-type-04};
+  --type-card-05: #{v.$color-type-05};
+  --type-card-06: #{v.$color-type-06};
+  --type-card-07: #{v.$color-type-07};
+  --type-card-08: #{v.$color-type-08};
+  --type-card-09: #{v.$color-type-09};
+  --type-card-10: #{v.$color-type-10};
+  --type-card-11: #{v.$color-type-11};
+  --type-card-12: #{v.$color-type-12};
+  --type-card-13: #{v.$color-type-13};
+  --type-card-14: #{v.$color-type-14};
+  --type-card-15: #{v.$color-type-15};
+  --type-card-16: #{v.$color-type-16};
+
+  // Emotion
+  --emotion-happy-bg: #{v.$color-primary-100};
+  --emotion-happy-icon: #{v.$color-primary-700};
+  --emotion-sad-bg: #{v.$color-fifth-100};
+  --emotion-sad-icon: #{v.$color-fifth-500};
+  --emotion-neutral-bg: #{v.$color-amber-soft};
+  --emotion-neutral-icon: #{v.$color-amber};
+  --emotion-annoyed-bg: #{v.$color-third-100};
+  --emotion-annoyed-icon: #{v.$color-fourth-500};
+  --emotion-angry-bg: #{v.$color-secondary-100};
+  --emotion-angry-icon: #{v.$color-secondary-700};
+
+  // Typography
+  --font-family-base: #{v.$font-family-base};
+}
+
+html {
+  min-height: 100dvh;
+}
+
 body {
-  font-family: v.$font-family-base;
+  min-height: 100dvh;
+  font-family: var(--font-pretendard), v.$font-family-base;
   font-size: v.$font-size-base;
   background-color: v.$color-white;
-  color: v.$color-black;
+  color: v.$color-black-500;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }

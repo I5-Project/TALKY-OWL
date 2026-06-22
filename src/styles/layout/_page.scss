@@ -1,2 +1,11 @@
+@use '../abstracts/variables' as v;
+
 // 페이지 기본 레이아웃
 // 상세 스타일은 각 페이지 SCSS Module에서 작성
+
+.container {
+  width: 100%;
+  max-width: v.$container-max-width;
+  min-height: 100dvh;
+  margin: 0 auto;
+}

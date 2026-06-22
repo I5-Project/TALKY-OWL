@@ -118,7 +118,17 @@ VERCEL_PROJECT_ID  Vercel 프로젝트 ID
 | `SUPABASE_URL` | Supabase 프로젝트 URL | 공개 가능 |
 | `SUPABASE_ANON_KEY` | 클라이언트 공개 범위 anon key | 공개 가능 (제한적) |
 | `SUPABASE_SERVICE_ROLE_KEY` | 서버 전용 관리 key. 클라이언트 절대 노출 금지 | **서버 전용** |
-| `SUPABASE_STORAGE_BUCKET_RESULT_CARDS` | 결과 카드 이미지 저장용 bucket 이름. 권장 값: `result-cards` | 서버 전용 |
+| `SUPABASE_STORAGE_BUCKET_RESULT_CARDS` | 결과 카드 이미지 저장용 bucket 이름. 권장 값: `result-cards` (**MVP 제외, 추후 확장**) | 서버 전용 |
+
+**MVP 기준:**
+
+```txt
+- SUPABASE_URL / SUPABASE_ANON_KEY / SUPABASE_SERVICE_ROLE_KEY / SUPABASE_STORAGE_BUCKET_RESULT_CARDS는
+  MVP 필수 변수가 아니다.
+- MVP에서는 DATABASE_URL, DIRECT_URL만 Supabase 연결에 필요하다.
+- Supabase Storage 관련 변수는 추후 결과 카드 영구 저장 기능 확장 시 활성화한다.
+- MediaAsset 모델은 Prisma schema에 스캐폴딩으로 포함되어 있으나 MVP에서 직접 사용하지 않는다.
+```
 
 **SUPABASE_SERVICE_ROLE_KEY 주의사항:**
 
