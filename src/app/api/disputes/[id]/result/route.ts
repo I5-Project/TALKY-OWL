@@ -25,25 +25,29 @@ export async function GET(
   const { id } = await params
 
   try {
-    // 존재 확인 먼저, 권한 확인은 그 이후 (정보 노출 방지)
+    // dispute 조회 + 참여자 권한 확인 + judgment를 단일 쿼리로 처리
     const dispute = await prisma.dispute.findFirst({
-      where: { id, deletedAt: null },
-      select: { status: true },
+      where: {
+        id,
+        deletedAt: null,
+        participants: { some: { userId } },
+      },
+      select: {
+        status: true,
+        aiJudgment: {
+          include: {
+            resultConflictDetail: true,
+            resultCard: true,
+            aiNotice: true,
+          },
+        },
+      },
     })
+
     if (!dispute) {
       return NextResponse.json<ApiResponse>(
         { success: false, error: { code: 'DISPUTE_NOT_FOUND', message: '사건을 찾을 수 없습니다.' } },
         { status: 404 },
-      )
-    }
-
-    const participant = await prisma.disputeParticipant.findFirst({
-      where: { disputeId: id, userId },
-    })
-    if (!participant) {
-      return NextResponse.json<ApiResponse>(
-        { success: false, error: { code: 'FORBIDDEN', message: '판결 결과를 조회할 권한이 없습니다.' } },
-        { status: 403 },
       )
     }
 
@@ -74,14 +78,7 @@ export async function GET(
       )
     }
 
-    const judgment = await prisma.aiJudgment.findFirst({
-      where: { disputeId: id },
-      include: {
-        resultConflictDetail: true,
-        resultCard: true,
-        aiNotice: true,
-      },
-    })
+    const judgment = dispute.aiJudgment
     if (!judgment) {
       return NextResponse.json<ApiResponse>(
         {

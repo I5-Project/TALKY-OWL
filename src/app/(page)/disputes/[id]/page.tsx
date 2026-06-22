@@ -141,7 +141,7 @@ export default function DisputePage({ params }: { params: Promise<{ id: string }
   const runJudge = () => {
     setShowSoloModal(false);
     requestJudgment(undefined, {
-      onSuccess: () => window.location.reload(),
+      onSuccess: () => queryClient.invalidateQueries({ queryKey: disputeKeys.detail(id) }),
       onError: (error) =>
         showToast(error instanceof Error ? error.message : 'AI 판결 요청에 실패했습니다.'),
     });
