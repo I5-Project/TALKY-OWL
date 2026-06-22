@@ -97,7 +97,7 @@
 .heroInner {
   position: relative;
   width: 100%;
-  max-width: 800px;
+  max-width: 960px;
   margin: 0 auto;
   height: 420px;
 }
@@ -122,12 +122,13 @@
   object-fit: contain;
 }
 
-// Left text: absolute, vertically centered
+// Left text: absolute, activeRow anchored at vertical center
 .heroLeft {
   position: absolute;
   left: 0;
   top: 50%;
-  transform: translateY(-50%);
+  // offset up by mask height so activeRow sits at center line
+  transform: translateY(calc(-50% - 22px));
   display: flex;
   flex-direction: column;
   align-items: flex-start;
@@ -190,7 +191,7 @@
   flex-direction: column;
 }
 
-// Right text: absolute, aligned with active row
+// Right text: absolute, same line as activeRow, clear of phone
 .heroRight {
   position: absolute;
   right: 0;
@@ -198,6 +199,7 @@
   transform: translateY(-50%);
   z-index: 2;
   opacity: 0;
+  max-width: calc(50% - 150px);
 }
 
 .heroTitle {
