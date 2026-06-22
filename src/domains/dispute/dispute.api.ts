@@ -16,13 +16,13 @@ async function parseJson<T>(res: Response, fallbackMessage: string): Promise<Api
     throw new Error(res.ok ? fallbackMessage : `서버 오류 (${res.status})`)
   }
 }
-export async function fetchCompletedCases(categoryGroup?: CategoryGroup): Promise<DisputeDto[]> {
-  const params = new URLSearchParams({ completed: 'true', limit: '50' })
+export async function fetchCompletedCases(categoryGroup?: CategoryGroup, page = 1): Promise<DisputeListResponse> {
+  const params = new URLSearchParams({ completed: 'true', limit: '10', page: String(page) })
   if (categoryGroup) params.set('categoryGroup', categoryGroup)
   const res = await fetch(`/api/disputes?${params.toString()}`)
   const json = await parseJson<DisputeListResponse>(res, '사건 기록을 불러오지 못했어요. 잠시 후 다시 시도해주세요.')
   if (!json.success || !json.data) throw new Error(json.error?.message ?? '사건 기록을 불러오지 못했어요.')
-  return json.data.disputes
+  return json.data
 }
 
 export async function fetchDisputesByDate(date: string, status?: DisputeStatus): Promise<DisputeListResponse> {

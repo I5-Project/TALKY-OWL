@@ -133,7 +133,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json<ApiResponse<DisputeListResponse>>({
       success: true,
-      data: { disputes: disputes.map(toDisputeDto), total, page, limit },
+      data: { disputes: disputes.map(toDisputeDto), total, page, limit, hasNext: page * limit < total },
     })
   } catch {
     return NextResponse.json<ApiResponse>(

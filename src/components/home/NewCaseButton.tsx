@@ -18,6 +18,7 @@ export default function NewCaseButton() {
   const [isOpen, setIsOpen] = useState(false)
   const [isCreating, setIsCreating] = useState(false)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
+  const [limitError, setLimitError] = useState<string | null>(null)
   const router = useRouter()
 
   useEffect(() => {
@@ -39,8 +40,15 @@ export default function NewCaseButton() {
         body: JSON.stringify({ categoryGroup: category }),
         signal: controller.signal,
       })
-      const roomJson = await roomRes.json() as { success: boolean; data?: { id: string }; error?: { message?: string } }
-      if (!roomJson.success || !roomJson.data) throw new Error(roomJson.error?.message)
+      const roomJson = await roomRes.json() as { success: boolean; data?: { id: string }; error?: { code?: string; message?: string } }
+      if (!roomJson.success || !roomJson.data) {
+        if (roomJson.error?.code === 'CATEGORY_LIMIT_EXCEEDED') {
+          setIsOpen(false)
+          setLimitError(roomJson.error.message ?? '사건은 카테고리당 2개까지만 생성이 가능합니다.')
+          return
+        }
+        throw new Error(roomJson.error?.message)
+      }
 
       const disputeRes = await fetch('/api/disputes', {
         method: 'POST',
@@ -63,6 +71,22 @@ export default function NewCaseButton() {
 
   return (
     <>
+      {limitError && (
+        <div
+          className={styles.overlay}
+          onClick={() => setLimitError(null)}
+          role="dialog"
+          aria-modal="true"
+        >
+          <div className={styles.panel} onClick={(e) => e.stopPropagation()}>
+            <p className={styles.errorMessage}>{limitError}</p>
+            <button className={styles.closeButton} onClick={() => setLimitError(null)} aria-label="닫기">
+              <CloseIcon style={{ width: 24, height: 24 }} />
+            </button>
+          </div>
+        </div>
+      )}
+
       {isOpen && (
         <div
           className={styles.overlay}

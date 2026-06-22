@@ -9,3 +9,8 @@ export const IMMUTABLE_DISPUTE_STATUSES = [
   'EXPIRED',
   'DELETED',
 ] as const
+
+// 진행중 상태 = 판결/종료/삭제되지 않은 상태 (카테고리 한도 체크 기준)
+export const COMPLETED_DISPUTE_STATUSES = ['JUDGED', 'CLOSED', 'EXPIRED', 'DELETED'] as const
+
+export const CATEGORY_ACTIVE_LIMIT = 2
