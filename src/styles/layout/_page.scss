@@ -8,7 +8,4 @@
   max-width: v.$container-max-width;
   min-height: 100dvh;
   margin: 0 auto;
-  /* TODO: 개발 확인용 임시 border — 배포 전 제거 */
-  border-left: 1px solid #ccc;
-  border-right: 1px solid #ccc;
 }
