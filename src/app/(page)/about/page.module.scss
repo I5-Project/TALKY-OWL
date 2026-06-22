@@ -334,6 +334,13 @@
   flex-shrink: 0;
 }
 
+.showcasePhoneImage {
+  display: block;
+  width: 280px;
+  height: auto;
+  object-fit: contain;
+}
+
 .phoneMockupTilted {
   width: 240px;
   border-radius: 32px;
