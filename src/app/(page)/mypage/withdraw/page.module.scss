@@ -7,6 +7,40 @@
   overflow-y: auto;
 }
 
+.profile {
+  display: flex;
+  align-items: center;
+  gap: fn.r(12);
+  padding: fn.r(20);
+  margin-bottom: fn.r(24);
+  background-color: var(--bg-surface);
+  border-radius: fn.r(16);
+
+  &__info {
+    display: flex;
+    flex-direction: column;
+    gap: fn.r(4);
+    flex: 1;
+    min-width: 0;
+  }
+
+  &__name {
+    @include m.text-title-s;
+    color: var(--text-primary);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__email {
+    @include m.text-caption;
+    color: var(--text-secondary);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
 .terms {
   display: flex;
   flex-direction: column;
@@ -33,7 +67,7 @@
   &__paragraph {
     @include m.text-body-s;
 
-    color: var(--text-secondary);
+    color: var(--text-primary);
     word-break: keep-all;
     overflow-wrap: break-word;
   }
