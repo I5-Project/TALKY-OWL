@@ -255,30 +255,31 @@
 // Animal characters
 .animalCat {
   position: absolute;
-  left: -40px;
-  bottom: -60px;
+  left: -20px;
+  bottom: -40px;
   z-index: 2;
-  width: 160px;
+  width: 140px;
   height: auto;
   object-fit: contain;
 }
 
 .animalDog {
   position: absolute;
-  left: 200px;
-  bottom: -50px;
+  left: 50%;
+  bottom: -45px;
+  transform: translateX(-70%);
   z-index: 2;
-  width: 130px;
+  width: 120px;
   height: auto;
   object-fit: contain;
 }
 
 .animalPanda {
   position: absolute;
-  right: -20px;
-  top: -50px;
+  right: -10px;
+  top: -45px;
   z-index: 0;
-  width: 110px;
+  width: 100px;
   height: auto;
   object-fit: contain;
 }
