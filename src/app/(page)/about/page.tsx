@@ -112,25 +112,35 @@ export default function AboutPage() {
               },
             });
 
-            // Hold current state
+            // Hold
             stepTl.to({}, { duration: CYCLE_DURATION });
 
-            // Fade out
-            stepTl.to([aboveTrack, activeRowEl, belowTrack], {
-              y: -12, opacity: 0, duration: 0.25, ease: 'power2.in',
+            // Active row slides up and fades
+            stepTl.to(activeRowEl, {
+              y: -8, opacity: 0, duration: 0.2, ease: 'power2.in',
             });
 
-            // Swap text
+            // Above/below text crossfade
+            stepTl.to([aboveTrack, belowTrack], {
+              opacity: 0, duration: 0.15, ease: 'power1.in',
+            }, '<');
+
+            // Swap all text content
             stepTl.call(() => setTexts(nextIdx));
 
-            // Fade in
-            stepTl.fromTo([aboveTrack, activeRowEl, belowTrack],
-              { y: 12, opacity: 0 },
-              { y: 0, opacity: 1, duration: 0.3, ease: 'power2.out' },
+            // Above/below fade back in
+            stepTl.to([aboveTrack, belowTrack], {
+              opacity: 1, duration: 0.2, ease: 'power1.out',
+            });
+
+            // Active row slides in from below
+            stepTl.fromTo(activeRowEl,
+              { y: 8, opacity: 0 },
+              { y: 0, opacity: 1, duration: 0.25, ease: 'power2.out' },
+              '<',
             );
           };
 
-          // Start after initial delay
           gsap.delayedCall(1.5, animateNext);
         }
       }
