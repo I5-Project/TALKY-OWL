@@ -5,6 +5,7 @@
 .page {
   display: flex;
   flex-direction: column;
+  min-height: 100svh;
   padding: fn.r(20) fn.r(24) fn.r(40);
 }
 

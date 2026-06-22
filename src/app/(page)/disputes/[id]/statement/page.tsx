@@ -50,6 +50,11 @@ export default function StatementPage({
   const [content, setContent] = React.useState('')
 
   React.useEffect(() => {
+    if (!userMe) return
+    setMbti(userMe.mbti ?? '')
+  }, [userMe])
+
+  React.useEffect(() => {
     if (!isEditMode || !dispute || !userMe) return
     const existing = dispute.statements?.find((s) => s.userId === userMe.id)
     if (existing) setContent(existing.content)
