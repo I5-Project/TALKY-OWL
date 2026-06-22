@@ -17,9 +17,10 @@ function formatDate(dateStr: string): string {
 }
 
 export default function RecordList({ selectedDate }: Props) {
-  const { data, isLoading } = useDisputesByDate(selectedDate, 'closed');
+  const { data, isLoading, isError } = useDisputesByDate(selectedDate, 'closed');
 
   if (isLoading) return <div className={styles.empty}>불러오는 중...</div>;
+  if (isError) return <div className={styles.empty}>기록을 불러오지 못했어요</div>;
 
   const disputes = data?.disputes ?? [];
 

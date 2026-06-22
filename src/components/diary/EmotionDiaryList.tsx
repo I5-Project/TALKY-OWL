@@ -9,9 +9,10 @@ type Props = {
 };
 
 export default function EmotionDiaryList({ selectedDate }: Props) {
-  const { data: items = [], isLoading } = useDiariesByDate(selectedDate);
+  const { data: items = [], isLoading, isError } = useDiariesByDate(selectedDate);
 
   if (isLoading) return <div className={styles.empty}>불러오는 중...</div>;
+  if (isError) return <div className={styles.empty}>일기를 불러오지 못했어요</div>;
 
   if (items.length === 0) {
     return <div className={styles.empty}>등록한 일기가 없어요</div>;
