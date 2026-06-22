@@ -11,7 +11,9 @@ interface Props {
 }
 
 function replaceRoleNames(text: string, nameA: string, nameB: string): string {
-  return text.replace(/A님|B님/g, (match) => match === 'A님' ? `${nameA}님` : `${nameB}님`)
+  return text
+    .replace(/\bB\b/g, nameB)
+    .replace(/\bA\b/g, nameA)
 }
 
 function Avatar({ src }: { src: string | null }) {
