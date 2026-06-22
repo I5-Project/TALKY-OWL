@@ -111,20 +111,7 @@ export default function AboutPage() {
             tl.call(() => {
               currentOrderIdx = step % REVOLVING_ORDER.length;
 
-              // Slide up transition
-              gsap.fromTo(revolvingRef.current,
-                { y: 0 },
-                {
-                  y: -8, duration: 0.15, ease: 'power1.in',
-                  onComplete: () => {
-                    updateDisplay(currentOrderIdx);
-                    gsap.fromTo(revolvingRef.current,
-                      { y: 8 },
-                      { y: 0, duration: 0.2, ease: 'power1.out' }
-                    );
-                  }
-                }
-              );
+              updateDisplay(currentOrderIdx);
             }, [], step * CYCLE_DURATION);
           }
         }

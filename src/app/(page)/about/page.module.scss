@@ -191,15 +191,14 @@
   flex-direction: column;
 }
 
-// Right text: absolute, same line as activeRow, clear of phone
+// Right text: starts right after phone area
 .heroRight {
   position: absolute;
-  right: 0;
+  left: calc(50% + 140px);
   top: 50%;
   transform: translateY(-50%);
   z-index: 2;
   opacity: 0;
-  max-width: calc(50% - 150px);
 }
 
 .heroTitle {
