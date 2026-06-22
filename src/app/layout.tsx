@@ -29,7 +29,7 @@ export default async function RootLayout({
       <body suppressHydrationWarning>
         <AuthProvider session={session}>
           <QueryProvider>
-            <main className="container">{children}</main>
+            <div className="container">{children}</div>
             <Toast />
           </QueryProvider>
         </AuthProvider>

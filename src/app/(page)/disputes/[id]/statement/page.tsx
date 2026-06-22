@@ -2,7 +2,7 @@
 
 import React from 'react'
 import { useRouter } from 'next/navigation'
-import Header from '@/components/layout/Header'
+import { useHeaderStore } from '@/stores/headerStore'
 import Button from '@/components/ui/Button'
 import Select from '@/components/ui/Select'
 import Textarea from '@/components/ui/Textarea'
@@ -29,6 +29,11 @@ export default function StatementPage({
   const { id } = React.use(params)
   const { category: rawCategory } = React.use(searchParams)
   const router = useRouter()
+  const setHeader = useHeaderStore((s) => s.setHeader)
+  React.useEffect(() => {
+    setHeader({ variant: 'title', title: '사건작성', onBack: () => router.back() })
+    return () => setHeader(null)
+  }, [])
 
   const category: CategoryGroup = VALID_CATEGORIES.includes(rawCategory as CategoryGroup)
     ? (rawCategory as CategoryGroup)
@@ -81,7 +86,6 @@ export default function StatementPage({
   if (!category) {
     return (
       <div className={styles.page}>
-        <Header title="사건작성" onBack={() => router.back()} />
         <div className={styles.modalOverlay}>
           <div className={styles.modal}>
             <p className={styles.modalText}>카테고리를 선택해주세요</p>
@@ -96,7 +100,6 @@ export default function StatementPage({
 
   return (
     <div className={styles.page}>
-      <Header title="사건작성" onBack={() => router.back()} />
 
       <div className={styles.content}>
         <section className={styles.section}>

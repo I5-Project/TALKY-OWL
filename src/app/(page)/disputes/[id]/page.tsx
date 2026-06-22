@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation'
 import { useQueryClient } from '@tanstack/react-query'
 import AutorenewRoundedIcon from '@mui/icons-material/AutorenewRounded'
 import CircularProgress from '@mui/material/CircularProgress'
-import Header from '@/components/layout/Header'
+import { useHeaderStore } from '@/stores/headerStore'
 import Button from '@/components/ui/Button'
 import Tabs from '@/components/ui/Tabs'
 import Tab from '@/components/ui/Tab'
@@ -31,6 +31,11 @@ const TABS = [
 export default function DisputePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = React.use(params)
   const router = useRouter()
+  const setHeader = useHeaderStore((s) => s.setHeader)
+  React.useEffect(() => {
+    setHeader({ variant: 'title', title: '사건조회', onBack: () => router.back() })
+    return () => setHeader(null)
+  }, [])
   const queryClient = useQueryClient()
 
   const pollCountRef = React.useRef(0)
@@ -163,7 +168,6 @@ export default function DisputePage({ params }: { params: Promise<{ id: string }
   if (!dispute) {
     return (
       <div className={styles.page}>
-        <Header title="사건조회" onBack={() => router.back()} />
         <p className={styles.empty}>사건을 찾을 수 없습니다.</p>
       </div>
     )
@@ -173,7 +177,6 @@ export default function DisputePage({ params }: { params: Promise<{ id: string }
 
   return (
     <div className={styles.page}>
-      <Header title="사건조회" onBack={() => router.back()} />
 
       {/* 사건 정보 카드 */}
       <section className={styles.infoCard}>
