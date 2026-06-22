@@ -302,11 +302,7 @@ export default function AboutPage() {
               </p>
             </div>
             <div className={styles.showcasePhoneWrap}>
-              <div className={styles.phoneMockupStraight}>
-                <div className={styles.phoneScreenClipped}>
-                  <Image src="/images/about/6.png" alt="판결 결과" width={260} height={560} className={styles.screenImage} />
-                </div>
-              </div>
+              <Image src="/images/about/14.png" alt="판결 결과" width={258} height={429} className={styles.showcasePhoneImageTop} />
             </div>
           </section>
 
