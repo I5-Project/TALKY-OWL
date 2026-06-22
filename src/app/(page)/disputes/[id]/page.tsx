@@ -14,6 +14,7 @@ import Spinner from '@/components/ui/Spinner';
 import StatusBadge from '@/components/ui/StatusBadge';
 import CategoryIcon from '@/components/ui/CategoryIcon';
 import InviteChoiceModal from '@/components/room/InviteChoiceModal';
+import Modal from '@/components/ui/Modal';
 import JudgmentResult from '@/components/judgement/JudgmentResult';
 import JudgmentTypeResult from '@/components/judgement/JudgmentTypeResult';
 import {
@@ -100,6 +101,7 @@ export default function DisputePage({ params }: { params: Promise<{ id: string }
     data: judgment,
     isLoading: judgmentLoading,
     isError: judgmentError,
+    error: judgmentErrorData,
   } = useJudgment(id, isCompleted);
 
   const showToast = useToastStore((s) => s.show);
@@ -108,7 +110,18 @@ export default function DisputePage({ params }: { params: Promise<{ id: string }
   const [judgmentSubTab, setJudgmentSubTab] = React.useState<'verdict' | 'type'>('verdict');
   const [showSoloModal, setShowSoloModal] = React.useState(false);
   const [isInviting, setIsInviting] = React.useState(false);
+  const [judgmentErrorModal, setJudgmentErrorModal] = React.useState(false);
+  const [judgmentErrorMessage, setJudgmentErrorMessage] = React.useState<string | null>(null);
   const [isRefreshing, setIsRefreshing] = React.useState(false);
+
+  React.useEffect(() => {
+    if (judgmentError && !judgmentErrorModal) {
+      setJudgmentErrorMessage(
+        judgmentErrorData instanceof Error ? judgmentErrorData.message : '판결 결과를 불러올 수 없습니다.',
+      );
+      setJudgmentErrorModal(true);
+    }
+  }, [judgmentError]);
 
   const handleRefresh = async () => {
     setIsRefreshing(true);
@@ -150,7 +163,7 @@ export default function DisputePage({ params }: { params: Promise<{ id: string }
   const runJudge = () => {
     setShowSoloModal(false);
     requestJudgment(undefined, {
-      onSuccess: () => window.location.reload(),
+      onSuccess: () => queryClient.invalidateQueries({ queryKey: disputeKeys.detail(id) }),
       onError: (error) =>
         showToast(error instanceof Error ? error.message : 'AI 판결 요청에 실패했습니다.'),
     });
@@ -375,6 +388,15 @@ export default function DisputePage({ params }: { params: Promise<{ id: string }
         onAlone={() => void runJudge()}
         onInvite={() => void handleInvite()}
       />
+
+      <Modal open={judgmentErrorModal}>
+        <div className={styles.modalContent}>
+          <p className={styles.modalMessage}>
+            {judgmentErrorMessage ?? '판결 결과를 불러올 수 없습니다.'}
+          </p>
+          <Button onClick={() => setJudgmentErrorModal(false)}>확인</Button>
+        </div>
+      </Modal>
     </div>
   );
 }

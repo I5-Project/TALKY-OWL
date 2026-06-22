@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getServerSession } from 'next-auth'
-import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/db'
-import { getSessionUserId } from '@/lib/auth/session'
+import { getRequestUserId } from '@/lib/auth/session'
 import { supabaseAdmin, PROFILE_IMAGES_BUCKET } from '@/lib/storage'
 import type { ApiResponse } from '@/types/common'
 
@@ -64,9 +62,8 @@ function getAuthErrorResponse() {
   )
 }
 
-export async function GET() {
-  const session = await getServerSession(authOptions)
-  const userId = getSessionUserId(session)
+export async function GET(request: NextRequest) {
+  const userId = await getRequestUserId(request)
 
   if (!userId) return getAuthErrorResponse()
 
@@ -105,8 +102,7 @@ export async function GET() {
 }
 
 export async function PATCH(request: NextRequest) {
-  const session = await getServerSession(authOptions)
-  const userId = getSessionUserId(session)
+  const userId = await getRequestUserId(request)
 
   if (!userId) return getAuthErrorResponse()
 
@@ -271,9 +267,8 @@ export async function PATCH(request: NextRequest) {
   }
 }
 
-export async function DELETE() {
-  const session = await getServerSession(authOptions)
-  const userId = getSessionUserId(session)
+export async function DELETE(request: NextRequest) {
+  const userId = await getRequestUserId(request)
 
   if (!userId) return getAuthErrorResponse()
 

@@ -13,5 +13,6 @@ export function useJudgment(disputeId: string, enabled = true) {
     queryKey: judgementKeys.detail(disputeId),
     queryFn: () => fetchJudgment(disputeId),
     enabled: !!disputeId && enabled,
+    staleTime: 1000 * 60 * 10,
   })
 }

@@ -1,23 +1,11 @@
-'use client';
-
-import { useRouter } from 'next/navigation';
-import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
+import BackButton from '@/components/ui/BackButton';
 import styles from './privacy.module.scss';
 
 export default function PrivacyPage() {
-  const router = useRouter();
-
   return (
     <div className={styles.page}>
       <header className={styles.header}>
-        <button
-          type="button"
-          className={styles.backButton}
-          onClick={() => router.back()}
-          aria-label="뒤로 가기"
-        >
-          <ArrowBackIosNewIcon />
-        </button>
+        <BackButton className={styles.backButton} />
         <h1 className={styles.title}>개인정보 처리방침</h1>
         <span className={styles.spacer} />
       </header>
