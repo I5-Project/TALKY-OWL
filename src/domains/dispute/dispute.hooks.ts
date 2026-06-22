@@ -45,6 +45,7 @@ export function useDispute(
     queryKey: disputeKeys.detail(disputeId),
     queryFn: () => fetchDispute(disputeId),
     enabled: !!disputeId,
+    staleTime: 1000 * 30,
     refetchInterval: options?.refetchInterval,
   });
 }

@@ -1,4 +1,5 @@
 @use '@/styles/abstracts/variables' as v;
+@use '@/styles/abstracts/mixins' as m;
 @use '@/styles/abstracts/functions' as fn;
 
 // ===========================
@@ -208,6 +209,31 @@
   color: var(--text-primary);
 }
 
+.statementFooter {
+  display: flex;
+  align-items: center;
+  gap: fn.r(6);
+}
+
+.statementAvatar {
+  position: relative;
+  width: fn.r(24);
+  height: fn.r(24);
+  border-radius: 50%;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.statementAvatarImg {
+  object-fit: cover;
+}
+
+.statementMbti {
+  @include m.text-label-s;
+
+  color: v.$color-black-400;
+}
+
 // ===========================
 // Judgment Sub-tabs (판결 / 유형)
 // ===========================
@@ -313,6 +339,21 @@
 // ===========================
 // Modal
 // ===========================
+
+.modalContent {
+  display: flex;
+  flex-direction: column;
+  gap: fn.r(20);
+}
+
+.modalMessage {
+  font-family: v.$font-family-base;
+  font-size: v.$font-size-title-s;
+  font-weight: v.$font-weight-semibold;
+  line-height: v.$line-height-title-s;
+  color: var(--text-primary);
+  white-space: pre-line;
+}
 
 .modalOverlay {
   position: fixed;

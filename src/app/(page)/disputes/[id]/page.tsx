@@ -14,6 +14,7 @@ import Spinner from '@/components/ui/Spinner';
 import StatusBadge from '@/components/ui/StatusBadge';
 import CategoryIcon from '@/components/ui/CategoryIcon';
 import InviteChoiceModal from '@/components/room/InviteChoiceModal';
+import Modal from '@/components/ui/Modal';
 import JudgmentResult from '@/components/judgement/JudgmentResult';
 import JudgmentTypeResult from '@/components/judgement/JudgmentTypeResult';
 import {
@@ -100,6 +101,7 @@ export default function DisputePage({ params }: { params: Promise<{ id: string }
     data: judgment,
     isLoading: judgmentLoading,
     isError: judgmentError,
+    error: judgmentErrorData,
   } = useJudgment(id, isCompleted);
 
   const showToast = useToastStore((s) => s.show);
@@ -108,7 +110,18 @@ export default function DisputePage({ params }: { params: Promise<{ id: string }
   const [judgmentSubTab, setJudgmentSubTab] = React.useState<'verdict' | 'type'>('verdict');
   const [showSoloModal, setShowSoloModal] = React.useState(false);
   const [isInviting, setIsInviting] = React.useState(false);
+  const [judgmentErrorModal, setJudgmentErrorModal] = React.useState(false);
+  const [judgmentErrorMessage, setJudgmentErrorMessage] = React.useState<string | null>(null);
   const [isRefreshing, setIsRefreshing] = React.useState(false);
+
+  React.useEffect(() => {
+    if (judgmentError && !judgmentErrorModal) {
+      setJudgmentErrorMessage(
+        judgmentErrorData instanceof Error ? judgmentErrorData.message : '판결 결과를 불러올 수 없습니다.',
+      );
+      setJudgmentErrorModal(true);
+    }
+  }, [judgmentError]);
 
   const handleRefresh = async () => {
     setIsRefreshing(true);
@@ -122,6 +135,8 @@ export default function DisputePage({ params }: { params: Promise<{ id: string }
   const isSolo = dispute !== undefined && dispute.participants.length === 1;
   const roleAStatement = dispute?.statements?.find((s) => s.role === 'role_a');
   const roleBStatement = dispute?.statements?.find((s) => s.role === 'role_b');
+  const participantA = dispute?.participants.find((p) => p.role === 'role_a');
+  const participantB = dispute?.participants.find((p) => p.role === 'role_b');
   const canJudge = (isSolo && !!roleAStatement?.content) || dispute?.status === 'both_submitted';
   const myRole = dispute?.participants.find((p) => p.userId === userMe?.id)?.role;
 
@@ -148,7 +163,7 @@ export default function DisputePage({ params }: { params: Promise<{ id: string }
   const runJudge = () => {
     setShowSoloModal(false);
     requestJudgment(undefined, {
-      onSuccess: () => window.location.reload(),
+      onSuccess: () => queryClient.invalidateQueries({ queryKey: disputeKeys.detail(id) }),
       onError: (error) =>
         showToast(error instanceof Error ? error.message : 'AI 판결 요청에 실패했습니다.'),
     });
@@ -265,8 +280,21 @@ export default function DisputePage({ params }: { params: Promise<{ id: string }
                 onClick={myRole === 'role_a' && !isCompleted ? () => router.push(`/disputes/${id}/statement?edit=true`) : undefined}
                 {...(myRole === 'role_a' && !isCompleted ? { role: 'button', tabIndex: 0, onKeyDown: (e) => { if (e.key === 'Enter' || e.key === ' ') router.push(`/disputes/${id}/statement?edit=true`) } } : {})}
               >
-                <p className={styles.statementLabel}>A의 진술</p>
+                <p className={styles.statementLabel}>{participantA?.name ?? 'A'}님의 진술</p>
                 <p className={styles.statementContent}>{roleAStatement.content}</p>
+                <div className={styles.statementFooter}>
+                  <div className={styles.statementAvatar}>
+                    <Image
+                      src={participantA?.profileImageUrl ?? '/images/common/thumbnail-default.svg'}
+                      alt=""
+                      fill
+                      className={styles.statementAvatarImg}
+                    />
+                  </div>
+                  {participantA?.mbti && (
+                    <span className={styles.statementMbti}>{participantA.mbti}</span>
+                  )}
+                </div>
               </div>
             )}
             {roleBStatement && (
@@ -275,8 +303,21 @@ export default function DisputePage({ params }: { params: Promise<{ id: string }
                 onClick={myRole === 'role_b' && !isCompleted ? () => router.push(`/disputes/${id}/statement?edit=true`) : undefined}
                 {...(myRole === 'role_b' && !isCompleted ? { role: 'button', tabIndex: 0, onKeyDown: (e) => { if (e.key === 'Enter' || e.key === ' ') router.push(`/disputes/${id}/statement?edit=true`) } } : {})}
               >
-                <p className={styles.statementLabel}>B의 진술</p>
+                <p className={styles.statementLabel}>{participantB?.name ?? 'B'}님의 진술</p>
                 <p className={styles.statementContent}>{roleBStatement.content}</p>
+                <div className={styles.statementFooter}>
+                  <div className={styles.statementAvatar}>
+                    <Image
+                      src={participantB?.profileImageUrl ?? '/images/common/thumbnail-default.svg'}
+                      alt=""
+                      fill
+                      className={styles.statementAvatarImg}
+                    />
+                  </div>
+                  {participantB?.mbti && (
+                    <span className={styles.statementMbti}>{participantB.mbti}</span>
+                  )}
+                </div>
               </div>
             )}
             {!roleAStatement && !roleBStatement && (
@@ -347,6 +388,15 @@ export default function DisputePage({ params }: { params: Promise<{ id: string }
         onAlone={() => void runJudge()}
         onInvite={() => void handleInvite()}
       />
+
+      <Modal open={judgmentErrorModal}>
+        <div className={styles.modalContent}>
+          <p className={styles.modalMessage}>
+            {judgmentErrorMessage ?? '판결 결과를 불러올 수 없습니다.'}
+          </p>
+          <Button onClick={() => setJudgmentErrorModal(false)}>확인</Button>
+        </div>
+      </Modal>
     </div>
   );
 }
