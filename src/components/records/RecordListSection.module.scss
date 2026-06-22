@@ -45,3 +45,15 @@
   font-size: v.$font-size-body-s;
   color: var(--text-secondary);
 }
+
+.bottomObserver {
+  display: flex;
+  justify-content: center;
+  padding: fn.r(16) 0;
+}
+
+.allLoaded {
+  @include m.text-caption;
+
+  color: var(--text-secondary);
+}

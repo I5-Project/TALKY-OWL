@@ -1,18 +1,17 @@
+import { unstable_cache } from 'next/cache'
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/db'
 import type { ApiResponse } from '@/types/common'
 
-// 하루에 한 번 재계산 (홈 화면 통계는 실시간 불필요)
-export const revalidate = 86400
+// force-dynamic: 빌드 시 DB 호출 없음 (빌드 속도 개선)
+// unstable_cache: 첫 요청 후 24시간 캐시 유지
+export const dynamic = 'force-dynamic'
 
 const ALL_CATEGORIES = ['ROMANCE', 'FAMILY', 'FRIEND', 'WORK'] as const
 
-// GET /api/statistics/categories
-// 판결 완료 사건 기준 카테고리별(연애/가족/친구/직장) count 반환
-// 비율 계산은 프론트 훅(useStatistics)에서 처리
-export async function GET() {
-  try {
-    const grouped = await prisma.dispute.groupBy({
+const getCategoryStats = unstable_cache(
+  async () => {
+    return prisma.dispute.groupBy({
       by: ['categoryGroup'],
       where: {
         status: 'JUDGED',
@@ -21,6 +20,17 @@ export async function GET() {
       },
       _count: { id: true },
     })
+  },
+  ['statistics-categories'],
+  { revalidate: 86400 },
+)
+
+// GET /api/statistics/categories
+// 판결 완료 사건 기준 카테고리별(연애/가족/친구/직장) count 반환
+// 비율 계산은 프론트 훅(useStatistics)에서 처리
+export async function GET() {
+  try {
+    const grouped = await getCategoryStats()
 
     const total = grouped.reduce((sum, g) => sum + g._count.id, 0)
     const countMap = new Map(grouped.map((g) => [g.categoryGroup, g._count.id]))

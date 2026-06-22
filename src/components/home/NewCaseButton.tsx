@@ -18,12 +18,13 @@ export default function NewCaseButton() {
   const [isOpen, setIsOpen] = useState(false)
   const [isCreating, setIsCreating] = useState(false)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
+  const [limitError, setLimitError] = useState<string | null>(null)
   const router = useRouter()
 
   useEffect(() => {
-    document.body.style.overflow = isOpen ? 'hidden' : ''
+    document.body.style.overflow = (isOpen || !!limitError) ? 'hidden' : ''
     return () => { document.body.style.overflow = '' }
-  }, [isOpen])
+  }, [isOpen, limitError])
 
   const handleCategoryClick = async (category: CategoryGroup) => {
     if (isCreating) return
@@ -39,8 +40,15 @@ export default function NewCaseButton() {
         body: JSON.stringify({ categoryGroup: category }),
         signal: controller.signal,
       })
-      const roomJson = await roomRes.json() as { success: boolean; data?: { id: string }; error?: { message?: string } }
-      if (!roomJson.success || !roomJson.data) throw new Error(roomJson.error?.message)
+      const roomJson = await roomRes.json() as { success: boolean; data?: { id: string }; error?: { code?: string; message?: string } }
+      if (!roomJson.success || !roomJson.data) {
+        if (roomJson.error?.code === 'CATEGORY_LIMIT_EXCEEDED') {
+          setIsOpen(false)
+          setLimitError(roomJson.error.message ?? '사건은 카테고리당 2개까지만\n생성이 가능합니다.')
+          return
+        }
+        throw new Error(roomJson.error?.message)
+      }
 
       router.push(`/rooms/${roomJson.data.id}/statement?category=${category}`)
     } catch (err) {
@@ -54,6 +62,22 @@ export default function NewCaseButton() {
 
   return (
     <>
+      {limitError && (
+        <div
+          className={styles.limitOverlay}
+          onClick={() => setLimitError(null)}
+          role="dialog"
+          aria-modal="true"
+        >
+          <div className={styles.limitModal} onClick={(e) => e.stopPropagation()}>
+            <p className={styles.limitMessage}>{limitError}</p>
+            <button className={styles.limitCloseButton} onClick={() => setLimitError(null)}>
+              확인
+            </button>
+          </div>
+        </div>
+      )}
+
       {isOpen && (
         <div
           className={styles.overlay}

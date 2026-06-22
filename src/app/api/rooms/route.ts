@@ -3,7 +3,7 @@ import { z } from 'zod'
 import { type RoomMode as PrismaRoomMode, type CategoryGroup as PrismaCategoryGroup } from '@prisma/client'
 import { prisma } from '@/lib/db'
 import { getRequestUserId } from '@/lib/auth/session'
-import { VALID_CATEGORY_GROUPS } from '@/lib/constants/dispute'
+import { VALID_CATEGORY_GROUPS, COMPLETED_DISPUTE_STATUSES, CATEGORY_ACTIVE_LIMIT } from '@/lib/constants/dispute'
 import type { ApiResponse, CategoryGroup } from '@/types/common'
 import type { RoomDto, RoomListResponse, RoomMode } from '@/types/room'
 
@@ -135,6 +135,27 @@ export async function POST(request: NextRequest) {
   const { categoryGroup } = parsed.data
 
   try {
+    const activeCount = await prisma.dispute.count({
+      where: {
+        categoryGroup: categoryGroup.toUpperCase() as PrismaCategoryGroup,
+        deletedAt: null,
+        status: { notIn: [...COMPLETED_DISPUTE_STATUSES] },
+        participants: { some: { userId } },
+      },
+    })
+    if (activeCount >= CATEGORY_ACTIVE_LIMIT) {
+      return NextResponse.json<ApiResponse>(
+        {
+          success: false,
+          error: {
+            code: 'CATEGORY_LIMIT_EXCEEDED',
+            message: '사건은 카테고리당 2개까지만\n생성이 가능합니다.',
+          },
+        },
+        { status: 422 },
+      )
+    }
+
     const room = await prisma.disputeRoom.create({
       data: {
         roomNo: generateRoomNo(),
