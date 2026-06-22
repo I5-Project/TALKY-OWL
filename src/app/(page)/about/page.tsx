@@ -280,19 +280,19 @@ export default function AboutPage() {
           </section>
 
           {/* ===== TAB 4: 감정일기 ===== */}
-          <section className={`${styles.showcaseSection} ${styles.reverse} ${styles.bgLight}`}>
+          <section className={`${styles.showcaseSection} ${styles.bgLight}`}>
+            <div className={styles.showcaseText}>
+              <h2 className={styles.showcaseTitle}>하루의 감정을 기록해 보세요</h2>
+              <p className={styles.showcaseDesc}>
+                오늘 감정을 기록하고 푸른하늘에 묻어버리세요!
+              </p>
+            </div>
             <div className={styles.showcasePhoneWrap}>
               <div className={styles.phoneMockupTilted}>
                 <div className={styles.phoneScreen}>
                   <Image src="/images/about/3.png" alt="감정일기" width={260} height={560} className={styles.screenImage} />
                 </div>
               </div>
-            </div>
-            <div className={styles.showcaseText}>
-              <h2 className={styles.showcaseTitle}>하루의 감정을 기록해 보세요</h2>
-              <p className={styles.showcaseDesc}>
-                오늘 감정을 기록하고 푸른하늘에 묻어버리세요!
-              </p>
             </div>
           </section>
 
