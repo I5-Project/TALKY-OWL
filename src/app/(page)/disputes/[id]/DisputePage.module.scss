@@ -182,6 +182,14 @@
   border-radius: fn.r(8);
 }
 
+.statementCardEditable {
+  cursor: pointer;
+
+  &:hover {
+    border-color: v.$color-primary-500;
+  }
+}
+
 .statementLabel {
   font-family: v.$font-family-base;
   font-size: v.$font-size-label-m;
