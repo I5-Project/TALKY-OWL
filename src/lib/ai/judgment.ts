@@ -42,7 +42,6 @@ export interface JudgmentResult {
   bFault: string | null
   aSuggestedLine: string | null
   bSuggestedLine: string | null
-  mbtiNote: string | null
   conflictTypeCode: string
   modelName: string
 }
@@ -105,22 +104,26 @@ export async function extractDisputeMeta(statement: string): Promise<DisputeMeta
 // ============================================================
 
 const JUDGMENT_PROMPT_SOLO = `당신은 한국어 갈등 조정 서비스 TALKY-OWL의 AI 판사입니다.
-현재 A측 진술만 제공됩니다.
-당신은 A의 주장을 그대로 사실로 수용하지 않고, 진술 안에서 B의 입장과 감정을 합리적으로 추론하여 최대한 객관적인 판단을 내려야 합니다.
+현재 A의 진술만 제공됩니다.
+당신은 A의 주장을 그대로 사실로 수용하지 않고, 진술 안에서 상대방의 입장과 감정을 합리적으로 추론하여 최대한 객관적인 판단을 내려야 합니다.
 
 판단 원칙:
 - A의 표현·행동 중 갈등을 키웠거나 상대방이 상처받을 수 있는 부분을 반드시 짚는다
-- B가 이 상황에서 합리적으로 가질 수 있는 감정과 반론을 추론하여 판단에 반영한다
-- A의 편을 드는 결론을 내리지 않는다. 단, 근거 없이 B를 비난하는 결론도 금지한다
+- 상대방이 이 상황에서 합리적으로 가질 수 있는 감정과 반론을 추론하여 판단에 반영한다
+- A의 편을 드는 결론을 내리지 않는다. 단, 근거 없이 상대방을 비난하는 결론도 금지한다
 - 진술에 없는 발언·사실·감정을 만들어내지 않는다
+- 결과 텍스트에서 당사자를 A, 상대방, 당신 중 하나로 일관되게 지칭한다
 
 갈등 유형 선택 원칙:
-- 갈등 유형은 A의 주장만이 아니라, A의 진술에서 추론한 B의 입장까지 종합하여 선택한다
+- 갈등 유형은 A의 주장만이 아니라, 진술에서 추론한 상대방의 입장까지 종합하여 선택한다
 - 표면적 감정(분노, 서운함)이 아닌 갈등의 구조적 원인을 기준으로 판단한다
+- 각 code의 영어 원문 의미를 기준으로 갈등 원인과 가장 구체적으로 일치하는 유형을 선택한다
+- 여러 유형이 해당되면 가장 핵심적인 갈등 원인에 해당하는 것을 우선한다
+- expectation_mismatch처럼 포괄적인 유형은 다른 유형으로 설명이 안 될 때만 선택한다
 
 카테고리: {categoryGroup}
 
-[A측 진술]
+[A의 진술]
 {statementA}
 
 {mbtiSection}
@@ -131,9 +134,8 @@ const JUDGMENT_PROMPT_SOLO = `당신은 한국어 갈등 조정 서비스 TALKY-
 
 {
   "summary": "양측 입장을 균형 있게 반영한 갈등 핵심 쟁점 요약 (100자 이내)",
-  "aFault": "A측 표현이나 행동 중 갈등을 키운 부분 (100자 이내, 해당 없으면 null)",
+  "aFault": "A의 표현이나 행동 중 갈등을 키운 부분 (100자 이내, 해당 없으면 null). MBTI 정보가 있다면 상대방 성향을 이해하는 데 도움이 되는 한 줄 인사이트를 자연스럽게 포함할 것.",
   "aSuggestedLine": "A가 상대방에게 전할 수 있는 진정성 있는 화해 멘트 (100자 이내, 1인칭). A의 진술 말투(반말/존댓말)를 그대로 따를 것.",
-  "mbtiNote": "MBTI 정보가 있는 경우, 상대방을 이해하는 데 도움이 되는 MBTI 기반 한 줄 코멘트. MBTI 정보가 없으면 null",
   "conflictType": {
     "code": "위 목록에서 가장 적합한 code",
     "name": "해당 유형의 name"
@@ -149,18 +151,22 @@ const JUDGMENT_PROMPT_DUO = `당신은 한국어 갈등 조정 서비스 TALKY-O
 - 감정적 표현과 사실을 구분하여 판단한다
 - 책임 비율은 진술 내용에 근거하여 산정하며, 근거 없이 50:50으로 처리하지 않는다
 - 진술에 없는 발언·사실·감정을 만들어내지 않는다
+- 결과 텍스트에서 당사자를 A, B, 당신, 상대방 중 하나로 일관되게 지칭한다
 
 갈등 유형 선택 원칙:
 - 갈등 유형은 A와 B 양측의 진술을 모두 종합하여 선택한다
 - 어느 한쪽의 시각이 아닌, 갈등의 구조적 원인을 기준으로 판단한다
 - 표면적 감정(분노, 서운함)이 아닌 두 사람 사이에 실제로 충돌한 가치·기대·행동 패턴을 반영한다
+- 각 code의 영어 원문 의미를 기준으로 갈등 원인과 가장 구체적으로 일치하는 유형을 선택한다
+- 여러 유형이 해당되면 가장 핵심적인 갈등 원인에 해당하는 것을 우선한다
+- expectation_mismatch처럼 포괄적인 유형은 다른 유형으로 설명이 안 될 때만 선택한다
 
 카테고리: {categoryGroup}
 
-[A측 진술]
+[A의 진술]
 {statementA}
 
-[B측 진술]
+[B의 진술]
 {statementB}
 
 {mbtiSection}
@@ -171,14 +177,13 @@ const JUDGMENT_PROMPT_DUO = `당신은 한국어 갈등 조정 서비스 TALKY-O
 
 {
   "summary": "양측 주장을 균형 있게 반영한 핵심 쟁점 요약 (100자 이내)",
-  "scoreA": A측 책임 비율 (0~100 정수, A+B=100),
-  "scoreB": B측 책임 비율 (0~100 정수, A+B=100),
+  "scoreA": A의 책임 비율 (0~100 정수, A+B=100),
+  "scoreB": B의 책임 비율 (0~100 정수, A+B=100),
   "moreResponsibleRole": "ROLE_A" | "ROLE_B" | "EQUAL",
-  "aFault": "A측 표현이나 행동 중 갈등을 키운 부분 (100자 이내)",
-  "bFault": "B측 표현이나 행동 중 갈등을 키운 부분 (100자 이내)",
+  "aFault": "A의 표현이나 행동 중 갈등을 키운 부분 (100자 이내). MBTI 정보가 있다면 B의 성향을 이해하는 데 도움이 되는 한 줄 인사이트를 자연스럽게 포함할 것.",
+  "bFault": "B의 표현이나 행동 중 갈등을 키운 부분 (100자 이내). MBTI 정보가 있다면 A의 성향을 이해하는 데 도움이 되는 한 줄 인사이트를 자연스럽게 포함할 것.",
   "aSuggestedLine": "A가 B에게 전할 수 있는 진정성 있는 화해 멘트 (100자 이내, 1인칭). A의 진술 말투(반말/존댓말)를 그대로 따를 것.",
   "bSuggestedLine": "B가 A에게 전할 수 있는 진정성 있는 화해 멘트 (100자 이내, 1인칭). B의 진술 말투(반말/존댓말)를 그대로 따를 것.",
-  "mbtiNote": "MBTI 정보가 있는 경우, 양측 MBTI 조합을 바탕으로 서로를 이해하는 데 도움이 되는 한 줄 코멘트. MBTI 정보가 없으면 null",
   "conflictType": {
     "code": "위 목록에서 가장 적합한 code",
     "name": "해당 유형의 name"
@@ -258,7 +263,6 @@ export async function generateAiJudgment(input: JudgmentInput): Promise<Judgment
       bFault: null,
       aSuggestedLine: typeof parsed.aSuggestedLine === 'string' ? parsed.aSuggestedLine : null,
       bSuggestedLine: null,
-      mbtiNote: typeof parsed.mbtiNote === 'string' ? parsed.mbtiNote : null,
       conflictTypeCode: conflictType.code,
       modelName: MODEL_NAME,
     }
@@ -299,7 +303,6 @@ export async function generateAiJudgment(input: JudgmentInput): Promise<Judgment
     bFault: typeof attempt.bFault === 'string' ? attempt.bFault : null,
     aSuggestedLine: typeof attempt.aSuggestedLine === 'string' ? attempt.aSuggestedLine : null,
     bSuggestedLine: typeof attempt.bSuggestedLine === 'string' ? attempt.bSuggestedLine : null,
-    mbtiNote: typeof attempt.mbtiNote === 'string' ? attempt.mbtiNote : null,
     conflictTypeCode: finalConflictType.code,
     modelName: MODEL_NAME,
   }
