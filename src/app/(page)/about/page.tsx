@@ -229,7 +229,7 @@ export default function AboutPage() {
               </div>
               <div className={styles.heroRight}>
                 <h1 className={styles.heroTitle}>
-                  <span className={styles.highlight}>말해부엉</span> 하나로 해결가능
+                  <span className={styles.highlight}>말해</span><span className={styles.titleBold}>부엉</span> 하나로 해결가능
                 </h1>
               </div>
             </div>
