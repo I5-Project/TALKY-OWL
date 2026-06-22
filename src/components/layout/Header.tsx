@@ -24,10 +24,12 @@ type HeaderProps = HeaderLogoProps | HeaderTitleProps;
 export default function Header(props: HeaderProps) {
   if (props.variant === 'logo') {
     return (
-      <header className={`${styles.header} ${props.transparent ? styles['header--transparent'] : ''}`}>
+      <header
+        className={`${styles.header} ${props.transparent ? styles['header--transparent'] : ''}`}
+      >
         <div className={styles.header__logo}>
           <Image
-            src="/images/common/logo.png"
+            src="/images/common/logo.svg"
             alt="말해부엉"
             width={66}
             height={19}
@@ -44,11 +46,7 @@ export default function Header(props: HeaderProps) {
     <header className={`${styles.header} ${transparent ? styles['header--transparent'] : ''}`}>
       <div className={styles.header__nav}>
         {onBack && (
-          <button
-            className={styles.header__back}
-            onClick={onBack}
-            aria-label="뒤로가기"
-          >
+          <button className={styles.header__back} onClick={onBack} aria-label="뒤로가기">
             <ChevronLeftRoundedIcon sx={{ fontSize: 24 }} />
           </button>
         )}
@@ -58,9 +56,7 @@ export default function Header(props: HeaderProps) {
           {title}
         </h1>
       </div>
-      {subtitle && (
-        <div className={styles.header__subtitle}>{subtitle}</div>
-      )}
+      {subtitle && <div className={styles.header__subtitle}>{subtitle}</div>}
     </header>
   );
 }

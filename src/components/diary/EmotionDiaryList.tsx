@@ -1,42 +1,26 @@
 'use client';
 
 import DiaryCard from '@/components/diary/DiaryCard';
-import type { DiaryItem } from '@/types/diary';
+import { useDiariesByDate } from '@/domains/diary/diary.hooks';
 import styles from '@/components/diary/EmotionDiaryList.module.scss';
-
-const DUMMY_ITEMS: DiaryItem[] = [
-  {
-    id: '1',
-    title: '비가온다',
-    content: '우르르쾅쾅 마음이 무겁다',
-    date: '26-06-14',
-    emotionType: 'sad',
-  },
-  {
-    id: '2',
-    title: '오늘은 기분이 좋아',
-    content: '오랜만에 친구를 만났다. 별거 아닌 얘기를 나눴는데 기분이 한결 가벼워졌다.',
-    date: '26-06-14',
-    emotionType: 'happy',
-  },
-];
 
 type Props = {
   selectedDate: string;
 };
 
 export default function EmotionDiaryList({ selectedDate }: Props) {
-  if (DUMMY_ITEMS.length === 0) {
-    return (
-      <div className={styles.empty}>
-        등록한 일기가 없어요 
-      </div>
-    );
+  const { data: items = [], isLoading, isError } = useDiariesByDate(selectedDate);
+
+  if (isLoading) return <div className={styles.empty}>불러오는 중...</div>;
+  if (isError) return <div className={styles.empty}>일기를 불러오지 못했어요</div>;
+
+  if (items.length === 0) {
+    return <div className={styles.empty}>등록한 일기가 없어요</div>;
   }
 
   return (
     <ul className={styles.list}>
-      {DUMMY_ITEMS.map((item) => (
+      {items.map((item) => (
         <li key={item.id}>
           <DiaryCard {...item} />
         </li>

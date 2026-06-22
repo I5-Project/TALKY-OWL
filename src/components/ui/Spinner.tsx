@@ -24,7 +24,7 @@ export default function Spinner({ className }: SpinnerProps) {
         sx={{ color: 'var(--bg-brand)' }}
       />
       <Image
-        src="/images/characters/character-loading.png"
+        src="/images/characters/character-loading.svg"
         alt="로딩 중"
         width={56}
         height={56}

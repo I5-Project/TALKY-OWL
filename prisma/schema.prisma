@@ -617,7 +617,7 @@ enum ai_error_type {
 }
 
 enum ai_log_type {
-  ai_chat
+  ai_room
   judgement
 }
 
@@ -648,7 +648,7 @@ enum shop_item_type {
 }
 
 enum statistics_source_type {
-  ai_chat
+  ai_room
   one_to_one_judgement
   combined
 }

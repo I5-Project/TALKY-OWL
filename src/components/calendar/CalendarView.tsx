@@ -7,19 +7,31 @@ import { PickerDay } from '@mui/x-date-pickers';
 import dayjs, { Dayjs } from 'dayjs';
 import 'dayjs/locale/ko';
 import EmotionIcon from '@/components/calendar/EmotionIcon';
+import CategoryIcon from '@/components/ui/CategoryIcon';
 import styles from '@/components/calendar/CalendarView.module.scss';
-import type { DiaryDaySummary, CalendarViewProps } from '@/types/diary';
+import type { CalendarViewProps } from '@/types/diary';
+import type { CalendarRecordItem } from '@/types/calendar';
+import type { CategoryGroup } from '@/types/common';
 
-type CustomDayProps = React.ComponentProps<typeof PickerDay> & {
-  diaryData?: Record<string, DiaryDaySummary>;
+// DB 영문 emotion_type → EmotionIcon이 기대하는 한글 Feel 매핑
+const EMOTION_TYPE_TO_FEEL: Record<string, string> = {
+  happy:   '기쁨',
+  sad:     '슬픔',
+  neutral: '보통',
+  annoyed: '짜증',
+  angry:   '화남',
 };
 
-function CustomDay({ diaryData, ...pickerDayProps }: CustomDayProps) {
+type CustomDayProps = React.ComponentProps<typeof PickerDay> & {
+  recordMap?: Map<string, CalendarRecordItem>;
+};
+
+function CustomDay({ recordMap, ...pickerDayProps }: CustomDayProps) {
   const { day } = pickerDayProps;
   const dateKey = (day as Dayjs).format('YYYY-MM-DD');
-  const summary = diaryData?.[dateKey];
-  const isSunday = (day as Dayjs).day() === 0;
+  const record = recordMap?.get(dateKey);
   const isOutsideMonth = pickerDayProps.outsideCurrentMonth;
+  const isSunday = (day as Dayjs).day() === 0;
 
   return (
     <div className={styles.dayCell}>
@@ -32,41 +44,47 @@ function CustomDay({ diaryData, ...pickerDayProps }: CustomDayProps) {
           display: 'flex',
           alignItems: 'flex-start',
           paddingTop: '8px',
-          '&:hover': {
-            backgroundColor: 'var(--bg-surface-soft)',
-          },
+          '&:hover': { backgroundColor: 'var(--bg-surface-soft)' },
           '&.Mui-selected': {
             backgroundColor: 'var(--bg-surface-soft)',
             color: 'var(--text-primary)',
           },
-          ...(isSunday && {
-            color: 'red',
-          }),
+          ...(isSunday && { color: 'red' }),
         }}
       />
 
-      {summary && !isOutsideMonth && (
+      {/* 이 날짜에 기록이 있고 이전 달/다음 달 날짜가 아닐 때만 아이콘 표시 */}
+      {record && !isOutsideMonth && (
         <div className={styles.emotionIcon}>
-          <EmotionIcon feel={summary.feel} size={27} count={summary.count} />
+          {/* 감정일기가 있으면 감정 이모티콘 + 개수 */}
+          {record.diary && (
+            <EmotionIcon
+              feel={EMOTION_TYPE_TO_FEEL[record.diary.emotion] ?? record.diary.emotion}
+              size={27}
+              count={record.diary.count}
+            />
+          )}
+          {/* 종료된 사건이 있으면 카테고리 아이콘 + 개수 */}
+          {record.dispute && (
+            <CategoryIcon
+              category={record.dispute.category as CategoryGroup}
+              count={record.dispute.count}
+            />
+          )}
         </div>
       )}
     </div>
   );
 }
 
-const DUMMY_DIARY_DATA: Record<string, DiaryDaySummary> = {
-  '2026-06-03': { feel: '기쁨', count: 1 },
-  '2026-06-07': { feel: '슬픔', count: 2 },
-  '2026-06-11': { feel: '보통', count: 1 },
-  '2026-06-15': { feel: '짜증', count: 3 },
-  '2026-06-20': { feel: '화남', count: 1 },
-};
-
 export default function CalendarView({
   onDateChange,
   selectedDate,
-  diaryData = DUMMY_DIARY_DATA,
+  calendarData = [],
 }: CalendarViewProps) {
+  // 배열을 Map으로 변환 → CustomDay에서 O(1) 날짜 조회
+  const recordMap = new Map(calendarData.map((r) => [r.date, r]));
+
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="ko">
       <div>
@@ -75,7 +93,7 @@ export default function CalendarView({
           views={['year', 'month', 'day']}
           onChange={(date) => date && onDateChange(date.format('YYYY-MM-DD'))}
           dayOfWeekFormatter={(day) => ['S', 'M', 'T', 'W', 'T', 'F', 'S'][day.day()]}
-          slots={{ day: (props) => <CustomDay {...props} diaryData={diaryData} /> }}
+          slots={{ day: (props) => <CustomDay {...props} recordMap={recordMap} /> }}
           slotProps={{
             calendarHeader: { format: 'YYYY년 M월' },
           }}
@@ -86,7 +104,6 @@ export default function CalendarView({
             fontFamily: 'var(--font-pretendard), Pretendard, -apple-system, sans-serif',
             '& *': { fontFamily: 'inherit' },
 
-            // 월 전환 시 높이 고정 — 없으면 레이아웃 밀림 발생
             '& .MuiDayCalendar-slideTransition': {
               minHeight: 480,
               overflow: 'visible',

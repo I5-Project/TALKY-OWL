@@ -1,4 +1,5 @@
 import type { ElementType } from 'react';
+import styles from './CategoryIcon.module.scss';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import BusinessCenterIcon from '@mui/icons-material/BusinessCenter';
 import Diversity3Icon from '@mui/icons-material/Diversity3';
@@ -28,18 +29,24 @@ const CATEGORY_COLOR_MAP: Record<CategoryGroup, string> = {
 
 interface CategoryIconProps {
   category: CategoryGroup;
+  count?: number;
 }
 
-export default function CategoryIcon({ category }: CategoryIconProps) {
+export default function CategoryIcon({ category, count }: CategoryIconProps) {
   const Icon = CATEGORY_ICON_MAP[category];
   return (
-    <Icon
-      style={{
-        width: 24,
-        height: 24,
-        color: CATEGORY_COLOR_MAP[category],
-        display: 'block',
-      }}
-    />
+    <div className={styles.wrapper}>
+      <Icon
+        style={{
+          width: 24,
+          height: 24,
+          color: CATEGORY_COLOR_MAP[category],
+          display: 'block',
+        }}
+      />
+      {count !== undefined && count > 1 && (
+        <span className={styles.badge}>{count}</span>
+      )}
+    </div>
   );
 }
