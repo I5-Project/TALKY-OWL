@@ -87,7 +87,15 @@ export default function DisputePage({ params }: { params: Promise<{ id: string }
     '진술 내용을 정리하고 있어요',
     '거의 다 됐어요, 잠시만요',
   ];
+  const JUDGING_MESSAGES = [
+    '작성한 진술서를 바탕으로\n분석중이에요',
+    'AI가 양측 진술을\n검토하고 있어요',
+    '핵심 쟁점을\n파악하고 있어요',
+    '공정한 판결을\n준비하고 있어요',
+    '거의 다 됐어요,\n잠시만요',
+  ];
   const [metaMsgIdx, setMetaMsgIdx] = React.useState(0);
+  const [judgingMsgIdx, setJudgingMsgIdx] = React.useState(0);
   React.useEffect(() => {
     if (!isExtractingMeta) return;
     const timer = setInterval(() => {
@@ -96,13 +104,23 @@ export default function DisputePage({ params }: { params: Promise<{ id: string }
     return () => clearInterval(timer);
   }, [isExtractingMeta]);
 
+  React.useEffect(() => {
+    if (!isJudging) return;
+    const timer = setInterval(() => {
+      setJudgingMsgIdx((i) => (i + 1) % JUDGING_MESSAGES.length);
+    }, 2500);
+    return () => clearInterval(timer);
+  }, [isJudging]);
+
   // 판결 완료/종료 상태일 때만 fetch — 불필요한 API 호출 방지
+  const isJudged = !!dispute && dispute.status === 'judged';
+
   const {
     data: judgment,
     isLoading: judgmentLoading,
     isError: judgmentError,
     error: judgmentErrorData,
-  } = useJudgment(id, isCompleted);
+  } = useJudgment(id, isJudged);
 
   const showToast = useToastStore((s) => s.show);
 
@@ -187,7 +205,7 @@ export default function DisputePage({ params }: { params: Promise<{ id: string }
       <div className={styles.judgingScreen}>
         <div className={styles.judgingContent}>
           <Spinner />
-          <p className={styles.judgingText}>{'작성한 진술서를 바탕으로\n분석중이에요'}</p>
+          <p className={styles.judgingText}>{JUDGING_MESSAGES[judgingMsgIdx]}</p>
         </div>
       </div>
     );
@@ -347,10 +365,14 @@ export default function DisputePage({ params }: { params: Promise<{ id: string }
               <div className={styles.judgementPlaceholder}>
                 <p className={styles.empty}>판결 결과를 불러올 수 없습니다.</p>
               </div>
+            ) : !judgment ? (
+              <div className={styles.judgementPlaceholder}>
+                <p className={styles.empty}>판결 결과를 불러올 수 없습니다.</p>
+              </div>
             ) : judgmentSubTab === 'verdict' ? (
-              <JudgmentResult disputeId={id} />
+              <JudgmentResult judgment={judgment} participants={dispute.participants} />
             ) : (
-              <JudgmentTypeResult disputeId={id} />
+              <JudgmentTypeResult judgment={judgment} participants={dispute.participants} />
             )}
           </>
         )}

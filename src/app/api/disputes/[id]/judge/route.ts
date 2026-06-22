@@ -143,15 +143,17 @@ export async function POST(
       const participantUserIds = dispute.participants.map((p) => p.userId)
       const users = await prisma.user.findMany({
         where: { id: { in: participantUserIds } },
-        select: { id: true, mbti: true },
+        select: { id: true, mbti: true, nickname: true, name: true },
       })
-      const userMbtiMap = Object.fromEntries(users.map((u) => [u.id, u.mbti]))
+      const userMap = Object.fromEntries(users.map((u) => [u.id, u]))
       const participantA = dispute.participants.find((p) => p.role === 'ROLE_A')
       const participantB = dispute.participants.find((p) => p.role === 'ROLE_B')
-      const mbtiA = participantA ? (userMbtiMap[participantA.userId] ?? null) : null
-      const mbtiB = participantB ? (userMbtiMap[participantB.userId] ?? null) : null
+      const userA = participantA ? (userMap[participantA.userId] ?? null) : null
+      const userB = participantB ? (userMap[participantB.userId] ?? null) : null
+      const mbtiA = userA?.mbti ?? null
+      const mbtiB = userB?.mbti ?? null
 
-      // AI 판결 생성
+      // AI 판결 생성 (당사자는 A/B로만 전달, 표시 시 user.name으로 치환)
       const aiResult = await generateAiJudgment({
         categoryGroup: dispute.categoryGroup,
         statementA,
@@ -188,7 +190,7 @@ export async function POST(
             bFault: aiResult.bFault,
             aSuggestedLine: aiResult.aSuggestedLine,
             bSuggestedLine: aiResult.bSuggestedLine,
-            rawResponse: aiResult.mbtiNote ? JSON.stringify({ mbtiNote: aiResult.mbtiNote }) : undefined,
+            rawResponse: undefined,
             resultConflictDetailId: matchedDetail.id,
             resultCardId: resultCard.id,
             modelName: aiResult.modelName,

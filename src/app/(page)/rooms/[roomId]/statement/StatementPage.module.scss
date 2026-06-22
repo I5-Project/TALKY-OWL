@@ -1,0 +1,155 @@
+@use '@/styles/abstracts/variables' as v;
+@use '@/styles/abstracts/functions' as fn;
+@use '@/styles/abstracts/mixins' as m;
+
+.page {
+  display: flex;
+  flex-direction: column;
+  background-color: var(--bg-page);
+}
+
+.content {
+  padding: fn.r(16) fn.r(20) fn.r(100);
+  display: flex;
+  flex-direction: column;
+  gap: fn.r(16);
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: fn.r(16);
+}
+
+.label {
+  @include m.text-body-s;
+
+  color: v.$color-black;
+  margin: 0;
+}
+
+.categories {
+  display: flex;
+  flex-direction: row;
+}
+
+.categoryItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: fn.r(4);
+  width: fn.r(44);
+}
+
+.categoryIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: fn.r(44);
+  height: fn.r(44);
+  border-radius: fn.r(8);
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-brand);
+}
+
+.categoryLabel {
+  @include m.text-caption;
+  font-weight: v.$font-weight-bold;
+  color: var(--text-primary);
+  white-space: nowrap;
+}
+
+.statementGroup {
+  display: flex;
+  flex-direction: column;
+  gap: fn.r(8);
+}
+
+.textarea {
+  min-height: fn.r(350);
+}
+
+.footer {
+  padding: 0 fn.r(20) fn.r(40);
+  background-color: var(--bg-page);
+}
+
+.footerRow {
+  display: flex;
+  gap: fn.r(8);
+}
+
+.modalOverlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  padding: fn.r(20);
+}
+
+.modal {
+  background-color: var(--bg-page);
+  border-radius: fn.r(16);
+  padding: fn.r(24) fn.r(20);
+  width: 100%;
+  max-width: fn.r(320);
+  display: flex;
+  flex-direction: column;
+  gap: fn.r(20);
+}
+
+.modalText {
+  @include m.text-body-m;
+  color: var(--text-primary);
+  margin: 0;
+  text-align: center;
+}
+
+.modalSubText {
+  @include m.text-body-s;
+
+  color: var(--text-secondary);
+  margin: fn.r(-12) 0 0;
+  text-align: center;
+}
+
+.modalActions {
+  display: flex;
+  flex-direction: column;
+  gap: fn.r(8);
+}
+
+// ===========================
+// Saving (로딩 화면)
+// ===========================
+
+.savingScreen {
+  position: fixed;
+  inset: 0;
+  background: linear-gradient(180deg, #{v.$color-primary-200} 0%, #{v.$color-white} 50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+}
+
+.savingContent {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: fn.r(24);
+  width: fn.r(362);
+}
+
+.savingText {
+  font-family: v.$font-family-base;
+  font-size: v.$font-size-title-m;
+  font-weight: v.$font-weight-semibold;
+  color: v.$color-black;
+  text-align: center;
+  white-space: pre-line;
+  line-height: 1.5;
+}
