@@ -228,7 +228,7 @@ export async function POST(request: NextRequest) {
           success: false,
           error: {
             code: 'CATEGORY_LIMIT_EXCEEDED',
-            message: '사건은 카테고리당 2개까지만 생성이 가능합니다.',
+            message: '사건은 카테고리당 2개까지만\n생성이 가능합니다.',
           },
         },
         { status: 422 },

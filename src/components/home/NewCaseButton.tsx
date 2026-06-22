@@ -44,7 +44,7 @@ export default function NewCaseButton() {
       if (!roomJson.success || !roomJson.data) {
         if (roomJson.error?.code === 'CATEGORY_LIMIT_EXCEEDED') {
           setIsOpen(false)
-          setLimitError(roomJson.error.message ?? '사건은 카테고리당 2개까지만 생성이 가능합니다.')
+          setLimitError(roomJson.error.message ?? '사건은 카테고리당 2개까지만\n생성이 가능합니다.')
           return
         }
         throw new Error(roomJson.error?.message)
