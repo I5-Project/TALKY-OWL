@@ -142,7 +142,8 @@
 
 .barWrapper {
   position: relative;
-  padding-bottom: fn.r(40);
+  padding-top: fn.r(10);
+  padding-bottom: fn.r(28);
 }
 
 .bar {
@@ -172,9 +173,9 @@
 }
 
 .centerLine {
-  width: fn.r(1.5);
+  width: 0;
   height: fn.r(36);
-  background-color: var(--border-strong);
+  border-left: fn.r(1.5) dashed var(--border-strong);
 }
 
 .centerLabel {

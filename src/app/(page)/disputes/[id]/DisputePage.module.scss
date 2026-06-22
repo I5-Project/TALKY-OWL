@@ -1,4 +1,5 @@
 @use '@/styles/abstracts/variables' as v;
+@use '@/styles/abstracts/mixins' as m;
 @use '@/styles/abstracts/functions' as fn;
 
 // ===========================
@@ -197,6 +198,31 @@
   font-weight: v.$font-weight-regular;
   line-height: v.$line-height-body-s;
   color: var(--text-primary);
+}
+
+.statementFooter {
+  display: flex;
+  align-items: center;
+  gap: fn.r(6);
+}
+
+.statementAvatar {
+  position: relative;
+  width: fn.r(24);
+  height: fn.r(24);
+  border-radius: 50%;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.statementAvatarImg {
+  object-fit: cover;
+}
+
+.statementMbti {
+  @include m.text-label-s;
+
+  color: v.$color-black-400;
 }
 
 // ===========================

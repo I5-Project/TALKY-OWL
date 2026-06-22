@@ -23,7 +23,7 @@ const createDisputeSchema = z.object({
 })
 
 type DisputeForList = Prisma.DisputeGetPayload<{
-  include: { participants: { include: { user: { select: { profileImageUrl: true } } } } }
+  include: { participants: { include: { user: { select: { profileImageUrl: true; image: true } } } } }
 }>
 
 function toParticipantDto(p: DisputeForList['participants'][number]): DisputeParticipantDto {
@@ -33,7 +33,8 @@ function toParticipantDto(p: DisputeForList['participants'][number]): DisputePar
     userId: p.userId,
     role: p.role.toLowerCase() as DisputeParticipantDto['role'],
     name: null,
-    profileImageUrl: p.user.profileImageUrl ?? null,
+    profileImageUrl: p.user.profileImageUrl ?? p.user.image ?? null,
+    mbti: null,
     joinedAt: p.joinedAt.toISOString(),
     createdAt: p.createdAt.toISOString(),
   }
