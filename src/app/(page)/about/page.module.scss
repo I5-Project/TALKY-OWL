@@ -62,10 +62,11 @@
 .heroInner {
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: space-between;
   width: 100%;
   max-width: 960px;
   position: relative;
+  min-height: 520px;
 }
 
 // Left: revolving text column
@@ -73,7 +74,8 @@
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  flex-shrink: 0;
+  width: 240px;
+  flex: 0 0 240px;
   z-index: 2;
 }
 
@@ -131,12 +133,13 @@
   flex-direction: column;
 }
 
-// Center: phone image
+// Center: phone image — absolute positioned so text width changes don't move it
 .heroCenter {
-  position: relative;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
   z-index: 1;
-  flex-shrink: 0;
-  margin: 0 -20px;
 }
 
 .heroPhone {
@@ -148,17 +151,19 @@
   width: 300px;
   height: auto;
   object-fit: contain;
+  background: v.$color-white;
 }
 
 // Right: title text
 .heroRight {
   opacity: 0;
   z-index: 2;
-  flex-shrink: 0;
+  margin-left: auto;
+  text-align: right;
 }
 
 .heroTitle {
-  @include m.text-display;
+  @include m.text-title-xl;
 
   color: v.$color-black-700;
   letter-spacing: -0.5px;
@@ -394,19 +399,33 @@
   .heroInner {
     flex-direction: column;
     gap: v.$spacing-unit * 3;
+    min-height: auto;
+  }
+
+  .heroLeft {
+    width: auto;
+    flex: 0 0 auto;
+    align-items: center;
   }
 
   .heroCenter {
-    margin: 0;
+    position: relative;
+    left: auto;
+    top: auto;
+    transform: none;
   }
 
   .heroPhoneImage {
     width: 220px;
   }
 
+  .heroRight {
+    margin-left: 0;
+    text-align: center;
+  }
+
   .heroTitle {
     white-space: normal;
-    text-align: center;
   }
 
   .phoneMockupTilted {
