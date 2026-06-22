@@ -6,7 +6,7 @@ import Image from 'next/image';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { ScrollToPlugin } from 'gsap/ScrollToPlugin';
-import Header from '@/components/layout/Header';
+import { useHeaderStore } from '@/stores/headerStore';
 import SpriteAnimation from '@/components/about/SpriteAnimation';
 import styles from './page.module.scss';
 
@@ -52,9 +52,20 @@ const sections = [
 
 export default function AboutPage() {
   const router = useRouter();
+  const setHeader = useHeaderStore((s) => s.setHeader);
   const [phase, setPhase] = useState<'animation' | 'iris-out' | 'content'>('animation');
   const containerRef = useRef<HTMLDivElement>(null);
   const sectionRefs = useRef<(HTMLElement | null)[]>([]);
+
+  useEffect(() => {
+    return () => setHeader(null);
+  }, []);
+
+  useEffect(() => {
+    if (phase === 'content') {
+      setHeader({ variant: 'title', title: '서비스 소개', onBack: () => router.back() });
+    }
+  }, [phase]);
 
   useEffect(() => {
     const animationTimer = setTimeout(() => {
@@ -139,72 +150,66 @@ export default function AboutPage() {
       )}
 
       {phase === 'content' && (
-        <>
-          <Header title="서비스 소개" onBack={() => router.back()} />
-          <div ref={containerRef} className={styles.content}>
-            {/* 히어로 섹션 */}
-            <section className={styles.heroSection}>
-              <div className={styles.heroInner}>
+        <div ref={containerRef} className={styles.content}>
+          <section className={styles.heroSection}>
+            <div className={styles.heroInner}>
+              <Image
+                src="/images/characters/character-welcome.svg"
+                alt="말해부엉 캐릭터"
+                width={120}
+                height={120}
+                className={styles.heroCharacter}
+              />
+              <h1 className={styles.heroTitle}>말해부엉</h1>
+              <p className={styles.heroSubtitle}>AI가 판결하는 갈등 조정 서비스</p>
+              <p className={styles.heroDesc}>
+                갈등, 혼자 끙끙 앓지 마세요.<br />
+                말해부엉이 공정하게 판결해드릴게요.
+              </p>
+            </div>
+          </section>
+
+          {sections.map((section, index) => (
+            <section
+              key={section.id}
+              ref={(el) => { sectionRefs.current[index] = el; }}
+              className={`${styles.featureSection} ${index % 2 === 1 ? styles.reversed : ''}`}
+            >
+              <div className={styles.featureText}>
+                <span className={styles.badge}>{section.badge}</span>
+                <h2 className={styles.title}>{section.title}</h2>
+                <p className={styles.description}>{section.description}</p>
+              </div>
+              <div className={styles.phoneFrame}>
                 <Image
-                  src="/images/characters/character-welcome.svg"
-                  alt="말해부엉 캐릭터"
-                  width={120}
-                  height={120}
-                  className={styles.heroCharacter}
+                  src={section.image}
+                  alt={section.badge}
+                  width={280}
+                  height={560}
+                  className={styles.phoneImage}
                 />
-                <h1 className={styles.heroTitle}>말해부엉</h1>
-                <p className={styles.heroSubtitle}>AI가 판결하는 갈등 조정 서비스</p>
-                <p className={styles.heroDesc}>
-                  갈등, 혼자 끙끙 앓지 마세요.<br />
-                  말해부엉이 공정하게 판결해드릴게요.
-                </p>
               </div>
             </section>
+          ))}
 
-            {/* 기능 소개 섹션 */}
-            {sections.map((section, index) => (
-              <section
-                key={section.id}
-                ref={(el) => { sectionRefs.current[index] = el; }}
-                className={`${styles.featureSection} ${index % 2 === 1 ? styles.reversed : ''}`}
-              >
-                <div className={styles.featureText}>
-                  <span className={styles.badge}>{section.badge}</span>
-                  <h2 className={styles.title}>{section.title}</h2>
-                  <p className={styles.description}>{section.description}</p>
-                </div>
-                <div className={styles.phoneFrame}>
-                  <Image
-                    src={section.image}
-                    alt={section.badge}
-                    width={280}
-                    height={560}
-                    className={styles.phoneImage}
-                  />
-                </div>
-              </section>
-            ))}
-
-            {/* CTA 섹션 */}
-            <section className={styles.ctaSection}>
-              <Image
-                src="/images/characters/character-gift.svg"
-                alt="말해부엉 선물"
-                width={64}
-                height={64}
-                className={styles.ctaIcon}
-              />
-              <h2 className={styles.ctaTitle}>지금 바로 시작해보세요</h2>
-              <p className={styles.ctaDesc}>말해부엉과 함께 갈등을 해결하고<br />관계를 회복해보세요.</p>
-              <button
-                className={styles.ctaButton}
-                onClick={() => router.push('/login')}
-              >
-                시작하기
-              </button>
-            </section>
-          </div>
-        </>
+          <section className={styles.ctaSection}>
+            <Image
+              src="/images/characters/character-gift.svg"
+              alt="말해부엉 선물"
+              width={64}
+              height={64}
+              className={styles.ctaIcon}
+            />
+            <h2 className={styles.ctaTitle}>지금 바로 시작해보세요</h2>
+            <p className={styles.ctaDesc}>말해부엉과 함께 갈등을 해결하고<br />관계를 회복해보세요.</p>
+            <button
+              className={styles.ctaButton}
+              onClick={() => router.push('/login')}
+            >
+              시작하기
+            </button>
+          </section>
+        </div>
       )}
     </div>
   );

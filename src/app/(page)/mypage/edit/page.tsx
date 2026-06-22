@@ -2,7 +2,7 @@
 
 import { useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import Header from '@/components/layout/Header';
+import { useHeaderStore } from '@/stores/headerStore';
 import Avatar from '@/components/ui/Avatar';
 import Input from '@/components/ui/Input';
 import Select from '@/components/ui/Select';
@@ -16,6 +16,11 @@ import styles from './page.module.scss';
 
 export default function ProfileEditPage() {
   const router = useRouter();
+  const setHeader = useHeaderStore((s) => s.setHeader)
+  useEffect(() => {
+    setHeader({ variant: 'title', title: '개인정보 수정', onBack: () => router.back() })
+    return () => setHeader(null)
+  }, [])
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const { data: user, isLoading, isError, error } = useUserMe();
@@ -100,7 +105,6 @@ export default function ProfileEditPage() {
   if (isLoading) {
     return (
       <>
-        <Header title="개인정보 수정" onBack={() => router.back()} />
         <main className={styles.loading}>
           <Spinner />
         </main>
@@ -111,7 +115,6 @@ export default function ProfileEditPage() {
   if (isError) {
     return (
       <>
-        <Header title="개인정보 수정" onBack={() => router.back()} />
         <main className={styles.loading}>
           <span>{error instanceof Error ? error.message : '사용자 정보를 불러오지 못했습니다.'}</span>
         </main>
@@ -122,7 +125,6 @@ export default function ProfileEditPage() {
   if (!user) {
     return (
       <>
-        <Header title="개인정보 수정" onBack={() => router.back()} />
         <main className={styles.loading}>
           <span>사용자 정보가 존재하지 않습니다.</span>
         </main>
@@ -132,7 +134,6 @@ export default function ProfileEditPage() {
 
   return (
     <>
-      <Header title="개인정보 수정" onBack={() => router.back()} />
       <main className={styles.main}>
         <div className={styles.avatar}>
           <Avatar size="l" src={previewUrl ?? undefined} />

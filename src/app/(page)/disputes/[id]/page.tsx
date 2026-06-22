@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import { useQueryClient } from '@tanstack/react-query';
 import AutorenewRoundedIcon from '@mui/icons-material/AutorenewRounded';
 import CircularProgress from '@mui/material/CircularProgress';
-import Header from '@/components/layout/Header';
+import { useHeaderStore } from '@/stores/headerStore';
 import Button from '@/components/ui/Button';
 import Tabs from '@/components/ui/Tabs';
 import Tab from '@/components/ui/Tab';
@@ -36,6 +36,11 @@ const TABS = [
 export default function DisputePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = React.use(params);
   const router = useRouter();
+  const setHeader = useHeaderStore((s) => s.setHeader);
+  React.useEffect(() => {
+    setHeader({ variant: 'title', title: '사건조회', onBack: () => router.back() });
+    return () => setHeader(null);
+  }, []);
   const queryClient = useQueryClient();
 
   const pollCountRef = React.useRef(0);
@@ -89,6 +94,7 @@ export default function DisputePage({ params }: { params: Promise<{ id: string }
     }, 2500);
     return () => clearInterval(timer);
   }, [isExtractingMeta]);
+
   // 판결 완료/종료 상태일 때만 fetch — 불필요한 API 호출 방지
   const {
     data: judgment,
@@ -117,6 +123,7 @@ export default function DisputePage({ params }: { params: Promise<{ id: string }
   const roleAStatement = dispute?.statements?.find((s) => s.role === 'role_a');
   const roleBStatement = dispute?.statements?.find((s) => s.role === 'role_b');
   const canJudge = (isSolo && !!roleAStatement?.content) || dispute?.status === 'both_submitted';
+  const myRole = dispute?.participants.find((p) => p.userId === userMe?.id)?.role;
 
   const handleInvite = async () => {
     if (isInviting || !dispute) return;
@@ -174,7 +181,6 @@ export default function DisputePage({ params }: { params: Promise<{ id: string }
   if (!dispute) {
     return (
       <div className={styles.page}>
-        <Header title="사건조회" onBack={() => router.back()} />
         <p className={styles.empty}>사건을 찾을 수 없습니다.</p>
       </div>
     );
@@ -184,8 +190,6 @@ export default function DisputePage({ params }: { params: Promise<{ id: string }
 
   return (
     <div className={styles.page}>
-      <Header title="사건조회" onBack={() => router.back()} />
-
       {/* 사건 정보 카드 */}
       <section className={styles.infoCard}>
         <div className={styles.infoRow}>
@@ -256,13 +260,21 @@ export default function DisputePage({ params }: { params: Promise<{ id: string }
         {(!isCompleted || activeTab === 'statement') && (
           <div className={styles.statements}>
             {roleAStatement && (
-              <div className={styles.statementCard}>
+              <div
+                className={`${styles.statementCard}${myRole === 'role_a' && !isCompleted ? ` ${styles.statementCardEditable}` : ''}`}
+                onClick={myRole === 'role_a' && !isCompleted ? () => router.push(`/disputes/${id}/statement?edit=true`) : undefined}
+                {...(myRole === 'role_a' && !isCompleted ? { role: 'button', tabIndex: 0, onKeyDown: (e) => { if (e.key === 'Enter' || e.key === ' ') router.push(`/disputes/${id}/statement?edit=true`) } } : {})}
+              >
                 <p className={styles.statementLabel}>A의 진술</p>
                 <p className={styles.statementContent}>{roleAStatement.content}</p>
               </div>
             )}
             {roleBStatement && (
-              <div className={styles.statementCard}>
+              <div
+                className={`${styles.statementCard}${myRole === 'role_b' && !isCompleted ? ` ${styles.statementCardEditable}` : ''}`}
+                onClick={myRole === 'role_b' && !isCompleted ? () => router.push(`/disputes/${id}/statement?edit=true`) : undefined}
+                {...(myRole === 'role_b' && !isCompleted ? { role: 'button', tabIndex: 0, onKeyDown: (e) => { if (e.key === 'Enter' || e.key === ' ') router.push(`/disputes/${id}/statement?edit=true`) } } : {})}
+              >
                 <p className={styles.statementLabel}>B의 진술</p>
                 <p className={styles.statementContent}>{roleBStatement.content}</p>
               </div>
