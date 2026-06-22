@@ -5,12 +5,16 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { signOut } from 'next-auth/react';
 import { useHeaderStore } from '@/stores/headerStore';
+import { useToastStore } from '@/stores/toastStore';
 import Avatar from '@/components/ui/Avatar';
 import ConfirmModal from '@/components/ui/ConfirmModal';
 import { useUserMe } from '@/domains/user/hooks';
 import SettingsRoundedIcon from '@mui/icons-material/SettingsRounded';
 import ChevronRightRoundedIcon from '@mui/icons-material/ChevronRightRounded';
 import styles from './page.module.scss';
+
+const PREPARING_ITEMS = ['shop', 'contact'] as const;
+type PreparingKey = (typeof PREPARING_ITEMS)[number];
 
 const LINK_ITEMS = [
   { key: 'shop', label: '상점', href: '/shop' },
@@ -21,14 +25,18 @@ const LINK_ITEMS = [
 ] as const;
 
 export default function MyPage() {
-  const setHeader = useHeaderStore((s) => s.setHeader)
+  const setHeader = useHeaderStore((s) => s.setHeader);
   useEffect(() => {
-    setHeader({ variant: 'logo' })
-    return () => setHeader(null)
-  }, [])
+    setHeader({ variant: 'logo' });
+    return () => setHeader(null);
+  }, []);
   const router = useRouter();
   const { data: user } = useUserMe();
+  const showToast = useToastStore((s) => s.show);
   const [logoutOpen, setLogoutOpen] = useState(false);
+
+  const isPreparing = (key: string): key is PreparingKey =>
+    (PREPARING_ITEMS as readonly string[]).includes(key);
 
   const displayName = user?.name ?? user?.nickname ?? '';
 
@@ -60,12 +68,24 @@ export default function MyPage() {
             <ChevronRightRoundedIcon className={styles.menu__arrow} />
           </button>
 
-          {LINK_ITEMS.map(item => (
-            <Link key={item.key} href={item.href} className={styles.menu__item}>
-              <span className={styles.menu__label}>{item.label}</span>
-              <ChevronRightRoundedIcon className={styles.menu__arrow} />
-            </Link>
-          ))}
+          {LINK_ITEMS.map((item) =>
+            isPreparing(item.key) ? (
+              <button
+                key={item.key}
+                type="button"
+                className={styles.menu__item}
+                onClick={() => showToast('준비중입니다.')}
+              >
+                <span className={styles.menu__label}>{item.label}</span>
+                <ChevronRightRoundedIcon className={styles.menu__arrow} />
+              </button>
+            ) : (
+              <Link key={item.key} href={item.href} className={styles.menu__item}>
+                <span className={styles.menu__label}>{item.label}</span>
+                <ChevronRightRoundedIcon className={styles.menu__arrow} />
+              </Link>
+            ),
+          )}
 
           <button
             type="button"
