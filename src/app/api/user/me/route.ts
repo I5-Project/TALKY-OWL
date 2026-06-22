@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/db'
 import { getRequestUserId } from '@/lib/auth/session'
-import { supabaseAdmin, PROFILE_IMAGES_BUCKET } from '@/lib/storage'
 import type { ApiResponse } from '@/types/common'
 
 export const dynamic = 'force-dynamic'
@@ -23,37 +22,6 @@ const VALID_MBTI = [
 ]
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-const MAX_FILE_SIZE = 5 * 1024 * 1024
-const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/svg+xml']
-
-function hasAllowedImageSignature(bytes: Uint8Array): boolean {
-  const isJpeg = bytes.length >= 3 && bytes[0] === 0xff && bytes[1] === 0xd8 && bytes[2] === 0xff
-  const isPng =
-    bytes.length >= 8 &&
-    bytes[0] === 0x89 &&
-    bytes[1] === 0x50 &&
-    bytes[2] === 0x4e &&
-    bytes[3] === 0x47 &&
-    bytes[4] === 0x0d &&
-    bytes[5] === 0x0a &&
-    bytes[6] === 0x1a &&
-    bytes[7] === 0x0a
-  const isWebp =
-    bytes.length >= 12 &&
-    bytes[0] === 0x52 &&
-    bytes[1] === 0x49 &&
-    bytes[2] === 0x46 &&
-    bytes[3] === 0x46 &&
-    bytes[8] === 0x57 &&
-    bytes[9] === 0x45 &&
-    bytes[10] === 0x42 &&
-    bytes[11] === 0x50
-  const isSvg =
-    bytes.length >= 5 &&
-    bytes[0] === 0x3c &&
-    (bytes[1] === 0x3f || bytes[1] === 0x73 || bytes[1] === 0x53)
-  return isJpeg || isPng || isWebp || isSvg
-}
 
 function getAuthErrorResponse() {
   return NextResponse.json<ApiResponse>(
@@ -152,15 +120,6 @@ export async function PATCH(request: NextRequest) {
       }
     }
 
-    const file = formData.get('profileImage') as File | null
-    if (file && file.size > 0) {
-      if (!ALLOWED_TYPES.includes(file.type)) {
-        fieldErrors.push({ field: 'profileImage', code: 'INVALID_FILE_TYPE', message: 'JPG, PNG, WEBP, SVG 파일만 업로드 가능합니다.' })
-      } else if (file.size > MAX_FILE_SIZE) {
-        fieldErrors.push({ field: 'profileImage', code: 'FILE_TOO_LARGE', message: '파일 크기는 5MB 이하만 가능합니다.' })
-      }
-    }
-
     if (fieldErrors.length > 0) {
       return NextResponse.json<ApiResponse>(
         { success: false, error: { code: 'VALIDATION_ERROR', message: '입력값을 확인해주세요.', fieldErrors } },
@@ -168,8 +127,7 @@ export async function PATCH(request: NextRequest) {
       )
     }
 
-    const hasFile = file && file.size > 0
-    if (Object.keys(data).length === 0 && !hasFile) {
+    if (Object.keys(data).length === 0) {
       return NextResponse.json<ApiResponse>(
         { success: false, error: { code: 'NO_CHANGES', message: '변경할 항목이 없습니다.' } },
         { status: 400 },
@@ -186,41 +144,6 @@ export async function PATCH(request: NextRequest) {
         { success: false, error: { code: 'USER_NOT_FOUND', message: '사용자를 찾을 수 없습니다.' } },
         { status: 404 },
       )
-    }
-
-    if (hasFile) {
-      const bytes = new Uint8Array(await file.arrayBuffer())
-      if (!hasAllowedImageSignature(bytes)) {
-        return NextResponse.json<ApiResponse>(
-          { success: false, error: { code: 'INVALID_FILE_TYPE', message: 'JPG, PNG, WEBP, SVG 파일만 업로드 가능합니다.' } },
-          { status: 400 },
-        )
-      }
-
-      const ext = file.type === 'image/jpeg' ? 'jpg' : file.type === 'image/svg+xml' ? 'svg' : file.type.split('/')[1]
-      const filePath = `${userId}/profile.${ext}`
-      const buffer = Buffer.from(bytes)
-
-      const { error: uploadError } = await supabaseAdmin.storage
-        .from(PROFILE_IMAGES_BUCKET)
-        .upload(filePath, buffer, {
-          contentType: file.type,
-          upsert: true,
-        })
-
-      if (uploadError) {
-        console.error('[user/me] profile image upload error', { message: uploadError.message })
-        return NextResponse.json<ApiResponse>(
-          { success: false, error: { code: 'UPLOAD_FAILED', message: '이미지 업로드에 실패했습니다.' } },
-          { status: 500 },
-        )
-      }
-
-      const { data: urlData } = supabaseAdmin.storage
-        .from(PROFILE_IMAGES_BUCKET)
-        .getPublicUrl(filePath)
-
-      data.profileImageUrl = `${urlData.publicUrl}?t=${Date.now()}`
     }
 
     const updated = await prisma.user.update({
