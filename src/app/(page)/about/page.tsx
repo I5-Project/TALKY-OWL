@@ -99,27 +99,39 @@ export default function AboutPage() {
             }
           };
 
-          setTexts(0);
+          let orderIdx = 0;
+          setTexts(orderIdx);
 
-          const tl = gsap.timeline({ repeat: -1, delay: 1.5 });
-          for (let step = 1; step <= REVOLVING_ORDER.length; step++) {
-            const t = step * CYCLE_DURATION;
+          const animateNext = () => {
+            const nextIdx = (orderIdx + 1) % REVOLVING_ORDER.length;
 
-            // Fade out all text elements
-            tl.to([aboveTrack, activeRowEl, belowTrack], {
+            const stepTl = gsap.timeline({
+              onComplete: () => {
+                orderIdx = nextIdx;
+                animateNext();
+              },
+            });
+
+            // Hold current state
+            stepTl.to({}, { duration: CYCLE_DURATION });
+
+            // Fade out
+            stepTl.to([aboveTrack, activeRowEl, belowTrack], {
               y: -12, opacity: 0, duration: 0.25, ease: 'power2.in',
-            }, t);
+            });
 
-            // Swap text content at midpoint
-            tl.call(() => setTexts(step % REVOLVING_ORDER.length), [], t + 0.25);
+            // Swap text
+            stepTl.call(() => setTexts(nextIdx));
 
-            // Fade in from below
-            tl.fromTo([aboveTrack, activeRowEl, belowTrack],
+            // Fade in
+            stepTl.fromTo([aboveTrack, activeRowEl, belowTrack],
               { y: 12, opacity: 0 },
               { y: 0, opacity: 1, duration: 0.3, ease: 'power2.out' },
-              t + 0.28
             );
-          }
+          };
+
+          // Start after initial delay
+          gsap.delayedCall(1.5, animateNext);
         }
       }
 
