@@ -48,36 +48,35 @@
 }
 
 // ===========================
-// TAB 1: Hero (compact)
+// TAB 1: Hero
 // ===========================
 .heroSection {
-  padding: 32px 24px 40px;
+  padding: 20px 24px 24px;
   background: v.$color-white;
   overflow: hidden;
 }
 
 .heroInner {
-  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   width: 100%;
   max-width: 800px;
   margin: 0 auto;
-  height: 360px;
+  gap: 0;
 }
 
 .heroLeft {
-  position: absolute;
-  left: 0;
-  bottom: 24px;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  width: 220px;
+  flex: 0 0 240px;
   z-index: 2;
 }
 
 .revolvingMask {
   overflow: hidden;
-  max-height: 56px;
+  max-height: 72px;
 }
 
 .revolvingTrack {
@@ -87,10 +86,10 @@
 
 .revolvingWord {
   display: block;
-  height: 28px;
-  line-height: 28px;
+  height: 36px;
+  line-height: 36px;
   font-family: v.$font-family-base;
-  font-size: fn.r(17);
+  font-size: fn.r(22);
   color: v.$color-black-200;
   font-weight: v.$font-weight-regular;
   white-space: nowrap;
@@ -105,8 +104,8 @@
 
 .activeWord {
   font-family: v.$font-family-base;
-  font-size: fn.r(22);
-  line-height: fn.r(30);
+  font-size: fn.r(28);
+  line-height: fn.r(38);
   color: v.$color-black-700;
   font-weight: v.$font-weight-bold;
   white-space: nowrap;
@@ -114,8 +113,8 @@
 
 .fixedSuffix {
   font-family: v.$font-family-base;
-  font-size: fn.r(22);
-  line-height: fn.r(30);
+  font-size: fn.r(28);
+  line-height: fn.r(38);
   color: v.$color-black-700;
   font-weight: v.$font-weight-bold;
   white-space: nowrap;
@@ -123,7 +122,7 @@
 
 .revolvingBelow {
   overflow: hidden;
-  max-height: 28px;
+  max-height: 36px;
 }
 
 .revolvingTrackBelow {
@@ -132,11 +131,9 @@
 }
 
 .heroCenter {
-  position: absolute;
-  left: 50%;
-  top: 0;
-  transform: translateX(-50%);
+  flex: 0 0 auto;
   z-index: 1;
+  margin: 0 -16px;
 }
 
 .heroPhone {
@@ -145,24 +142,22 @@
 
 .heroPhoneImage {
   display: block;
-  width: 260px;
+  width: 240px;
   height: auto;
   object-fit: contain;
 }
 
 .heroRight {
-  position: absolute;
-  right: 0;
-  bottom: 60px;
-  z-index: 2;
   opacity: 0;
+  z-index: 2;
+  flex: 0 0 auto;
   text-align: right;
 }
 
 .heroTitle {
   font-family: v.$font-family-base;
-  font-size: fn.r(22);
-  line-height: fn.r(30);
+  font-size: fn.r(28);
+  line-height: fn.r(38);
   color: v.$color-black-700;
   letter-spacing: -0.5px;
   white-space: nowrap;
@@ -401,43 +396,41 @@
 // ===========================
 @media (max-width: 640px) {
   .heroInner {
-    height: 400px;
+    flex-direction: column;
+    gap: v.$spacing-unit * 2;
   }
 
   .heroLeft {
-    bottom: 16px;
-    width: 160px;
+    flex: 0 0 auto;
+    align-items: center;
+  }
+
+  .heroCenter {
+    margin: 0;
   }
 
   .heroPhoneImage {
-    width: 200px;
+    width: 180px;
   }
 
   .heroRight {
-    bottom: 40px;
+    text-align: center;
   }
 
   .heroTitle {
-    font-size: fn.r(18);
+    font-size: fn.r(22);
+    white-space: normal;
   }
 
   .activeWord,
   .fixedSuffix {
-    font-size: fn.r(18);
+    font-size: fn.r(22);
   }
 
   .revolvingWord {
-    font-size: fn.r(14);
-    height: 24px;
-    line-height: 24px;
-  }
-
-  .revolvingMask {
-    max-height: 48px;
-  }
-
-  .revolvingBelow {
-    max-height: 24px;
+    font-size: fn.r(16);
+    height: 28px;
+    line-height: 28px;
   }
 
   .showcaseSection {
