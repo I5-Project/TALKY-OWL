@@ -1,10 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getServerSession } from 'next-auth'
 import { z } from 'zod'
 import { Prisma, type DisputeStatus, type DisputeStatement } from '@prisma/client'
-import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/db'
-import { getSessionUserId } from '@/lib/auth/session'
+import { getRequestUserId } from '@/lib/auth/session'
 import { moderateContent } from '@/lib/ai/moderation'
 import { extractDisputeMeta } from '@/lib/ai/judgment'
 import type { ApiResponse } from '@/types/common'
@@ -39,8 +37,7 @@ export async function POST(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
-  const session = await getServerSession(authOptions)
-  let userId = getSessionUserId(session)
+  let userId = await getRequestUserId(request)
 
   if (!userId) {
     if (!DEV_BYPASS) {

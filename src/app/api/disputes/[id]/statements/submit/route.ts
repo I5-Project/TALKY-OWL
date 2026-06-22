@@ -1,19 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getServerSession } from 'next-auth'
-import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/db'
-import { getSessionUserId } from '@/lib/auth/session'
+import { getRequestUserId } from '@/lib/auth/session'
 import type { ApiResponse } from '@/types/common'
 import type { DisputeStatus, StatementSubmitResponse } from '@/types/dispute'
 
 // POST /api/disputes/:id/statements/submit
 // 진술 최종 제출. submittedAt 설정 후 dispute 상태 업데이트. 멱등성 보장.
 export async function POST(
-  _request: NextRequest,
+  request: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
-  const session = await getServerSession(authOptions)
-  const userId = getSessionUserId(session)
+  const userId = await getRequestUserId(request)
 
   if (!userId) {
     return NextResponse.json<ApiResponse>(

@@ -1,10 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getServerSession } from 'next-auth'
 import { z } from 'zod'
 import { type RoomMode as PrismaRoomMode, type CategoryGroup as PrismaCategoryGroup } from '@prisma/client'
-import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/db'
-import { getSessionUserId } from '@/lib/auth/session'
+import { getRequestUserId } from '@/lib/auth/session'
 import { VALID_CATEGORY_GROUPS } from '@/lib/constants/dispute'
 import type { ApiResponse, CategoryGroup } from '@/types/common'
 import type { RoomDto, RoomListResponse, RoomMode } from '@/types/room'
@@ -50,8 +48,7 @@ function toRoomDto(room: {
 // GET /api/rooms
 // 내가 생성하거나 참여한 방 목록 조회
 export async function GET(request: NextRequest) {
-  const session = await getServerSession(authOptions)
-  const userId = getSessionUserId(session)
+  const userId = await getRequestUserId(request)
   if (!userId) {
     return NextResponse.json<ApiResponse>(
       { success: false, error: { code: 'UNAUTHORIZED', message: '로그인이 필요합니다.' } },
@@ -98,8 +95,7 @@ export async function GET(request: NextRequest) {
 // POST /api/rooms
 // 방 생성. 기본 roomMode = ai_room
 export async function POST(request: NextRequest) {
-  const session = await getServerSession(authOptions)
-  const userId = getSessionUserId(session)
+  const userId = await getRequestUserId(request)
   if (!userId) {
     return NextResponse.json<ApiResponse>(
       { success: false, error: { code: 'UNAUTHORIZED', message: '로그인이 필요합니다.' } },

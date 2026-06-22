@@ -111,10 +111,16 @@ export default function DisputePage({ params }: { params: Promise<{ id: string }
   const [showSoloModal, setShowSoloModal] = React.useState(false);
   const [isInviting, setIsInviting] = React.useState(false);
   const [judgmentErrorModal, setJudgmentErrorModal] = React.useState(false);
+  const [judgmentErrorMessage, setJudgmentErrorMessage] = React.useState<string | null>(null);
   const [isRefreshing, setIsRefreshing] = React.useState(false);
 
   React.useEffect(() => {
-    if (judgmentError) setJudgmentErrorModal(true);
+    if (judgmentError && !judgmentErrorModal) {
+      setJudgmentErrorMessage(
+        judgmentErrorData instanceof Error ? judgmentErrorData.message : '판결 결과를 불러올 수 없습니다.',
+      );
+      setJudgmentErrorModal(true);
+    }
   }, [judgmentError]);
 
   const handleRefresh = async () => {
@@ -355,10 +361,10 @@ export default function DisputePage({ params }: { params: Promise<{ id: string }
         onInvite={() => void handleInvite()}
       />
 
-      <Modal open={judgmentErrorModal} onClose={() => setJudgmentErrorModal(false)}>
+      <Modal open={judgmentErrorModal}>
         <div className={styles.modalContent}>
           <p className={styles.modalMessage}>
-            {judgmentErrorData instanceof Error ? judgmentErrorData.message : '판결 결과를 불러올 수 없습니다.'}
+            {judgmentErrorMessage ?? '판결 결과를 불러올 수 없습니다.'}
           </p>
           <Button onClick={() => setJudgmentErrorModal(false)}>확인</Button>
         </div>

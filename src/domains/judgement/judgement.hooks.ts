@@ -14,6 +14,5 @@ export function useJudgment(disputeId: string, enabled = true) {
     queryFn: () => fetchJudgment(disputeId),
     enabled: !!disputeId && enabled,
     staleTime: 1000 * 60 * 10,
-    retry: 0,
   })
 }
