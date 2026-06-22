@@ -135,7 +135,7 @@ export default function AboutPage() {
   return (
     <div className={styles.page}>
       {phase !== 'content' && (
-        <div className={`${styles.introOverlay} ${phase === 'iris-out' ? styles.irisOut : ''}`}>
+        <div className={`${styles.introOverlay} ${phase === 'iris-out' ? styles['iris-out'] : ''}`}>
           <div className={styles.animationWrapper}>
             <SpriteAnimation
               src="/images/characters-actions/Judge Owl-striking_gavel_down.png"

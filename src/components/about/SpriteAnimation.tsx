@@ -35,11 +35,14 @@ export default function SpriteAnimation({
     img.src = src
 
     let currentFrame = 0
-    let animationId: number
+    let animationId: number | null = null
+    let disposed = false
     let lastTime = 0
     const interval = 1000 / fps
 
     const draw = (timestamp: number) => {
+      if (disposed) return
+
       if (timestamp - lastTime >= interval) {
         lastTime = timestamp
 
@@ -66,10 +69,15 @@ export default function SpriteAnimation({
     }
 
     img.onload = () => {
+      if (disposed) return
       animationId = requestAnimationFrame(draw)
     }
 
-    return () => cancelAnimationFrame(animationId)
+    return () => {
+      disposed = true
+      img.onload = null
+      if (animationId !== null) cancelAnimationFrame(animationId)
+    }
   }, [src, frameCount, columns, frameWidth, frameHeight, fps])
 
   return (

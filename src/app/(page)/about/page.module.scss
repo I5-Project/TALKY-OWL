@@ -19,15 +19,16 @@
   inset: 0;
   z-index: 100;
   @include m.flex-center;
+
   background: linear-gradient(180deg, #{v.$color-primary-200} 0%, #{v.$color-white} 60%);
   clip-path: circle(150% at 50% 50%);
 }
 
-.introOverlay.irisOut {
-  animation: irisOut 0.8s ease-in forwards;
+.introOverlay.iris-out {
+  animation: iris-out 0.8s ease-in forwards;
 }
 
-@keyframes irisOut {
+@keyframes iris-out {
   0% {
     clip-path: circle(150% at 50% 50%);
   }
@@ -47,11 +48,11 @@
 // ===========================
 .content {
   flex: 1;
-  animation: fadeIn 0.5s ease-out;
+  animation: fade-in 0.5s ease-out;
   overflow-x: hidden;
 }
 
-@keyframes fadeIn {
+@keyframes fade-in {
   from {
     opacity: 0;
   }
@@ -66,6 +67,7 @@
 // ===========================
 .heroSection {
   @include m.flex-center;
+
   min-height: 100dvh;
   padding: 60px 24px;
   background: linear-gradient(180deg, #{v.$color-primary-200} 0%, #{v.$color-white} 80%);
@@ -100,18 +102,21 @@
 
 .heroTitle {
   @include m.text-display;
+
   color: v.$color-black-700;
   letter-spacing: -0.5px;
 }
 
 .heroSubtitle {
   @include m.text-label-m;
+
   font-weight: v.$font-weight-semibold;
   color: v.$color-primary-600;
 }
 
 .heroDesc {
   @include m.text-body-s;
+
   color: v.$color-black-400;
   margin-top: v.$spacing-unit * 0.5;
 }
@@ -143,6 +148,7 @@
 
 .badge {
   @include m.text-label-s;
+
   display: inline-block;
   padding: 6px 16px;
   border-radius: 20px;
@@ -153,6 +159,7 @@
 
 .title {
   @include m.text-title-l;
+
   color: v.$color-black-700;
   letter-spacing: -0.3px;
   white-space: pre-line;
@@ -161,6 +168,7 @@
 
 .description {
   @include m.text-body-s;
+
   color: v.$color-black-400;
   white-space: pre-line;
   opacity: 0;
@@ -210,11 +218,13 @@
 
 .ctaTitle {
   @include m.text-title-l;
+
   color: v.$color-black-700;
 }
 
 .ctaDesc {
   @include m.text-body-s;
+
   color: v.$color-black-400;
 }
 
@@ -226,6 +236,7 @@
   background: v.$color-primary-600;
   color: v.$color-white;
   @include m.text-label-m;
+
   font-weight: v.$font-weight-semibold;
   cursor: pointer;
   transition: background 0.2s;
