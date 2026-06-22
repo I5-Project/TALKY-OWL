@@ -2,15 +2,10 @@
 @use '@/styles/abstracts/functions' as fn;
 
 .nav {
-  position: fixed;
-  bottom: 0;
-  left: 50%;
-  transform: translateX(-50%);
+  flex-shrink: 0;
   width: 100%;
-  max-width: v.$container-max-width;
   background-color: var(--bg-page);
   border-top: 1px solid var(--border-default);
-  z-index: 100;
 
   &__list {
     display: flex;

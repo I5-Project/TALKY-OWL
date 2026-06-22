@@ -6,7 +6,7 @@
   position: relative;
   display: flex;
   flex-direction: column;
-  min-height: 100dvh;
+  min-height: 100%;
   overflow-x: hidden;
   background: linear-gradient(180deg, #{v.$color-primary-200} 0%, #{v.$color-white} 15%);
 }

@@ -5,7 +5,6 @@
 .main {
   display: flex;
   flex-direction: column;
-  min-height: calc(100dvh - fn.r(56));
   padding: fn.r(24) fn.r(20);
   padding-bottom: fn.r(100);
 }
@@ -62,5 +61,4 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: calc(100dvh - fn.r(56));
 }
