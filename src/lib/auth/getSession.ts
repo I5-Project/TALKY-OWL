@@ -12,7 +12,7 @@ export const getCachedSession = cache(async (): Promise<Session | null> => {
   if (!token) return null
 
   const decoded = await decode({ token, secret: process.env.NEXTAUTH_SECRET! })
-  if (!decoded) return null
+  if (!decoded?.sub) return null
 
   return {
     user: {

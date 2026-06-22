@@ -152,10 +152,8 @@ export async function POST(
       const userB = participantB ? (userMap[participantB.userId] ?? null) : null
       const mbtiA = userA?.mbti ?? null
       const mbtiB = userB?.mbti ?? null
-      const nameA = userA?.nickname ?? userA?.name ?? null
-      const nameB = userB?.nickname ?? userB?.name ?? null
 
-      // AI 판결 생성
+      // AI 판결 생성 (당사자는 A/B로만 전달, 표시 시 user.name으로 치환)
       const aiResult = await generateAiJudgment({
         categoryGroup: dispute.categoryGroup,
         statementA,
@@ -163,8 +161,6 @@ export async function POST(
         conflictTypes: conflictTypeDetails.map((d) => ({ code: d.detailCode, name: d.displayName })),
         mbtiA,
         mbtiB,
-        nameA,
-        nameB,
       })
 
       // AI가 반환한 code로 ConflictTypeDetail 매핑

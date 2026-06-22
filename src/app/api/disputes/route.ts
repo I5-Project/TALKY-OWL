@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
-import { type Prisma, type CategoryGroup as PrismaCategoryGroup, DisputeStatus } from '@prisma/client'
+import { Prisma, type CategoryGroup as PrismaCategoryGroup, DisputeStatus } from '@prisma/client'
 import { prisma } from '@/lib/db'
 import { getRequestUserId } from '@/lib/auth/session'
 import { VALID_CATEGORY_GROUPS } from '@/lib/constants/dispute'
@@ -8,6 +8,18 @@ import { moderateContent } from '@/lib/ai/moderation'
 import { extractDisputeMeta } from '@/lib/ai/judgment'
 import type { ApiResponse, CategoryGroup } from '@/types/common'
 import type { DisputeDto, DisputeParticipantDto, DisputeListResponse } from '@/types/dispute'
+
+class DuplicateDisputeError extends Error {
+  constructor() { super('DISPUTE_ALREADY_EXISTS') }
+}
+
+function withTimeout<T>(promise: Promise<T>, ms: number, label: string): Promise<T> {
+  let timerId: ReturnType<typeof setTimeout>
+  const timeout = new Promise<never>((_, reject) => {
+    timerId = setTimeout(() => reject(new Error(`${label} timeout`)), ms)
+  })
+  return Promise.race([promise, timeout]).finally(() => clearTimeout(timerId))
+}
 
 const createDisputeSchema = z.object({
   roomId: z.string().uuid('유효하지 않은 방 ID입니다.'),
@@ -184,11 +196,8 @@ export async function POST(request: NextRequest) {
   const { roomId, categoryGroup, content, sourceConversationId } = parsed.data
 
   try {
-    // 방 유효성 + 중복 dispute 확인 (병렬)
-    const [room, existing] = await Promise.all([
-      prisma.disputeRoom.findFirst({ where: { id: roomId, creatorUserId: userId, deletedAt: null } }),
-      prisma.dispute.findFirst({ where: { roomId } }),
-    ])
+    // 방 유효성 확인
+    const room = await prisma.disputeRoom.findFirst({ where: { id: roomId, creatorUserId: userId, deletedAt: null } })
 
     if (!room) {
       return NextResponse.json<ApiResponse>(
@@ -202,23 +211,11 @@ export async function POST(request: NextRequest) {
         { status: 422 },
       )
     }
-    if (existing) {
-      return NextResponse.json<ApiResponse>(
-        { success: false, error: { code: 'DISPUTE_ALREADY_EXISTS', message: '이미 사건이 존재하는 방입니다.' } },
-        { status: 409 },
-      )
-    }
 
-    // 모더레이션 + AI 추출 병렬 실행
-    const META_TIMEOUT_MS = 10000
+    // 모더레이션 + AI 추출 병렬 실행 (둘 다 타임아웃 적용)
     const [moderationResult, metaResult] = await Promise.allSettled([
-      moderateContent(content),
-      Promise.race([
-        extractDisputeMeta(content),
-        new Promise<never>((_, reject) =>
-          setTimeout(() => reject(new Error('extractDisputeMeta timeout')), META_TIMEOUT_MS),
-        ),
-      ]),
+      withTimeout(moderateContent(content), 8000, 'moderateContent'),
+      withTimeout(extractDisputeMeta(content), 10000, 'extractDisputeMeta'),
     ])
 
     // 모더레이션 처리 (실패 시 fail open)
@@ -228,10 +225,23 @@ export async function POST(request: NextRequest) {
       moderation = moderationResult.value
       moderationSucceeded = true
     } else {
-      console.error('[disputes] moderation failed:', moderationResult.reason)
+      const reason = moderationResult.reason
+      console.error('[disputes] moderation failed', {
+        message: reason instanceof Error ? reason.message : 'unknown',
+        userId,
+        roomId,
+      })
     }
 
     if (moderation.isBlocked) {
+      console.info('[disputes] content blocked', {
+        userId,
+        roomId,
+        isBlocked: true,
+        confidenceScore: moderation.confidenceScore,
+        modelName: moderation.modelName,
+        reason: moderation.reason,
+      })
       return NextResponse.json<ApiResponse>(
         { success: false, error: { code: 'CONTENT_BLOCKED', message: moderation.reason ?? '부적절한 표현이 포함되어 있습니다. 내용을 수정해주세요.' } },
         { status: 422 },
@@ -267,8 +277,11 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // dispute + 참여자 + 진술 원자적 생성
+    // dispute + 참여자 + 진술 원자적 생성 (중복 체크 포함, serializable로 race condition 방지)
     const dispute = await prisma.$transaction(async (tx) => {
+      const existing = await tx.dispute.findFirst({ where: { roomId } })
+      if (existing) throw new DuplicateDisputeError()
+
       const created = await tx.dispute.create({
         data: {
           roomId,
@@ -314,13 +327,19 @@ export async function POST(request: NextRequest) {
         where: { id: created.id },
         include: { participants: { include: { user: { select: { profileImageUrl: true, image: true } } } } },
       })
-    })
+    }, { isolationLevel: Prisma.TransactionIsolationLevel.Serializable })
 
     return NextResponse.json<ApiResponse<DisputeDto & { hasPersonalInfo: boolean }>>(
       { success: true, data: { ...toDisputeDto(dispute), hasPersonalInfo: moderation.hasPersonalInfo } },
       { status: 201 },
     )
-  } catch {
+  } catch (error) {
+    if (error instanceof DuplicateDisputeError) {
+      return NextResponse.json<ApiResponse>(
+        { success: false, error: { code: 'DISPUTE_ALREADY_EXISTS', message: '이미 사건이 존재하는 방입니다.' } },
+        { status: 409 },
+      )
+    }
     return NextResponse.json<ApiResponse>(
       { success: false, error: { code: 'INTERNAL_SERVER_ERROR', message: '서버 오류가 발생했습니다.' } },
       { status: 500 },
