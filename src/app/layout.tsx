@@ -24,7 +24,7 @@ export const metadata: Metadata = {
     description: 'AI 갈등 조정 판결 서비스',
     images: [
       {
-        url: '/images/common/ogimg.svg',
+        url: '/images/common/ogimg.jpg',
         width: 1200,
         height: 630,
         alt: '말해부엉',
