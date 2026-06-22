@@ -1,5 +1,6 @@
 @use '@/styles/abstracts/variables' as v;
 @use '@/styles/abstracts/mixins' as m;
+@use '@/styles/abstracts/functions' as fn;
 
 // ===========================
 // Page Container
@@ -44,7 +45,7 @@
 }
 
 // ===========================
-// Content Wrapper
+// Content
 // ===========================
 .content {
   flex: 1;
@@ -69,123 +70,96 @@
   @include m.flex-center;
 
   min-height: 100dvh;
-  padding: 60px 24px;
-  background: linear-gradient(180deg, #{v.$color-primary-200} 0%, #{v.$color-white} 80%);
+  padding: 40px 24px 60px;
+  background: linear-gradient(180deg, #{v.$color-primary-200} 0%, #{v.$color-white} 85%);
 }
 
 .heroInner {
   display: flex;
   flex-direction: column;
   align-items: center;
+  gap: v.$spacing-unit * 3;
+  width: 100%;
+  max-width: 400px;
+}
+
+.heroPhoneArea {
+  position: relative;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  padding: 40px 0;
+}
+
+// Floating tags
+.floatingTag {
+  @include m.text-label-s;
+
+  position: absolute;
+  padding: 8px 16px;
+  border-radius: 20px;
+  background: v.$color-white;
+  color: v.$color-black-500;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  white-space: nowrap;
+  opacity: 0;
+  z-index: 2;
+}
+
+.tagTopLeft {
+  top: 10%;
+  left: 0;
+}
+
+.tagTopRight {
+  top: 5%;
+  right: 5%;
+}
+
+.tagMiddleLeft {
+  top: 45%;
+  left: -5%;
+}
+
+.tagBottomLeft {
+  bottom: 15%;
+  left: 5%;
+}
+
+// Hero Phone
+.heroPhone {
+  position: relative;
+  z-index: 1;
+  opacity: 0;
+}
+
+.heroTextBlock {
   text-align: center;
-  gap: v.$spacing-unit * 1.5;
-}
-
-.heroCharacter {
-  width: 120px;
-  height: 120px;
-  object-fit: contain;
-  margin-bottom: v.$spacing-unit;
-  animation: float 3s ease-in-out infinite;
-}
-
-@keyframes float {
-  0%,
-  100% {
-    transform: translateY(0);
-  }
-
-  50% {
-    transform: translateY(-10px);
-  }
+  opacity: 0;
 }
 
 .heroTitle {
-  @include m.text-display;
+  @include m.text-title-xl;
 
   color: v.$color-black-700;
   letter-spacing: -0.5px;
 }
 
-.heroSubtitle {
-  @include m.text-label-m;
-
-  font-weight: v.$font-weight-semibold;
+.highlight {
   color: v.$color-primary-600;
 }
 
-.heroDesc {
-  @include m.text-body-s;
-
-  color: v.$color-black-400;
-  margin-top: v.$spacing-unit * 0.5;
-}
-
 // ===========================
-// Feature Section
-// ===========================
-.featureSection {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: v.$spacing-unit * 4;
-  padding: 80px 24px;
-  min-height: 100dvh;
-  justify-content: center;
-
-  &:nth-child(even) {
-    background: v.$color-primary-100;
-  }
-}
-
-.featureText {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  gap: v.$spacing-unit * 1.5;
-}
-
-.badge {
-  @include m.text-label-s;
-
-  display: inline-block;
-  padding: 6px 16px;
-  border-radius: 20px;
-  background: v.$color-primary-500;
-  color: v.$color-white;
-  opacity: 0;
-}
-
-.title {
-  @include m.text-title-l;
-
-  color: v.$color-black-700;
-  letter-spacing: -0.3px;
-  white-space: pre-line;
-  opacity: 0;
-}
-
-.description {
-  @include m.text-body-s;
-
-  color: v.$color-black-400;
-  white-space: pre-line;
-  opacity: 0;
-}
-
-// ===========================
-// Phone Frame
+// Phone Frame (shared)
 // ===========================
 .phoneFrame {
   position: relative;
-  width: 240px;
+  width: 200px;
   border-radius: 24px;
   overflow: hidden;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.12);
-  border: 8px solid v.$color-black-700;
+  border: 6px solid v.$color-black-700;
   background: v.$color-white;
-  opacity: 0;
 }
 
 .phoneImage {
@@ -196,30 +170,149 @@
 }
 
 // ===========================
-// CTA Section
+// Feature Cards Section
 // ===========================
-.ctaSection {
+.featureCardsSection {
+  display: flex;
+  gap: v.$spacing-unit * 2;
+  padding: 60px 24px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.featureCard {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  gap: v.$spacing-unit;
+  padding: 24px 16px;
+  border-radius: 16px;
+  border: 1px solid v.$color-black-100;
+  background: v.$color-white;
+  width: 160px;
   text-align: center;
-  min-height: 60dvh;
-  padding: 60px 24px;
-  background: linear-gradient(180deg, #{v.$color-white} 0%, #{v.$color-primary-200} 100%);
+  opacity: 0;
+}
+
+.featureNum {
+  @include m.text-caption;
+
+  color: v.$color-primary-600;
+  font-weight: v.$font-weight-semibold;
+}
+
+.featureIconWrap {
+  width: 48px;
+  height: 48px;
+  @include m.flex-center;
+}
+
+.featureCardTitle {
+  @include m.text-body-s;
+
+  color: v.$color-black-700;
+  white-space: pre-line;
+}
+
+// ===========================
+// Showcase Section
+// ===========================
+.showcaseSection {
+  display: flex;
+  align-items: center;
+  gap: v.$spacing-unit * 3;
+  padding: 80px 24px;
+  min-height: 70dvh;
+  justify-content: center;
+
+  &.reverse {
+    flex-direction: row-reverse;
+  }
+
+  &.dark {
+    background: v.$color-black-700;
+
+    .showcaseTitle {
+      color: v.$color-white;
+    }
+
+    .showcaseDesc {
+      color: v.$color-black-300;
+    }
+
+    .phoneFrame {
+      border-color: v.$color-black-400;
+    }
+  }
+}
+
+.showcaseText {
+  display: flex;
+  flex-direction: column;
+  gap: v.$spacing-unit * 1.5;
+  max-width: 280px;
+  opacity: 0;
+}
+
+.showcaseTitle {
+  @include m.text-title-l;
+
+  color: v.$color-black-700;
+  letter-spacing: -0.3px;
+  white-space: pre-line;
+}
+
+.showcaseDesc {
+  @include m.text-body-s;
+
+  color: v.$color-black-400;
+  white-space: pre-line;
+}
+
+.showcasePhone {
+  position: relative;
+  opacity: 0;
+
+  .phoneFrame {
+    transform: perspective(800px) rotateY(-5deg);
+    transition: transform 0.3s ease;
+  }
+
+  .reverse & .phoneFrame {
+    transform: perspective(800px) rotateY(5deg);
+  }
+}
+
+.showcaseBadge {
+  @include m.text-label-s;
+
+  position: absolute;
+  top: -12px;
+  right: -12px;
+  z-index: 2;
+  padding: 6px 14px;
+  border-radius: 16px;
+  background: v.$color-secondary-500;
+  color: v.$color-white;
+}
+
+// ===========================
+// CTA Section
+// ===========================
+.ctaSection {
+  @include m.flex-center;
+
+  flex-direction: column;
+  text-align: center;
+  padding: 80px 24px 60px;
+  background: linear-gradient(180deg, #{v.$color-white} 0%, #{v.$color-primary-100} 100%);
   gap: v.$spacing-unit * 2;
 }
 
 .ctaIcon {
-  width: 64px;
-  height: 64px;
+  width: 56px;
+  height: 56px;
   object-fit: contain;
-}
-
-.ctaTitle {
-  @include m.text-title-l;
-
-  color: v.$color-black-700;
 }
 
 .ctaDesc {
@@ -229,7 +322,6 @@
 }
 
 .ctaButton {
-  margin-top: v.$spacing-unit;
   padding: 14px 48px;
   border: none;
   border-radius: 12px;
@@ -247,5 +339,36 @@
 
   &:active {
     transform: scale(0.98);
+  }
+}
+
+.ctaFooter {
+  @include m.text-caption;
+
+  color: v.$color-black-300;
+  margin-top: v.$spacing-unit;
+}
+
+// ===========================
+// Mobile responsive
+// ===========================
+@media (max-width: 640px) {
+  .showcaseSection {
+    flex-direction: column !important;
+    text-align: center;
+    padding: 60px 24px;
+  }
+
+  .showcaseText {
+    align-items: center;
+    text-align: center;
+  }
+
+  .showcasePhone .phoneFrame {
+    transform: none;
+  }
+
+  .featureCard {
+    width: 140px;
   }
 }

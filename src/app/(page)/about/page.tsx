@@ -5,48 +5,62 @@ import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { ScrollToPlugin } from 'gsap/ScrollToPlugin';
 import { useHeaderStore } from '@/stores/headerStore';
 import SpriteAnimation from '@/components/about/SpriteAnimation';
 import styles from './page.module.scss';
 
-gsap.registerPlugin(ScrollTrigger, ScrollToPlugin);
+gsap.registerPlugin(ScrollTrigger);
 
-const sections = [
+const floatingTags = [
+  { text: '나였이면', className: 'tagTopLeft' },
+  { text: '친구랑', className: 'tagTopRight' },
+  { text: '직장상사의 갈등상황', className: 'tagMiddleLeft' },
+  { text: '엄마랑', className: 'tagBottomLeft' },
+];
+
+const featureCards = [
   {
-    id: 'home',
-    image: '/images/about/1.png',
-    badge: '홈 화면',
-    title: '오늘의 감정을\n한눈에 확인하세요',
-    description: '감정일기 작성, 고민 카테고리 통계,\n진행중인 사건까지 한 화면에서 관리해요.',
+    num: 'Feature 01',
+    icon: '/images/characters/character-case.svg',
+    title: '갈등을 AI로\n판결해보세요',
   },
   {
-    id: 'write',
+    num: 'Feature 02',
+    icon: '/images/characters/character-home.svg',
+    title: '갈등을 빠르고\n내 갈등유형을\n확인해보세요',
+  },
+  {
+    num: 'Feature 03',
+    icon: '/images/characters/character-gift.svg',
+    title: '감정일기고\n그날부엉 기록하세요',
+  },
+];
+
+const showcaseSections = [
+  {
+    id: 'invite',
+    image: '/images/about/5.png',
+    title: '상대를 초대해\n둘만의 방을 만들어보세요',
+    description: '갈등 갈등, 가치관? 연애?\n상대를 초대해 두근거리는 단 하나의 사건으로 판결을 만들어요.',
+    dark: false,
+    reverse: false,
+  },
+  {
+    id: 'diary',
     image: '/images/about/3.png',
-    badge: '사건 작성',
-    title: '갈등 상황을\n자유롭게 작성하세요',
-    description: '연애, 가족, 친구, 직장 카테고리를 선택하고\n나의 진술서를 작성해요.',
+    title: '하루의 감정을 기록해 보세요',
+    description: '',
+    dark: true,
+    reverse: true,
+    badge: '배근형',
   },
   {
     id: 'records',
     image: '/images/about/2.png',
-    badge: '사건 기록',
-    title: '모든 사건을\n카테고리별로 관리하세요',
-    description: '등록한 사건들을 한눈에 확인하고\n카테고리별로 필터링할 수 있어요.',
-  },
-  {
-    id: 'detail',
-    image: '/images/about/5.png',
-    badge: '사건 조회',
-    title: '상대방을 초대해\n더 정확한 판결을 받으세요',
-    description: '상대방의 진술까지 함께 제출하면\nAI가 더 공정한 판결을 내려줘요.',
-  },
-  {
-    id: 'result',
-    image: '/images/about/6.png',
-    badge: 'AI 판결',
-    title: 'AI가 분석한\n나의 갈등 유형은?',
-    description: '16가지 유형 분석과 화해 제안까지,\n관계 회복을 위한 맞춤 판결을 받아보세요.',
+    title: '쌓인 기록으로\n서로를 이해하는 시간을 가져보세요',
+    description: '많은 거 하지 않아도 돼요.\n말해부엉이 그 사건에 너 또는 내 사건에서 서로를 이해할 수 있게 말해요.',
+    dark: false,
+    reverse: false,
   },
 ];
 
@@ -55,7 +69,6 @@ export default function AboutPage() {
   const setHeader = useHeaderStore((s) => s.setHeader);
   const [phase, setPhase] = useState<'animation' | 'iris-out' | 'content'>('animation');
   const containerRef = useRef<HTMLDivElement>(null);
-  const sectionRefs = useRef<(HTMLElement | null)[]>([]);
 
   useEffect(() => {
     return () => setHeader(null);
@@ -68,64 +81,77 @@ export default function AboutPage() {
   }, [phase]);
 
   useEffect(() => {
-    const animationTimer = setTimeout(() => {
-      setPhase('iris-out');
-    }, 1700);
-    return () => clearTimeout(animationTimer);
+    const timer = setTimeout(() => setPhase('iris-out'), 1700);
+    return () => clearTimeout(timer);
   }, []);
 
   useEffect(() => {
     if (phase !== 'iris-out') return;
-    const contentTimer = setTimeout(() => {
-      setPhase('content');
-    }, 800);
-    return () => clearTimeout(contentTimer);
+    const timer = setTimeout(() => setPhase('content'), 800);
+    return () => clearTimeout(timer);
   }, [phase]);
 
   useEffect(() => {
     if (phase !== 'content') return;
 
     const ctx = gsap.context(() => {
-      sectionRefs.current.forEach((section) => {
-        if (!section) return;
+      gsap.utils.toArray<HTMLElement>(`.${styles.floatingTag}`).forEach((tag, i) => {
+        gsap.fromTo(tag,
+          { opacity: 0, y: 30, scale: 0.8 },
+          { opacity: 1, y: 0, scale: 1, duration: 0.6, delay: 0.3 + i * 0.15, ease: 'back.out(1.4)' }
+        );
+      });
 
-        const badge = section.querySelector(`.${styles.badge}`);
-        const title = section.querySelector(`.${styles.title}`);
-        const desc = section.querySelector(`.${styles.description}`);
-        const phone = section.querySelector(`.${styles.phoneFrame}`);
+      gsap.fromTo(`.${styles.heroPhone}`,
+        { opacity: 0, y: 60 },
+        { opacity: 1, y: 0, duration: 0.8, delay: 0.2, ease: 'power2.out' }
+      );
+
+      gsap.fromTo(`.${styles.heroTextBlock}`,
+        { opacity: 0, y: 40 },
+        { opacity: 1, y: 0, duration: 0.7, delay: 0.5, ease: 'power2.out' }
+      );
+
+      gsap.utils.toArray<HTMLElement>(`.${styles.featureCard}`).forEach((card, i) => {
+        gsap.fromTo(card,
+          { opacity: 0, y: 40 },
+          {
+            opacity: 1, y: 0, duration: 0.5, delay: i * 0.15,
+            scrollTrigger: { trigger: card, start: 'top 85%', toggleActions: 'play none none reverse' },
+          }
+        );
+      });
+
+      gsap.utils.toArray<HTMLElement>(`.${styles.showcaseSection}`).forEach((section) => {
+        const text = section.querySelector(`.${styles.showcaseText}`);
+        const phone = section.querySelector(`.${styles.showcasePhone}`);
+        const isReverse = section.classList.contains(styles.reverse);
 
         const tl = gsap.timeline({
-          scrollTrigger: {
-            trigger: section,
-            start: 'top 80%',
-            end: 'top 20%',
-            toggleActions: 'play none none reverse',
-          },
+          scrollTrigger: { trigger: section, start: 'top 75%', toggleActions: 'play none none reverse' },
         });
 
-        if (badge) tl.fromTo(badge, { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.4 });
-        if (title) tl.fromTo(title, { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.5 }, '-=0.2');
-        if (desc) tl.fromTo(desc, { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.4 }, '-=0.2');
-        if (phone) tl.fromTo(phone, { opacity: 0, y: 40, scale: 0.95 }, { opacity: 1, y: 0, scale: 1, duration: 0.6 }, '-=0.3');
+        if (text) {
+          tl.fromTo(text,
+            { opacity: 0, x: isReverse ? 40 : -40 },
+            { opacity: 1, x: 0, duration: 0.6, ease: 'power2.out' }
+          );
+        }
+        if (phone) {
+          tl.fromTo(phone,
+            { opacity: 0, x: isReverse ? -40 : 40 },
+            { opacity: 1, x: 0, duration: 0.7, ease: 'power2.out' },
+            '-=0.4'
+          );
+        }
       });
 
       const cta = document.querySelector(`.${styles.ctaSection}`);
       if (cta) {
-        gsap.fromTo(
-          cta.children,
-          { opacity: 0, y: 30 },
-          {
-            opacity: 1,
-            y: 0,
-            duration: 0.5,
-            stagger: 0.2,
-            scrollTrigger: {
-              trigger: cta,
-              start: 'top 80%',
-              toggleActions: 'play none none reverse',
-            },
-          }
-        );
+        gsap.fromTo(cta.children, { opacity: 0, y: 30 }, {
+          opacity: 1, y: 0, duration: 0.5, stagger: 0.15,
+          scrollTrigger: { trigger: cta, start: 'top 80%', toggleActions: 'play none none reverse' },
+        });
       }
     }, containerRef);
 
@@ -153,61 +179,67 @@ export default function AboutPage() {
         <div ref={containerRef} className={styles.content}>
           <section className={styles.heroSection}>
             <div className={styles.heroInner}>
-              <Image
-                src="/images/characters/character-welcome.svg"
-                alt="말해부엉 캐릭터"
-                width={120}
-                height={120}
-                className={styles.heroCharacter}
-              />
-              <h1 className={styles.heroTitle}>말해부엉</h1>
-              <p className={styles.heroSubtitle}>AI가 판결하는 갈등 조정 서비스</p>
-              <p className={styles.heroDesc}>
-                갈등, 혼자 끙끙 앓지 마세요.<br />
-                말해부엉이 공정하게 판결해드릴게요.
-              </p>
+              <div className={styles.heroPhoneArea}>
+                {floatingTags.map((tag) => (
+                  <span key={tag.className} className={`${styles.floatingTag} ${styles[tag.className]}`}>
+                    {tag.text}
+                  </span>
+                ))}
+                <div className={styles.heroPhone}>
+                  <div className={styles.phoneFrame}>
+                    <Image src="/images/about/1.png" alt="말해부엉 홈 화면" width={220} height={440} className={styles.phoneImage} />
+                  </div>
+                </div>
+              </div>
+              <div className={styles.heroTextBlock}>
+                <h1 className={styles.heroTitle}>
+                  <span className={styles.highlight}>말해부엉</span> 하나로 해결가능
+                </h1>
+              </div>
             </div>
           </section>
 
-          {sections.map((section, index) => (
+          <section className={styles.featureCardsSection}>
+            {featureCards.map((card) => (
+              <div key={card.num} className={styles.featureCard}>
+                <span className={styles.featureNum}>{card.num}</span>
+                <div className={styles.featureIconWrap}>
+                  <Image src={card.icon} alt={card.num} width={48} height={48} />
+                </div>
+                <p className={styles.featureCardTitle}>{card.title}</p>
+              </div>
+            ))}
+          </section>
+
+          {showcaseSections.map((section) => (
             <section
               key={section.id}
-              ref={(el) => { sectionRefs.current[index] = el; }}
-              className={`${styles.featureSection} ${index % 2 === 1 ? styles.reversed : ''}`}
+              className={`${styles.showcaseSection} ${section.dark ? styles.dark : ''} ${section.reverse ? styles.reverse : ''}`}
             >
-              <div className={styles.featureText}>
-                <span className={styles.badge}>{section.badge}</span>
-                <h2 className={styles.title}>{section.title}</h2>
-                <p className={styles.description}>{section.description}</p>
+              <div className={styles.showcaseText}>
+                <h2 className={styles.showcaseTitle}>{section.title}</h2>
+                {section.description && (
+                  <p className={styles.showcaseDesc}>{section.description}</p>
+                )}
               </div>
-              <div className={styles.phoneFrame}>
-                <Image
-                  src={section.image}
-                  alt={section.badge}
-                  width={280}
-                  height={560}
-                  className={styles.phoneImage}
-                />
+              <div className={styles.showcasePhone}>
+                {section.badge && (
+                  <span className={styles.showcaseBadge}>{section.badge}</span>
+                )}
+                <div className={styles.phoneFrame}>
+                  <Image src={section.image} alt={section.id} width={260} height={520} className={styles.phoneImage} />
+                </div>
               </div>
             </section>
           ))}
 
           <section className={styles.ctaSection}>
-            <Image
-              src="/images/characters/character-gift.svg"
-              alt="말해부엉 선물"
-              width={64}
-              height={64}
-              className={styles.ctaIcon}
-            />
-            <h2 className={styles.ctaTitle}>지금 바로 시작해보세요</h2>
-            <p className={styles.ctaDesc}>말해부엉과 함께 갈등을 해결하고<br />관계를 회복해보세요.</p>
-            <button
-              className={styles.ctaButton}
-              onClick={() => router.push('/login')}
-            >
+            <Image src="/images/characters/character-welcome.svg" alt="말해부엉" width={56} height={56} className={styles.ctaIcon} />
+            <p className={styles.ctaDesc}>말해부엉으로 어디서나 편하게 갈등해결할 수 있다요</p>
+            <button className={styles.ctaButton} onClick={() => router.push('/login')}>
               시작하기
             </button>
+            <span className={styles.ctaFooter}>말해부엉 AI 갈등 조정 판결 서비스</span>
           </section>
         </div>
       )}
