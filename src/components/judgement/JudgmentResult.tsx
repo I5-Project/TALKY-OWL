@@ -53,10 +53,6 @@ export default function JudgmentResult({ disputeId }: Props) {
             : judgment.moreResponsibleRole === 'role_b' ? participantB
             : null
 
-          const guiltText = moreGuiltyParticipant
-            ? `${moreGuiltyParticipant.name ?? '상대방'}님이 더 잘못했어요`
-            : '두 분의 잘못이 비슷해요'
-
           return (
             <div className={styles.scoreGraph}>
               <div className={styles.scoreHeader}>
@@ -69,7 +65,16 @@ export default function JudgmentResult({ disputeId }: Props) {
                     className={styles.scoreAvatarImg}
                   />
                 </div>
-                <p className={styles.scoreTitle}>{guiltText}</p>
+                <p className={styles.scoreTitle}>
+                  {moreGuiltyParticipant ? (
+                    <>
+                      <span className={styles.scoreTitleName}>{moreGuiltyParticipant.name ?? '상대방'}님</span>
+                      이 더 잘못했어요
+                    </>
+                  ) : (
+                    '두 분의 잘못이 비슷해요'
+                  )}
+                </p>
               </div>
 
               <div className={styles.barWrapper}>
