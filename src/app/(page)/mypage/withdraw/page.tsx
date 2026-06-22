@@ -1,9 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { signOut } from 'next-auth/react';
-import Header from '@/components/layout/Header';
+import { useHeaderStore } from '@/stores/headerStore';
 import Button from '@/components/ui/Button';
 import ConfirmModal from '@/components/ui/ConfirmModal';
 import styles from './page.module.scss';
@@ -67,6 +67,11 @@ const WITHDRAW_TERMS = [
 
 export default function WithdrawPage() {
   const router = useRouter();
+  const setHeader = useHeaderStore((s) => s.setHeader)
+  useEffect(() => {
+    setHeader({ variant: 'title', title: '회원탈퇴', onBack: () => router.back() })
+    return () => setHeader(null)
+  }, [])
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [loading, setLoading] = useState(false);
 
@@ -92,7 +97,6 @@ export default function WithdrawPage() {
 
   return (
     <>
-      <Header title="회원탈퇴" onBack={() => router.back()} />
       <main className={styles.main}>
         <div className={styles.terms}>
           {WITHDRAW_TERMS.map(section => (

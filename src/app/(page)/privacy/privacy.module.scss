@@ -3,7 +3,6 @@
 @use '@/styles/abstracts/mixins' as m;
 
 .page {
-  min-height: 100svh;
   padding: fn.r(16) fn.r(24) fn.r(40);
 }
 

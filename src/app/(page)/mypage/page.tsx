@@ -1,10 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { signOut } from 'next-auth/react';
-import Header from '@/components/layout/Header';
+import { useHeaderStore } from '@/stores/headerStore';
 import Avatar from '@/components/ui/Avatar';
 import ConfirmModal from '@/components/ui/ConfirmModal';
 import { useUserMe } from '@/domains/user/hooks';
@@ -21,6 +21,11 @@ const LINK_ITEMS = [
 ] as const;
 
 export default function MyPage() {
+  const setHeader = useHeaderStore((s) => s.setHeader)
+  useEffect(() => {
+    setHeader({ variant: 'logo' })
+    return () => setHeader(null)
+  }, [])
   const router = useRouter();
   const { data: user } = useUserMe();
   const [logoutOpen, setLogoutOpen] = useState(false);
@@ -33,7 +38,6 @@ export default function MyPage() {
 
   return (
     <>
-      <Header variant="logo" />
       <main className={styles.main}>
         <section className={styles.profile}>
           <Avatar size="l" src={user?.profileImageUrl ?? undefined} />

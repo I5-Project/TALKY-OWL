@@ -5,12 +5,10 @@
 .page {
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
   background-color: var(--bg-page);
 }
 
 .content {
-  flex: 1;
   padding: fn.r(16) fn.r(20) fn.r(100);
   display: flex;
   flex-direction: column;
@@ -72,11 +70,7 @@
 }
 
 .footer {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  padding: fn.r(40) fn.r(20);
+  padding: 0 fn.r(20) fn.r(40);
   background-color: var(--bg-page);
 }
 
