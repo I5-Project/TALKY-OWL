@@ -60,30 +60,26 @@
 }
 
 .heroInner {
-  width: 100%;
-  max-width: 900px;
-}
-
-.heroRow {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: v.$spacing-unit * 2;
-  flex-wrap: wrap;
+  width: 100%;
+  max-width: 960px;
   position: relative;
 }
 
-// Revolving vertical list
-.revolvingArea {
+// Left: revolving text column
+.heroLeft {
   display: flex;
-  align-items: baseline;
-  gap: v.$spacing-unit;
+  flex-direction: column;
+  align-items: flex-start;
+  flex-shrink: 0;
+  z-index: 2;
 }
 
 .revolvingMask {
-  height: 52px;
   overflow: hidden;
-  position: relative;
+  max-height: 80px;
 }
 
 .revolvingTrack {
@@ -92,13 +88,28 @@
 }
 
 .revolvingWord {
-  display: block;
-  height: 52px;
-  line-height: 52px;
-  @include m.text-title-xl;
+  @include m.text-title-l;
 
+  display: block;
+  height: 40px;
+  line-height: 40px;
   color: v.$color-black-200;
   font-weight: v.$font-weight-regular;
+  white-space: nowrap;
+}
+
+.activeRow {
+  display: flex;
+  align-items: baseline;
+  gap: v.$spacing-unit * 0.5;
+  margin: 4px 0;
+}
+
+.activeWord {
+  @include m.text-title-xl;
+
+  color: v.$color-black-700;
+  font-weight: v.$font-weight-bold;
   white-space: nowrap;
 }
 
@@ -110,26 +121,40 @@
   white-space: nowrap;
 }
 
-// Hero phone (cutout image)
-.heroPhone {
+.revolvingBelow {
+  overflow: hidden;
+  max-height: 40px;
+}
+
+.revolvingTrackBelow {
+  display: flex;
+  flex-direction: column;
+}
+
+// Center: phone image
+.heroCenter {
   position: relative;
   z-index: 1;
-  opacity: 0;
   flex-shrink: 0;
+  margin: 0 -20px;
+}
+
+.heroPhone {
+  opacity: 0;
 }
 
 .heroPhoneImage {
   display: block;
-  width: 280px;
+  width: 300px;
   height: auto;
   object-fit: contain;
 }
 
-.heroTextBlock {
+// Right: title text
+.heroRight {
   opacity: 0;
-  width: 100%;
-  text-align: right;
-  margin-top: -(v.$spacing-unit * 4);
+  z-index: 2;
+  flex-shrink: 0;
 }
 
 .heroTitle {
@@ -137,6 +162,7 @@
 
   color: v.$color-black-700;
   letter-spacing: -0.5px;
+  white-space: nowrap;
 }
 
 .highlight {
@@ -365,18 +391,22 @@
     text-align: center;
   }
 
-  .heroRow {
+  .heroInner {
     flex-direction: column;
-    align-items: center;
+    gap: v.$spacing-unit * 3;
   }
 
-  .heroTextBlock {
-    text-align: center;
-    margin-top: 0;
+  .heroCenter {
+    margin: 0;
   }
 
   .heroPhoneImage {
     width: 220px;
+  }
+
+  .heroTitle {
+    white-space: normal;
+    text-align: center;
   }
 
   .phoneMockupTilted {

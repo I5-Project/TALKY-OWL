@@ -56,58 +56,76 @@ export default function AboutPage() {
     const ctx = gsap.context(() => {
       // Hero phone entrance
       gsap.fromTo(`.${styles.heroPhone}`,
-        { opacity: 0, y: 80, rotateZ: 0 },
+        { opacity: 0, y: 80 },
         { opacity: 1, y: 0, duration: 1, delay: 0.2, ease: 'power3.out' }
       );
 
-      // Hero text entrance
-      gsap.fromTo(`.${styles.heroTextBlock}`,
-        { opacity: 0, y: 40 },
-        { opacity: 1, y: 0, duration: 0.8, delay: 0.6, ease: 'power2.out' }
+      // Hero right text entrance
+      gsap.fromTo(`.${styles.heroRight}`,
+        { opacity: 0, x: 40 },
+        { opacity: 1, x: 0, duration: 0.8, delay: 0.6, ease: 'power2.out' }
       );
 
-      // Revolving words: vertical scroll loop
+      // Revolving words animation
       if (revolvingRef.current) {
-        const track = revolvingRef.current.querySelector(`.${styles.revolvingTrack}`) as HTMLElement;
-        const allItems = revolvingRef.current.querySelectorAll(`.${styles.revolvingWord}`);
-        if (track && allItems.length > 0) {
-          const totalOriginal = REVOLVING_WORDS.length;
-          const startIndex = REVOLVING_ORDER[0];
-          gsap.set(track, { y: -(startIndex * WORD_HEIGHT) });
+        const activeEl = revolvingRef.current.querySelector(`.${styles.activeWord}`) as HTMLElement;
+        const aboveTrack = revolvingRef.current.querySelector(`.${styles.revolvingTrack}`) as HTMLElement;
+        const belowTrack = revolvingRef.current.querySelector(`.${styles.revolvingTrackBelow}`) as HTMLElement;
 
-          // color init: highlight first active
-          allItems.forEach((item, i) => {
-            const wordIdx = i % totalOriginal;
-            gsap.set(item, {
-              color: wordIdx === startIndex ? '#1a1d1f' : '#c9cdd1',
-              fontWeight: wordIdx === startIndex ? 700 : 400,
-            });
-          });
+        if (activeEl && aboveTrack && belowTrack) {
+          let currentOrderIdx = 0;
+          const total = REVOLVING_WORDS.length;
 
-          const tl = gsap.timeline({ repeat: -1, delay: 1.2 });
+          const updateDisplay = (orderIdx: number) => {
+            const activeIdx = REVOLVING_ORDER[orderIdx];
+            activeEl.textContent = REVOLVING_WORDS[activeIdx];
 
-          for (let step = 1; step <= REVOLVING_ORDER.length; step++) {
-            const nextIdx = REVOLVING_ORDER[step % REVOLVING_ORDER.length];
-            const targetSlot = step < REVOLVING_ORDER.length ? nextIdx : nextIdx + totalOriginal;
-
-            tl.to(allItems, { color: '#c9cdd1', fontWeight: 400, duration: 0.25 }, step * CYCLE_DURATION);
-            tl.to(track, { y: -(targetSlot * WORD_HEIGHT), duration: 0.5, ease: 'power2.inOut' }, step * CYCLE_DURATION);
-            tl.call(() => {
-              allItems.forEach((item, i) => {
-                const wordIdx = i % totalOriginal;
-                gsap.set(item, {
-                  color: wordIdx === nextIdx ? '#1a1d1f' : '#c9cdd1',
-                  fontWeight: wordIdx === nextIdx ? 700 : 400,
-                });
-              });
-            }, [], step * CYCLE_DURATION + 0.3);
-
-            // Reset position seamlessly when wrapping
-            if (step === REVOLVING_ORDER.length) {
-              tl.call(() => {
-                gsap.set(track, { y: -(nextIdx * WORD_HEIGHT) });
-              }, [], step * CYCLE_DURATION + 0.55);
+            // Above: words before active (scroll up effect)
+            const aboveItems = aboveTrack.querySelectorAll(`.${styles.revolvingWord}`);
+            aboveItems.forEach((el) => gsap.set(el, { display: 'none' }));
+            for (let i = 1; i <= 2; i++) {
+              const idx = (activeIdx - i + total) % total;
+              const slot = i - 1;
+              if (aboveItems[slot]) {
+                aboveItems[slot].textContent = REVOLVING_WORDS[idx];
+                gsap.set(aboveItems[slot], { display: 'block' });
+              }
             }
+
+            // Below: words after active
+            const belowItems = belowTrack.querySelectorAll(`.${styles.revolvingWord}`);
+            belowItems.forEach((el) => gsap.set(el, { display: 'none' }));
+            for (let i = 1; i <= 1; i++) {
+              const idx = (activeIdx + i) % total;
+              if (belowItems[i - 1]) {
+                belowItems[i - 1].textContent = REVOLVING_WORDS[idx];
+                gsap.set(belowItems[i - 1], { display: 'block' });
+              }
+            }
+          };
+
+          updateDisplay(0);
+
+          const tl = gsap.timeline({ repeat: -1, delay: 1.5 });
+          for (let step = 1; step <= REVOLVING_ORDER.length; step++) {
+            tl.call(() => {
+              currentOrderIdx = step % REVOLVING_ORDER.length;
+
+              // Slide up transition
+              gsap.fromTo(revolvingRef.current,
+                { y: 0 },
+                {
+                  y: -8, duration: 0.15, ease: 'power1.in',
+                  onComplete: () => {
+                    updateDisplay(currentOrderIdx);
+                    gsap.fromTo(revolvingRef.current,
+                      { y: 8 },
+                      { y: 0, duration: 0.2, ease: 'power1.out' }
+                    );
+                  }
+                }
+              );
+            }, [], step * CYCLE_DURATION);
           }
         }
       }
@@ -184,25 +202,35 @@ export default function AboutPage() {
           {/* ===== TAB 1: HERO ===== */}
           <section className={styles.heroSection}>
             <div className={styles.heroInner}>
-              <div className={styles.heroRow}>
-                <div ref={revolvingRef} className={styles.revolvingArea}>
-                  <div className={styles.revolvingMask}>
-                    <div className={styles.revolvingTrack}>
-                      {[...REVOLVING_WORDS, ...REVOLVING_WORDS].map((word, i) => (
-                        <span key={`${word}-${i}`} className={styles.revolvingWord}>{word}</span>
-                      ))}
-                    </div>
+              <div ref={revolvingRef} className={styles.heroLeft}>
+                <div className={styles.revolvingMask}>
+                  <div className={styles.revolvingTrack}>
+                    {[...REVOLVING_WORDS, ...REVOLVING_WORDS].map((word, i) => (
+                      <span key={`${word}-${i}`} className={styles.revolvingWord}>{word}</span>
+                    ))}
                   </div>
+                </div>
+                <div className={styles.activeRow}>
+                  <span className={styles.activeWord}>직장상사와</span>
                   <span className={styles.fixedSuffix}>갈등상황</span>
                 </div>
+                <div className={styles.revolvingBelow}>
+                  <div className={styles.revolvingTrackBelow}>
+                    {[...REVOLVING_WORDS, ...REVOLVING_WORDS].map((word, i) => (
+                      <span key={`below-${word}-${i}`} className={styles.revolvingWord}>{word}</span>
+                    ))}
+                  </div>
+                </div>
+              </div>
+              <div className={styles.heroCenter}>
                 <div className={styles.heroPhone}>
-                  <Image src="/images/about/10.png" alt="말해부엉 앱 화면" width={300} height={500} className={styles.heroPhoneImage} />
+                  <Image src="/images/about/10.png" alt="말해부엉 앱 화면" width={300} height={520} className={styles.heroPhoneImage} />
                 </div>
-                <div className={styles.heroTextBlock}>
-                  <h1 className={styles.heroTitle}>
-                    <span className={styles.highlight}>말해부엉</span> 하나로 해결가능
-                  </h1>
-                </div>
+              </div>
+              <div className={styles.heroRight}>
+                <h1 className={styles.heroTitle}>
+                  <span className={styles.highlight}>말해부엉</span> 하나로 해결가능
+                </h1>
               </div>
             </div>
           </section>
