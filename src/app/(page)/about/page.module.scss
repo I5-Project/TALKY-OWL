@@ -354,20 +354,20 @@
 
 .phoneMockupStraight {
   width: 240px;
-  border-radius: 32px 32px 0 0;
+  border-radius: 32px;
   overflow: hidden;
   background: v.$color-black-700;
   border: 6px solid v.$color-black-600;
-  border-bottom: none;
   box-shadow:
     0 20px 40px rgba(0, 0, 0, 0.15),
     0 8px 16px rgba(0, 0, 0, 0.08);
+  margin-bottom: -40px;
 }
 
 .phoneScreenClipped {
   width: 100%;
   overflow: hidden;
-  border-radius: 26px 26px 0 0;
+  border-radius: 26px;
 }
 
 // ===========================
