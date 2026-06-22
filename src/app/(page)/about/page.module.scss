@@ -125,7 +125,7 @@
 // Left text: absolute, activeRow anchored at vertical center
 .heroLeft {
   position: absolute;
-  left: 0;
+  left: calc(50% - 420px);
   top: 50%;
   // offset up by mask height so activeRow sits at center line
   transform: translateY(calc(-50% - 22px));
