@@ -285,8 +285,10 @@
 .showcaseSection {
   display: flex;
   align-items: center;
-  gap: v.$spacing-unit * 4;
-  padding: 56px 48px;
+  gap: v.$spacing-unit * 6;
+  padding: 64px 48px;
+  max-width: 960px;
+  margin: 0 auto;
   justify-content: center;
   overflow: hidden;
 
@@ -306,13 +308,14 @@
 .showcaseText {
   display: flex;
   flex-direction: column;
-  gap: v.$spacing-unit;
-  max-width: 300px;
+  gap: v.$spacing-unit * 1.5;
+  flex: 1;
+  max-width: 380px;
   opacity: 0;
 }
 
 .showcaseTitle {
-  @include m.text-title-l;
+  @include m.text-title-xl;
 
   color: v.$color-black-700;
   letter-spacing: -0.3px;
@@ -323,18 +326,20 @@
   @include m.text-body-s;
 
   color: v.$color-black-400;
+  margin-top: v.$spacing-unit * 0.5;
 }
 
 .showcasePhoneWrap {
   opacity: 0;
+  flex-shrink: 0;
 }
 
 .phoneMockupTilted {
-  width: 200px;
-  border-radius: 28px;
+  width: 240px;
+  border-radius: 32px;
   overflow: hidden;
   background: v.$color-black-700;
-  border: 5px solid v.$color-black-600;
+  border: 6px solid v.$color-black-600;
   box-shadow:
     0 20px 40px rgba(0, 0, 0, 0.15),
     0 8px 16px rgba(0, 0, 0, 0.08);
@@ -344,15 +349,15 @@
 .phoneScreen {
   width: 100%;
   overflow: hidden;
-  border-radius: 23px;
+  border-radius: 26px;
 }
 
 .phoneMockupStraight {
-  width: 200px;
-  border-radius: 28px 28px 0 0;
+  width: 240px;
+  border-radius: 32px 32px 0 0;
   overflow: hidden;
   background: v.$color-black-700;
-  border: 5px solid v.$color-black-600;
+  border: 6px solid v.$color-black-600;
   border-bottom: none;
   box-shadow:
     0 20px 40px rgba(0, 0, 0, 0.15),
@@ -362,7 +367,7 @@
 .phoneScreenClipped {
   width: 100%;
   overflow: hidden;
-  border-radius: 23px 23px 0 0;
+  border-radius: 26px 26px 0 0;
 }
 
 // ===========================
@@ -483,11 +488,11 @@
   }
 
   .phoneMockupTilted {
-    width: 180px;
+    width: 200px;
   }
 
   .phoneMockupStraight {
-    width: 180px;
+    width: 200px;
   }
 
   .featureCard {
