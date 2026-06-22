@@ -22,9 +22,9 @@ export default function NewCaseButton() {
   const router = useRouter()
 
   useEffect(() => {
-    document.body.style.overflow = isOpen ? 'hidden' : ''
+    document.body.style.overflow = (isOpen || !!limitError) ? 'hidden' : ''
     return () => { document.body.style.overflow = '' }
-  }, [isOpen])
+  }, [isOpen, limitError])
 
   const handleCategoryClick = async (category: CategoryGroup) => {
     if (isCreating) return

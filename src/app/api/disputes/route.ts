@@ -3,7 +3,7 @@ import { z } from 'zod'
 import { type Prisma, type CategoryGroup as PrismaCategoryGroup, DisputeStatus } from '@prisma/client'
 import { prisma } from '@/lib/db'
 import { getRequestUserId } from '@/lib/auth/session'
-import { VALID_CATEGORY_GROUPS } from '@/lib/constants/dispute'
+import { VALID_CATEGORY_GROUPS, COMPLETED_DISPUTE_STATUSES, CATEGORY_ACTIVE_LIMIT } from '@/lib/constants/dispute'
 import type { ApiResponse, CategoryGroup } from '@/types/common'
 import type { DisputeDto, DisputeParticipantDto, DisputeListResponse } from '@/types/dispute'
 
@@ -70,6 +70,7 @@ export async function GET(request: NextRequest) {
   const rawStatus = searchParams.get('status')
   // URL 쿼리 파라미터는 문자열로 전달되므로 "true" 문자열과 비교
   const active = searchParams.get('active') === 'true'
+  const completed = searchParams.get('completed') === 'true'
   const page = Math.max(1, parseInt(searchParams.get('page') ?? '1', 10))
   const limit = Math.min(50, Math.max(1, parseInt(searchParams.get('limit') ?? '20', 10)))
 
@@ -105,7 +106,6 @@ export async function GET(request: NextRequest) {
       },
     } : {}),
     // active=true 일 때 진행중 상태만 필터링 (status 파라미터가 없을 때만 적용)
-    // draft(진술 전), judged(판결 완료), closed/expired/deleted 제외
     ...(active && !rawStatus ? {
       status: {
         in: [
@@ -115,6 +115,10 @@ export async function GET(request: NextRequest) {
           DisputeStatus.JUDGING,
         ],
       },
+    } : {}),
+    // completed=true 일 때 판결/종료 상태만 필터링 (사건기록 페이지)
+    ...(completed && !rawStatus ? {
+      status: { in: [...COMPLETED_DISPUTE_STATUSES] as DisputeStatus[] },
     } : {}),
     ...(rawStatus ? { status: rawStatus.toUpperCase() as DisputeStatus } : {}),
   }
@@ -204,6 +208,27 @@ export async function POST(request: NextRequest) {
             code: 'ROOM_NOT_READY',
             message: '이미 종료되거나 만료된 방입니다.',
             details: `현재 방 상태: ${room.roomMode.toLowerCase()}`,
+          },
+        },
+        { status: 422 },
+      )
+    }
+
+    const activeCount = await prisma.dispute.count({
+      where: {
+        categoryGroup: categoryGroup.toUpperCase() as PrismaCategoryGroup,
+        deletedAt: null,
+        status: { notIn: [...COMPLETED_DISPUTE_STATUSES] },
+        participants: { some: { userId } },
+      },
+    })
+    if (activeCount >= CATEGORY_ACTIVE_LIMIT) {
+      return NextResponse.json<ApiResponse>(
+        {
+          success: false,
+          error: {
+            code: 'CATEGORY_LIMIT_EXCEEDED',
+            message: '사건은 카테고리당 2개까지만 생성이 가능합니다.',
           },
         },
         { status: 422 },
