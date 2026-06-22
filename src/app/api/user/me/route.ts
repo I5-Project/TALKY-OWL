@@ -1,12 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getServerSession } from 'next-auth'
-import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/db'
-import { getSessionUserId } from '@/lib/auth/session'
+import { getRequestUserId } from '@/lib/auth/session'
 import type { ApiResponse } from '@/types/common'
+
+export const dynamic = 'force-dynamic'
 
 interface UserMeDto {
   id: string
+  name: string | null
   email: string | null
   nickname: string | null
   profileImageUrl: string | null
@@ -29,16 +30,15 @@ function getAuthErrorResponse() {
   )
 }
 
-export async function GET() {
-  const session = await getServerSession(authOptions)
-  const userId = getSessionUserId(session)
+export async function GET(request: NextRequest) {
+  const userId = await getRequestUserId(request)
 
   if (!userId) return getAuthErrorResponse()
 
   try {
     const user = await prisma.user.findUnique({
       where: { id: userId },
-      select: { id: true, email: true, nickname: true, profileImageUrl: true, mbti: true },
+      select: { id: true, name: true, email: true, nickname: true, profileImageUrl: true, mbti: true },
     })
 
     if (!user) {
@@ -52,6 +52,7 @@ export async function GET() {
       success: true,
       data: {
         id: user.id,
+        name: user.name,
         email: user.email,
         nickname: user.nickname,
         profileImageUrl: user.profileImageUrl,
@@ -69,8 +70,7 @@ export async function GET() {
 }
 
 export async function PATCH(request: NextRequest) {
-  const session = await getServerSession(authOptions)
-  const userId = getSessionUserId(session)
+  const userId = await getRequestUserId(request)
 
   if (!userId) return getAuthErrorResponse()
 
@@ -148,7 +148,7 @@ export async function PATCH(request: NextRequest) {
 
     const updated = await prisma.user.update({
       where: { id: userId },
-      select: { id: true, email: true, nickname: true, profileImageUrl: true, mbti: true },
+      select: { id: true, name: true, email: true, nickname: true, profileImageUrl: true, mbti: true },
       data,
     })
 
@@ -156,6 +156,7 @@ export async function PATCH(request: NextRequest) {
       success: true,
       data: {
         id: updated.id,
+        name: updated.name,
         email: updated.email,
         nickname: updated.nickname,
         profileImageUrl: updated.profileImageUrl,
@@ -182,6 +183,61 @@ export async function PATCH(request: NextRequest) {
 
     const message = error instanceof Error ? error.message : String(error)
     console.error('[user/me] PATCH error', { message })
+    return NextResponse.json<ApiResponse>(
+      { success: false, error: { code: 'INTERNAL_SERVER_ERROR', message: '서버 오류가 발생했습니다.' } },
+      { status: 500 },
+    )
+  }
+}
+
+export async function DELETE(request: NextRequest) {
+  const userId = await getRequestUserId(request)
+
+  if (!userId) return getAuthErrorResponse()
+
+  try {
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { id: true, deletedAt: true },
+    })
+
+    if (!user) {
+      return NextResponse.json<ApiResponse>(
+        { success: false, error: { code: 'USER_NOT_FOUND', message: '사용자를 찾을 수 없습니다.' } },
+        { status: 404 },
+      )
+    }
+
+    if (user.deletedAt) {
+      return NextResponse.json<ApiResponse>(
+        { success: false, error: { code: 'ALREADY_DELETED', message: '이미 탈퇴 처리된 계정입니다.' } },
+        { status: 409 },
+      )
+    }
+
+    const now = new Date()
+
+    await prisma.$transaction([
+      prisma.user.update({
+        where: { id: userId },
+        data: { deletedAt: now, deletionRequestedAt: now, kakaoId: null },
+      }),
+      prisma.account.deleteMany({
+        where: { userId },
+      }),
+      prisma.auditLog.create({
+        data: {
+          eventType: 'USER_DELETED',
+          actorUserId: userId,
+          targetUserId: userId,
+        },
+      }),
+    ])
+
+    return NextResponse.json<ApiResponse>({ success: true })
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error)
+    console.error('[user/me] DELETE error', { message })
     return NextResponse.json<ApiResponse>(
       { success: false, error: { code: 'INTERNAL_SERVER_ERROR', message: '서버 오류가 발생했습니다.' } },
       { status: 500 },

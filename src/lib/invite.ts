@@ -1,6 +1,6 @@
 import { createHmac, randomUUID } from 'crypto'
 
-const INVITE_EXPIRES_HOURS = 72
+const INVITE_EXPIRES_HOURS = 168 // 7일
 
 export function generateInviteToken(): string {
   return randomUUID()

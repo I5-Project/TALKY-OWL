@@ -1,13 +1,13 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { signOut } from 'next-auth/react';
-import Header from '@/components/layout/Header';
-import BottomNavigation from '@/components/layout/BottomNavigation';
+import { useHeaderStore } from '@/stores/headerStore';
 import Avatar from '@/components/ui/Avatar';
 import ConfirmModal from '@/components/ui/ConfirmModal';
+import { useUserMe } from '@/domains/user/hooks';
 import SettingsRoundedIcon from '@mui/icons-material/SettingsRounded';
 import ChevronRightRoundedIcon from '@mui/icons-material/ChevronRightRounded';
 import styles from './page.module.scss';
@@ -21,28 +21,29 @@ const LINK_ITEMS = [
 ] as const;
 
 export default function MyPage() {
+  const setHeader = useHeaderStore((s) => s.setHeader)
+  useEffect(() => {
+    setHeader({ variant: 'logo' })
+    return () => setHeader(null)
+  }, [])
   const router = useRouter();
+  const { data: user } = useUserMe();
   const [logoutOpen, setLogoutOpen] = useState(false);
-  const [withdrawOpen, setWithdrawOpen] = useState(false);
+
+  const displayName = user?.name ?? user?.nickname ?? '';
 
   const handleLogout = () => {
     signOut({ callbackUrl: '/login' });
   };
 
-  const handleWithdraw = () => {
-    setWithdrawOpen(false);
-    router.push('/mypage/withdraw');
-  };
-
   return (
     <>
-      <Header variant="logo" />
       <main className={styles.main}>
         <section className={styles.profile}>
-          <Avatar size="l" />
+          <Avatar size="l" src={user?.profileImageUrl ?? undefined} />
           <div className={styles.profile__info}>
-            <span className={styles.profile__name}>생각하는부엉이</span>
-            <span className={styles.profile__badge}>ISTJ</span>
+            <span className={styles.profile__name}>{displayName}</span>
+            <span className={styles.profile__badge}>{user?.mbti ?? 'MBTI를 설정해주세요'}</span>
           </div>
           <Link href="/mypage/edit" className={styles.profile__setting} aria-label="설정">
             <SettingsRoundedIcon sx={{ fontSize: 24 }} />
@@ -69,7 +70,7 @@ export default function MyPage() {
           <button
             type="button"
             className={`${styles.menu__item} ${styles['menu__item--danger']}`}
-            onClick={() => setWithdrawOpen(true)}
+            onClick={() => router.push('/mypage/withdraw')}
           >
             <span className={styles.menu__label}>회원탈퇴</span>
             <ChevronRightRoundedIcon className={styles.menu__arrow} />
@@ -77,19 +78,11 @@ export default function MyPage() {
         </nav>
       </main>
 
-      <BottomNavigation />
-
       <ConfirmModal
         open={logoutOpen}
         message="정말 로그아웃 하시겠어요?"
         onClose={() => setLogoutOpen(false)}
         onConfirm={handleLogout}
-      />
-      <ConfirmModal
-        open={withdrawOpen}
-        message="정말 탈퇴 하시겠어요?"
-        onClose={() => setWithdrawOpen(false)}
-        onConfirm={handleWithdraw}
       />
     </>
   );

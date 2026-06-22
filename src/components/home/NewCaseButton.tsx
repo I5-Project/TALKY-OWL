@@ -31,7 +31,7 @@ export default function NewCaseButton() {
     setIsCreating(true)
     setErrorMessage(null)
     const controller = new AbortController()
-    const timeout = setTimeout(() => controller.abort(), 5000)
+    const timeout = setTimeout(() => controller.abort(), 30000)
     try {
       const roomRes = await fetch('/api/rooms', {
         method: 'POST',
@@ -42,18 +42,9 @@ export default function NewCaseButton() {
       const roomJson = await roomRes.json() as { success: boolean; data?: { id: string }; error?: { message?: string } }
       if (!roomJson.success || !roomJson.data) throw new Error(roomJson.error?.message)
 
-      const disputeRes = await fetch('/api/disputes', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ roomId: roomJson.data.id, categoryGroup: category, title: '새 사건' }),
-        signal: controller.signal,
-      })
-      const disputeJson = await disputeRes.json() as { success: boolean; data?: { id: string }; error?: { message?: string } }
-      if (!disputeJson.success || !disputeJson.data) throw new Error(disputeJson.error?.message)
-
-      router.push(`/disputes/${disputeJson.data.id}/statement?category=${category}`)
+      router.push(`/rooms/${roomJson.data.id}/statement?category=${category}`)
     } catch (err) {
-      setErrorMessage(err instanceof Error && err.message ? err.message : '사건 생성에 실패했습니다. 다시 시도해주세요.')
+      setErrorMessage(err instanceof Error && err.message ? err.message : '방 생성에 실패했습니다. 다시 시도해주세요.')
       setIsOpen(true)
     } finally {
       clearTimeout(timeout)

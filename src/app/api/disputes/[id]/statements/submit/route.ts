@@ -1,19 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getServerSession } from 'next-auth'
-import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/db'
-import { getSessionUserId } from '@/lib/auth/session'
+import { getRequestUserId } from '@/lib/auth/session'
 import type { ApiResponse } from '@/types/common'
 import type { DisputeStatus, StatementSubmitResponse } from '@/types/dispute'
 
 // POST /api/disputes/:id/statements/submit
 // 진술 최종 제출. submittedAt 설정 후 dispute 상태 업데이트. 멱등성 보장.
 export async function POST(
-  _request: NextRequest,
+  request: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
-  const session = await getServerSession(authOptions)
-  const userId = getSessionUserId(session)
+  const userId = await getRequestUserId(request)
 
   if (!userId) {
     return NextResponse.json<ApiResponse>(
@@ -59,7 +56,8 @@ export async function POST(
       )
     }
 
-    // ROLE_B는 ROLE_A가 진술 저장 완료(OPPONENT_JOINED) 후에만 제출 가능
+    // ROLE_B는 상대방이 참여 완료(OPPONENT_JOINED) 후에만 제출 가능
+    // BOTH_SUBMITTED 허용: 이미 제출한 경우 재시도 시 아래 멱등성 체크까지 도달해야 함
     if (participant.role === 'ROLE_B' && dispute.status !== 'OPPONENT_JOINED' && dispute.status !== 'BOTH_SUBMITTED') {
       return NextResponse.json<ApiResponse>(
         {

@@ -1,4 +1,5 @@
 @use '@/styles/abstracts/variables' as v;
+@use '@/styles/abstracts/mixins' as m;
 @use '@/styles/abstracts/functions' as fn;
 
 // ===========================
@@ -8,7 +9,6 @@
 .page {
   display: flex;
   flex-direction: column;
-  min-height: 100dvh;
   background-color: var(--bg-page);
 }
 
@@ -114,6 +114,7 @@
 }
 
 .avatar {
+  position: relative;
   width: fn.r(20);
   height: fn.r(20);
   border-radius: 50%;
@@ -153,12 +154,13 @@
 .content {
   flex: 1;
   overflow-y: auto;
+  padding-bottom: fn.r(80);
 }
 
 .contentWithFooter {
   flex: 1;
   overflow-y: auto;
-  padding-bottom: fn.r(96);
+  padding-bottom: fn.r(160);
 }
 
 .statements {
@@ -181,6 +183,15 @@
   border-radius: fn.r(8);
 }
 
+.statementCardEditable {
+  cursor: pointer;
+
+  &:focus {
+    border-color: v.$color-primary-500;
+    outline: none;
+  }
+}
+
 .statementLabel {
   font-family: v.$font-family-base;
   font-size: v.$font-size-label-m;
@@ -196,6 +207,40 @@
   line-height: v.$line-height-body-s;
   color: var(--text-primary);
 }
+
+.statementFooter {
+  display: flex;
+  align-items: center;
+  gap: fn.r(6);
+}
+
+.statementAvatar {
+  position: relative;
+  width: fn.r(24);
+  height: fn.r(24);
+  border-radius: 50%;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.statementAvatarImg {
+  object-fit: cover;
+}
+
+.statementMbti {
+  @include m.text-label-s;
+
+  color: v.$color-black-400;
+}
+
+// ===========================
+// Judgment Sub-tabs (판결 / 유형)
+// ===========================
+
+.judgmentSubTabs {
+  padding: fn.r(16) fn.r(20) 0;
+}
+
 
 // ===========================
 // Judgement Placeholder
@@ -231,12 +276,11 @@
   align-items: center;
   justify-content: space-between;
   padding: fn.r(16) fn.r(20);
-  margin: 0 fn.r(20) fn.r(12);
   background: #{v.$color-primary-100};
   border-radius: fn.r(8);
   border: none;
   cursor: pointer;
-  width: calc(100% - fn.r(40));
+  width: 100%;
   text-align: left;
 }
 
@@ -275,12 +319,11 @@
 
 .footer {
   position: fixed;
-  bottom: 0;
+  bottom: fn.r(64);
   left: 0;
   right: 0;
   padding: fn.r(16) fn.r(20);
   background: var(--bg-page);
-  border-top: 1px solid var(--border-default);
 }
 
 .footerRow {
@@ -295,6 +338,21 @@
 // ===========================
 // Modal
 // ===========================
+
+.modalContent {
+  display: flex;
+  flex-direction: column;
+  gap: fn.r(20);
+}
+
+.modalMessage {
+  font-family: v.$font-family-base;
+  font-size: v.$font-size-title-s;
+  font-weight: v.$font-weight-semibold;
+  line-height: v.$line-height-title-s;
+  color: var(--text-primary);
+  white-space: pre-line;
+}
 
 .modalOverlay {
   position: fixed;

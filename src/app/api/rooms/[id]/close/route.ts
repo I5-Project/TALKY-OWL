@@ -1,11 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getServerSession } from 'next-auth'
-import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/db'
-import { getSessionUserId } from '@/lib/auth/session'
+import { getRequestUserId } from '@/lib/auth/session'
 import type { ApiResponse } from '@/types/common'
 
-const CLOSEABLE_MODES = ['AI_CHAT', 'INVITE_READY', 'ONE_TO_ONE'] as const
+const CLOSEABLE_MODES = ['AI_ROOM', 'INVITE_READY', 'ONE_TO_ONE'] as const
 
 // POST /api/rooms/:id/close
 // 방 종료. 생성자만 가능. closed/expired/deleted 상태에서는 불가
@@ -13,8 +11,7 @@ export async function POST(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
-  const session = await getServerSession(authOptions)
-  const userId = getSessionUserId(session)
+  const userId = await getRequestUserId(request)
   if (!userId) {
     return NextResponse.json<ApiResponse>(
       { success: false, error: { code: 'UNAUTHORIZED', message: '로그인이 필요합니다.' } },

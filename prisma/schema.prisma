@@ -28,7 +28,6 @@ model User {
   createdAt                   DateTime             @default(now()) @map("created_at")
   updatedAt                   DateTime             @updatedAt @map("updated_at")
   accounts                    Account[]
-  calendarRecords             CalendarRecord[]
   disputeParticipations       DisputeParticipant[]
   createdRooms                DisputeRoom[]
   disputeStatements           DisputeStatement[]
@@ -135,7 +134,7 @@ model DisputeRoom {
   roomNo          String               @unique @map("room_no") @db.VarChar(50)
   creatorUserId   String               @map("creator_user_id") @db.Uuid
   categoryGroup   CategoryGroup        @map("category_group")
-  roomMode        RoomMode             @default(AI_CHAT) @map("room_mode")
+  roomMode        RoomMode             @default(AI_ROOM) @map("room_mode")
   roomTokenHash   String?              @unique @map("room_token_hash") @db.VarChar(255)
   inviteCreatedAt DateTime?            @map("invite_created_at")
   expiresAt       DateTime?            @map("expires_at")
@@ -143,7 +142,6 @@ model DisputeRoom {
   deletedAt       DateTime?            @map("deleted_at")
   createdAt       DateTime             @default(now()) @map("created_at")
   updatedAt       DateTime             @updatedAt @map("updated_at")
-  calendarRecords CalendarRecord[]
   creator         User                 @relation(fields: [creatorUserId], references: [id])
   dispute         Dispute?
   roomAccessLogs  RoomAccessLog[]
@@ -168,7 +166,6 @@ model RoomAiConversation {
   createdAt         DateTime                 @default(now()) @map("created_at")
   updatedAt         DateTime                 @updatedAt @map("updated_at")
   deletedAt         DateTime?                @map("deleted_at")
-  calendarRecords   CalendarRecord[]
   disputes          Dispute[]
   room              DisputeRoom              @relation(fields: [roomId], references: [id], onDelete: Cascade)
   user              User                     @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -208,7 +205,6 @@ model Dispute {
   createdAt            DateTime             @default(now()) @map("created_at")
   updatedAt            DateTime             @updatedAt @map("updated_at")
   aiJudgment           AiJudgment?
-  calendarRecords      CalendarRecord[]
   participants         DisputeParticipant[]
   statements           DisputeStatement[]
   room                 DisputeRoom          @relation(fields: [roomId], references: [id], onDelete: Cascade)
@@ -349,39 +345,20 @@ model GiftRecommendationItem {
 }
 
 model EmotionDiary {
-  id              String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  userId          String           @map("user_id") @db.Uuid
-  diaryDate       DateTime         @map("diary_date") @db.Date
-  emotionType     String?          @map("emotion_type") @db.VarChar(80)
-  content         String
-  createdAt       DateTime         @default(now()) @map("created_at")
-  updatedAt       DateTime         @updatedAt @map("updated_at")
-  deletedAt       DateTime?        @map("deleted_at")
-  calendarRecords CalendarRecord[]
-  user            User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id          String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId      String    @map("user_id") @db.Uuid
+  diaryDate   DateTime  @map("diary_date") @db.Date
+  title       String?   @db.VarChar(200)
+  emotionType String?   @map("emotion_type") @db.VarChar(80)
+  content     String
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+  deletedAt   DateTime? @map("deleted_at")
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("emotion_diaries")
 }
 
-model CalendarRecord {
-  id             String              @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  userId         String              @map("user_id") @db.Uuid
-  roomId         String?             @map("room_id") @db.Uuid
-  disputeId      String?             @map("dispute_id") @db.Uuid
-  conversationId String?             @map("conversation_id") @db.Uuid
-  emotionDiaryId String?             @map("emotion_diary_id") @db.Uuid
-  recordDate     DateTime            @map("record_date") @db.Date
-  recordType     CalendarRecordType  @map("record_type")
-  createdAt      DateTime            @default(now()) @map("created_at")
-  updatedAt      DateTime            @updatedAt @map("updated_at")
-  conversation   RoomAiConversation? @relation(fields: [conversationId], references: [id])
-  dispute        Dispute?            @relation(fields: [disputeId], references: [id])
-  emotionDiary   EmotionDiary?       @relation(fields: [emotionDiaryId], references: [id])
-  room           DisputeRoom?        @relation(fields: [roomId], references: [id])
-  user           User                @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@map("calendar_records")
-}
 
 model RoomAccessLog {
   id        String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
@@ -441,7 +418,7 @@ enum CategoryGroup {
 }
 
 enum RoomMode {
-  AI_CHAT      @map("ai_chat")
+  AI_ROOM      @map("ai_room")
   INVITE_READY @map("invite_ready")
   ONE_TO_ONE   @map("one_to_one")
   CLOSED       @map("closed")
@@ -556,16 +533,6 @@ enum CardImageStatus {
   @@map("card_image_status")
 }
 
-enum CalendarRecordType {
-  AI_CHAT_CREATED    @map("ai_chat_created")
-  AI_CHAT_UPDATED    @map("ai_chat_updated")
-  INVITE_CREATED     @map("invite_created")
-  ONE_TO_ONE_STARTED @map("one_to_one_started")
-  JUDGMENT_COMPLETED @map("judgement_completed")
-  EMOTION_DIARY      @map("emotion_diary")
-
-  @@map("calendar_record_type")
-}
 
 enum RecipientProfileSource {
   USER_PROFILE @map("user_profile")
@@ -612,6 +579,7 @@ enum AuditEventType {
   USER_ANONYMIZED
   API_ERROR
   MODERATION_FLAGGED
+  USER_REACTIVATED
 
   @@map("audit_event_type")
 }
@@ -650,7 +618,7 @@ enum ai_error_type {
 }
 
 enum ai_log_type {
-  ai_chat
+  ai_room
   judgement
 }
 
@@ -681,7 +649,7 @@ enum shop_item_type {
 }
 
 enum statistics_source_type {
-  ai_chat
+  ai_room
   one_to_one_judgement
   combined
 }

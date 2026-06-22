@@ -1,22 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getServerSession } from 'next-auth'
 import type { DisputeStatus } from '@prisma/client'
-import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/db'
-import { getSessionUserId } from '@/lib/auth/session'
+import { getRequestUserId } from '@/lib/auth/session'
 import { generateAiJudgment } from '@/lib/ai/judgment'
 import { toAiJudgmentDto } from '@/domains/judgement/judgment.mapper'
 import type { ApiResponse } from '@/types/common'
 import type { AiJudgmentDto } from '@/types/judgment'
 
 // POST /api/disputes/:id/judge
-// AI 판결 요청. both_submitted 상태일 때만 가능. 중복 요청 방지 (멱등성)
+// AI 판결 요청. 단독: waiting_opponent, 1:1: both_submitted 상태일 때만 가능. 중복 요청 방지 (멱등성)
 export async function POST(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
-  const session = await getServerSession(authOptions)
-  const userId = getSessionUserId(session)
+  const userId = await getRequestUserId(request)
   if (!userId) {
     return NextResponse.json<ApiResponse>(
       { success: false, error: { code: 'UNAUTHORIZED', message: '로그인이 필요합니다.' } },
@@ -28,7 +25,7 @@ export async function POST(
 
   // JUDGING 상태 전환 여부를 추적해 외부 catch에서도 원복할 수 있게 함
   let statusSetToJudging = false
-  let previousStatus: DisputeStatus = 'BOTH_SUBMITTED'
+  let previousStatus: DisputeStatus = 'WAITING_OPPONENT'
 
   try {
     const dispute = await prisma.dispute.findFirst({
@@ -142,12 +139,28 @@ export async function POST(
         )
       }
 
-      // AI 판결 생성
+      // 참여자 MBTI 조회
+      const participantUserIds = dispute.participants.map((p) => p.userId)
+      const users = await prisma.user.findMany({
+        where: { id: { in: participantUserIds } },
+        select: { id: true, mbti: true, nickname: true, name: true },
+      })
+      const userMap = Object.fromEntries(users.map((u) => [u.id, u]))
+      const participantA = dispute.participants.find((p) => p.role === 'ROLE_A')
+      const participantB = dispute.participants.find((p) => p.role === 'ROLE_B')
+      const userA = participantA ? (userMap[participantA.userId] ?? null) : null
+      const userB = participantB ? (userMap[participantB.userId] ?? null) : null
+      const mbtiA = userA?.mbti ?? null
+      const mbtiB = userB?.mbti ?? null
+
+      // AI 판결 생성 (당사자는 A/B로만 전달, 표시 시 user.name으로 치환)
       const aiResult = await generateAiJudgment({
         categoryGroup: dispute.categoryGroup,
         statementA,
         statementB,
         conflictTypes: conflictTypeDetails.map((d) => ({ code: d.detailCode, name: d.displayName })),
+        mbtiA,
+        mbtiB,
       })
 
       // AI가 반환한 code로 ConflictTypeDetail 매핑
@@ -177,6 +190,7 @@ export async function POST(
             bFault: aiResult.bFault,
             aSuggestedLine: aiResult.aSuggestedLine,
             bSuggestedLine: aiResult.bSuggestedLine,
+            rawResponse: undefined,
             resultConflictDetailId: matchedDetail.id,
             resultCardId: resultCard.id,
             modelName: aiResult.modelName,

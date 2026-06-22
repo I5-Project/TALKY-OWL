@@ -8,6 +8,7 @@ type HeaderVariant = 'logo' | 'title';
 
 interface HeaderLogoProps {
   variant: 'logo';
+  transparent?: boolean;
 }
 
 interface HeaderTitleProps {
@@ -15,6 +16,7 @@ interface HeaderTitleProps {
   title: string;
   subtitle?: string;
   onBack?: () => void;
+  transparent?: boolean;
 }
 
 type HeaderProps = HeaderLogoProps | HeaderTitleProps;
@@ -22,10 +24,12 @@ type HeaderProps = HeaderLogoProps | HeaderTitleProps;
 export default function Header(props: HeaderProps) {
   if (props.variant === 'logo') {
     return (
-      <header className={styles.header}>
+      <header
+        className={`${styles.header} ${props.transparent ? styles['header--transparent'] : ''}`}
+      >
         <div className={styles.header__logo}>
           <Image
-            src="/images/common/logo.png"
+            src="/images/common/logo.svg"
             alt="말해부엉"
             width={66}
             height={19}
@@ -36,17 +40,13 @@ export default function Header(props: HeaderProps) {
     );
   }
 
-  const { title, subtitle, onBack } = props;
+  const { title, subtitle, onBack, transparent } = props;
 
   return (
-    <header className={styles.header}>
+    <header className={`${styles.header} ${transparent ? styles['header--transparent'] : ''}`}>
       <div className={styles.header__nav}>
         {onBack && (
-          <button
-            className={styles.header__back}
-            onClick={onBack}
-            aria-label="뒤로가기"
-          >
+          <button className={styles.header__back} onClick={onBack} aria-label="뒤로가기">
             <ChevronLeftRoundedIcon sx={{ fontSize: 24 }} />
           </button>
         )}
@@ -56,9 +56,7 @@ export default function Header(props: HeaderProps) {
           {title}
         </h1>
       </div>
-      {subtitle && (
-        <div className={styles.header__subtitle}>{subtitle}</div>
-      )}
+      {subtitle && <div className={styles.header__subtitle}>{subtitle}</div>}
     </header>
   );
 }

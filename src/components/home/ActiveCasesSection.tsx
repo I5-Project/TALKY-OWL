@@ -1,28 +1,29 @@
-'use client'
+'use client';
 
-import Image from 'next/image'
-import { useRouter } from 'next/navigation'
-import CaseCard from '@/components/ui/CaseCard'
-import Avatar, { AvatarGroup } from '@/components/ui/Avatar'
-import { useActiveCases } from '@/hooks/useActiveCases'
-import styles from './ActiveCasesSection.module.scss'
+import Image from 'next/image';
+import { useRouter } from 'next/navigation';
+import CaseCard from '@/components/ui/CaseCard';
+import Avatar, { AvatarGroup } from '@/components/ui/Avatar';
+import { useActiveCases } from '@/hooks/useActiveCases';
+import styles from './ActiveCasesSection.module.scss';
 
 function formatDate(isoString: string): string {
-  return isoString.slice(2, 10)
+  return isoString.slice(2, 10);
 }
 
 export default function ActiveCasesSection() {
-  const router = useRouter()
-  const { data: cases = [], isLoading, isError } = useActiveCases()
+  const router = useRouter();
+  const { data: cases = [], isLoading, isError } = useActiveCases();
 
-  if (isLoading) return null
+  if (isLoading) return null;
 
-  if (isError) return (
-    <section className={styles.section}>
-      <h2 className={styles.title}>진행중인 사건</h2>
-      <p className={styles.empty}>사건 목록을 불러올 수 없어요</p>
-    </section>
-  )
+  if (isError)
+    return (
+      <section className={styles.section}>
+        <h2 className={styles.title}>진행중인 사건</h2>
+        <p className={styles.empty}>사건 목록을 불러올 수 없어요</p>
+      </section>
+    );
 
   return (
     <section className={styles.section}>
@@ -31,7 +32,7 @@ export default function ActiveCasesSection() {
       {cases.length === 0 ? (
         <div className={styles.emptyState}>
           <Image
-            src="/images/characters/character-case.png"
+            src="/images/characters/character-case.svg"
             alt=""
             width={80}
             height={80}
@@ -72,5 +73,5 @@ export default function ActiveCasesSection() {
         </ul>
       )}
     </section>
-  )
+  );
 }

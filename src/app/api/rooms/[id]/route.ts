@@ -1,9 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getServerSession } from 'next-auth'
 import { type RoomMode as PrismaRoomMode, type CategoryGroup as PrismaCategoryGroup } from '@prisma/client'
-import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/db'
-import { getSessionUserId } from '@/lib/auth/session'
+import { getRequestUserId } from '@/lib/auth/session'
 import type { ApiResponse, CategoryGroup } from '@/types/common'
 import type { RoomDto, RoomMode } from '@/types/room'
 
@@ -34,7 +32,7 @@ function toRoomDto(room: {
 }
 
 function hasAccess(room: { creatorUserId: string; roomMode: PrismaRoomMode; dispute: { participants: { userId: string }[] } | null }, userId: string): boolean {
-  if (room.roomMode === 'AI_CHAT' || room.roomMode === 'INVITE_READY') {
+  if (room.roomMode === 'AI_ROOM' || room.roomMode === 'INVITE_READY') {
     return room.creatorUserId === userId
   }
   return (
@@ -49,8 +47,7 @@ export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
-  const session = await getServerSession(authOptions)
-  const userId = getSessionUserId(session)
+  const userId = await getRequestUserId(request)
   if (!userId) {
     return NextResponse.json<ApiResponse>(
       { success: false, error: { code: 'UNAUTHORIZED', message: '로그인이 필요합니다.' } },
@@ -94,8 +91,7 @@ export async function DELETE(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
-  const session = await getServerSession(authOptions)
-  const userId = getSessionUserId(session)
+  const userId = await getRequestUserId(request)
   if (!userId) {
     return NextResponse.json<ApiResponse>(
       { success: false, error: { code: 'UNAUTHORIZED', message: '로그인이 필요합니다.' } },

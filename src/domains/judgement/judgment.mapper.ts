@@ -28,6 +28,7 @@ export function toAiJudgmentDto(j: AiJudgmentWithRelations): AiJudgmentDto {
       detailCode: j.resultConflictDetail.detailCode,
       displayName: j.resultConflictDetail.displayName,
       description: j.resultConflictDetail.description ?? null,
+      cardImageUrl: j.resultConflictDetail.card_image_url ?? null,
     },
     resultCard: j.resultCard
       ? {
@@ -45,6 +46,15 @@ export function toAiJudgmentDto(j: AiJudgmentWithRelations): AiJudgmentDto {
       : null,
     resultCardSummary: j.resultCardSummary ?? null,
     shareMessage: j.shareMessage ?? null,
+    mbtiNote: (() => {
+      if (!j.rawResponse || typeof j.rawResponse !== 'string') return null
+      try {
+        const parsed = JSON.parse(j.rawResponse) as { mbtiNote?: unknown }
+        return typeof parsed.mbtiNote === 'string' ? parsed.mbtiNote : null
+      } catch {
+        return null
+      }
+    })(),
     aiNotice: j.aiNotice
       ? {
           id: j.aiNotice.id,

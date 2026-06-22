@@ -95,7 +95,7 @@ export default function JoinPage() {
     if (state === 'error') {
       return (
         <JoinStatusView
-          character={<img src="/images/characters/character-blocked.png" alt="접근 불가" />}
+          character={<img src="/images/characters/character-blocked.svg" alt="접근 불가" />}
           message={'죄송해요\n이 페이지는 접속할 수 없어요'}
           buttonLabel="메인으로 돌아가기"
           onButtonClick={goToMain}
@@ -106,7 +106,7 @@ export default function JoinPage() {
     if (state === 'closed') {
       return (
         <JoinStatusView
-          character={<img src="/images/characters/character-closed.png" alt="종료된 사건" />}
+          character={<img src="/images/characters/character-closed.svg" alt="종료된 사건" />}
           message={'사건이 종료되어\n더 이상 열람할 수 없어요'}
           buttonLabel="메인으로 돌아가기"
           onButtonClick={goToMain}
@@ -117,7 +117,7 @@ export default function JoinPage() {
     if (state === 'expired') {
       return (
         <JoinStatusView
-          character={<img src="/images/characters/character-closed.png" alt="만료된 사건" />}
+          character={<img src="/images/characters/character-closed.svg" alt="만료된 사건" />}
           message={'초대 링크가 만료되어\n더 이상 참여할 수 없어요'}
           buttonLabel="메인으로 돌아가기"
           onButtonClick={goToMain}
@@ -129,7 +129,7 @@ export default function JoinPage() {
       <div className={styles.page}>
         <div className={styles.content}>
           <div className={styles.character}>
-            <img src="/images/characters/character-welcome.png" alt="말해부엉 판사" />
+            <img src="/images/characters/character-welcome.svg" alt="말해부엉 판사" />
           </div>
           <p className={styles.message}>
             <span className={styles.inviterName}>{joinInfo?.inviterNickname ?? ''}</span>

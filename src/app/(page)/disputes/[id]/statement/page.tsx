@@ -2,7 +2,9 @@
 
 import React from 'react'
 import { useRouter } from 'next/navigation'
-import Header from '@/components/layout/Header'
+import { useHeaderStore } from '@/stores/headerStore'
+import { useDispute } from '@/domains/dispute/dispute.hooks'
+import { useUserMe } from '@/domains/user/hooks'
 import Button from '@/components/ui/Button'
 import Select from '@/components/ui/Select'
 import Textarea from '@/components/ui/Textarea'
@@ -24,11 +26,21 @@ export default function StatementPage({
   searchParams,
 }: {
   params: Promise<{ id: string }>
-  searchParams: Promise<{ category?: string }>
+  searchParams: Promise<{ category?: string; edit?: string }>
 }) {
   const { id } = React.use(params)
-  const { category: rawCategory } = React.use(searchParams)
+  const { category: rawCategory, edit } = React.use(searchParams)
+  const isEditMode = edit === 'true'
   const router = useRouter()
+  const setHeader = useHeaderStore((s) => s.setHeader)
+
+  const { data: dispute } = useDispute(isEditMode ? id : '')
+  const { data: userMe } = useUserMe()
+
+  React.useEffect(() => {
+    setHeader({ variant: 'title', title: isEditMode ? '사건수정' : '사건작성', onBack: () => router.back() })
+    return () => setHeader(null)
+  }, [isEditMode])
 
   const category: CategoryGroup = VALID_CATEGORIES.includes(rawCategory as CategoryGroup)
     ? (rawCategory as CategoryGroup)
@@ -36,6 +48,17 @@ export default function StatementPage({
 
   const [mbti, setMbti] = React.useState('')
   const [content, setContent] = React.useState('')
+
+  React.useEffect(() => {
+    if (!userMe) return
+    setMbti(userMe.mbti ?? '')
+  }, [userMe])
+
+  React.useEffect(() => {
+    if (!isEditMode || !dispute || !userMe) return
+    const existing = dispute.statements?.find((s) => s.userId === userMe.id)
+    if (existing) setContent(existing.content)
+  }, [isEditMode, dispute, userMe])
   const [isLoading, setIsLoading] = React.useState(false)
   const [filterMessage, setFilterMessage] = React.useState<string | null>(null)
   const [showPersonalInfoWarning, setShowPersonalInfoWarning] = React.useState(false)
@@ -51,30 +74,36 @@ export default function StatementPage({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ content }),
       })
-      const json = await res.json() as { success: boolean; data?: { hasPersonalInfo?: boolean }; error?: { message?: string } }
+      const json = await res.json() as { success: boolean; data?: { hasPersonalInfo?: boolean }; error?: { code?: string; message?: string } }
 
       if (!json.success) {
+        setIsLoading(false)
+        const AI_EXTRACTION_CODES = ['AI_EXTRACTION_FAILED', 'AI_EXTRACTION_TIMEOUT', 'AI_EXTRACTION_PARSE_ERROR']
+        if (json.error?.code && AI_EXTRACTION_CODES.includes(json.error.code)) {
+          alert(json.error.message ?? 'AI 분석에 실패했습니다. 다시 시도해주세요.')
+          return
+        }
         setFilterMessage(json.error?.message ?? '저장 중 오류가 발생했습니다. 다시 시도해주세요.')
         return
       }
 
       if (json.data?.hasPersonalInfo) {
+        setIsLoading(false)
         setShowPersonalInfoWarning(true)
         return
       }
 
+      // 성공 시 isLoading을 false로 바꾸지 않음 — 페이지가 unmount될 때까지 스피너 유지
       router.push(`/disputes/${id}`)
     } catch {
-      setFilterMessage('네트워크 오류가 발생했습니다. 다시 시도해주세요.')
-    } finally {
       setIsLoading(false)
+      setFilterMessage('네트워크 오류가 발생했습니다. 다시 시도해주세요.')
     }
   }
 
   if (!category) {
     return (
       <div className={styles.page}>
-        <Header title="사건작성" onBack={() => router.back()} />
         <div className={styles.modalOverlay}>
           <div className={styles.modal}>
             <p className={styles.modalText}>카테고리를 선택해주세요</p>
@@ -89,7 +118,6 @@ export default function StatementPage({
 
   return (
     <div className={styles.page}>
-      <Header title="사건작성" onBack={() => router.back()} />
 
       <div className={styles.content}>
         <section className={styles.section}>
@@ -129,7 +157,7 @@ export default function StatementPage({
 
       <div className={styles.footer}>
         <Button onClick={handleSave} disabled={!content.trim() || isLoading}>
-          {isLoading ? '저장 중...' : '진술저장'}
+          {isLoading ? '저장 중...' : isEditMode ? '수정저장' : '진술저장'}
         </Button>
       </div>
 

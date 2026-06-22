@@ -1,10 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getServerSession } from 'next-auth'
 import { z } from 'zod'
 import { type Prisma, type CategoryGroup as PrismaCategoryGroup } from '@prisma/client'
-import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/db'
-import { getSessionUserId } from '@/lib/auth/session'
+import { getRequestUserId } from '@/lib/auth/session'
 import { VALID_CATEGORY_GROUPS, IMMUTABLE_DISPUTE_STATUSES } from '@/lib/constants/dispute'
 import type { ApiResponse, CategoryGroup } from '@/types/common'
 import type { DisputeDto, DisputeParticipantDto, DisputeStatementDto } from '@/types/dispute'
@@ -30,7 +28,7 @@ const updateDisputeSchema = z
 
 type DisputeForDetail = Prisma.DisputeGetPayload<{
   include: {
-    participants: { include: { user: { select: { profileImageUrl: true } } } }
+    participants: { include: { user: { select: { name: true; profileImageUrl: true; image: true; mbti: true } } } }
     statements: true
   }
 }>
@@ -41,7 +39,9 @@ function toParticipantDto(p: DisputeForDetail['participants'][number]): DisputeP
     disputeId: p.disputeId,
     userId: p.userId,
     role: p.role.toLowerCase() as DisputeParticipantDto['role'],
-    profileImageUrl: p.user.profileImageUrl ?? null,
+    name: p.user.name ?? null,
+    profileImageUrl: p.user.profileImageUrl ?? p.user.image ?? null,
+    mbti: p.user.mbti ?? null,
     joinedAt: p.joinedAt.toISOString(),
     createdAt: p.createdAt.toISOString(),
   }
@@ -84,8 +84,7 @@ export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
-  const session = await getServerSession(authOptions)
-  const userId = getSessionUserId(session)
+  const userId = await getRequestUserId(request)
   if (!userId) {
     return NextResponse.json<ApiResponse>(
       { success: false, error: { code: 'UNAUTHORIZED', message: '로그인이 필요합니다.' } },
@@ -104,7 +103,7 @@ export async function GET(
         participants: { some: { userId } },
       },
       include: {
-        participants: { include: { user: { select: { profileImageUrl: true } } } },
+        participants: { include: { user: { select: { name: true, profileImageUrl: true, image: true, mbti: true } } } },
         statements: true,
       },
     })
@@ -134,8 +133,7 @@ export async function PATCH(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
-  const session = await getServerSession(authOptions)
-  const userId = getSessionUserId(session)
+  const userId = await getRequestUserId(request)
   if (!userId) {
     return NextResponse.json<ApiResponse>(
       { success: false, error: { code: 'UNAUTHORIZED', message: '로그인이 필요합니다.' } },
@@ -220,7 +218,7 @@ export async function PATCH(
         }),
       },
       include: {
-        participants: { include: { user: { select: { profileImageUrl: true } } } },
+        participants: { include: { user: { select: { name: true, profileImageUrl: true, image: true, mbti: true } } } },
         statements: true,
       },
     })
@@ -244,8 +242,7 @@ export async function DELETE(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
-  const session = await getServerSession(authOptions)
-  const userId = getSessionUserId(session)
+  const userId = await getRequestUserId(request)
   if (!userId) {
     return NextResponse.json<ApiResponse>(
       { success: false, error: { code: 'UNAUTHORIZED', message: '로그인이 필요합니다.' } },

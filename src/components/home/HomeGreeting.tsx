@@ -6,7 +6,8 @@ import styles from '@/app/page.module.scss'
 export default function HomeGreeting() {
   const { data: user } = useUserMe()
 
-  const greeting = user?.nickname ? `${user.nickname}님` : '안녕하세요'
+  const displayName = user?.name ?? user?.nickname
+  const greeting = displayName ? `${displayName}님` : '안녕하세요'
 
   return (
     <section className={styles.greeting}>

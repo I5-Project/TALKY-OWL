@@ -1,9 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getServerSession } from 'next-auth'
 import { type CategoryGroup as PrismaCategoryGroup } from '@prisma/client'
-import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/db'
-import { getSessionUserId } from '@/lib/auth/session'
+import { getRequestUserId } from '@/lib/auth/session'
 import { hashInviteToken } from '@/lib/invite'
 import type { ApiResponse } from '@/types/common'
 
@@ -27,8 +25,7 @@ export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ token: string }> },
 ) {
-  const session = await getServerSession(authOptions)
-  const userId = getSessionUserId(session)
+  const userId = await getRequestUserId(request)
   if (!userId) {
     return NextResponse.json<ApiResponse>(
       { success: false, error: { code: 'UNAUTHORIZED', message: '로그인이 필요합니다.' } },
@@ -46,7 +43,6 @@ export async function GET(
     })
 
     if (!room) {
-      prisma.roomAccessLog.create({ data: { userId, result: 'DENIED', reason: 'invalid_token' } }).catch(() => {})
       return NextResponse.json<ApiResponse>(
         { success: false, error: { code: 'NOT_FOUND', message: '유효하지 않은 초대 링크입니다.' } },
         { status: 404 },
@@ -54,7 +50,6 @@ export async function GET(
     }
 
     if (room.roomMode === 'EXPIRED' || room.roomMode === 'DELETED' || room.roomMode === 'CLOSED') {
-      prisma.roomAccessLog.create({ data: { roomId: room.id, userId, result: 'DENIED', reason: 'room_unavailable' } }).catch(() => {})
       return NextResponse.json<ApiResponse>(
         { success: false, error: { code: 'ROOM_UNAVAILABLE', message: '만료되었거나 사용할 수 없는 초대 링크입니다.' } },
         { status: 422 },
@@ -62,7 +57,6 @@ export async function GET(
     }
 
     if (room.roomMode !== 'INVITE_READY') {
-      prisma.roomAccessLog.create({ data: { roomId: room.id, userId, result: 'DENIED', reason: 'not_invite_ready' } }).catch(() => {})
       return NextResponse.json<ApiResponse>(
         { success: false, error: { code: 'ROOM_UNAVAILABLE', message: '참여할 수 없는 상태입니다.' } },
         { status: 422 },
@@ -71,7 +65,6 @@ export async function GET(
 
     if (!room.expiresAt || room.expiresAt <= new Date()) {
       await prisma.disputeRoom.update({ where: { id: room.id }, data: { roomMode: 'EXPIRED' } })
-      prisma.roomAccessLog.create({ data: { roomId: room.id, userId, result: 'DENIED', reason: 'invite_expired' } }).catch(() => {})
       return NextResponse.json<ApiResponse>(
         { success: false, error: { code: 'INVITE_EXPIRED', message: '만료된 초대 링크입니다.' } },
         { status: 422 },
@@ -79,7 +72,6 @@ export async function GET(
     }
 
     if (room.creatorUserId === userId) {
-      prisma.roomAccessLog.create({ data: { roomId: room.id, userId, result: 'DENIED', reason: 'self_join' } }).catch(() => {})
       return NextResponse.json<ApiResponse>(
         { success: false, error: { code: 'FORBIDDEN', message: '본인이 만든 초대 링크로는 참여할 수 없습니다.' } },
         { status: 403 },
@@ -110,8 +102,7 @@ export async function POST(
   request: NextRequest,
   { params }: { params: Promise<{ token: string }> },
 ) {
-  const session = await getServerSession(authOptions)
-  const userId = getSessionUserId(session)
+  const userId = await getRequestUserId(request)
   if (!userId) {
     return NextResponse.json<ApiResponse>(
       { success: false, error: { code: 'UNAUTHORIZED', message: '로그인이 필요합니다.' } },
@@ -128,7 +119,6 @@ export async function POST(
     })
 
     if (!room) {
-      prisma.roomAccessLog.create({ data: { userId, result: 'DENIED', reason: 'invalid_token' } }).catch(() => {})
       return NextResponse.json<ApiResponse>(
         { success: false, error: { code: 'NOT_FOUND', message: '유효하지 않은 초대 링크입니다.' } },
         { status: 404 },
@@ -136,7 +126,6 @@ export async function POST(
     }
 
     if (room.roomMode === 'EXPIRED' || room.roomMode === 'DELETED' || room.roomMode === 'CLOSED') {
-      prisma.roomAccessLog.create({ data: { roomId: room.id, userId, result: 'DENIED', reason: 'room_unavailable' } }).catch(() => {})
       return NextResponse.json<ApiResponse>(
         { success: false, error: { code: 'ROOM_UNAVAILABLE', message: '만료되었거나 사용할 수 없는 초대 링크입니다.' } },
         { status: 422 },
@@ -144,7 +133,6 @@ export async function POST(
     }
 
     if (room.roomMode !== 'INVITE_READY') {
-      prisma.roomAccessLog.create({ data: { roomId: room.id, userId, result: 'DENIED', reason: 'not_invite_ready' } }).catch(() => {})
       return NextResponse.json<ApiResponse>(
         { success: false, error: { code: 'ROOM_UNAVAILABLE', message: '참여할 수 없는 상태입니다.' } },
         { status: 422 },
@@ -153,7 +141,6 @@ export async function POST(
 
     if (!room.expiresAt || room.expiresAt <= new Date()) {
       await prisma.disputeRoom.update({ where: { id: room.id }, data: { roomMode: 'EXPIRED' } })
-      prisma.roomAccessLog.create({ data: { roomId: room.id, userId, result: 'DENIED', reason: 'invite_expired' } }).catch(() => {})
       return NextResponse.json<ApiResponse>(
         { success: false, error: { code: 'INVITE_EXPIRED', message: '만료된 초대 링크입니다.' } },
         { status: 422 },
@@ -161,7 +148,6 @@ export async function POST(
     }
 
     if (room.creatorUserId === userId) {
-      prisma.roomAccessLog.create({ data: { roomId: room.id, userId, result: 'DENIED', reason: 'self_join' } }).catch(() => {})
       return NextResponse.json<ApiResponse>(
         { success: false, error: { code: 'FORBIDDEN', message: '본인이 만든 초대 링크로는 참여할 수 없습니다.' } },
         { status: 403 },
@@ -176,7 +162,6 @@ export async function POST(
     if (existingDispute) {
       const hasRoleB = existingDispute.participants.some((p) => p.role === 'ROLE_B')
       if (hasRoleB) {
-        prisma.roomAccessLog.create({ data: { roomId: room.id, userId, result: 'DENIED', reason: 'role_b_exists' } }).catch(() => {})
         return NextResponse.json<ApiResponse>(
           { success: false, error: { code: 'CONFLICT', message: '이미 참여자가 존재하는 방입니다.' } },
           { status: 409 },
@@ -206,6 +191,7 @@ export async function POST(
           where: { id: targetDispute.id },
           data: { status: 'OPPONENT_JOINED' },
         })
+        // WAITING_OPPONENT(초대 발급 시 설정)에서 OPPONENT_JOINED로 전환
       }
 
       await tx.disputeParticipant.create({
@@ -219,11 +205,6 @@ export async function POST(
 
       return targetDispute
     })
-
-    prisma.auditLog.create({
-      data: { eventType: 'USER_JOINED_ROOM', actorUserId: userId, roomId: room.id, disputeId: dispute.id },
-    }).catch(() => {})
-    prisma.roomAccessLog.create({ data: { roomId: room.id, userId, result: 'ALLOWED' } }).catch(() => {})
 
     return NextResponse.json<ApiResponse<JoinResponse>>({
       success: true,

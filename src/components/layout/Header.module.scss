@@ -2,8 +2,13 @@
 @use '@/styles/abstracts/functions' as fn;
 
 .header {
+  flex-shrink: 0;
   width: 100%;
   background-color: var(--bg-page);
+
+  &--transparent {
+    background-color: transparent;
+  }
 
   &__logo {
     display: flex;
