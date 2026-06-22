@@ -8,7 +8,6 @@
 .page {
   display: flex;
   flex-direction: column;
-  min-height: 100dvh;
   background-color: var(--bg-page);
 }
 
@@ -181,6 +180,16 @@
   padding: fn.r(20) fn.r(16);
   border: 2px solid #{v.$color-black-700};
   border-radius: fn.r(8);
+}
+
+.statementCardEditable {
+  cursor: pointer;
+
+  &:hover,
+  &:focus {
+    border-color: v.$color-primary-500;
+    outline: none;
+  }
 }
 
 .statementLabel {
