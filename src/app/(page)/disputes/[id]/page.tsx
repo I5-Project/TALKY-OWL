@@ -97,12 +97,14 @@ export default function DisputePage({ params }: { params: Promise<{ id: string }
   }, [isExtractingMeta]);
 
   // 판결 완료/종료 상태일 때만 fetch — 불필요한 API 호출 방지
+  const isJudged = !!dispute && dispute.status === 'judged';
+
   const {
     data: judgment,
     isLoading: judgmentLoading,
     isError: judgmentError,
     error: judgmentErrorData,
-  } = useJudgment(id, isCompleted);
+  } = useJudgment(id, isJudged);
 
   const showToast = useToastStore((s) => s.show);
 
@@ -319,10 +321,14 @@ export default function DisputePage({ params }: { params: Promise<{ id: string }
               <div className={styles.judgementPlaceholder}>
                 <p className={styles.empty}>판결 결과를 불러올 수 없습니다.</p>
               </div>
+            ) : !judgment ? (
+              <div className={styles.judgementPlaceholder}>
+                <p className={styles.empty}>판결 결과를 불러올 수 없습니다.</p>
+              </div>
             ) : judgmentSubTab === 'verdict' ? (
-              <JudgmentResult disputeId={id} />
+              <JudgmentResult judgment={judgment} participants={dispute.participants} />
             ) : (
-              <JudgmentTypeResult disputeId={id} />
+              <JudgmentTypeResult judgment={judgment} participants={dispute.participants} />
             )}
           </>
         )}
