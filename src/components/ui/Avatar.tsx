@@ -29,7 +29,7 @@ interface AvatarGroupProps {
   className?: string;
 }
 
-const FALLBACK_SRC = '/images/common/thumbnail-default.png';
+const FALLBACK_SRC = '/images/common/thumbnail-default.svg';
 
 export default function Avatar({ src, alt, size: sizeProp = 's', className }: AvatarProps) {
   const groupSize = useContext(AvatarSizeContext);

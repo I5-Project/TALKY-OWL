@@ -20,12 +20,12 @@ export default function LoginPage() {
         <div className={styles.logo}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src="/images/common/login_character.png"
+            src="/images/common/login_character.svg"
             alt="말해부엉 캐릭터"
             className={styles.character}
           />
           <Image
-            src="/images/common/logo.png"
+            src="/images/common/logo.svg"
             alt="말해부엉"
             width={264}
             height={76}
@@ -36,10 +36,7 @@ export default function LoginPage() {
       </div>
 
       <div className={styles.footer}>
-        <Button
-          className={styles.kakaoButton}
-          onClick={() => signIn('kakao', { callbackUrl })}
-        >
+        <Button className={styles.kakaoButton} onClick={() => signIn('kakao', { callbackUrl })}>
           <KakaoIcon />
           카카오로 로그인 하기
         </Button>
