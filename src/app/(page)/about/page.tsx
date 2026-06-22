@@ -247,21 +247,39 @@ export default function AboutPage() {
 
           {/* ===== TAB 2: FEATURE CARDS ===== */}
           <section className={styles.featureCardsSection}>
-            <div className={styles.featureCardsInner}>
-              {featureCards.map((card) => (
-                <div key={card.num} className={styles.featureCard}>
-                  <span className={styles.featureNum}>{card.num}</span>
-                  <p className={styles.featureCardTitle}>{card.title}</p>
-                  <div className={styles.featureCardIcon}>
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
-                      <line x1="16" y1="2" x2="16" y2="6" />
-                      <line x1="8" y1="2" x2="8" y2="6" />
-                      <line x1="3" y1="10" x2="21" y2="10" />
-                    </svg>
+            <div className={styles.featureCardsOuter}>
+              <Image src="/images/about/animal01.png" alt="고양이" width={160} height={160} className={styles.animalCat} />
+              <Image src="/images/about/animal02.png" alt="강아지" width={140} height={140} className={styles.animalDog} />
+              <Image src="/images/about/animal03.png" alt="판다" width={120} height={120} className={styles.animalPanda} />
+              <div className={styles.featureCardsInner}>
+                {featureCards.map((card, i) => (
+                  <div key={card.num} className={styles.featureCard}>
+                    <span className={styles.featureNum}>{card.num}</span>
+                    <p className={styles.featureCardTitle}>{card.title}</p>
+                    <div className={styles.featureCardIcon}>
+                      {i === 0 && (
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <path d="M12 3L2 12h3v8h6v-6h2v6h6v-8h3L12 3z" />
+                        </svg>
+                      )}
+                      {i === 1 && (
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <rect x="3" y="3" width="18" height="18" rx="2" />
+                          <path d="M9 12l2 2 4-4" />
+                        </svg>
+                      )}
+                      {i === 2 && (
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                          <line x1="16" y1="2" x2="16" y2="6" />
+                          <line x1="8" y1="2" x2="8" y2="6" />
+                          <line x1="3" y1="10" x2="21" y2="10" />
+                        </svg>
+                      )}
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
           </section>
 

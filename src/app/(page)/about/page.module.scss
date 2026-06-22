@@ -232,17 +232,55 @@
 // TAB 2: Feature Cards
 // ===========================
 .featureCardsSection {
-  padding: 48px 24px;
+  padding: 48px 24px 80px;
   background: v.$color-primary-100;
+  overflow: hidden;
+}
+
+.featureCardsOuter {
+  position: relative;
+  max-width: 720px;
+  margin: 0 auto;
 }
 
 .featureCardsInner {
   display: flex;
   gap: v.$spacing-unit * 2;
   justify-content: center;
-  max-width: 720px;
-  margin: 0 auto;
   flex-wrap: wrap;
+  position: relative;
+  z-index: 1;
+}
+
+// Animal characters
+.animalCat {
+  position: absolute;
+  left: -40px;
+  bottom: -60px;
+  z-index: 2;
+  width: 160px;
+  height: auto;
+  object-fit: contain;
+}
+
+.animalDog {
+  position: absolute;
+  left: 200px;
+  bottom: -50px;
+  z-index: 2;
+  width: 130px;
+  height: auto;
+  object-fit: contain;
+}
+
+.animalPanda {
+  position: absolute;
+  right: -20px;
+  top: -50px;
+  z-index: 0;
+  width: 110px;
+  height: auto;
+  object-fit: contain;
 }
 
 .featureCard {
