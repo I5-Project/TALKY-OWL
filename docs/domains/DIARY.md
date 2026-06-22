@@ -65,15 +65,23 @@ TODO: 비기능 요구사항 정의서 확인 후 작성
 ## 7. 관련 화면
 
 ```txt
-src/app/(page)/diary/
-src/app/(page)/calendar/   달력에서 일기 마킹 연계
+src/app/page/diary/
+src/app/page/calendar/   달력에서 일기 마킹 연계
 ```
 
 ---
 
 ## 8. 관련 API
 
-→ [`docs/API_SPEC.md`](../API_SPEC.md) §3, §4.7 참조
+```txt
+POST  /api/v1/diaries          일기 작성
+GET   /api/v1/diaries          일기 목록 조회
+GET   /api/v1/diaries/:id      일기 상세 조회
+PATCH /api/v1/diaries/:id      일기 수정
+DELETE /api/v1/diaries/:id     일기 삭제
+```
+
+상세 스펙은 `docs/API_SPEC.md` 확정 후 작성.
 
 ---
 
@@ -107,7 +115,7 @@ emotion_diaries   감정일기 원문 및 감정 정보
 
 ```txt
 도메인 훅: src/domains/diary/
-일기 화면: src/app/(page)/diary/
+일기 화면: src/app/page/diary/
 달력 연계: src/domains/calendar/ 와 마킹 연결
 날짜 선택: 달력 날짜 선택 UI는 MUI X Date Pickers 기반 래핑 컴포넌트(src/components/calendar/)를 사용한다
 ```

@@ -15,17 +15,12 @@ AI 갈등 조정 판결 서비스.
 
 ```txt
 AI 대화방 생성
-→ AI 대화 (갈등 상황 입력 + AI 분석)
-→ 진술저장
-→ [혼자서 진행 / 상대방 초대] 선택
-→ 진술 작성 (disputes/[id]/statement)
-     │                        │
-     ▼                        ▼
-단독 AI 판결             초대 링크 발급
-(판결 탭 바로 진입)       → 상대방 참여
-                         → 1:1 조정 전환
-                         → 상대방 진술 작성
-                         → AI 1:1 판결
+→ AI 대화
+→ 초대 링크 발급
+→ 상대방 참여
+→ 1:1 조정 전환
+→ 양측 진술 작성
+→ AI 판결 생성
 → 판결 결과 확인
 → 선물추천
 ```
@@ -37,7 +32,6 @@ AI 대화방 생성
 ```txt
 카카오 로그인 / 약관 동의
 AI 대화방 생성 / AI와 갈등 상황 정리
-단독 판결 (혼자서 진행)
 초대 링크 발급 / 상대방 참여 / 1:1 조정 전환
 양측 진술 작성 / AI 판결 생성
 판결 결과 확인 / 판결 결과 카드
@@ -52,6 +46,7 @@ AI 대화방 생성 / AI와 갈등 상황 정리
 ## 4. MVP 제외 범위
 
 ```txt
+상대방 없는 단독 판결
 shop / points / user-items
 내부 결제
 카카오톡 선물하기 직접 연동
@@ -109,7 +104,7 @@ A/B 소통 태도 점수
 ## 7. 아키텍처 원칙
 
 ```txt
-src/app/(page)    → 화면 라우트
+src/app/page      → 화면 라우트
 src/app/api       → API Route Handler
 src/domains       → 도메인별 비즈니스 로직, API client, hooks, constants
 src/components    → 공통 UI / 레이아웃 / 피드백 컴포넌트
@@ -133,16 +128,8 @@ ai_chat → invite_ready → one_to_one → closed / expired / deleted
 
 ### dispute_status
 
-1:1 판결 경로:
-
 ```txt
 draft → waiting_opponent → opponent_joined → both_submitted → judging → judged → closed / expired / deleted
-```
-
-단독 판결 경로:
-
-```txt
-draft → judging → judged → closed / expired / deleted
 ```
 
 `jailed` 상태명은 사용하지 않는다. 상세 내용은 `docs/db/STATUS_TRANSITION.md` 참고.
@@ -240,6 +227,6 @@ SUPABASE_SERVICE_ROLE_KEY는 서버 전용
 - 전체 디자인 시스템은 SCSS / SCSS Module을 유지한다.
 - MUI는 달력 / 날짜 선택 UI 전용으로만 사용한다.
 - MUI 컴포넌트는 src/components/calendar/ 내 래핑 컴포넌트를 통해서만 사용한다.
-- 아이콘은 @mui/icons-material을 사용한다. 단, 감정일기(diary) 기능 내 아이콘은 lucide-react를 유지한다.
+- 아이콘은 기존 lucide-react를 우선 사용한다.
 - 달력 라이브러리는 래핑 컴포넌트 구조로 교체 가능성을 확보한다.
 ```

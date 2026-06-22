@@ -56,7 +56,7 @@ TODO: 비기능 요구사항 정의서 확인 후 작성
 - 판결 결과 조회
 - 판결 결과 카드 생성
 - 결과 카드 이미지 추출 (html-to-image)
-- 결과 카드 이미지 저장 (MVP에서는 서버 영구 저장 없이 html-to-image 클라이언트 추출 기준. Supabase Storage는 추후 확장)
+- 결과 카드 이미지 저장 (Supabase Storage result-cards bucket)
 - 16가지 세부 결과 유형 중 AI 도출 유형 표시
 ```
 
@@ -90,22 +90,19 @@ TODO: 비기능 요구사항 정의서 확인 후 작성
 ## 7. 관련 화면
 
 ```txt
-src/app/(page)/disputes/[id]   사건조회 — 판결 탭 / 유형 탭
+src/app/page/disputes/   판결 결과 확인
 ```
-
-판결 탭:
-- 혼자서 진행(단독): 텍스트 판결결과만 제공 (프로필 사진 / 그래프 없음)
-- 상대방 초대(1:1): 프로필 사진 + 그래프 + 텍스트 판결결과 제공
-
-유형 탭:
-- AI 도출 결과 유형 캐릭터 이미지 및 설명
-- 공유하기 / 결과 다운받기 버튼
 
 ---
 
 ## 8. 관련 API
 
-→ [`docs/API_SPEC.md`](../API_SPEC.md) §3, §4.6 참조
+```txt
+POST /api/v1/disputes/:id/judge   AI 판결 요청
+GET  /api/v1/disputes/:id/result  판결 결과 조회
+```
+
+상세 스펙은 `docs/API_SPEC.md` 확정 후 작성.
 
 ---
 

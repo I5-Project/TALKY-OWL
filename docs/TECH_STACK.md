@@ -39,7 +39,8 @@ dayjs
 
 - 전체 디자인 시스템을 MUI 기반으로 전환하지 않는다.
 - 기존 스타일 기준은 SCSS / SCSS Module을 유지한다.
-- 아이콘은 `@mui/icons-material`을 사용한다. 단, 감정일기(diary) 기능 내 아이콘은 `lucide-react`를 유지한다.
+- 아이콘은 기존 `lucide-react` 사용을 우선한다.
+- `@mui/icons-material`은 현재 필수 설치 대상이 아니다.
 - 달력 라이브러리는 추후 변경 가능하다. 변경 가능성을 확보하기 위해 MUI 의존성은 Calendar 전용 컴포넌트와 날짜 유틸 영역에만 제한한다.
 
 ---
@@ -75,8 +76,7 @@ npm install
 | `react-hook-form` | ^7.54.1 | 폼 상태 관리 |
 | `@hookform/resolvers` | ^3.9.1 | React Hook Form + Zod 연동 |
 | `zod` | ^3.23.8 | 스키마 유효성 검사 |
-| `lucide-react` | ^0.468.0 | 아이콘 라이브러리 (감정일기 기능 전용 — 그 외는 @mui/icons-material 사용) |
-| `@mui/icons-material` | latest | MUI 아이콘 (감정일기 기능 제외 전체 사용) |
+| `lucide-react` | ^0.468.0 | 아이콘 라이브러리 |
 | `recharts` | ^3.0.0 | 차트 라이브러리 (통계 시각화) |
 | `html-to-image` | ^1.11.11 | 판결 결과 카드 이미지 추출 |
 | `sass` | ^1.83.0 | SCSS / SCSS Module 스타일링 |

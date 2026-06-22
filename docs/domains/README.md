@@ -19,6 +19,7 @@ Claude Code는 작업 전 해당 도메인 문서를 반드시 확인한다.
 | `auth` | 카카오 로그인, 약관 동의 |
 | `common` | 공통 유틸, 공유 컴포넌트 기반 |
 | `room` | AI 대화방 생성, 초대 링크 |
+| `personal-analysis` | 개인 갈등 분석 |
 | `dispute` | 1:1 조정 사건 |
 | `judgement` | AI 판결 생성 및 결과 |
 | `gift` | 선물 추천 |

@@ -21,9 +21,80 @@ main 직접 push 금지
 dev 직접 push 금지
 ```
 
-모든 작업은 작업 브랜치 생성 → PR → 리뷰 → Merge 순서로 진행한다.
+모든 작업은 Issue 생성 → 작업 브랜치 생성 → PR → 리뷰 → Merge 순서로 진행한다.
 
 ---
+
+## 3. Issue 운영 방식
+
+```txt
+- 작업 전 반드시 Issue를 먼저 생성한다.
+- Issue 제목은 [Feat], [Fix], [Docs], [Chore], [Refactor], [Infra] prefix를 붙인다.
+- Issue에는 작업 영역, 작업 내용, 완료 기준을 명시한다.
+- 작업 브랜치 이름에 Issue 번호를 포함하는 것을 권장한다.
+- PR 병합 시 Issue를 close 키워드로 연결하여 자동 종료한다.
+```
+
+---
+
+## 4. Issue Label 정책
+
+아래 Label을 사용한다. GitHub Settings > Labels에서 직접 생성한다.
+
+### 타입 Label
+
+| Label | 용도 |
+|-------|------|
+| `feat` | 새 기능 구현 |
+| `fix` | 버그 수정 |
+| `docs` | 문서 작업 |
+| `refactor` | 리팩토링 |
+| `chore` | 패키지, 설정, 기타 |
+| `infra` | 환경설정, 인프라 |
+
+### 작업 영역 Label
+
+| Label | 용도 |
+|-------|------|
+| `identity-access` | 카카오 로그인, 약관, 인증 |
+| `room-ai-chat` | AI 대화방 생성, AI 대화 |
+| `personal-analysis` | 개인 분석 |
+| `invite-participation` | 초대 링크, 상대방 참여 |
+| `statement` | 진술 작성 |
+| `judgement-result` | AI 판결 생성, 결과 조회 |
+| `result-card-media` | 판결 결과 카드, Supabase Storage |
+| `records-lifecycle` | 사건기록, 삭제, 비식별 |
+| `calendar-diary` | 달력, 감정일기 |
+| `statistics` | 통계 API, 통계 컴포넌트 |
+| `gift-recommendation` | 선물추천 |
+| `profile-mypage` | 마이페이지, 프로필 |
+| `ops-common` | 공통 유틸, 에러 핸들링, Ops |
+
+### 상태 Label
+
+| Label | 용도 |
+|-------|------|
+| `in-progress` | 작업 중 |
+| `needs-review` | 리뷰 요청 |
+| `blocked` | 블로킹 이슈 존재 |
+| `wontfix` | 수정하지 않음 |
+
+---
+
+## 5. Milestone / Project Board 정책
+
+```txt
+Milestone: GitHub Settings > Milestones에서 직접 생성
+Project Board: GitHub Projects에서 직접 생성
+```
+
+기준:
+
+```txt
+- MVP 단계별 Milestone을 생성하여 Issue를 연결한다.
+- Project Board는 Todo / In Progress / Done 컬럼 기준으로 운영한다.
+- 팀원 간 작업 중복 방지를 위해 담당자(Assignee)를 반드시 지정한다.
+```
 
 ---
 
@@ -72,44 +143,6 @@ chore/setup-github-templates
 infra/setup-eslint-config
 ```
 
-### GitHub Ruleset — 브랜치명 강제 적용 규칙
-
-브랜치 생성 시 아래 규칙이 적용된다. 통과해야 push 가능하다.
-
-**Must match a given regex pattern**
-
-```
-^(main|dev|feature\/[a-z0-9]+(-[a-z0-9]+)*|fix\/[a-z0-9]+(-[a-z0-9]+)*|refactor\/[a-z0-9]+(-[a-z0-9]+)*|docs\/[a-z0-9]+(-[a-z0-9]+)*|chore\/[a-z0-9]+(-[a-z0-9]+)*|infra\/[a-z0-9]+(-[a-z0-9]+)*|hotfix\/[a-z0-9]+(-[a-z0-9]+)*)$
-```
-
-**적용 기준**
-
-```txt
-- 허용 prefix: feature / fix / refactor / docs / chore / infra / hotfix
-- / 이후: 소문자 영문(a-z) + 숫자(0-9) + 하이픈(-) 만 허용
-- 대문자, 언더스코어(_), 한글, 점(.) 사용 불가
-- 형식: prefix/word(-word)* — 각 word는 [a-z0-9]+ 조합
-```
-
-**유효 예시**
-
-```txt
-feature/common-component-jw   ✅
-feature/auth-kakao-login       ✅
-fix/judgement-duplicate        ✅
-docs/add-user-domain-spec      ✅
-```
-
-**무효 예시**
-
-```txt
-feature/auth_kakao             ❌  언더스코어 불가
-feature/Auth-Login             ❌  대문자 불가
-feature/공통-컴포넌트           ❌  한글 불가
-```
-
-> PR 제목 규칙(한글 허용 여부 포함)은 `docs/guides/PR_RULES.md` 참고.
-
 ---
 
 ## 8. Commit Message Convention
@@ -145,6 +178,23 @@ chore(github): add collaboration templates and policy
 ```
 
 ---
+
+## 10. PR과 Issue 연결 방법
+
+PR 본문에 아래 키워드를 사용하면 PR Merge 시 Issue가 자동으로 닫힌다.
+
+```txt
+close #[Issue번호]
+closes #[Issue번호]
+fix #[Issue번호]
+resolve #[Issue번호]
+```
+
+예시:
+
+```txt
+close #12
+```
 
 ---
 
@@ -394,6 +444,7 @@ npm run build (가능하면)
 PR 생성 전 아래 항목을 확인한다.
 
 ```txt
+- [ ] Issue가 존재하고 PR과 연결됨
 - [ ] 브랜치가 dev 기준으로 생성됨
 - [ ] PR 제목에 prefix 포함
 - [ ] PR Template 모든 항목 작성

@@ -7,8 +7,8 @@
 
 ## 1. 도메인 목적
 
-사건 생성, 참여자(role_a / role_b), 진술 작성, dispute_status 상태 관리를 담당한다.
-방(room) 생성 시 dispute가 함께 생성되며, 진술 완료 후 혼자서 진행 또는 상대방 초대를 통해 AI 판결로 이어진다.
+1:1 조정 전환, 참여자(role_a / role_b), 양측 진술 작성, dispute_status 상태 관리를 담당한다.
+상대방 참여 후 사건이 생성되며, 양측 진술 완료 후 AI 판결로 이어진다.
 
 ---
 
@@ -54,12 +54,10 @@ TODO: 비기능 요구사항 정의서 확인 후 작성
 ## 5. 포함 기능
 
 ```txt
-- 방 생성 시 dispute 함께 생성 (dispute_status: draft)
-- role_a 진술 작성 (먼저 작성)
-- 진술저장 후 혼자서 진행 / 상대방 초대 선택
-- 혼자서 진행: role_a 진술만으로 AI 단독 판결
-- 상대방 초대: 초대 링크 발급 → role_b 참여 → role_b 진술 작성 → AI 1:1 판결
-- 진술 수정 (진술저장 이후 사건조회에서 본인 진술 카드 클릭 시 가능)
+- 상대방 참여 (초대 링크 기반)
+- 1:1 조정 전환 (role_a / role_b 확정)
+- 양측 진술 작성
+- 진술 종료
 - dispute_status 상태 관리
 - 사건 종료 / 만료 / 삭제
 - 비식별 처리
@@ -70,7 +68,8 @@ TODO: 비기능 요구사항 정의서 확인 후 작성
 ## 6. 제외 기능
 
 ```txt
-- AI 대화방(room) 없이 바로 사건 생성 (금지)
+- AI 대화방 없이 바로 1:1 사건 생성 (금지)
+- 단독 판결 (MVP 제외)
 - 동일 사용자의 role_a / role_b 동시 보유 (금지)
 ```
 
@@ -79,24 +78,24 @@ TODO: 비기능 요구사항 정의서 확인 후 작성
 ## 7. 관련 화면
 
 ```txt
-src/app/(page)/disputes/[id]/          사건조회 (진술 탭 / 판결 탭 / 유형 탭)
-src/app/(page)/disputes/[id]/statement 사건작성 (role_a / role_b 진술 작성, 수정)
-src/app/(page)/join/                   초대 링크 참여 (role_b 진입)
+src/app/page/disputes/
+src/app/page/join/
 ```
-
-판결 탭:
-- 혼자서 진행(단독): 텍스트 판결결과만 제공 (프로필 사진 / 그래프 없음)
-- 상대방 초대(1:1): 프로필 사진 + 그래프 + 텍스트 판결결과 제공
-
-유형 탭:
-- AI 도출 결과 유형 캐릭터 이미지 및 설명
-- 공유하기 / 결과 다운받기 버튼
 
 ---
 
 ## 8. 관련 API
 
-→ [`docs/API_SPEC.md`](../API_SPEC.md) §3, §4.5 참조
+```txt
+POST /api/v1/disputes                        사건 생성 (1:1 전환)
+GET  /api/v1/disputes/:id                    사건 상세 조회
+POST /api/v1/disputes/:id/statements         진술 작성
+POST /api/v1/disputes/:id/statements/submit  진술 종료
+POST /api/v1/disputes/:id/close              사건 종료
+DELETE /api/v1/disputes/:id                  사건 삭제
+```
+
+상세 스펙은 `docs/API_SPEC.md` 확정 후 작성.
 
 ---
 
@@ -116,26 +115,9 @@ dispute_statements     양측 진술
 
 기준: `docs/db/STATUS_TRANSITION.md`
 
-단독 판결 경로:
-
 ```txt
 draft
-  │ role_a 진술 작성 후 단독 AI 판결 요청
-  ▼
-judging
-  │ AI 판결 완료
-  ▼
-judged
-  │ 종료 / 만료 / 삭제
-  ▼
-closed / expired / deleted
-```
-
-1:1 판결 경로:
-
-```txt
-draft
-  │ role_a 진술 작성 후 초대 링크 발급
+  │ 상대방 참여 대기
   ▼
 waiting_opponent
   │ 상대방 참여
@@ -173,8 +155,8 @@ closed / expired / deleted
 
 ```txt
 도메인 훅: src/domains/dispute/
-참여 페이지: src/app/(page)/join/
-사건 페이지: src/app/(page)/disputes/
+참여 페이지: src/app/page/join/
+사건 페이지: src/app/page/disputes/
 ```
 
 ---
@@ -194,15 +176,11 @@ closed / expired / deleted
 ## 14. Claude 작업 시 주의사항
 
 ```txt
-- dispute는 room 생성 시 함께 생성. AI 대화방(room) 없이 바로 dispute 생성 금지
-- role_a가 먼저 진술 작성 → 진술저장 → 혼자서 진행 or 상대방 초대 선택
-- role_b는 초대 참여 후 별도로 진술 작성 (role_a와 동시 작성 아님)
-- 진술 수정은 진술저장 이후 사건조회에서 본인 진술 카드 클릭으로 가능
+- AI 대화방 단계에서는 role_a / role_b 확정 로직 구현 금지
 - 1:1 전환 시 생성자를 role_a로 확정, 상대방을 role_b로 확정
 - 동일 사용자가 role_a / role_b 동시 보유하는 로직 구현 금지
 - 하나의 role에 진술 1개만 허용
 - 진술 종료 / 초대 참여 / 삭제 요청은 중복 방지 처리 필요
 - jailed 상태명 사용 금지
 - 상태 전이 임의 변경 금지 (팀 승인 필요)
-- 혼자서 진행(단독) 시: draft → judging → judged (waiting_opponent, opponent_joined, both_submitted 생략)
 ```

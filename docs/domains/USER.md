@@ -66,15 +66,21 @@ TODO: 비기능 요구사항 정의서 확인 후 작성
 ## 7. 관련 화면
 
 ```txt
-src/app/(page)/mypage/
-src/app/(page)/home/
+src/app/page/mypage/
+src/app/page/home/
 ```
 
 ---
 
 ## 8. 관련 API
 
-→ [`docs/API_SPEC.md`](../API_SPEC.md) §3, §4.2 참조
+```txt
+GET  /api/v1/users/me        내 정보 조회
+PATCH /api/v1/users/me       프로필 수정
+DELETE /api/v1/users/me      회원탈퇴 (AUTH 도메인과 연계)
+```
+
+상세 스펙은 `docs/API_SPEC.md` 확정 후 작성.
 
 ---
 
@@ -107,7 +113,7 @@ users   사용자 정보
 
 ```txt
 도메인 훅:        src/domains/user/
-마이페이지:       src/app/(page)/mypage/
+마이페이지:       src/app/page/mypage/
 요약 통계 컴포넌트: src/components/ (STATISTICS 도메인 연계)
 ```
 
