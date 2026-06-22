@@ -2,23 +2,20 @@
 
 import Image from 'next/image'
 import ActionPrompt from '@/components/ui/ActionPrompt'
-import { useDispute } from '@/domains/dispute/dispute.hooks'
-import { useJudgment } from '@/domains/judgement/judgement.hooks'
 import { useToastStore } from '@/stores/toastStore'
+import type { AiJudgmentDto } from '@/types/judgment'
+import type { DisputeParticipantDto } from '@/types/dispute'
 import styles from './JudgmentTypeResult.module.scss'
 
 interface Props {
-  disputeId: string
+  judgment: AiJudgmentDto
+  participants: DisputeParticipantDto[]
 }
 
-export default function JudgmentTypeResult({ disputeId }: Props) {
+export default function JudgmentTypeResult({ judgment, participants }: Props) {
   const showToast = useToastStore((s) => s.show)
-  const { data: dispute } = useDispute(disputeId)
-  const { data: judgment } = useJudgment(disputeId)
 
-  if (!judgment || !dispute) return null
-
-  const roleA = dispute.participants.find((p) => p.role === 'role_a')
+  const roleA = participants.find((p) => p.role === 'role_a')
   const viewerLabel = roleA?.name ?? 'A'
 
   const { cardImageUrl, displayName } = judgment.resultConflictDetail

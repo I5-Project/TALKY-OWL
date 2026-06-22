@@ -1,11 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getServerSession } from 'next-auth'
 import { z } from 'zod'
 import { type RoomMode as PrismaRoomMode, type CategoryGroup as PrismaCategoryGroup } from '@prisma/client'
-import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/db'
-import { getSessionUserId } from '@/lib/auth/session'
-import { VALID_CATEGORY_GROUPS } from '@/lib/constants/dispute'
+import { getRequestUserId } from '@/lib/auth/session'
+import { VALID_CATEGORY_GROUPS, COMPLETED_DISPUTE_STATUSES, CATEGORY_ACTIVE_LIMIT } from '@/lib/constants/dispute'
 import type { ApiResponse, CategoryGroup } from '@/types/common'
 import type { RoomDto, RoomListResponse, RoomMode } from '@/types/room'
 
@@ -50,8 +48,7 @@ function toRoomDto(room: {
 // GET /api/rooms
 // 내가 생성하거나 참여한 방 목록 조회
 export async function GET(request: NextRequest) {
-  const session = await getServerSession(authOptions)
-  const userId = getSessionUserId(session)
+  const userId = await getRequestUserId(request)
   if (!userId) {
     return NextResponse.json<ApiResponse>(
       { success: false, error: { code: 'UNAUTHORIZED', message: '로그인이 필요합니다.' } },
@@ -98,8 +95,7 @@ export async function GET(request: NextRequest) {
 // POST /api/rooms
 // 방 생성. 기본 roomMode = ai_room
 export async function POST(request: NextRequest) {
-  const session = await getServerSession(authOptions)
-  const userId = getSessionUserId(session)
+  const userId = await getRequestUserId(request)
   if (!userId) {
     return NextResponse.json<ApiResponse>(
       { success: false, error: { code: 'UNAUTHORIZED', message: '로그인이 필요합니다.' } },
@@ -139,6 +135,27 @@ export async function POST(request: NextRequest) {
   const { categoryGroup } = parsed.data
 
   try {
+    const activeCount = await prisma.dispute.count({
+      where: {
+        categoryGroup: categoryGroup.toUpperCase() as PrismaCategoryGroup,
+        deletedAt: null,
+        status: { notIn: [...COMPLETED_DISPUTE_STATUSES] },
+        participants: { some: { userId } },
+      },
+    })
+    if (activeCount >= CATEGORY_ACTIVE_LIMIT) {
+      return NextResponse.json<ApiResponse>(
+        {
+          success: false,
+          error: {
+            code: 'CATEGORY_LIMIT_EXCEEDED',
+            message: '사건은 카테고리당 2개까지만\n생성이 가능합니다.',
+          },
+        },
+        { status: 422 },
+      )
+    }
+
     const room = await prisma.disputeRoom.create({
       data: {
         roomNo: generateRoomNo(),

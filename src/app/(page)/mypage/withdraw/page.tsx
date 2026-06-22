@@ -1,18 +1,20 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { signOut } from 'next-auth/react';
-import Header from '@/components/layout/Header';
+import { useHeaderStore } from '@/stores/headerStore';
+import Avatar from '@/components/ui/Avatar';
 import Button from '@/components/ui/Button';
 import ConfirmModal from '@/components/ui/ConfirmModal';
+import { useUserMe } from '@/domains/user/hooks';
 import styles from './page.module.scss';
 
 const WITHDRAW_TERMS = [
   {
     title: '제1조 (회원탈퇴 목적 및 처리 방침)',
     paragraphs: [
-      '본 안내문은 말해부엉(이하 \'서비스\') 서비스를 이용 중인 회원이 탈퇴를 원하는 경우, 탈퇴 절차 및 탈퇴에 따른 개인정보와 서비스 이용 데이터 처리에 관한 사항을 안내하기 위해 작성되었습니다.',
+      "본 안내문은 말해부엉(이하 '서비스') 서비스를 이용 중인 회원이 탈퇴를 원하는 경우, 탈퇴 절차 및 탈퇴에 따른 개인정보와 서비스 이용 데이터 처리에 관한 사항을 안내하기 위해 작성되었습니다.",
       '회원탈퇴란 말해부엉 서비스와 회원 사이의 이용 계약을 해지하는 것을 의미하며, 탈퇴 완료 이후에는 서비스 내 모든 기능의 이용이 전면 중단됩니다. 말해부엉 서비스는 AI 기반 갈등 조정 판결 서비스로, 회원이 갈등 상황을 AI와 함께 정리하고 단독 또는 1:1 방식으로 AI 판결을 받을 수 있는 서비스입니다.',
       '탈퇴는 사용자 본인이 직접 신청한 경우에 한해 처리되며, 본인 외 제3자가 타인의 탈퇴를 임의로 요청할 수 없습니다. 탈퇴 절차를 진행하기 전에 본 안내문 전체 내용을 충분히 읽고 탈퇴 여부를 신중하게 결정하시기 바랍니다. 탈퇴 완료 이후에는 어떠한 방법으로도 계정 및 서비스 이용 데이터를 복구할 수 없습니다.',
       '서비스는 개인정보 보호법 및 관계 법령에 따라 탈퇴 회원의 개인정보를 안전하게 처리하며, 법령에서 정한 보관 기간이 경과한 이후에는 모든 정보를 복구 불가능한 방법으로 영구 파기합니다. 본 처리 방침은 탈퇴 신청 시점과 동시에 효력이 발생하며, 탈퇴 확인 이후에는 처리를 취소할 수 없습니다.',
@@ -60,15 +62,23 @@ const WITHDRAW_TERMS = [
       '3. 감정일기 전체 삭제: 서비스를 이용하면서 기록한 모든 날짜의 감정일기 내용이 영구적으로 삭제됩니다. 소중한 기록이 있다면 반드시 탈퇴 전 별도로 저장해 두시기 바랍니다.',
       '4. 진행 중인 사건 자동 종료: 현재 진행 중인 AI 대화방 또는 1:1 조정 사건이 있는 경우, 탈퇴와 함께 모든 사건이 자동으로 종료됩니다. 상대방이 참여 중인 사건이 있다면 상대방에게 불편을 드릴 수 있으므로, 진행 중인 사건이 없는지 반드시 미리 확인하시기 바랍니다.',
       '5. 달력 및 사건기록 삭제: 달력에 기록된 감정 이모지와 월별 감정 데이터, 사건기록에 저장된 모든 사건 내역이 영구 삭제됩니다. 탈퇴 후에는 어떠한 방법으로도 해당 데이터를 복구할 수 없습니다.',
-      '탈퇴를 결정하셨다면 아래 \'탈퇴하기\' 버튼을 눌러 최종 확인 절차를 진행해 주세요. 탈퇴 확인 후에는 서비스 이용이 즉시 종료되며, 로그인 화면으로 이동합니다.',
+      "탈퇴를 결정하셨다면 아래 '탈퇴하기' 버튼을 눌러 최종 확인 절차를 진행해 주세요. 탈퇴 확인 후에는 서비스 이용이 즉시 종료되며, 로그인 화면으로 이동합니다.",
     ],
   },
 ];
 
 export default function WithdrawPage() {
   const router = useRouter();
+  const setHeader = useHeaderStore((s) => s.setHeader);
+  useEffect(() => {
+    setHeader({ variant: 'title', title: '회원탈퇴', onBack: () => router.back() });
+    return () => setHeader(null);
+  }, []);
+  const { data: user } = useUserMe();
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  const displayName = user?.name ?? user?.nickname ?? '';
 
   const handleWithdraw = async () => {
     if (loading) return;
@@ -92,10 +102,16 @@ export default function WithdrawPage() {
 
   return (
     <>
-      <Header title="회원탈퇴" onBack={() => router.back()} />
       <main className={styles.main}>
+        <section className={styles.profile}>
+          <Avatar size="l" src={user?.profileImageUrl ?? undefined} />
+          <div className={styles.profile__info}>
+            <span className={styles.profile__name}>{displayName}</span>
+            <span className={styles.profile__email}>{user?.email ?? ''}</span>
+          </div>
+        </section>
         <div className={styles.terms}>
-          {WITHDRAW_TERMS.map(section => (
+          {WITHDRAW_TERMS.map((section) => (
             <section key={section.title} className={styles.section}>
               <h2 className={styles.section__title}>{section.title}</h2>
               <div className={styles.section__body}>
@@ -110,11 +126,7 @@ export default function WithdrawPage() {
         </div>
       </main>
       <div className={styles.footer}>
-        <Button
-          variant="primary"
-          onClick={() => setConfirmOpen(true)}
-          disabled={loading}
-        >
+        <Button variant="primary" onClick={() => setConfirmOpen(true)} disabled={loading}>
           탈퇴하기
         </Button>
       </div>

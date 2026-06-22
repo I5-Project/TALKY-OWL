@@ -3,8 +3,41 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/db';
 import { getSessionUserId } from '@/lib/auth/session';
+import { createDiary } from '@/domains/diary/diary.service';
 import type { ApiResponse } from '@/types/common';
 import type { DiaryItem } from '@/types/diary';
+
+// POST /api/diary
+export async function POST(request: NextRequest) {
+  const session = await getServerSession(authOptions);
+  const userId = getSessionUserId(session);
+  if (!userId) {
+    return NextResponse.json<ApiResponse>(
+      { success: false, error: { code: 'UNAUTHORIZED', message: '로그인이 필요합니다.' } },
+      { status: 401 },
+    );
+  }
+
+  const body = await request.json();
+  const { title, content, emotionType, diaryDate } = body;
+
+  if (!content || !diaryDate) {
+    return NextResponse.json<ApiResponse>(
+      { success: false, error: { code: 'VALIDATION_ERROR', message: '내용과 날짜는 필수입니다.' } },
+      { status: 400 },
+    );
+  }
+
+  const diaryId = await createDiary(userId, { title: title ?? '', content, emotionType: emotionType ?? 'neutral', diaryDate });
+  if (!diaryId) {
+    return NextResponse.json<ApiResponse>(
+      { success: false, error: { code: 'INTERNAL_SERVER_ERROR', message: '서버 오류가 발생했습니다.' } },
+      { status: 500 },
+    );
+  }
+
+  return NextResponse.json<ApiResponse<{ id: string }>>({ success: true, data: { id: diaryId } }, { status: 201 });
+}
 
 // GET /api/diary?date=2026-06-16
 // 특정 날짜의 감정일기 목록 조회. 최신순 정렬. 본인 데이터만 반환

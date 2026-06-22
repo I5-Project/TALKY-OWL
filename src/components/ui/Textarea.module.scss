@@ -34,6 +34,10 @@
     resize: none;
     transition: border-color 0.15s;
 
+    &:focus {
+      border-color: var(--border-strong);
+    }
+
     &::placeholder {
       color: var(--text-secondary);
     }

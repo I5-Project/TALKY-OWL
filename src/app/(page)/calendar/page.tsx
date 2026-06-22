@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import dayjs from 'dayjs';
+import Header from '@/components/layout/Header';
 import CalendarView from '@/components/calendar/CalendarView';
 import styles from '@/app/(page)/calendar/page.module.scss';
 import EmotionDiaryList from '@/components/diary/EmotionDiaryList';
@@ -32,6 +33,7 @@ export default function Calendar() {
 
   return (
     <div>
+      <Header variant="logo" />
       <div className={styles.calendarWrapper}>
         <CalendarView
           onDateChange={setSelectedDate}

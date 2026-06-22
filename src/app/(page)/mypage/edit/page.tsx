@@ -2,7 +2,7 @@
 
 import { useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import Header from '@/components/layout/Header';
+import { useHeaderStore } from '@/stores/headerStore';
 import Avatar from '@/components/ui/Avatar';
 import Input from '@/components/ui/Input';
 import Select from '@/components/ui/Select';
@@ -16,7 +16,13 @@ import styles from './page.module.scss';
 
 export default function ProfileEditPage() {
   const router = useRouter();
+  const setHeader = useHeaderStore((s) => s.setHeader)
+  useEffect(() => {
+    setHeader({ variant: 'title', title: '개인정보 수정', onBack: () => router.back() })
+    return () => setHeader(null)
+  }, [])
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const blobUrlRef = useRef<string | null>(null);
 
   const { data: user, isLoading, isError, error } = useUserMe();
   const updateProfile = useUpdateProfile();
@@ -38,22 +44,22 @@ export default function ProfileEditPage() {
     }
   }, [user, reset]);
 
+  useEffect(() => {
+    return () => {
+      if (blobUrlRef.current) URL.revokeObjectURL(blobUrlRef.current);
+    };
+  }, []);
+
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    if (previewUrl?.startsWith('blob:')) {
-      URL.revokeObjectURL(previewUrl);
-    }
+    const prevUrl = blobUrlRef.current;
     const objectUrl = URL.createObjectURL(file);
+    blobUrlRef.current = objectUrl;
     setPreviewUrl(objectUrl);
+    if (prevUrl) setTimeout(() => URL.revokeObjectURL(prevUrl), 0);
   };
-
-  useEffect(() => {
-    return () => {
-      if (previewUrl?.startsWith('blob:')) URL.revokeObjectURL(previewUrl);
-    };
-  }, [previewUrl]);
 
   const validate = () => {
     const next: Record<string, string> = {};
@@ -100,7 +106,6 @@ export default function ProfileEditPage() {
   if (isLoading) {
     return (
       <>
-        <Header title="개인정보 수정" onBack={() => router.back()} />
         <main className={styles.loading}>
           <Spinner />
         </main>
@@ -111,7 +116,6 @@ export default function ProfileEditPage() {
   if (isError) {
     return (
       <>
-        <Header title="개인정보 수정" onBack={() => router.back()} />
         <main className={styles.loading}>
           <span>{error instanceof Error ? error.message : '사용자 정보를 불러오지 못했습니다.'}</span>
         </main>
@@ -122,7 +126,6 @@ export default function ProfileEditPage() {
   if (!user) {
     return (
       <>
-        <Header title="개인정보 수정" onBack={() => router.back()} />
         <main className={styles.loading}>
           <span>사용자 정보가 존재하지 않습니다.</span>
         </main>
@@ -132,7 +135,6 @@ export default function ProfileEditPage() {
 
   return (
     <>
-      <Header title="개인정보 수정" onBack={() => router.back()} />
       <main className={styles.main}>
         <div className={styles.avatar}>
           <Avatar size="l" src={previewUrl ?? undefined} />

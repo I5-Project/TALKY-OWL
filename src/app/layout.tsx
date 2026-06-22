@@ -14,22 +14,33 @@ const pretendard = localFont({
 });
 
 export const metadata: Metadata = {
-  title: 'TALKY-OWL',
+  title: '말해부엉',
   description: 'AI 갈등 조정 판결 서비스',
+  icons: {
+    icon: '/images/common/favicon.svg',
+  },
+  openGraph: {
+    title: '말해부엉',
+    description: 'AI 갈등 조정 판결 서비스',
+    images: [
+      {
+        url: '/images/common/ogimg.jpg',
+        width: 1200,
+        height: 630,
+        alt: '말해부엉',
+      },
+    ],
+  },
 };
 
-export default async function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const session = await getCachedSession();
   return (
     <html lang="ko" className={pretendard.variable} suppressHydrationWarning>
       <body suppressHydrationWarning>
         <AuthProvider session={session}>
           <QueryProvider>
-            <main className="container">{children}</main>
+            <div className="container">{children}</div>
             <Toast />
           </QueryProvider>
         </AuthProvider>

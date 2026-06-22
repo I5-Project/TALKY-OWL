@@ -49,3 +49,14 @@ export interface DiaryItem {
   date: string
   emotionType: EmotionType
 }
+
+/** 감정일기 상세 */
+export interface DiaryDetail {
+  id: string
+  title: string
+  content: string
+  diaryDate: string
+  emotionType: string | null
+  createdAt: string
+  updatedAt: string
+}

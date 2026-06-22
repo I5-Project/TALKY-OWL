@@ -1,7 +1,7 @@
 import { getServerSession } from 'next-auth'
 import { redirect } from 'next/navigation'
 import { authOptions } from '@/lib/auth'
-import Header from '@/components/layout/Header'
+import SetHeader from '@/components/layout/SetHeader'
 import RecordListSection from '@/components/records/RecordListSection'
 import styles from './page.module.scss'
 
@@ -11,7 +11,7 @@ export default async function RecordsPage() {
 
   return (
     <div className={styles.page}>
-      <Header variant="logo" />
+      <SetHeader variant="logo" />
       <RecordListSection />
     </div>
   )
