@@ -48,29 +48,89 @@
 }
 
 // ===========================
+// Custom Header
+// ===========================
+.aboutHeader {
+  padding: 16px 24px;
+  background: v.$color-white;
+}
+
+.aboutHeaderInner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.headerLogo {
+  height: 28px;
+  width: auto;
+  object-fit: contain;
+}
+
+.headerLink {
+  @include m.text-caption;
+
+  padding: 6px 14px;
+  border: 1px solid v.$color-black-200;
+  border-radius: 6px;
+  background: v.$color-white;
+  color: v.$color-black-500;
+  cursor: pointer;
+  transition: background 0.2s;
+
+  &:hover {
+    background: v.$color-primary-100;
+  }
+}
+
+// ===========================
 // TAB 1: Hero
 // ===========================
 .heroSection {
-  padding: 20px 24px 24px;
+  padding: 24px 24px 32px;
   background: v.$color-white;
   overflow: hidden;
 }
 
 .heroInner {
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  position: relative;
   width: 100%;
   max-width: 800px;
   margin: 0 auto;
-  gap: 0;
+  height: 420px;
 }
 
+// Phone: absolute center, never moves
+.heroCenter {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1;
+}
+
+.heroPhone {
+  opacity: 0;
+}
+
+.heroPhoneImage {
+  display: block;
+  width: 260px;
+  height: auto;
+  object-fit: contain;
+}
+
+// Left text: absolute, vertically centered
 .heroLeft {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  flex: 1;
   z-index: 2;
 }
 
@@ -130,30 +190,14 @@
   flex-direction: column;
 }
 
-.heroCenter {
-  flex: 0 0 auto;
-  z-index: 1;
-  margin: 0 -16px;
-}
-
-.heroPhone {
-  opacity: 0;
-}
-
-.heroPhoneImage {
-  display: block;
-  width: 240px;
-  height: auto;
-  object-fit: contain;
-}
-
+// Right text: absolute, aligned with active row
 .heroRight {
-  opacity: 0;
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
   z-index: 2;
-  flex: 1;
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
+  opacity: 0;
 }
 
 .heroTitle {
@@ -404,30 +448,15 @@
 // ===========================
 @media (max-width: 640px) {
   .heroInner {
-    flex-direction: column;
-    gap: v.$spacing-unit * 2;
-  }
-
-  .heroLeft {
-    flex: 0 0 auto;
-    align-items: center;
-  }
-
-  .heroCenter {
-    margin: 0;
+    height: 480px;
   }
 
   .heroPhoneImage {
-    width: 180px;
-  }
-
-  .heroRight {
-    justify-content: center;
+    width: 200px;
   }
 
   .heroTitle {
     font-size: fn.r(24);
-    white-space: normal;
   }
 
   .activeWord,

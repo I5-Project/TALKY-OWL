@@ -35,7 +35,7 @@ export default function AboutPage() {
 
   useEffect(() => {
     if (phase === 'content') {
-      setHeader({ variant: 'title', title: '서비스 소개', onBack: () => router.back() });
+      setHeader(null);
     }
   }, [phase]);
 
@@ -199,9 +199,24 @@ export default function AboutPage() {
 
       {phase === 'content' && (
         <div ref={containerRef} className={styles.content}>
+          {/* ===== CUSTOM HEADER ===== */}
+          <header className={styles.aboutHeader}>
+            <div className={styles.aboutHeaderInner}>
+              <Image src="/images/common/logo.svg" alt="말해부엉" width={120} height={32} className={styles.headerLogo} />
+              <button className={styles.headerLink} onClick={() => router.push('/')}>
+                서비스 바로가기
+              </button>
+            </div>
+          </header>
+
           {/* ===== TAB 1: HERO ===== */}
           <section className={styles.heroSection}>
             <div className={styles.heroInner}>
+              <div className={styles.heroCenter}>
+                <div className={styles.heroPhone}>
+                  <Image src="/images/about/11.png" alt="말해부엉 앱 화면" width={305} height={534} className={styles.heroPhoneImage} />
+                </div>
+              </div>
               <div ref={revolvingRef} className={styles.heroLeft}>
                 <div className={styles.revolvingMask}>
                   <div className={styles.revolvingTrack}>
@@ -220,11 +235,6 @@ export default function AboutPage() {
                       <span key={`below-${word}-${i}`} className={styles.revolvingWord}>{word}</span>
                     ))}
                   </div>
-                </div>
-              </div>
-              <div className={styles.heroCenter}>
-                <div className={styles.heroPhone}>
-                  <Image src="/images/about/11.png" alt="말해부엉 앱 화면" width={305} height={534} className={styles.heroPhoneImage} />
                 </div>
               </div>
               <div className={styles.heroRight}>
