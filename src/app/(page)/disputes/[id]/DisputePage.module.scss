@@ -186,7 +186,6 @@
 .statementCardEditable {
   cursor: pointer;
 
-  &:hover,
   &:focus {
     border-color: v.$color-primary-500;
     outline: none;

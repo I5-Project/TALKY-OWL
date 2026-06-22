@@ -4,6 +4,8 @@ import { type Prisma, type CategoryGroup as PrismaCategoryGroup, DisputeStatus }
 import { prisma } from '@/lib/db'
 import { getRequestUserId } from '@/lib/auth/session'
 import { VALID_CATEGORY_GROUPS } from '@/lib/constants/dispute'
+import { moderateContent } from '@/lib/ai/moderation'
+import { extractDisputeMeta } from '@/lib/ai/judgment'
 import type { ApiResponse, CategoryGroup } from '@/types/common'
 import type { DisputeDto, DisputeParticipantDto, DisputeListResponse } from '@/types/dispute'
 
@@ -12,11 +14,7 @@ const createDisputeSchema = z.object({
   categoryGroup: z.enum(VALID_CATEGORY_GROUPS, {
     errorMap: () => ({ message: '카테고리는 romance, family, friend, work 중 하나여야 합니다.' }),
   }),
-  title: z
-    .string()
-    .min(1, '제목을 입력해주세요.')
-    .max(200, '제목은 200자 이하로 입력해주세요.'),
-  description: z.string().optional(),
+  content: z.string().min(1, '진술 내용을 입력해주세요.'),
   sourceConversationId: z.string().uuid('유효하지 않은 대화 ID입니다.').optional(),
 })
 
@@ -144,7 +142,7 @@ export async function GET(request: NextRequest) {
 }
 
 // POST /api/disputes
-// 사건 생성. 활성 방(ai_chat, invite_ready, one_to_one)에서 생성 가능. 생성자는 role_a로 확정
+// 사건 생성. content(진술)를 받아 AI 추출 → dispute 생성 → statement 저장까지 원자적 처리
 export async function POST(request: NextRequest) {
   const userId = await getRequestUserId(request)
   if (!userId) {
@@ -183,48 +181,93 @@ export async function POST(request: NextRequest) {
     )
   }
 
-  const { roomId, categoryGroup, title, description, sourceConversationId } = parsed.data
+  const { roomId, categoryGroup, content, sourceConversationId } = parsed.data
 
   try {
-    const room = await prisma.disputeRoom.findFirst({
-      where: { id: roomId, creatorUserId: userId, deletedAt: null },
-    })
+    // 방 유효성 + 중복 dispute 확인 (병렬)
+    const [room, existing] = await Promise.all([
+      prisma.disputeRoom.findFirst({ where: { id: roomId, creatorUserId: userId, deletedAt: null } }),
+      prisma.dispute.findFirst({ where: { roomId } }),
+    ])
+
     if (!room) {
       return NextResponse.json<ApiResponse>(
         { success: false, error: { code: 'ROOM_NOT_FOUND', message: '방을 찾을 수 없습니다.' } },
         { status: 404 },
       )
     }
-
     if (room.roomMode === 'CLOSED' || room.roomMode === 'EXPIRED') {
       return NextResponse.json<ApiResponse>(
-        {
-          success: false,
-          error: {
-            code: 'ROOM_NOT_READY',
-            message: '이미 종료되거나 만료된 방입니다.',
-            details: `현재 방 상태: ${room.roomMode.toLowerCase()}`,
-          },
-        },
+        { success: false, error: { code: 'ROOM_NOT_READY', message: '이미 종료되거나 만료된 방입니다.' } },
         { status: 422 },
       )
     }
-
-    // roomId는 DB unique 제약이 있어 소프트 삭제된 레코드도 포함해서 확인
-    const existing = await prisma.dispute.findFirst({
-      where: { roomId },
-    })
     if (existing) {
       return NextResponse.json<ApiResponse>(
-        {
-          success: false,
-          error: { code: 'DISPUTE_ALREADY_EXISTS', message: '이미 사건이 존재하는 방입니다.' },
-        },
+        { success: false, error: { code: 'DISPUTE_ALREADY_EXISTS', message: '이미 사건이 존재하는 방입니다.' } },
         { status: 409 },
       )
     }
 
-    // 사건 생성 + role_a 참여자 등록 (원자적 처리)
+    // 모더레이션 + AI 추출 병렬 실행
+    const META_TIMEOUT_MS = 10000
+    const [moderationResult, metaResult] = await Promise.allSettled([
+      moderateContent(content),
+      Promise.race([
+        extractDisputeMeta(content),
+        new Promise<never>((_, reject) =>
+          setTimeout(() => reject(new Error('extractDisputeMeta timeout')), META_TIMEOUT_MS),
+        ),
+      ]),
+    ])
+
+    // 모더레이션 처리 (실패 시 fail open)
+    let moderation = { isBlocked: false, hasPersonalInfo: false, confidenceScore: null as number | null, durationMs: null as number | null, modelName: null as string | null, reason: null as string | null }
+    let moderationSucceeded = false
+    if (moderationResult.status === 'fulfilled') {
+      moderation = moderationResult.value
+      moderationSucceeded = true
+    } else {
+      console.error('[disputes] moderation failed:', moderationResult.reason)
+    }
+
+    if (moderation.isBlocked) {
+      return NextResponse.json<ApiResponse>(
+        { success: false, error: { code: 'CONTENT_BLOCKED', message: moderation.reason ?? '부적절한 표현이 포함되어 있습니다. 내용을 수정해주세요.' } },
+        { status: 422 },
+      )
+    }
+
+    // AI 추출 처리 (실패 시 에러 반환)
+    if (metaResult.status === 'rejected') {
+      const msg = metaResult.reason instanceof Error ? metaResult.reason.message : String(metaResult.reason)
+      if (msg.includes('timeout')) {
+        return NextResponse.json<ApiResponse>(
+          { success: false, error: { code: 'AI_EXTRACTION_TIMEOUT', message: 'AI 분석 시간이 초과됐습니다. 다시 시도해주세요.' } },
+          { status: 504 },
+        )
+      }
+      if (msg.includes('JSON')) {
+        return NextResponse.json<ApiResponse>(
+          { success: false, error: { code: 'AI_EXTRACTION_PARSE_ERROR', message: 'AI 응답 처리 중 오류가 발생했습니다. 다시 시도해주세요.' } },
+          { status: 502 },
+        )
+      }
+      return NextResponse.json<ApiResponse>(
+        { success: false, error: { code: 'AI_EXTRACTION_FAILED', message: 'AI 분석에 실패했습니다. 다시 시도해주세요.' } },
+        { status: 503 },
+      )
+    }
+
+    const { title, summary: description } = metaResult.value
+    if (!title) {
+      return NextResponse.json<ApiResponse>(
+        { success: false, error: { code: 'AI_EXTRACTION_FAILED', message: 'AI가 사건 제목을 추출하지 못했습니다. 다시 시도해주세요.' } },
+        { status: 503 },
+      )
+    }
+
+    // dispute + 참여자 + 진술 원자적 생성
     const dispute = await prisma.$transaction(async (tx) => {
       const created = await tx.dispute.create({
         data: {
@@ -233,20 +276,48 @@ export async function POST(request: NextRequest) {
           title,
           description,
           sourceConversationId,
-          status: 'DRAFT',
+          status: 'WAITING_OPPONENT',
         },
       })
-      await tx.disputeParticipant.create({
+      const participant = await tx.disputeParticipant.create({
         data: { disputeId: created.id, userId, role: 'ROLE_A' },
       })
+      const statement = await tx.disputeStatement.create({
+        data: {
+          disputeId: created.id,
+          participantId: participant.id,
+          userId,
+          role: 'ROLE_A',
+          content,
+          moderationStatus: moderationSucceeded ? 'approved' : 'pending',
+          submittedAt: new Date(),
+        },
+      })
+      if (moderationSucceeded) {
+        await tx.moderationLog.create({
+          data: {
+            roomId,
+            conversationId: sourceConversationId ?? null,
+            disputeId: created.id,
+            statementId: statement.id,
+            userId,
+            target: 'STATEMENT',
+            isBlocked: false,
+            reason: null,
+            confidenceScore: moderation.confidenceScore,
+            durationMs: moderation.durationMs,
+            modelName: moderation.modelName,
+          },
+        })
+      }
       return tx.dispute.findUniqueOrThrow({
         where: { id: created.id },
         include: { participants: { include: { user: { select: { profileImageUrl: true, image: true } } } } },
       })
     })
 
-    return NextResponse.json<ApiResponse<DisputeDto>>(
-      { success: true, data: toDisputeDto(dispute) },
+    return NextResponse.json<ApiResponse<DisputeDto & { hasPersonalInfo: boolean }>>(
+      { success: true, data: { ...toDisputeDto(dispute), hasPersonalInfo: moderation.hasPersonalInfo } },
       { status: 201 },
     )
   } catch {
