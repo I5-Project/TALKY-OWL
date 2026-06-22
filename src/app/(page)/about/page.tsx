@@ -224,7 +224,7 @@ export default function AboutPage() {
               </div>
               <div className={styles.heroCenter}>
                 <div className={styles.heroPhone}>
-                  <Image src="/images/about/10.png" alt="말해부엉 앱 화면" width={300} height={520} className={styles.heroPhoneImage} />
+                  <Image src="/images/about/11.png" alt="말해부엉 앱 화면" width={305} height={534} className={styles.heroPhoneImage} />
                 </div>
               </div>
               <div className={styles.heroRight}>
