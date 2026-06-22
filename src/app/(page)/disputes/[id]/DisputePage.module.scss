@@ -314,6 +314,21 @@
 // Modal
 // ===========================
 
+.modalContent {
+  display: flex;
+  flex-direction: column;
+  gap: fn.r(20);
+}
+
+.modalMessage {
+  font-family: v.$font-family-base;
+  font-size: v.$font-size-title-s;
+  font-weight: v.$font-weight-semibold;
+  line-height: v.$line-height-title-s;
+  color: var(--text-primary);
+  white-space: pre-line;
+}
+
 .modalOverlay {
   position: fixed;
   inset: 0;

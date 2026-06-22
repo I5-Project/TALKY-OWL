@@ -1,10 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getServerSession } from 'next-auth'
 import { z } from 'zod'
 import { type Prisma, type CategoryGroup as PrismaCategoryGroup, DisputeStatus } from '@prisma/client'
-import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/db'
-import { getSessionUserId } from '@/lib/auth/session'
+import { getRequestUserId } from '@/lib/auth/session'
 import { VALID_CATEGORY_GROUPS } from '@/lib/constants/dispute'
 import type { ApiResponse, CategoryGroup } from '@/types/common'
 import type { DisputeDto, DisputeParticipantDto, DisputeListResponse } from '@/types/dispute'
@@ -57,8 +55,7 @@ function toDisputeDto(dispute: DisputeForList): DisputeDto {
 // GET /api/disputes
 // 내가 참여한 사건 목록 조회. categoryGroup으로 필터링, page/limit으로 페이지네이션
 export async function GET(request: NextRequest) {
-  const session = await getServerSession(authOptions)
-  const userId = getSessionUserId(session)
+  const userId = await getRequestUserId(request)
   if (!userId) {
     return NextResponse.json<ApiResponse>(
       { success: false, error: { code: 'UNAUTHORIZED', message: '로그인이 필요합니다.' } },
@@ -148,8 +145,7 @@ export async function GET(request: NextRequest) {
 // POST /api/disputes
 // 사건 생성. 활성 방(ai_chat, invite_ready, one_to_one)에서 생성 가능. 생성자는 role_a로 확정
 export async function POST(request: NextRequest) {
-  const session = await getServerSession(authOptions)
-  const userId = getSessionUserId(session)
+  const userId = await getRequestUserId(request)
   if (!userId) {
     return NextResponse.json<ApiResponse>(
       { success: false, error: { code: 'UNAUTHORIZED', message: '로그인이 필요합니다.' } },

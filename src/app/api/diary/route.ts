@@ -1,16 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/db';
-import { getSessionUserId } from '@/lib/auth/session';
+import { getRequestUserId } from '@/lib/auth/session';
 import type { ApiResponse } from '@/types/common';
 import type { DiaryItem } from '@/types/diary';
 
 // GET /api/diary?date=2026-06-16
 // 특정 날짜의 감정일기 목록 조회. 최신순 정렬. 본인 데이터만 반환
 export async function GET(request: NextRequest) {
-  const session = await getServerSession(authOptions);
-  const userId = getSessionUserId(session);
+  const userId = await getRequestUserId(request);
   if (!userId) {
     return NextResponse.json<ApiResponse>(
       { success: false, error: { code: 'UNAUTHORIZED', message: '로그인이 필요합니다.' } },
