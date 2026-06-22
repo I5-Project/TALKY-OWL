@@ -2,7 +2,9 @@
 
 import React from 'react'
 import { useRouter } from 'next/navigation'
-import Header from '@/components/layout/Header'
+import { useHeaderStore } from '@/stores/headerStore'
+import { useDispute } from '@/domains/dispute/dispute.hooks'
+import { useUserMe } from '@/domains/user/hooks'
 import Button from '@/components/ui/Button'
 import Select from '@/components/ui/Select'
 import Textarea from '@/components/ui/Textarea'
@@ -24,11 +26,21 @@ export default function StatementPage({
   searchParams,
 }: {
   params: Promise<{ id: string }>
-  searchParams: Promise<{ category?: string }>
+  searchParams: Promise<{ category?: string; edit?: string }>
 }) {
   const { id } = React.use(params)
-  const { category: rawCategory } = React.use(searchParams)
+  const { category: rawCategory, edit } = React.use(searchParams)
+  const isEditMode = edit === 'true'
   const router = useRouter()
+  const setHeader = useHeaderStore((s) => s.setHeader)
+
+  const { data: dispute } = useDispute(isEditMode ? id : '')
+  const { data: userMe } = useUserMe()
+
+  React.useEffect(() => {
+    setHeader({ variant: 'title', title: isEditMode ? '사건수정' : '사건작성', onBack: () => router.back() })
+    return () => setHeader(null)
+  }, [isEditMode])
 
   const category: CategoryGroup = VALID_CATEGORIES.includes(rawCategory as CategoryGroup)
     ? (rawCategory as CategoryGroup)
@@ -36,6 +48,17 @@ export default function StatementPage({
 
   const [mbti, setMbti] = React.useState('')
   const [content, setContent] = React.useState('')
+
+  React.useEffect(() => {
+    if (!userMe) return
+    setMbti(userMe.mbti ?? '')
+  }, [userMe])
+
+  React.useEffect(() => {
+    if (!isEditMode || !dispute || !userMe) return
+    const existing = dispute.statements?.find((s) => s.userId === userMe.id)
+    if (existing) setContent(existing.content)
+  }, [isEditMode, dispute, userMe])
   const [isLoading, setIsLoading] = React.useState(false)
   const [filterMessage, setFilterMessage] = React.useState<string | null>(null)
   const [showPersonalInfoWarning, setShowPersonalInfoWarning] = React.useState(false)
@@ -81,7 +104,6 @@ export default function StatementPage({
   if (!category) {
     return (
       <div className={styles.page}>
-        <Header title="사건작성" onBack={() => router.back()} />
         <div className={styles.modalOverlay}>
           <div className={styles.modal}>
             <p className={styles.modalText}>카테고리를 선택해주세요</p>
@@ -96,7 +118,6 @@ export default function StatementPage({
 
   return (
     <div className={styles.page}>
-      <Header title="사건작성" onBack={() => router.back()} />
 
       <div className={styles.content}>
         <section className={styles.section}>
@@ -136,7 +157,7 @@ export default function StatementPage({
 
       <div className={styles.footer}>
         <Button onClick={handleSave} disabled={!content.trim() || isLoading}>
-          {isLoading ? '저장 중...' : '진술저장'}
+          {isLoading ? '저장 중...' : isEditMode ? '수정저장' : '진술저장'}
         </Button>
       </div>
 

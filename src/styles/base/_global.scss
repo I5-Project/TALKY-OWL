@@ -96,7 +96,12 @@
   --font-family-base: #{v.$font-family-base};
 }
 
+html {
+  min-height: 100dvh;
+}
+
 body {
+  min-height: 100dvh;
   font-family: var(--font-pretendard), v.$font-family-base;
   font-size: v.$font-size-base;
   background-color: v.$color-white;
