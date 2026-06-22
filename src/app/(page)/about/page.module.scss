@@ -60,28 +60,27 @@
 }
 
 .heroInner {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+  position: relative;
   width: 100%;
   max-width: 960px;
-  position: relative;
-  min-height: 520px;
+  min-height: 560px;
 }
 
 // Left: revolving text column
 .heroLeft {
+  position: absolute;
+  left: 0;
+  bottom: 80px;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  width: 240px;
-  flex: 0 0 240px;
+  width: 260px;
   z-index: 2;
 }
 
 .revolvingMask {
   overflow: hidden;
-  max-height: 80px;
+  max-height: 72px;
 }
 
 .revolvingTrack {
@@ -90,11 +89,11 @@
 }
 
 .revolvingWord {
-  @include m.text-title-l;
-
   display: block;
-  height: 40px;
-  line-height: 40px;
+  height: 36px;
+  line-height: 36px;
+  font-family: v.$font-family-base;
+  font-size: fn.r(20);
   color: v.$color-black-200;
   font-weight: v.$font-weight-regular;
   white-space: nowrap;
@@ -104,20 +103,22 @@
   display: flex;
   align-items: baseline;
   gap: v.$spacing-unit * 0.5;
-  margin: 4px 0;
+  margin: 2px 0;
 }
 
 .activeWord {
-  @include m.text-title-xl;
-
+  font-family: v.$font-family-base;
+  font-size: fn.r(26);
+  line-height: fn.r(34);
   color: v.$color-black-700;
   font-weight: v.$font-weight-bold;
   white-space: nowrap;
 }
 
 .fixedSuffix {
-  @include m.text-title-xl;
-
+  font-family: v.$font-family-base;
+  font-size: fn.r(26);
+  line-height: fn.r(34);
   color: v.$color-black-700;
   font-weight: v.$font-weight-bold;
   white-space: nowrap;
@@ -125,7 +126,7 @@
 
 .revolvingBelow {
   overflow: hidden;
-  max-height: 40px;
+  max-height: 36px;
 }
 
 .revolvingTrackBelow {
@@ -133,12 +134,12 @@
   flex-direction: column;
 }
 
-// Center: phone image — absolute positioned so text width changes don't move it
+// Center: phone image
 .heroCenter {
   position: absolute;
   left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
+  top: 0;
+  transform: translateX(-50%);
   z-index: 1;
 }
 
@@ -148,23 +149,26 @@
 
 .heroPhoneImage {
   display: block;
-  width: 300px;
+  width: 320px;
   height: auto;
   object-fit: contain;
-  background: v.$color-white;
+  mix-blend-mode: multiply;
 }
 
 // Right: title text
 .heroRight {
-  opacity: 0;
+  position: absolute;
+  right: 0;
+  bottom: 120px;
   z-index: 2;
-  margin-left: auto;
+  opacity: 0;
   text-align: right;
 }
 
 .heroTitle {
-  @include m.text-title-xl;
-
+  font-family: v.$font-family-base;
+  font-size: fn.r(26);
+  line-height: fn.r(34);
   color: v.$color-black-700;
   letter-spacing: -0.5px;
   white-space: nowrap;
@@ -397,35 +401,48 @@
   }
 
   .heroInner {
-    flex-direction: column;
-    gap: v.$spacing-unit * 3;
-    min-height: auto;
+    min-height: 600px;
   }
 
   .heroLeft {
-    width: auto;
-    flex: 0 0 auto;
-    align-items: center;
+    bottom: 60px;
+    width: 180px;
   }
 
   .heroCenter {
-    position: relative;
-    left: auto;
-    top: auto;
-    transform: none;
+    top: 20px;
   }
 
   .heroPhoneImage {
-    width: 220px;
+    width: 240px;
   }
 
   .heroRight {
-    margin-left: 0;
-    text-align: center;
+    bottom: 80px;
   }
 
   .heroTitle {
-    white-space: normal;
+    font-size: fn.r(20);
+    white-space: nowrap;
+  }
+
+  .activeWord,
+  .fixedSuffix {
+    font-size: fn.r(20);
+  }
+
+  .revolvingWord {
+    font-size: fn.r(16);
+    height: 30px;
+    line-height: 30px;
+  }
+
+  .revolvingMask {
+    max-height: 60px;
+  }
+
+  .revolvingBelow {
+    max-height: 30px;
   }
 
   .phoneMockupTilted {
