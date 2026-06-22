@@ -105,40 +105,25 @@ export default function AboutPage() {
           const animateNext = () => {
             const nextIdx = (orderIdx + 1) % REVOLVING_ORDER.length;
 
-            const stepTl = gsap.timeline({
+            // Phase 1: fade out everything together
+            gsap.to([aboveTrack, activeRowEl, belowTrack], {
+              y: -10, opacity: 0, duration: 0.3, ease: 'power2.in',
               onComplete: () => {
-                orderIdx = nextIdx;
-                animateNext();
+                // Phase 2: swap text
+                setTexts(nextIdx);
+
+                // Phase 3: reset position and fade in
+                gsap.set([aboveTrack, activeRowEl, belowTrack], { y: 10 });
+                gsap.to([aboveTrack, activeRowEl, belowTrack], {
+                  y: 0, opacity: 1, duration: 0.35, ease: 'power2.out',
+                  onComplete: () => {
+                    orderIdx = nextIdx;
+                    // Phase 4: hold then next
+                    gsap.delayedCall(CYCLE_DURATION, animateNext);
+                  },
+                });
               },
             });
-
-            // Hold
-            stepTl.to({}, { duration: CYCLE_DURATION });
-
-            // Active row slides up and fades
-            stepTl.to(activeRowEl, {
-              y: -8, opacity: 0, duration: 0.2, ease: 'power2.in',
-            });
-
-            // Above/below text crossfade
-            stepTl.to([aboveTrack, belowTrack], {
-              opacity: 0, duration: 0.15, ease: 'power1.in',
-            }, '<');
-
-            // Swap all text content
-            stepTl.call(() => setTexts(nextIdx));
-
-            // Above/below fade back in
-            stepTl.to([aboveTrack, belowTrack], {
-              opacity: 1, duration: 0.2, ease: 'power1.out',
-            });
-
-            // Active row slides in from below
-            stepTl.fromTo(activeRowEl,
-              { y: 8, opacity: 0 },
-              { y: 0, opacity: 1, duration: 0.25, ease: 'power2.out' },
-              '<',
-            );
           };
 
           gsap.delayedCall(1.5, animateNext);
