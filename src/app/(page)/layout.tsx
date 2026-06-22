@@ -16,7 +16,8 @@ export default function PageLayout({ children }: { children: React.ReactNode }) 
     pathname.startsWith('/login') ||
     pathname.startsWith('/auth/') ||
     pathname.startsWith('/terms') ||
-    pathname.startsWith('/privacy')
+    pathname.startsWith('/privacy') ||
+    pathname.startsWith('/about')
 
   return (
     <div className={styles.layout}>
