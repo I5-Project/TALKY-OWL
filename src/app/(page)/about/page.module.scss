@@ -1,0 +1,240 @@
+@use '@/styles/abstracts/variables' as v;
+@use '@/styles/abstracts/mixins' as m;
+
+// ===========================
+// Page Container
+// ===========================
+.page {
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+  background: v.$color-white;
+}
+
+// ===========================
+// Intro Animation Overlay
+// ===========================
+.introOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  @include m.flex-center;
+  background: linear-gradient(180deg, #{v.$color-primary-200} 0%, #{v.$color-white} 60%);
+  clip-path: circle(150% at 50% 50%);
+}
+
+.introOverlay.irisOut {
+  animation: irisOut 0.8s ease-in forwards;
+}
+
+@keyframes irisOut {
+  0% {
+    clip-path: circle(150% at 50% 50%);
+  }
+
+  100% {
+    clip-path: circle(0% at 50% 50%);
+  }
+}
+
+.animationWrapper {
+  width: 256px;
+  height: 256px;
+}
+
+// ===========================
+// Content Wrapper
+// ===========================
+.content {
+  flex: 1;
+  animation: fadeIn 0.5s ease-out;
+  overflow-x: hidden;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+// ===========================
+// Hero Section
+// ===========================
+.heroSection {
+  @include m.flex-center;
+  min-height: 100dvh;
+  padding: 60px 24px;
+  background: linear-gradient(180deg, #{v.$color-primary-200} 0%, #{v.$color-white} 80%);
+}
+
+.heroInner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: v.$spacing-unit * 1.5;
+}
+
+.heroCharacter {
+  width: 120px;
+  height: 120px;
+  object-fit: contain;
+  margin-bottom: v.$spacing-unit;
+  animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.heroTitle {
+  @include m.text-display;
+  color: v.$color-black-700;
+  letter-spacing: -0.5px;
+}
+
+.heroSubtitle {
+  @include m.text-label-m;
+  font-weight: v.$font-weight-semibold;
+  color: v.$color-primary-600;
+}
+
+.heroDesc {
+  @include m.text-body-s;
+  color: v.$color-black-400;
+  margin-top: v.$spacing-unit * 0.5;
+}
+
+// ===========================
+// Feature Section
+// ===========================
+.featureSection {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: v.$spacing-unit * 4;
+  padding: 80px 24px;
+  min-height: 100dvh;
+  justify-content: center;
+
+  &:nth-child(even) {
+    background: v.$color-primary-100;
+  }
+}
+
+.featureText {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: v.$spacing-unit * 1.5;
+}
+
+.badge {
+  @include m.text-label-s;
+  display: inline-block;
+  padding: 6px 16px;
+  border-radius: 20px;
+  background: v.$color-primary-500;
+  color: v.$color-white;
+  opacity: 0;
+}
+
+.title {
+  @include m.text-title-l;
+  color: v.$color-black-700;
+  letter-spacing: -0.3px;
+  white-space: pre-line;
+  opacity: 0;
+}
+
+.description {
+  @include m.text-body-s;
+  color: v.$color-black-400;
+  white-space: pre-line;
+  opacity: 0;
+}
+
+// ===========================
+// Phone Frame
+// ===========================
+.phoneFrame {
+  position: relative;
+  width: 240px;
+  border-radius: 24px;
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.12);
+  border: 8px solid v.$color-black-700;
+  background: v.$color-white;
+  opacity: 0;
+}
+
+.phoneImage {
+  display: block;
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+}
+
+// ===========================
+// CTA Section
+// ===========================
+.ctaSection {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  min-height: 60dvh;
+  padding: 60px 24px;
+  background: linear-gradient(180deg, #{v.$color-white} 0%, #{v.$color-primary-200} 100%);
+  gap: v.$spacing-unit * 2;
+}
+
+.ctaIcon {
+  width: 64px;
+  height: 64px;
+  object-fit: contain;
+}
+
+.ctaTitle {
+  @include m.text-title-l;
+  color: v.$color-black-700;
+}
+
+.ctaDesc {
+  @include m.text-body-s;
+  color: v.$color-black-400;
+}
+
+.ctaButton {
+  margin-top: v.$spacing-unit;
+  padding: 14px 48px;
+  border: none;
+  border-radius: 12px;
+  background: v.$color-primary-600;
+  color: v.$color-white;
+  @include m.text-label-m;
+  font-weight: v.$font-weight-semibold;
+  cursor: pointer;
+  transition: background 0.2s;
+
+  &:hover {
+    background: v.$color-primary-700;
+  }
+
+  &:active {
+    transform: scale(0.98);
+  }
+}
