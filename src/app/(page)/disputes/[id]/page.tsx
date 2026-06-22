@@ -14,6 +14,7 @@ import Spinner from '@/components/ui/Spinner';
 import StatusBadge from '@/components/ui/StatusBadge';
 import CategoryIcon from '@/components/ui/CategoryIcon';
 import InviteChoiceModal from '@/components/room/InviteChoiceModal';
+import Modal from '@/components/ui/Modal';
 import JudgmentResult from '@/components/judgement/JudgmentResult';
 import JudgmentTypeResult from '@/components/judgement/JudgmentTypeResult';
 import {
@@ -94,6 +95,7 @@ export default function DisputePage({ params }: { params: Promise<{ id: string }
     data: judgment,
     isLoading: judgmentLoading,
     isError: judgmentError,
+    error: judgmentErrorData,
   } = useJudgment(id, isCompleted);
 
   const showToast = useToastStore((s) => s.show);
@@ -102,7 +104,12 @@ export default function DisputePage({ params }: { params: Promise<{ id: string }
   const [judgmentSubTab, setJudgmentSubTab] = React.useState<'verdict' | 'type'>('verdict');
   const [showSoloModal, setShowSoloModal] = React.useState(false);
   const [isInviting, setIsInviting] = React.useState(false);
+  const [judgmentErrorModal, setJudgmentErrorModal] = React.useState(false);
   const [isRefreshing, setIsRefreshing] = React.useState(false);
+
+  React.useEffect(() => {
+    if (judgmentError) setJudgmentErrorModal(true);
+  }, [judgmentError]);
 
   const handleRefresh = async () => {
     setIsRefreshing(true);
@@ -335,6 +342,15 @@ export default function DisputePage({ params }: { params: Promise<{ id: string }
         onAlone={() => void runJudge()}
         onInvite={() => void handleInvite()}
       />
+
+      <Modal open={judgmentErrorModal} onClose={() => setJudgmentErrorModal(false)}>
+        <div className={styles.modalContent}>
+          <p className={styles.modalMessage}>
+            {judgmentErrorData instanceof Error ? judgmentErrorData.message : '판결 결과를 불러올 수 없습니다.'}
+          </p>
+          <Button onClick={() => setJudgmentErrorModal(false)}>확인</Button>
+        </div>
+      </Modal>
     </div>
   );
 }
