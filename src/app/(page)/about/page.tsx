@@ -11,7 +11,10 @@ import styles from './page.module.scss';
 
 gsap.registerPlugin(ScrollTrigger);
 
-const revolvingWords = ['남친이랑', '친구랑', '직장상사와 갈등상황', '엄마랑'];
+const REVOLVING_WORDS = ['남친이랑', '친구랑', '직장상사와', '엄마랑'];
+const REVOLVING_ORDER = [2, 3, 0, 1]; // 직장상사와 → 엄마랑 → 남친이랑 → 친구랑
+const WORD_HEIGHT = 52;
+const CYCLE_DURATION = 2;
 
 const featureCards = [
   { num: 'feature 01', title: '갈등을 AI로\n판결받아보세요' },
@@ -63,16 +66,49 @@ export default function AboutPage() {
         { opacity: 1, y: 0, duration: 0.8, delay: 0.6, ease: 'power2.out' }
       );
 
-      // Revolving words animation
+      // Revolving words: vertical scroll loop
       if (revolvingRef.current) {
-        const words = revolvingRef.current.querySelectorAll(`.${styles.revolvingWord}`);
-        if (words.length > 0) {
-          gsap.set(words, { opacity: 1 });
-          const tl = gsap.timeline({ repeat: -1, delay: 0.8 });
-          words.forEach((word, i) => {
-            tl.to(words, { color: '#c9cdd1', fontWeight: 400, duration: 0.3 }, i * 2)
-              .to(word, { color: '#1a1d1f', fontWeight: 700, duration: 0.4 }, i * 2 + 0.1);
+        const track = revolvingRef.current.querySelector(`.${styles.revolvingTrack}`) as HTMLElement;
+        const allItems = revolvingRef.current.querySelectorAll(`.${styles.revolvingWord}`);
+        if (track && allItems.length > 0) {
+          const totalOriginal = REVOLVING_WORDS.length;
+          const startIndex = REVOLVING_ORDER[0];
+          gsap.set(track, { y: -(startIndex * WORD_HEIGHT) });
+
+          // color init: highlight first active
+          allItems.forEach((item, i) => {
+            const wordIdx = i % totalOriginal;
+            gsap.set(item, {
+              color: wordIdx === startIndex ? '#1a1d1f' : '#c9cdd1',
+              fontWeight: wordIdx === startIndex ? 700 : 400,
+            });
           });
+
+          const tl = gsap.timeline({ repeat: -1, delay: 1.2 });
+
+          for (let step = 1; step <= REVOLVING_ORDER.length; step++) {
+            const nextIdx = REVOLVING_ORDER[step % REVOLVING_ORDER.length];
+            const targetSlot = step < REVOLVING_ORDER.length ? nextIdx : nextIdx + totalOriginal;
+
+            tl.to(allItems, { color: '#c9cdd1', fontWeight: 400, duration: 0.25 }, step * CYCLE_DURATION);
+            tl.to(track, { y: -(targetSlot * WORD_HEIGHT), duration: 0.5, ease: 'power2.inOut' }, step * CYCLE_DURATION);
+            tl.call(() => {
+              allItems.forEach((item, i) => {
+                const wordIdx = i % totalOriginal;
+                gsap.set(item, {
+                  color: wordIdx === nextIdx ? '#1a1d1f' : '#c9cdd1',
+                  fontWeight: wordIdx === nextIdx ? 700 : 400,
+                });
+              });
+            }, [], step * CYCLE_DURATION + 0.3);
+
+            // Reset position seamlessly when wrapping
+            if (step === REVOLVING_ORDER.length) {
+              tl.call(() => {
+                gsap.set(track, { y: -(nextIdx * WORD_HEIGHT) });
+              }, [], step * CYCLE_DURATION + 0.55);
+            }
+          }
         }
       }
 
@@ -148,24 +184,25 @@ export default function AboutPage() {
           {/* ===== TAB 1: HERO ===== */}
           <section className={styles.heroSection}>
             <div className={styles.heroInner}>
-              <div className={styles.heroPhoneArea}>
-                <div ref={revolvingRef} className={styles.revolvingWords}>
-                  {revolvingWords.map((word) => (
-                    <span key={word} className={styles.revolvingWord}>{word}</span>
-                  ))}
-                </div>
-                <div className={styles.heroPhone}>
-                  <div className={styles.phoneMockupTilted}>
-                    <div className={styles.phoneScreen}>
-                      <Image src="/images/about/1.png" alt="말해부엉 홈 화면" width={260} height={560} className={styles.screenImage} />
+              <div className={styles.heroRow}>
+                <div ref={revolvingRef} className={styles.revolvingArea}>
+                  <div className={styles.revolvingMask}>
+                    <div className={styles.revolvingTrack}>
+                      {[...REVOLVING_WORDS, ...REVOLVING_WORDS].map((word, i) => (
+                        <span key={`${word}-${i}`} className={styles.revolvingWord}>{word}</span>
+                      ))}
                     </div>
                   </div>
+                  <span className={styles.fixedSuffix}>갈등상황</span>
                 </div>
-              </div>
-              <div className={styles.heroTextBlock}>
-                <h1 className={styles.heroTitle}>
-                  <span className={styles.highlight}>말해부엉</span> 하나로 해결가능
-                </h1>
+                <div className={styles.heroPhone}>
+                  <Image src="/images/about/10.png" alt="말해부엉 앱 화면" width={300} height={500} className={styles.heroPhoneImage} />
+                </div>
+                <div className={styles.heroTextBlock}>
+                  <h1 className={styles.heroTitle}>
+                    <span className={styles.highlight}>말해부엉</span> 하나로 해결가능
+                  </h1>
+                </div>
               </div>
             </div>
           </section>

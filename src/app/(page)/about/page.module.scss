@@ -60,97 +60,76 @@
 }
 
 .heroInner {
+  width: 100%;
+  max-width: 900px;
+}
+
+.heroRow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: v.$spacing-unit * 2;
+  flex-wrap: wrap;
+  position: relative;
+}
+
+// Revolving vertical list
+.revolvingArea {
+  display: flex;
+  align-items: baseline;
+  gap: v.$spacing-unit;
+}
+
+.revolvingMask {
+  height: 52px;
+  overflow: hidden;
+  position: relative;
+}
+
+.revolvingTrack {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: v.$spacing-unit * 4;
-  width: 100%;
-  max-width: 720px;
-}
-
-.heroPhoneArea {
-  position: relative;
-  width: 100%;
-  display: flex;
-  justify-content: center;
-  min-height: 420px;
-  align-items: center;
-}
-
-// Revolving words
-.revolvingWords {
-  position: absolute;
-  inset: 0;
-  z-index: 2;
-  pointer-events: none;
 }
 
 .revolvingWord {
-  position: absolute;
-  @include m.text-title-l;
+  display: block;
+  height: 52px;
+  line-height: 52px;
+  @include m.text-title-xl;
 
   color: v.$color-black-200;
   font-weight: v.$font-weight-regular;
   white-space: nowrap;
-  transition: color 0.3s, font-weight 0.3s;
-
-  &:nth-child(1) {
-    top: 8%;
-    left: 5%;
-  }
-
-  &:nth-child(2) {
-    top: 28%;
-    left: 2%;
-  }
-
-  &:nth-child(3) {
-    top: 52%;
-    left: 0;
-    @include m.text-title-xl;
-  }
-
-  &:nth-child(4) {
-    top: 74%;
-    left: 8%;
-  }
 }
 
-// Tilted phone mockup
+.fixedSuffix {
+  @include m.text-title-xl;
+
+  color: v.$color-black-700;
+  font-weight: v.$font-weight-bold;
+  white-space: nowrap;
+}
+
+// Hero phone (cutout image)
 .heroPhone {
   position: relative;
   z-index: 1;
   opacity: 0;
+  flex-shrink: 0;
 }
 
-.phoneMockupTilted {
-  width: 240px;
-  border-radius: 32px;
-  overflow: hidden;
-  background: v.$color-black-700;
-  border: 6px solid v.$color-black-600;
-  box-shadow:
-    0 30px 60px rgba(0, 0, 0, 0.2),
-    0 10px 20px rgba(0, 0, 0, 0.1);
-  transform: perspective(1000px) rotateY(-12deg) rotateX(5deg) rotateZ(-3deg);
-}
-
-.phoneScreen {
-  width: 100%;
-  overflow: hidden;
-  border-radius: 26px;
-}
-
-.screenImage {
+.heroPhoneImage {
   display: block;
-  width: 100%;
+  width: 280px;
   height: auto;
-  object-fit: cover;
+  object-fit: contain;
 }
 
 .heroTextBlock {
-  text-align: center;
   opacity: 0;
+  width: 100%;
+  text-align: right;
+  margin-top: -(v.$spacing-unit * 4);
 }
 
 .heroTitle {
@@ -163,6 +142,13 @@
 .highlight {
   color: v.$color-primary-600;
   font-weight: v.$font-weight-bold;
+}
+
+.screenImage {
+  display: block;
+  width: 100%;
+  height: auto;
+  object-fit: cover;
 }
 
 // ===========================
@@ -379,6 +365,20 @@
     text-align: center;
   }
 
+  .heroRow {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .heroTextBlock {
+    text-align: center;
+    margin-top: 0;
+  }
+
+  .heroPhoneImage {
+    width: 220px;
+  }
+
   .phoneMockupTilted {
     width: 200px;
     transform: perspective(800px) rotateY(-8deg) rotateX(3deg) rotateZ(-2deg);
@@ -392,13 +392,5 @@
     width: 100%;
     max-width: 280px;
     min-height: auto;
-  }
-
-  .revolvingWord {
-    font-size: fn.r(18) !important;
-
-    &:nth-child(3) {
-      font-size: fn.r(22) !important;
-    }
   }
 }
