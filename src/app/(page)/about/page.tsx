@@ -66,53 +66,59 @@ export default function AboutPage() {
         { opacity: 1, x: 0, duration: 0.8, delay: 0.6, ease: 'power2.out' }
       );
 
-      // Revolving words animation
+      // Revolving words animation — smooth slide on inner tracks only
       if (revolvingRef.current) {
         const activeEl = revolvingRef.current.querySelector(`.${styles.activeWord}`) as HTMLElement;
         const aboveTrack = revolvingRef.current.querySelector(`.${styles.revolvingTrack}`) as HTMLElement;
         const belowTrack = revolvingRef.current.querySelector(`.${styles.revolvingTrackBelow}`) as HTMLElement;
+        const activeRowEl = revolvingRef.current.querySelector(`.${styles.activeRow}`) as HTMLElement;
 
-        if (activeEl && aboveTrack && belowTrack) {
-          let currentOrderIdx = 0;
+        if (activeEl && aboveTrack && belowTrack && activeRowEl) {
           const total = REVOLVING_WORDS.length;
 
-          const updateDisplay = (orderIdx: number) => {
+          const setTexts = (orderIdx: number) => {
             const activeIdx = REVOLVING_ORDER[orderIdx];
             activeEl.textContent = REVOLVING_WORDS[activeIdx];
 
-            // Above: words before active (scroll up effect)
             const aboveItems = aboveTrack.querySelectorAll(`.${styles.revolvingWord}`);
             aboveItems.forEach((el) => gsap.set(el, { display: 'none' }));
             for (let i = 1; i <= 2; i++) {
               const idx = (activeIdx - i + total) % total;
-              const slot = i - 1;
-              if (aboveItems[slot]) {
-                aboveItems[slot].textContent = REVOLVING_WORDS[idx];
-                gsap.set(aboveItems[slot], { display: 'block' });
+              if (aboveItems[i - 1]) {
+                aboveItems[i - 1].textContent = REVOLVING_WORDS[idx];
+                gsap.set(aboveItems[i - 1], { display: 'block' });
               }
             }
 
-            // Below: words after active
             const belowItems = belowTrack.querySelectorAll(`.${styles.revolvingWord}`);
             belowItems.forEach((el) => gsap.set(el, { display: 'none' }));
-            for (let i = 1; i <= 1; i++) {
-              const idx = (activeIdx + i) % total;
-              if (belowItems[i - 1]) {
-                belowItems[i - 1].textContent = REVOLVING_WORDS[idx];
-                gsap.set(belowItems[i - 1], { display: 'block' });
-              }
+            const nextIdx = (activeIdx + 1) % total;
+            if (belowItems[0]) {
+              belowItems[0].textContent = REVOLVING_WORDS[nextIdx];
+              gsap.set(belowItems[0], { display: 'block' });
             }
           };
 
-          updateDisplay(0);
+          setTexts(0);
 
           const tl = gsap.timeline({ repeat: -1, delay: 1.5 });
           for (let step = 1; step <= REVOLVING_ORDER.length; step++) {
-            tl.call(() => {
-              currentOrderIdx = step % REVOLVING_ORDER.length;
+            const t = step * CYCLE_DURATION;
 
-              updateDisplay(currentOrderIdx);
-            }, [], step * CYCLE_DURATION);
+            // Fade out all text elements
+            tl.to([aboveTrack, activeRowEl, belowTrack], {
+              y: -12, opacity: 0, duration: 0.25, ease: 'power2.in',
+            }, t);
+
+            // Swap text content at midpoint
+            tl.call(() => setTexts(step % REVOLVING_ORDER.length), [], t + 0.25);
+
+            // Fade in from below
+            tl.fromTo([aboveTrack, activeRowEl, belowTrack],
+              { y: 12, opacity: 0 },
+              { y: 0, opacity: 1, duration: 0.3, ease: 'power2.out' },
+              t + 0.28
+            );
           }
         }
       }
