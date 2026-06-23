@@ -1,60 +1,48 @@
-'use client';
-
+import { notFound, redirect } from 'next/navigation';
+import { getServerSession } from 'next-auth';
 import Image from 'next/image';
-import styles from '@/app/(page)/diary/[id]/page.module.scss';
-import ActionPrompt from '@/components/ui/ActionPrompt';
+import { authOptions } from '@/lib/auth';
+import { getSessionUserId } from '@/lib/auth/session';
+import { getDiaryById } from '@/domains/diary/diary.service';
+import styles from './page.module.scss';
+import DiaryActions from './DiaryActions';
+import DiaryDetailHeader from './DiaryDetailHeader';
 
-export default function Diary() {
-  const handleEdit = () => {
-    console.log('수정 클릭');
-  };
+export default async function DiaryDetailPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const session = await getServerSession(authOptions);
+  const userId = getSessionUserId(session);
+  if (!userId) redirect('/login');
 
-  const handleDelete = () => {
-    console.log('삭제 클릭');
-  };
+  const { id } = await params;
+  const diary = await getDiaryById(id, userId);
+  if (!diary) notFound();
+
   return (
-    <div className={styles.diary}>
+    <>
+      <DiaryDetailHeader />
+      <div className={styles.diary}>
       <div className={styles['diary__body']}>
         <Image
           className={styles['diary__character']}
           src="/images/characters/character-closed.png"
           alt=""
-          width={350}
+          width={355}
           height={194}
         />
 
-        <div className={styles['diary__title']}>지금 이건 테스트인가</div>
-
-        <div className={styles['diary__content']}>
-          Lorem ipsum dolor sit amet, consectetur adipisicing elit. Quas veritatis distinctio
-          voluptas, dolor nulla nam, corporis sunt adipisci veniam perspiciatis odit. Natus veniam
-          delectus exercitationem. Rerum doloribus pariatur hic facere! Lorem ipsum dolor sit amet,
-          consectetur adipisicing elit. Quas veritatis distinctio voluptas, dolor nulla nam,
-          corporis sunt adipisci veniam perspiciatis odit. Natus veniam delectus exercitationem.
-          Rerum doloribus pariatur hic facere! Lorem ipsum dolor sit amet, consectetur adipisicing
-          elit. Quas veritatis distinctio voluptas, dolor nulla nam, corporis sunt adipisci veniam
-          perspiciatis odit. Natus veniam delectus exercitationem. Rerum doloribus pariatur hic
-          facere! Lorem ipsum dolor sit amet, consectetur adipisicing elit. Quas veritatis
-          distinctio voluptas, dolor nulla nam, corporis sunt adipisci veniam perspiciatis odit.
-          Natus veniam delectus exercitationem. Rerum doloribus pariatur hic facere! Lorem ipsum
-          dolor sit amet, consectetur adipisicing elit. Quas veritatis distinctio voluptas, dolor
-          nulla nam, corporis sunt adipisci veniam perspiciatis odit. Natus veniam delectus
-          exercitationem. Rerum doloribus pariatur hic facere!
-        </div>
-
-        <time className={styles['diary__createdAt']}>26-06-14</time>
+        <div className={styles['diary__title']}>{diary.title}</div>
+        <div className={styles['diary__content']}>{diary.content}</div>
+        <time className={styles['diary__createdAt']}>{diary.diaryDate}</time>
       </div>
 
       <div className={styles['diary__actions']}>
-        <ActionPrompt
-          secondaryLabel="삭제"
-          onSecondary={handleDelete}
-          primaryLabel="수정"
-          onPrimary={handleEdit}
-          secondaryVariant="outline"
-          className={styles.diaryActions}
-        />
+        <DiaryActions diaryId={id} diaryDate={diary.diaryDate} className={styles.diaryActions} />
       </div>
     </div>
+    </>
   );
 }

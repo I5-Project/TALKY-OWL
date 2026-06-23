@@ -22,7 +22,7 @@
   &__character {
     position: absolute;
     bottom: fn.r(13);
-    right: fn.r(-100);
+    right: fn.r(-50);
     opacity: 50%;
   }
 
@@ -46,6 +46,7 @@
     display: flex;
     gap: fn.r(8);
     margin-top: fn.r(121);
+    padding-bottom: fn.r(80);
   }
 }
 
