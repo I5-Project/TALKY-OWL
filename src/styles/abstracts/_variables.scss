@@ -71,46 +71,51 @@ $color-type-16: #c8cccc;
 // Typography
 // ===========================
 
-$font-family-base: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+$font-family-base:
+  'Pretendard',
+  -apple-system,
+  BlinkMacSystemFont,
+  'Segoe UI',
+  sans-serif;
 $font-size-base: 16px;
 
 // Font sizes
-$font-size-display:  fn.r(40);
+$font-size-display: fn.r(40);
 $font-size-title-xl: fn.r(28);
-$font-size-title-l:  fn.r(24);
-$font-size-title-m:  fn.r(20);
-$font-size-title-s:  fn.r(18);
-$font-size-body-l:   fn.r(18);
-$font-size-body-m:   fn.r(16);
-$font-size-body-s:   fn.r(14);
-$font-size-caption:  fn.r(12);
-$font-size-label-m:  fn.r(16);
-$font-size-label-s:  fn.r(12);
-$font-size-value-m:  fn.r(16);
+$font-size-title-l: fn.r(24);
+$font-size-title-m: fn.r(20);
+$font-size-title-s: fn.r(18);
+$font-size-body-l: fn.r(18);
+$font-size-body-m: fn.r(16);
+$font-size-body-s: fn.r(14);
+$font-size-caption: fn.r(12);
+$font-size-label-m: fn.r(16);
+$font-size-label-s: fn.r(12);
+$font-size-value-m: fn.r(16);
 
 // Font weights
-$font-weight-regular:  400;
-$font-weight-medium:   500;
+$font-weight-regular: 400;
+$font-weight-medium: 500;
 $font-weight-semibold: 600;
-$font-weight-bold:     700;
+$font-weight-bold: 700;
+$font-weight-extrabold: 800;
 
 // Line heights
-$line-height-display:  fn.r(48);
+$line-height-display: fn.r(48);
 $line-height-title-xl: fn.r(36);
-$line-height-title-l:  fn.r(32);
-$line-height-title-m:  fn.r(28);
-$line-height-title-s:  fn.r(24);
-$line-height-body-l:   fn.r(28);
-$line-height-body-m:   fn.r(28);
-$line-height-body-s:   fn.r(24);
-$line-height-caption:  fn.r(20);
-$line-height-label-m:  fn.r(24);
-$line-height-label-s:  fn.r(16);
-$line-height-value-m:  fn.r(24);
+$line-height-title-l: fn.r(32);
+$line-height-title-m: fn.r(28);
+$line-height-title-s: fn.r(24);
+$line-height-body-l: fn.r(28);
+$line-height-body-m: fn.r(28);
+$line-height-body-s: fn.r(24);
+$line-height-caption: fn.r(20);
+$line-height-label-m: fn.r(24);
+$line-height-label-s: fn.r(16);
+$line-height-value-m: fn.r(24);
 
 // Spacing
 $spacing-unit: 8px;
 
 // Layout
 $container-max-width: 1000px;
-
