@@ -17,25 +17,25 @@ const EASE: [number, number, number, number] = [0.25, 0.1, 0.25, 1];
 // 아래에서 페이드
 const fadeUp: Variants = {
   hidden: { opacity: 0, y: 30 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: EASE } },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.85, ease: EASE } },
 };
 
 // 왼쪽 슬라이드
 const slideLeft: Variants = {
   hidden: { opacity: 0, x: -50 },
-  visible: { opacity: 1, x: 0, transition: { duration: 0.65, ease: EASE } },
+  visible: { opacity: 1, x: 0, transition: { duration: 0.9, ease: EASE } },
 };
 
 // 오른쪽 슬라이드
 const slideRight: Variants = {
   hidden: { opacity: 0, x: 50 },
-  visible: { opacity: 1, x: 0, transition: { duration: 0.65, ease: EASE } },
+  visible: { opacity: 1, x: 0, transition: { duration: 0.9, ease: EASE } },
 };
 
 // 대각선 걸어오는 느낌 (animals01)
 const walkIn: Variants = {
   hidden: { opacity: 0, x: -60, y: 40 },
-  visible: { opacity: 1, x: 0, y: 0, transition: { duration: 0.8, ease: EASE } },
+  visible: { opacity: 1, x: 0, y: 0, transition: { duration: 1.1, ease: EASE } },
 };
 
 // 위에서 스프링 바운스 (animals02)
@@ -44,31 +44,31 @@ const dropBounce: Variants = {
   visible: {
     opacity: 1,
     y: 0,
-    transition: { type: 'spring', stiffness: 180, damping: 14, delay: 0.2 },
+    transition: { type: 'spring', stiffness: 120, damping: 14, delay: 0.2 },
   },
 };
 
 // 스케일 + 페이드 (feature cards)
 const cardContainer: Variants = {
   hidden: {},
-  visible: { transition: { staggerChildren: 0.13 } },
+  visible: { transition: { staggerChildren: 0.18 } },
 };
 
 const cardItem: Variants = {
   hidden: { opacity: 0, y: 36, scale: 0.95 },
-  visible: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.5, ease: EASE } },
+  visible: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.7, ease: EASE } },
 };
 
 // 스케일업 (showcase 폰 이미지)
 const scaleUp: Variants = {
   hidden: { opacity: 0, scale: 0.88 },
-  visible: { opacity: 1, scale: 1, transition: { duration: 0.7, ease: EASE } },
+  visible: { opacity: 1, scale: 1, transition: { duration: 0.95, ease: EASE } },
 };
 
 // 아래서 크게 올라옴 (showcase 3 폰)
 const riseUp: Variants = {
   hidden: { opacity: 0, y: 70 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.75, ease: EASE } },
+  visible: { opacity: 1, y: 0, transition: { duration: 1.0, ease: EASE } },
 };
 
 const REVOLVING_WORDS = ['남친', '친구', '상사', '엄마'];
@@ -364,7 +364,11 @@ export default function AboutPage() {
                 viewport={{ once: true, amount: 0.3 }}
               >
                 <h2 className={styles.showcaseTitle}>하루의 감정을 기록해 보세요</h2>
-                <p className={styles.showcaseDesc}>오늘 감정을 기록하고 푸른하늘에 묻어버리세요!</p>
+                <p className={styles.showcaseDesc}>
+                  말 못한 감정도 괜찮아요
+                  <br />
+                  일기로 꺼내놓으면 한결 가벼워질 거예요
+                </p>
               </motion.div>
             </div>
           </div>
