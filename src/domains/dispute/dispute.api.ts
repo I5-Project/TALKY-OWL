@@ -34,6 +34,7 @@ export async function fetchDisputesByDate(date: string, status?: DisputeStatus):
   return json.data
 }
 
+
 export async function fetchDispute(disputeId: string): Promise<DisputeDto> {
   const res = await fetch(`/api/disputes/${disputeId}`)
   const json = await parseJson<DisputeDto>(res, '사건 조회 실패')
