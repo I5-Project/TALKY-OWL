@@ -37,8 +37,8 @@ export async function updateDiaryById(
   if (!diary || diary.deletedAt !== null) return 'not_found';
   if (diary.userId !== userId) return 'forbidden';
 
-  await prisma.emotionDiary.updateMany({
-    where: { id: diaryId, userId, deletedAt: null },
+  await prisma.emotionDiary.update({
+    where: { id: diaryId },
     data,
   });
 
@@ -54,8 +54,8 @@ export async function deleteDiaryById(diaryId: string, userId: string): Promise<
   if (!diary || diary.deletedAt !== null) return 'not_found';
   if (diary.userId !== userId) return 'forbidden';
 
-  await prisma.emotionDiary.updateMany({
-    where: { id: diaryId, userId, deletedAt: null },
+  await prisma.emotionDiary.update({
+    where: { id: diaryId },
     data: { deletedAt: new Date() },
   });
 

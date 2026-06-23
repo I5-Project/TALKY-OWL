@@ -10,6 +10,22 @@ export interface ModerationResult {
 }
 
 const MODEL_NAME = 'gemini-2.5-flash'
+const MAX_RETRIES = 3
+const RETRY_DELAY_MS = 1500
+
+function isRetryable(err: unknown): boolean {
+  const msg = err instanceof Error ? err.message : String(err)
+  return (
+    msg.includes('503') ||
+    msg.includes('Service Unavailable') ||
+    msg.includes('high demand') ||
+    msg.includes('429')
+  )
+}
+
+async function sleep(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms))
+}
 
 const PROMPT_TEMPLATE = `You are a content moderation AI for a Korean conflict resolution service called TALKY-OWL.
 Users submit personal dispute statements in Korean.
@@ -54,31 +70,48 @@ export async function moderateContent(content: string): Promise<ModerationResult
   if (!apiKey) throw new Error('GEMINI_API_KEY is not configured')
 
   const genAI = new GoogleGenerativeAI(apiKey)
-  const model = genAI.getGenerativeModel({ model: MODEL_NAME })
-
   const prompt = PROMPT_TEMPLATE.replace('{content}', content)
   const startTime = Date.now()
 
-  const result = await model.generateContent(prompt)
-  const durationMs = Date.now() - startTime
+  let lastErr: unknown
+  for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
+    try {
+      const model = genAI.getGenerativeModel({ model: MODEL_NAME })
+      const result = await model.generateContent(prompt)
+      const durationMs = Date.now() - startTime
+      const text = result.response.text().trim()
 
-  const text = result.response.text().trim()
-  const jsonMatch = text.match(/\{[\s\S]*\}/)
-  if (!jsonMatch) throw new Error('Gemini moderation returned invalid JSON')
+      const jsonMatch = text.match(/\{[\s\S]*\}/)
+      if (!jsonMatch) throw new Error('Gemini moderation returned invalid JSON')
 
-  let parsed: { isBlocked?: unknown; reason?: unknown; confidenceScore?: unknown; hasPersonalInfo?: unknown }
-  try {
-    parsed = JSON.parse(jsonMatch[0])
-  } catch {
-    throw new Error('Gemini moderation returned unparseable JSON')
+      let parsed: { isBlocked?: unknown; reason?: unknown; confidenceScore?: unknown; hasPersonalInfo?: unknown }
+      try {
+        parsed = JSON.parse(jsonMatch[0])
+      } catch {
+        throw new Error('Gemini moderation returned unparseable JSON')
+      }
+
+      return {
+        isBlocked: Boolean(parsed.isBlocked),
+        reason: typeof parsed.reason === 'string' ? parsed.reason.slice(0, 255) : null,
+        confidenceScore: Math.min(1, Math.max(0, Number(parsed.confidenceScore) || 0)),
+        hasPersonalInfo: Boolean(parsed.hasPersonalInfo),
+        durationMs,
+        modelName: MODEL_NAME,
+      }
+    } catch (err) {
+      lastErr = err
+      const errMsg = err instanceof Error ? err.message : String(err)
+
+      if (isRetryable(err) && attempt < MAX_RETRIES) {
+        console.warn(`[moderation] ${MODEL_NAME} retry ${attempt + 1}/${MAX_RETRIES}: ${errMsg}`)
+        await sleep(RETRY_DELAY_MS * (attempt + 1))
+        continue
+      }
+
+      throw err
+    }
   }
 
-  return {
-    isBlocked: Boolean(parsed.isBlocked),
-    reason: typeof parsed.reason === 'string' ? parsed.reason.slice(0, 255) : null,
-    confidenceScore: Math.min(1, Math.max(0, Number(parsed.confidenceScore) || 0)),
-    hasPersonalInfo: Boolean(parsed.hasPersonalInfo),
-    durationMs,
-    modelName: MODEL_NAME,
-  }
+  throw lastErr
 }
