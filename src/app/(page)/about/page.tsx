@@ -10,6 +10,7 @@ import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import { useHeaderStore } from '@/stores/headerStore';
 import SpriteAnimation from '@/components/about/SpriteAnimation';
 import styles from './page.module.scss';
+import HomeServiceInfo from '@/components/home/HomeServiceInfo';
 
 const REVOLVING_WORDS = ['남친', '친구', '상사', '엄마'];
 const REVOLVING_ORDER = [2, 3, 0, 1];
@@ -233,8 +234,8 @@ export default function AboutPage() {
                 <Image
                   src="/images/about/mockup02.png"
                   alt="상대 초대"
-                  width={490}
-                  height={1000}
+                  width={501}
+                  height={672}
                   className={styles.showcasePhoneImage}
                 />
               </div>
@@ -248,8 +249,8 @@ export default function AboutPage() {
                 <Image
                   src="/images/about/mockup03.png"
                   alt="감정일기"
-                  width={975}
-                  height={975}
+                  width={629}
+                  height={775}
                   className={styles.showcasePhoneImage}
                 />
               </div>
@@ -277,8 +278,8 @@ export default function AboutPage() {
                 <Image
                   src="/images/about/mockup04.png"
                   alt="판결 결과"
-                  width={516}
-                  height={791}
+                  width={517}
+                  height={715}
                   className={styles.showcasePhoneImageTop}
                 />
               </div>
@@ -304,16 +305,7 @@ export default function AboutPage() {
           </section>
 
           {/* ===== FOOTER ===== */}
-          <footer className={styles.siteFooter}>
-            <span className={styles.footerLogo}>말해부엉</span>
-            <div className={styles.footerLinks}>
-              <span>서비스 소개</span>
-              <span>개인정보처리방침</span>
-              <span>이용약관</span>
-              <span>고객문의</span>
-            </div>
-            <span className={styles.footerCopy}>Copyright ⓒ 말해부엉. ALL Rights Reserved.</span>
-          </footer>
+          <HomeServiceInfo />
         </div>
       )}
     </div>

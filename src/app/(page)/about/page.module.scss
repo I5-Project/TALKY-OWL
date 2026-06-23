@@ -326,6 +326,7 @@
 // ===========================
 .showcaseWrapper {
   width: 100%;
+  overflow: hidden;
 
   &.bgWhite {
     background: v.$color-white;
@@ -339,19 +340,20 @@
 .showcaseSection {
   display: flex;
   align-items: center;
-  gap: v.$spacing-unit * 6;
-  padding: 80px 48px;
+  justify-content: space-between;
+
   max-width: 1400px;
   margin: 0 auto;
-  justify-content: space-between;
 }
 
 .showcaseText {
   display: flex;
   flex-direction: column;
+  justify-content: center;
   gap: v.$spacing-unit * 2;
   flex: 1;
-  max-width: 600px;
+
+  min-height: 600px;
 }
 
 .showcasePhoneWrap {
@@ -364,8 +366,7 @@
 }
 
 .showcaseTitle {
-  font-family: v.$font-family-base;
-  font-size: fn.r(52);
+  font-size: fn.r(48);
   font-weight: v.$font-weight-semibold;
   color: v.$color-black-700;
   letter-spacing: -0.5px;
@@ -374,11 +375,9 @@
 }
 
 .showcaseDesc {
-  font-family: v.$font-family-base;
-  font-size: fn.r(22);
-  font-weight: v.$font-weight-regular;
-  color: v.$color-black-700;
-  line-height: 1.7;
+  color: v.$color-black-400;
+  line-height: 1.5;
+  @include m.text-body-l;
 }
 
 .showcasePhoneWrap {
@@ -388,7 +387,6 @@
 .showcasePhoneImage {
   display: block;
   object-fit: contain;
-  margin-bottom: -80px;
 }
 
 .showcasePhoneImageTop {
@@ -419,7 +417,7 @@
   font-size: fn.r(32);
   font-weight: v.$font-weight-semibold;
   color: v.$color-black-500;
-  max-width: 560px;
+
   line-height: 1.5;
 }
 
