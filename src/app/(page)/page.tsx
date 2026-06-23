@@ -30,7 +30,7 @@ export default async function HomePage() {
         <HomeGreeting />
 
         {/* 오늘의 일기 박스 */}
-        <Link href="/diary/new" className={styles.diaryBox} aria-label="감정일기 작성">
+        <Link href="/diary/create" className={styles.diaryBox} aria-label="감정일기 작성">
           <div className={styles.diaryTextGroup}>
             <p className={styles.diaryTitle}>오늘의 일기를 적어보세요</p>
             <p className={styles.diarySubtitle}>감정일기 작성하러가기</p>
