@@ -1,6 +1,19 @@
 import { GoogleGenerativeAI } from '@google/generative-ai'
 
 const MODEL_NAME = 'gemini-2.5-flash'
+const MODEL_FALLBACKS = ['gemini-2.0-flash-lite', 'gemini-2.5-flash', 'gemini-1.5-flash']
+
+function isFallbackable(err: unknown): boolean {
+  const msg = err instanceof Error ? err.message : String(err)
+  return (
+    msg.includes('503') ||
+    msg.includes('Service Unavailable') ||
+    msg.includes('high demand') ||
+    msg.includes('404') ||
+    msg.includes('Not Found') ||
+    msg.includes('no longer available')
+  )
+}
 
 const CATEGORY_GROUP_KO: Record<string, string> = {
   ROMANCE: '연애',
@@ -72,31 +85,45 @@ export async function extractDisputeMeta(statement: string): Promise<DisputeMeta
   if (!apiKey) throw new Error('GEMINI_API_KEY is not configured')
 
   const genAI = new GoogleGenerativeAI(apiKey)
-  const model = genAI.getGenerativeModel({ model: META_MODEL })
-
   const prompt = META_PROMPT.replace('{statement}', statement)
-  const result = await model.generateContent(prompt)
-  const text = result.response.text().trim()
 
-  const jsonMatch = text.match(/\{[\s\S]*\}/)
-  if (!jsonMatch) throw new Error('JSON')
+  let lastErr: unknown
+  for (const modelName of MODEL_FALLBACKS) {
+    try {
+      const model = genAI.getGenerativeModel({ model: modelName })
+      const result = await model.generateContent(prompt)
+      const text = result.response.text().trim()
 
-  let parsed: { title?: unknown; summary?: unknown }
-  try {
-    parsed = JSON.parse(jsonMatch[0])
-  } catch {
-    throw new Error('JSON')
+      const jsonMatch = text.match(/\{[\s\S]*\}/)
+      if (!jsonMatch) throw new Error('JSON')
+
+      let parsed: { title?: unknown; summary?: unknown }
+      try {
+        parsed = JSON.parse(jsonMatch[0])
+      } catch {
+        throw new Error('JSON')
+      }
+
+      if (typeof parsed.title !== 'string' || typeof parsed.summary !== 'string') {
+        throw new Error('JSON')
+      }
+
+      return {
+        title: Array.from(parsed.title as string).slice(0, 20).join(''),
+        summary: Array.from(parsed.summary as string).slice(0, 50).join(''),
+        modelName,
+      }
+    } catch (err) {
+      if (isFallbackable(err)) {
+        console.warn(`[extractDisputeMeta] ${modelName} unavailable, trying next model...`)
+        lastErr = err
+        continue
+      }
+      throw err
+    }
   }
 
-  if (typeof parsed.title !== 'string' || typeof parsed.summary !== 'string') {
-    throw new Error('JSON')
-  }
-
-  return {
-    title: Array.from(parsed.title as string).slice(0, 20).join(''),
-    summary: Array.from(parsed.summary as string).slice(0, 50).join(''),
-    modelName: META_MODEL,
-  }
+  throw lastErr
 }
 
 // ============================================================
@@ -193,28 +220,43 @@ const JUDGMENT_PROMPT_DUO = `당신은 한국어 갈등 조정 서비스 TALKY-O
 const MAX_SCORE_RETRIES = 2
 
 async function callJudgmentAi(
-  model: ReturnType<InstanceType<typeof GoogleGenerativeAI>['getGenerativeModel']>,
+  genAI: GoogleGenerativeAI,
   prompt: string,
-): Promise<Record<string, unknown>> {
-  const result = await model.generateContent(prompt)
-  const text = result.response.text().trim()
+): Promise<{ result: Record<string, unknown>; modelName: string }> {
+  let lastErr: unknown
+  for (const modelName of MODEL_FALLBACKS) {
+    try {
+      const model = genAI.getGenerativeModel({ model: modelName })
+      const result = await model.generateContent(prompt)
+      const text = result.response.text().trim()
 
-  const jsonMatch = text.match(/\{[\s\S]*\}/)
-  if (!jsonMatch) throw new Error('JSON')
+      const jsonMatch = text.match(/\{[\s\S]*\}/)
+      if (!jsonMatch) throw new Error('JSON')
 
-  let parsed: Record<string, unknown>
-  try {
-    parsed = JSON.parse(jsonMatch[0])
-  } catch {
-    throw new Error('JSON')
+      let parsed: Record<string, unknown>
+      try {
+        parsed = JSON.parse(jsonMatch[0])
+      } catch {
+        throw new Error('JSON')
+      }
+
+      const conflictType = parsed.conflictType as { code?: unknown } | undefined
+      if (typeof parsed.summary !== 'string' || typeof conflictType?.code !== 'string') {
+        throw new Error('JSON')
+      }
+
+      return { result: parsed, modelName }
+    } catch (err) {
+      if (isFallbackable(err)) {
+        console.warn(`[callJudgmentAi] ${modelName} unavailable, trying next model...`)
+        lastErr = err
+        continue
+      }
+      throw err
+    }
   }
 
-  const conflictType = parsed.conflictType as { code?: unknown } | undefined
-  if (typeof parsed.summary !== 'string' || typeof conflictType?.code !== 'string') {
-    throw new Error('JSON')
-  }
-
-  return parsed
+  throw lastErr
 }
 
 export async function generateAiJudgment(input: JudgmentInput): Promise<JudgmentResult> {
@@ -222,7 +264,6 @@ export async function generateAiJudgment(input: JudgmentInput): Promise<Judgment
   if (!apiKey) throw new Error('GEMINI_API_KEY is not configured')
 
   const genAI = new GoogleGenerativeAI(apiKey)
-  const model = genAI.getGenerativeModel({ model: MODEL_NAME })
 
   const isSolo = !input.statementB || input.statementB.trim() === ''
   const conflictTypesText = input.conflictTypes
@@ -250,7 +291,7 @@ export async function generateAiJudgment(input: JudgmentInput): Promise<Judgment
     .replace('{mbtiSection}', mbtiSection)
     .replace('{conflictTypes}', conflictTypesText)
 
-  const parsed = await callJudgmentAi(model, prompt)
+  const { result: parsed, modelName: usedModel } = await callJudgmentAi(genAI, prompt)
   const conflictType = parsed.conflictType as { code: string }
 
   if (isSolo) {
@@ -264,18 +305,21 @@ export async function generateAiJudgment(input: JudgmentInput): Promise<Judgment
       aSuggestedLine: typeof parsed.aSuggestedLine === 'string' ? parsed.aSuggestedLine : null,
       bSuggestedLine: null,
       conflictTypeCode: conflictType.code,
-      modelName: MODEL_NAME,
+      modelName: usedModel,
     }
   }
 
   // 2인 판결: scoreA + scoreB === 100 검증, 불일치 시 재시도
   let attempt = parsed
+  let attemptModel = usedModel
   let rawA = typeof attempt.scoreA === 'number' ? Math.round(attempt.scoreA) : 0
   let rawB = typeof attempt.scoreB === 'number' ? Math.round(attempt.scoreB) : 0
 
   for (let retry = 0; retry < MAX_SCORE_RETRIES && rawA + rawB !== 100; retry++) {
     console.warn(`[judgment] scoreA+scoreB=${rawA + rawB} ≠ 100, retry ${retry + 1}/${MAX_SCORE_RETRIES}`)
-    attempt = await callJudgmentAi(model, prompt)
+    const { result: retryResult, modelName: retryModel } = await callJudgmentAi(genAI, prompt)
+    attempt = retryResult
+    attemptModel = retryModel
     rawA = typeof attempt.scoreA === 'number' ? Math.round(attempt.scoreA) : 0
     rawB = typeof attempt.scoreB === 'number' ? Math.round(attempt.scoreB) : 0
   }
@@ -304,6 +348,6 @@ export async function generateAiJudgment(input: JudgmentInput): Promise<Judgment
     aSuggestedLine: typeof attempt.aSuggestedLine === 'string' ? attempt.aSuggestedLine : null,
     bSuggestedLine: typeof attempt.bSuggestedLine === 'string' ? attempt.bSuggestedLine : null,
     conflictTypeCode: finalConflictType.code,
-    modelName: MODEL_NAME,
+    modelName: attemptModel,
   }
 }
