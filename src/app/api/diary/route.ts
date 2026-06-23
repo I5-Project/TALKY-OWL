@@ -18,7 +18,16 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const body = await request.json();
+  let body: { title?: string; content?: string; emotionType?: string; diaryDate?: string };
+  try {
+    body = await request.json();
+  } catch {
+    return NextResponse.json<ApiResponse>(
+      { success: false, error: { code: 'INVALID_JSON', message: '요청 본문이 올바른 JSON 형식이 아닙니다.' } },
+      { status: 400 },
+    );
+  }
+
   const { title, content, emotionType, diaryDate } = body;
 
   if (!content || !diaryDate) {
@@ -28,15 +37,39 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const diaryId = await createDiary(userId, { title: title ?? '', content, emotionType: emotionType ?? 'neutral', diaryDate });
-  if (!diaryId) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(diaryDate)) {
+    return NextResponse.json<ApiResponse>(
+      { success: false, error: { code: 'VALIDATION_ERROR', message: 'diaryDate 형식이 올바르지 않습니다. (YYYY-MM-DD)' } },
+      { status: 400 },
+    );
+  }
+
+  //실제 존재하는 날짜검증
+  const parsedDate = new Date(`${diaryDate}T00:00:00.000Z`);
+  if (Number.isNaN(parsedDate.getTime()) || parsedDate.toISOString().slice(0, 10) !== diaryDate) {
+    return NextResponse.json<ApiResponse>(
+      { success: false, error: { code: 'VALIDATION_ERROR', message: '유효한 diaryDate가 아닙니다. (YYYY-MM-DD)' } },
+      { status: 400 },
+    );
+  }
+
+  try {
+    const diaryId = await createDiary(userId, { title: title ?? '', content, emotionType: emotionType ?? 'neutral', diaryDate });
+    if (!diaryId) {
+      return NextResponse.json<ApiResponse>(
+        { success: false, error: { code: 'INTERNAL_SERVER_ERROR', message: '서버 오류가 발생했습니다.' } },
+        { status: 500 },
+      );
+    }
+
+    return NextResponse.json<ApiResponse<{ id: string }>>({ success: true, data: { id: diaryId } }, { status: 201 });
+  } catch (error) {
+    console.error(error);
     return NextResponse.json<ApiResponse>(
       { success: false, error: { code: 'INTERNAL_SERVER_ERROR', message: '서버 오류가 발생했습니다.' } },
       { status: 500 },
     );
   }
-
-  return NextResponse.json<ApiResponse<{ id: string }>>({ success: true, data: { id: diaryId } }, { status: 201 });
 }
 
 // GET /api/diary?date=2026-06-16
@@ -105,7 +138,8 @@ export async function GET(request: NextRequest) {
       success: true,
       data: { items },
     });
-  } catch {
+  } catch (error) {
+    console.error('[GET /api/diary]', error);
     return NextResponse.json<ApiResponse>(
       {
         success: false,

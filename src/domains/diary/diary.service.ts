@@ -1,4 +1,5 @@
 import { prisma } from '@/lib/db';
+import type { EmotionType } from '@/types/diary';
 
 export async function createDiary(
   userId: string,
@@ -21,50 +22,44 @@ export async function createDiary(
   }
 }
 
+export type DiaryMutationResult = 'ok' | 'not_found' | 'forbidden'
+
 export async function updateDiaryById(
   diaryId: string,
   userId: string,
   data: { title: string; content: string; emotionType: string },
-): Promise<boolean> {
-  try {
-    const diary = await prisma.emotionDiary.findUnique({
-      where: { id: diaryId, deletedAt: null },
-      select: { userId: true },
-    });
+): Promise<DiaryMutationResult> {
+  const diary = await prisma.emotionDiary.findUnique({
+    where: { id: diaryId },
+    select: { userId: true, deletedAt: true },
+  });
 
-    if (!diary || diary.userId !== userId) return false;
+  if (!diary || diary.deletedAt !== null) return 'not_found';
+  if (diary.userId !== userId) return 'forbidden';
 
-    await prisma.emotionDiary.update({
-      where: { id: diaryId },
-      data,
-    });
+  await prisma.emotionDiary.updateMany({
+    where: { id: diaryId, userId, deletedAt: null },
+    data,
+  });
 
-    return true;
-  } catch (error) {
-    console.error('[updateDiaryById]', error);
-    return false;
-  }
+  return 'ok';
 }
 
-export async function deleteDiaryById(diaryId: string, userId: string): Promise<boolean> {
-  try {
-    const diary = await prisma.emotionDiary.findUnique({
-      where: { id: diaryId, deletedAt: null },
-      select: { userId: true },
-    });
+export async function deleteDiaryById(diaryId: string, userId: string): Promise<DiaryMutationResult> {
+  const diary = await prisma.emotionDiary.findUnique({
+    where: { id: diaryId },
+    select: { userId: true, deletedAt: true },
+  });
 
-    if (!diary || diary.userId !== userId) return false;
+  if (!diary || diary.deletedAt !== null) return 'not_found';
+  if (diary.userId !== userId) return 'forbidden';
 
-    await prisma.emotionDiary.update({
-      where: { id: diaryId },
-      data: { deletedAt: new Date() },
-    });
+  await prisma.emotionDiary.updateMany({
+    where: { id: diaryId, userId, deletedAt: null },
+    data: { deletedAt: new Date() },
+  });
 
-    return true;
-  } catch (error) {
-    console.error('[deleteDiaryById]', error);
-    return false;
-  }
+  return 'ok';
 }
 
 export async function getDiaryById(diaryId: string, userId: string) {
@@ -90,7 +85,7 @@ export async function getDiaryById(diaryId: string, userId: string) {
       title: diary.title ?? '',
       content: diary.content,
       diaryDate: diary.diaryDate.toISOString().slice(0, 10),
-      emotionType: diary.emotionType ?? null,
+      emotionType: (diary.emotionType as EmotionType | null) ?? null,
       createdAt: diary.createdAt.toISOString(),
       updatedAt: diary.updatedAt.toISOString(),
     };

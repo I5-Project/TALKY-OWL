@@ -56,7 +56,7 @@ export interface DiaryDetail {
   title: string
   content: string
   diaryDate: string
-  emotionType: string | null
+  emotionType: EmotionType | null
   createdAt: string
   updatedAt: string
 }
