@@ -19,8 +19,21 @@ export default function ConflictTypeClient({ data }: Props) {
   const isSessionLoading = sessionStatus === 'loading'
   const isLoggedIn = sessionStatus === 'authenticated'
 
-  const handleDownload = () => {
-    // TODO: 결과 다운로드 구현
+  const handleDownload = async () => {
+    if (!data.cardImageUrl) return
+    try {
+      const res = await fetch(data.cardImageUrl)
+      const blob = await res.blob()
+      const objectUrl = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = objectUrl
+      a.download = `갈등유형_${data.displayName}.jpg`
+      a.click()
+      URL.revokeObjectURL(objectUrl)
+    } catch {
+      // CORS 등 fetch 실패 시 새 탭으로 열어 수동 저장 유도
+      window.open(data.cardImageUrl, '_blank')
+    }
   }
 
   if (!data) {

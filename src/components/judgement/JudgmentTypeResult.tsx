@@ -46,8 +46,23 @@ export default function JudgmentTypeResult({ judgment, participants, disputeId }
     }
   }
 
-  const handleDownload = () => {
-    showToast('다운로드 기능은 준비 중이에요.')
+  const handleDownload = async () => {
+    if (!cardImageUrl) {
+      showToast('저장할 이미지가 없어요.')
+      return
+    }
+    try {
+      const res = await fetch(cardImageUrl)
+      const blob = await res.blob()
+      const objectUrl = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = objectUrl
+      a.download = `갈등유형_${displayName}.jpg`
+      a.click()
+      URL.revokeObjectURL(objectUrl)
+    } catch {
+      window.open(cardImageUrl, '_blank')
+    }
   }
 
   return (
