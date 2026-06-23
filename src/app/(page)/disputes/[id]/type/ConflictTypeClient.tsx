@@ -20,7 +20,7 @@ export default function ConflictTypeClient({ data }: Props) {
   const isLoggedIn = sessionStatus === 'authenticated'
 
   const handleDownload = async () => {
-    if (!data.cardImageUrl) return
+    if (!data?.cardImageUrl) return
     try {
       const res = await fetch(data.cardImageUrl)
       const blob = await res.blob()
