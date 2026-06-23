@@ -21,8 +21,7 @@
   background-color: var(--bg-surface-soft);
   justify-content: space-between;
   color: v.$color-primary-700;
-  margin-top: fn.r(16);
-  padding: fn.r(12) fn.r(30);
+  padding: fn.r(12) fn.r(20);
 
   &__label,
   &__count {
@@ -34,12 +33,15 @@
   }
 }
 
-.diaryMode {
-  margin-top: fn.r(24);
+.calendarTabs {
+  button[aria-selected='true'] {
+    color: v.$color-black-700;
+    border-bottom: 2px solid v.$color-black-700;
+  }
 }
 
 .tabContent {
-  min-height: fn.r(300);
+  min-height: fn.r(250);
 }
 
 .fab {
