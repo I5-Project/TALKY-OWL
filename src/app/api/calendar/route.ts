@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/db';
-import { getRequestUserId } from '@/lib/auth/session';
+import { getSessionUserId } from '@/lib/auth/session';
 import type { ApiResponse } from '@/types/common';
 import type { CalendarMonthResponse, CalendarRecordItem } from '@/types/calendar';
 
@@ -8,7 +10,8 @@ import type { CalendarMonthResponse, CalendarRecordItem } from '@/types/calendar
 // 해당 월의 날짜별 감정일기/사건 요약 반환 (달력 마킹용)
 export async function GET(request: NextRequest) {
   try {
-    const userId = await getRequestUserId(request);
+    const session = await getServerSession(authOptions);
+    const userId = getSessionUserId(session);
     if (!userId) {
       return NextResponse.json<ApiResponse>(
         { success: false, error: { code: 'UNAUTHORIZED', message: '로그인이 필요합니다.' } },

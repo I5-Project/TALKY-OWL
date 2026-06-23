@@ -1,6 +1,7 @@
 'use client';
 
 import Image from 'next/image';
+import Link from 'next/link';
 import ChevronLeftRoundedIcon from '@mui/icons-material/ChevronLeftRounded';
 import styles from './Header.module.scss';
 
@@ -28,13 +29,15 @@ export default function Header(props: HeaderProps) {
         className={`${styles.header} ${props.transparent ? styles['header--transparent'] : ''}`}
       >
         <div className={styles.header__logo}>
-          <Image
-            src="/images/common/logo.svg"
-            alt="말해부엉"
-            width={66}
-            height={19}
-            style={{ objectFit: 'contain' }}
-          />
+          <Link href="/">
+            <Image
+              src="/images/common/logo.svg"
+              alt="말해부엉"
+              width={66}
+              height={19}
+              style={{ objectFit: 'contain' }}
+            />
+          </Link>
         </div>
       </header>
     );

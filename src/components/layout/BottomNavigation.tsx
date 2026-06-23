@@ -11,7 +11,7 @@ import styles from './BottomNavigation.module.scss';
 const NAV_ITEMS = [
   { href: '/', label: '홈', Icon: HomeIcon },
   { href: '/records', label: '사건기록', Icon: MenuBookIcon },
-  { href: '/diary', label: '일기', Icon: CalendarMonthIcon },
+  { href: '/calendar', label: '일기', Icon: CalendarMonthIcon },
   { href: '/mypage', label: '마이페이지', Icon: PersonIcon },
 ] as const;
 

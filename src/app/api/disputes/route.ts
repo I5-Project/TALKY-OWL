@@ -84,7 +84,6 @@ export async function GET(request: NextRequest) {
   const page = Math.max(1, parseInt(searchParams.get('page') ?? '1', 10))
   const limit = Math.min(50, Math.max(1, parseInt(searchParams.get('limit') ?? '20', 10)))
 
-
   if (rawCategory !== null && !VALID_CATEGORY_GROUPS.includes(rawCategory as CategoryGroup)) {
     return NextResponse.json<ApiResponse>(
       {
@@ -116,6 +115,7 @@ export async function GET(request: NextRequest) {
       },
     } : {}),
     // active=true 일 때 진행중 상태만 필터링 (status 파라미터가 없을 때만 적용)
+    // draft(진술 전), judged(판결 완료), closed/expired/deleted 제외
     ...(active && !rawStatus ? {
       status: {
         in: [
