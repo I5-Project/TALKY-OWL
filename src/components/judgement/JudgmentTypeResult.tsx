@@ -10,9 +10,10 @@ import styles from './JudgmentTypeResult.module.scss'
 interface Props {
   judgment: AiJudgmentDto
   participants: DisputeParticipantDto[]
+  disputeId: string
 }
 
-export default function JudgmentTypeResult({ judgment, participants }: Props) {
+export default function JudgmentTypeResult({ judgment, participants, disputeId }: Props) {
   const showToast = useToastStore((s) => s.show)
 
   const roleA = participants.find((p) => p.role === 'role_a')
@@ -20,8 +21,29 @@ export default function JudgmentTypeResult({ judgment, participants }: Props) {
 
   const { cardImageUrl, displayName } = judgment.resultConflictDetail
 
-  const handleShare = () => {
-    showToast('공유 기능은 준비 중이에요.')
+  const handleShare = async () => {
+    const shareUrl = `${window.location.origin}/disputes/${disputeId}/type`
+    const isMobile = typeof navigator.share === 'function'
+
+    if (isMobile) {
+      try {
+        await navigator.share({
+          title: `${viewerLabel}님의 갈등 유형은 '${displayName}'`,
+          text: '나의 갈등 판결 유형을 확인해봐요!',
+          url: shareUrl,
+        })
+      } catch {
+        // 공유 취소 시 무시
+      }
+      return
+    }
+
+    try {
+      await navigator.clipboard.writeText(shareUrl)
+      showToast('링크가 복사되었어요.')
+    } catch {
+      showToast('링크 복사에 실패했어요.')
+    }
   }
 
   const handleDownload = () => {

@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import localFont from 'next/font/local';
+import Script from 'next/script';
 import AuthProvider from '@/components/providers/AuthProvider';
 import QueryProvider from '@/components/providers/QueryProvider';
 import Toast from '@/components/feedback/Toast';
@@ -14,6 +15,7 @@ const pretendard = localFont({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL ?? 'http://localhost:3030'),
   title: '말해부엉',
   description: 'AI 갈등 조정 판결 서비스',
   icons: {
@@ -38,6 +40,10 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   return (
     <html lang="ko" className={pretendard.variable} suppressHydrationWarning>
       <body suppressHydrationWarning>
+        <Script
+          src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.2/kakao.min.js"
+          strategy="afterInteractive"
+        />
         <AuthProvider session={session}>
           <QueryProvider>
             <div className="container">{children}</div>
