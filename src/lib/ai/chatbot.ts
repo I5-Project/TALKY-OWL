@@ -1,8 +1,6 @@
 import { GoogleGenerativeAI } from '@google/generative-ai'
 
-const MODEL_NAME = 'gemini-2.5-flash'
-const MAX_RETRIES = 2
-const RETRY_DELAY_MS = 1500
+const MODEL_FALLBACKS = ['gemini-2.0-flash-lite', 'gemini-2.5-flash', 'gemini-1.5-flash']
 const REQUEST_TIMEOUT_MS = 30000
 
 const SYSTEM_PROMPT = `당신은 "부엉봇" AI 갈등 조정 판결 서비스의 고객문의 챗봇입니다.
@@ -61,8 +59,17 @@ export class ChatbotGeminiError extends Error {
   }
 }
 
-async function sleep(ms: number) {
-  return new Promise((resolve) => setTimeout(resolve, ms))
+function isFallbackable(err: unknown): boolean {
+  const msg = err instanceof Error ? err.message : String(err)
+  return (
+    msg.includes('503') ||
+    msg.includes('Service Unavailable') ||
+    msg.includes('high demand') ||
+    msg.includes('404') ||
+    msg.includes('Not Found') ||
+    msg.includes('no longer available') ||
+    msg.includes('429')
+  )
 }
 
 function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
@@ -82,23 +89,21 @@ export async function getChatbotResponse(
   if (!apiKey) throw new Error('GEMINI_API_KEY is not configured')
 
   const genAI = new GoogleGenerativeAI(apiKey)
-  const model = genAI.getGenerativeModel({ model: MODEL_NAME })
-
-  const chat = model.startChat({
-    history: [
-      { role: 'user', parts: [{ text: '시스템 설정' }] },
-      { role: 'model', parts: [{ text: SYSTEM_PROMPT }] },
-      ...history.map((msg) => ({
-        role: msg.role === 'user' ? 'user' as const : 'model' as const,
-        parts: [{ text: msg.content }],
-      })),
-    ],
-  })
+  const chatHistory = [
+    { role: 'user' as const, parts: [{ text: '시스템 설정' }] },
+    { role: 'model' as const, parts: [{ text: SYSTEM_PROMPT }] },
+    ...history.map((msg) => ({
+      role: msg.role === 'user' ? 'user' as const : 'model' as const,
+      parts: [{ text: msg.content }],
+    })),
+  ]
 
   let lastError: unknown
 
-  for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
+  for (const modelName of MODEL_FALLBACKS) {
     try {
+      const model = genAI.getGenerativeModel({ model: modelName })
+      const chat = model.startChat({ history: chatHistory })
       const result = await withTimeout(chat.sendMessage(userMessage), REQUEST_TIMEOUT_MS)
       return result.response.text()
     } catch (error) {
@@ -106,16 +111,12 @@ export async function getChatbotResponse(
 
       if (error instanceof ChatbotTimeoutError) throw error
 
-      const isRetryable =
-        error instanceof Error &&
-        (error.message.includes('503') ||
-          error.message.includes('429') ||
-          error.message.includes('Service Unavailable') ||
-          error.message.includes('high demand'))
+      if (isFallbackable(error)) {
+        console.warn(`[chatbot] ${modelName} unavailable, trying next model...`)
+        continue
+      }
 
-      if (!isRetryable || attempt === MAX_RETRIES) break
-
-      await sleep(RETRY_DELAY_MS * (attempt + 1))
+      break
     }
   }
 
