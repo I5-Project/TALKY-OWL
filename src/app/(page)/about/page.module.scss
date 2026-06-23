@@ -27,8 +27,12 @@
 }
 
 @keyframes iris-out {
-  0% { clip-path: circle(150% at 50% 50%); }
-  100% { clip-path: circle(0% at 50% 50%); }
+  0% {
+    clip-path: circle(150% at 50% 50%);
+  }
+  100% {
+    clip-path: circle(0% at 50% 50%);
+  }
 }
 
 .animationWrapper {
@@ -39,12 +43,16 @@
 .content {
   flex: 1;
   animation: fade-in 0.5s ease-out;
-  overflow-x: hidden;
+  overflow-x: clip;
 }
 
 @keyframes fade-in {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 // ===========================
@@ -59,7 +67,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  max-width: 800px;
+  max-width: 1400px;
   margin: 0 auto;
 }
 
@@ -70,13 +78,15 @@
 }
 
 .headerLink {
-  @include m.text-caption;
-
-  padding: 6px 14px;
-  border: 1px solid v.$color-black-200;
-  border-radius: 6px;
+  padding: 6px 16px;
+  border: 1px solid v.$color-black-300;
+  border-radius: 4px;
   background: v.$color-white;
   color: v.$color-black-500;
+  font-family: v.$font-family-base;
+  font-size: fn.r(14);
+  font-weight: v.$font-weight-regular;
+  line-height: fn.r(24);
   cursor: pointer;
   transition: background 0.2s;
 
@@ -89,7 +99,6 @@
 // TAB 1: Hero
 // ===========================
 .heroSection {
-  padding: 24px 24px 32px;
   background: v.$color-white;
   overflow: hidden;
 }
@@ -97,47 +106,42 @@
 .heroInner {
   position: relative;
   width: 100%;
-  max-width: 960px;
+  max-width: 1400px;
   margin: 0 auto;
-  height: 420px;
+  padding: 180px 0;
+  min-height: 764px;
 }
 
-// Phone: absolute center, never moves
 .heroCenter {
   position: absolute;
   left: 50%;
   top: 50%;
-  transform: translate(-50%, -50%);
-  z-index: 1;
+  transform: translate(-60%, -50%);
+  z-index: 2;
 }
 
 .heroPhone {
-  opacity: 0;
 }
 
 .heroPhoneImage {
   display: block;
-  width: 260px;
-  height: auto;
   object-fit: contain;
 }
 
-// Left text: absolute, activeRow anchored at vertical center
 .heroLeft {
   position: absolute;
-  left: calc(50% - 420px);
+  left: 0;
   top: 50%;
-  // offset up by mask height so activeRow sits at center line
-  transform: translateY(calc(-50% - 22px));
+  transform: translateY(calc(-50% - 40px));
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  z-index: 2;
+  z-index: 1;
 }
 
 .revolvingMask {
   overflow: hidden;
-  max-height: 88px;
+  max-height: 160px;
 }
 
 .revolvingTrack {
@@ -147,12 +151,12 @@
 
 .revolvingWord {
   display: block;
-  height: 44px;
-  line-height: 44px;
+  height: 80px;
+  line-height: 80px;
   font-family: v.$font-family-base;
-  font-size: fn.r(26);
-  color: v.$color-black-200;
-  font-weight: v.$font-weight-medium;
+  font-size: fn.r(52);
+  color: v.$color-black-300;
+  font-weight: v.$font-weight-semibold;
   white-space: nowrap;
 }
 
@@ -165,25 +169,25 @@
 
 .activeWord {
   font-family: v.$font-family-base;
-  font-size: fn.r(36);
-  line-height: fn.r(46);
+  font-size: fn.r(58);
+  line-height: 1.15;
   color: v.$color-black-700;
-  font-weight: v.$font-weight-bold;
+  font-weight: v.$font-weight-extrabold;
   white-space: nowrap;
 }
 
 .fixedSuffix {
   font-family: v.$font-family-base;
-  font-size: fn.r(36);
-  line-height: fn.r(46);
+  font-size: fn.r(58);
+  line-height: 1.15;
   color: v.$color-black-700;
-  font-weight: v.$font-weight-bold;
+  font-weight: v.$font-weight-semibold;
   white-space: nowrap;
 }
 
 .revolvingBelow {
   overflow: hidden;
-  max-height: 44px;
+  max-height: 80px;
 }
 
 .revolvingTrackBelow {
@@ -191,68 +195,61 @@
   flex-direction: column;
 }
 
-// Right text: starts right after phone area
 .heroRight {
   position: absolute;
-  left: calc(50% + 140px);
+  right: 0;
   top: 50%;
-  transform: translateY(-50%);
-  z-index: 2;
-  opacity: 0;
+  transform: translateY(calc(-50%));
+  z-index: 1;
 }
 
 .heroTitle {
   font-family: v.$font-family-base;
-  font-size: fn.r(36);
-  line-height: fn.r(46);
+  font-size: fn.r(58);
+  line-height: 1.15;
   color: v.$color-black-700;
   letter-spacing: -0.5px;
   white-space: nowrap;
-  font-weight: v.$font-weight-bold;
+  font-weight: v.$font-weight-semibold;
+  display: flex;
+  align-items: center;
+  gap: v.$spacing-unit * 2.5;
 }
 
 .highlight {
-  color: v.$color-primary-600;
-  font-weight: v.$font-weight-bold;
+  color: v.$color-primary-700;
+  font-weight: v.$font-weight-semibold;
 }
 
 .titleBold {
   color: v.$color-black-700;
-  font-weight: v.$font-weight-bold;
-}
-
-.screenImage {
-  display: block;
-  width: 100%;
-  height: auto;
-  object-fit: cover;
+  font-weight: v.$font-weight-semibold;
 }
 
 // ===========================
 // TAB 2: Feature Cards
 // ===========================
 .featureCardsSection {
-  padding: 48px 24px 80px;
+  padding: 72px 24px 100px;
   background: v.$color-primary-100;
   overflow: hidden;
 }
 
 .featureCardsOuter {
   position: relative;
-  max-width: 720px;
+  max-width: 1400px;
   margin: 0 auto;
 }
 
 .featureCardsInner {
   display: flex;
-  gap: v.$spacing-unit * 2;
-  justify-content: center;
+  gap: v.$spacing-unit * 2.5;
+  justify-content: space-between;
   flex-wrap: wrap;
   position: relative;
   z-index: 1;
 }
 
-// Animal characters
 .animalCat {
   position: absolute;
   left: -20px;
@@ -287,53 +284,51 @@
 .featureCard {
   display: flex;
   flex-direction: column;
-  gap: v.$spacing-unit;
-  padding: 24px 20px;
-  border-radius: 16px;
-  border: 1px solid v.$color-black-100;
+  justify-content: space-between;
+  gap: v.$spacing-unit * 1.5;
+  padding: 32px 28px;
+  border-radius: 20px;
+  border: 2px solid v.$color-black;
   background: v.$color-white;
-  width: 200px;
-  min-height: 160px;
-  opacity: 0;
+  flex: 1;
+  min-width: 260px;
+  max-width: 420px;
+  min-height: 240px;
 }
 
 .featureNum {
-  @include m.text-caption;
-
-  color: v.$color-primary-600;
-  font-weight: v.$font-weight-semibold;
+  font-family: v.$font-family-base;
+  font-size: fn.r(13);
+  font-weight: v.$font-weight-bold;
+  color: v.$color-primary-700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  line-height: fn.r(20);
 }
 
 .featureCardTitle {
-  @include m.text-body-m;
-
-  color: v.$color-black-700;
+  font-family: v.$font-family-base;
+  font-size: fn.r(22);
   font-weight: v.$font-weight-semibold;
+  color: v.$color-black-700;
   white-space: pre-line;
+  line-height: 1.35;
   flex: 1;
 }
 
 .featureCardIcon {
   align-self: flex-end;
-  color: v.$color-black-500;
+  color: v.$color-black-700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 // ===========================
 // TAB 3-5: Showcase Sections
 // ===========================
-.showcaseSection {
-  display: flex;
-  align-items: center;
-  gap: v.$spacing-unit * 6;
-  padding: 64px 48px;
-  max-width: 960px;
-  margin: 0 auto;
-  justify-content: center;
-  overflow: hidden;
-
-  &.reverse {
-    flex-direction: row-reverse;
-  }
+.showcaseWrapper {
+  width: 100%;
 
   &.bgWhite {
     background: v.$color-white;
@@ -344,85 +339,65 @@
   }
 }
 
+.showcaseSection {
+  display: flex;
+  align-items: center;
+  gap: v.$spacing-unit * 6;
+  padding: 80px 48px;
+  max-width: 1400px;
+  margin: 0 auto;
+  justify-content: space-between;
+}
+
 .showcaseText {
   display: flex;
   flex-direction: column;
-  gap: v.$spacing-unit * 1.5;
+  gap: v.$spacing-unit * 2;
   flex: 1;
-  max-width: 380px;
-  opacity: 0;
-}
-
-.showcaseTitle {
-  @include m.text-title-xl;
-
-  color: v.$color-black-700;
-  letter-spacing: -0.3px;
-  white-space: pre-line;
-}
-
-.showcaseDesc {
-  @include m.text-body-s;
-
-  color: v.$color-black-400;
-  margin-top: v.$spacing-unit * 0.5;
+  max-width: 600px;
 }
 
 .showcasePhoneWrap {
-  opacity: 0;
+  flex-shrink: 0;
+}
+
+.showcaseTextRight {
+  align-items: flex-end;
+  text-align: right;
+}
+
+.showcaseTitle {
+  font-family: v.$font-family-base;
+  font-size: fn.r(52);
+  font-weight: v.$font-weight-semibold;
+  color: v.$color-black-700;
+  letter-spacing: -0.5px;
+  white-space: pre-line;
+  line-height: 1.2;
+}
+
+.showcaseDesc {
+  font-family: v.$font-family-base;
+  font-size: fn.r(22);
+  font-weight: v.$font-weight-regular;
+  color: v.$color-black-700;
+  line-height: 1.7;
+}
+
+.showcasePhoneWrap {
   flex-shrink: 0;
 }
 
 .showcasePhoneImage {
   display: block;
-  width: 280px;
-  height: auto;
   object-fit: contain;
   margin-bottom: -80px;
 }
 
 .showcasePhoneImageTop {
   display: block;
-  width: 260px;
-  height: auto;
   object-fit: contain;
   margin-top: -60px;
-}
-
-.phoneMockupTilted {
-  width: 240px;
-  border-radius: 32px;
-  overflow: hidden;
-  background: v.$color-black-700;
-  border: 6px solid v.$color-black-600;
-  box-shadow:
-    0 20px 40px rgba(0, 0, 0, 0.15),
-    0 8px 16px rgba(0, 0, 0, 0.08);
-  transform: perspective(800px) rotateY(-10deg) rotateX(4deg) rotateZ(-2deg);
-}
-
-.phoneScreen {
-  width: 100%;
-  overflow: hidden;
-  border-radius: 26px;
-}
-
-.phoneMockupStraight {
-  width: 240px;
-  border-radius: 32px;
-  overflow: hidden;
-  background: v.$color-black-700;
-  border: 6px solid v.$color-black-600;
-  box-shadow:
-    0 20px 40px rgba(0, 0, 0, 0.15),
-    0 8px 16px rgba(0, 0, 0, 0.08);
-  margin-bottom: -40px;
-}
-
-.phoneScreenClipped {
-  width: 100%;
-  overflow: hidden;
-  border-radius: 26px;
 }
 
 // ===========================
@@ -433,37 +408,45 @@
 
   flex-direction: column;
   text-align: center;
-  padding: 56px 24px 32px;
-  background: linear-gradient(180deg, #{v.$color-primary-100} 0%, #{v.$color-primary-200} 100%);
-  gap: v.$spacing-unit * 1.5;
+  padding: 80px 24px 64px;
+  background: linear-gradient(180deg, #{v.$color-primary-200} 0%, #{v.$color-white} 93%);
+  gap: v.$spacing-unit * 2;
 }
 
 .ctaOwl {
-  width: 56px;
-  height: 56px;
   object-fit: contain;
 }
 
 .ctaMainText {
-  @include m.text-body-s;
-
+  font-family: v.$font-family-base;
+  font-size: fn.r(32);
+  font-weight: v.$font-weight-semibold;
   color: v.$color-black-500;
+  max-width: 560px;
+  line-height: 1.5;
 }
 
 .ctaButton {
-  padding: 12px 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  max-width: 360px;
+  height: 48px;
+  padding: 0 24px;
   border: none;
-  border-radius: 10px;
-  background: v.$color-primary-600;
+  border-radius: 8px;
+  background: v.$color-primary-700;
   color: v.$color-white;
-  @include m.text-label-m;
-
-  font-weight: v.$font-weight-semibold;
+  font-family: v.$font-family-base;
+  font-size: fn.r(16);
+  font-weight: v.$font-weight-bold;
+  line-height: fn.r(24);
   cursor: pointer;
   transition: background 0.2s;
 
   &:hover {
-    background: v.$color-primary-700;
+    background: v.$color-primary-600;
   }
 
   &:active {
@@ -471,37 +454,43 @@
   }
 }
 
-.ctaFooter {
+// ===========================
+// Footer (dark section)
+// ===========================
+.siteFooter {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: v.$spacing-unit * 0.5;
-  margin-top: v.$spacing-unit * 3;
-  padding-top: v.$spacing-unit * 2;
-  border-top: 1px solid v.$color-black-100;
-  width: 100%;
-  max-width: 480px;
+  gap: v.$spacing-unit * 1.5;
+  padding: 40px 24px;
+  background: v.$color-black-700;
 }
 
 .footerLogo {
-  @include m.text-body-m;
-
-  color: v.$color-primary-600;
+  font-family: v.$font-family-base;
+  font-size: fn.r(18);
   font-weight: v.$font-weight-bold;
+  color: v.$color-primary-700;
 }
 
 .footerLinks {
   display: flex;
-  gap: v.$spacing-unit * 1.5;
-  @include m.text-caption;
-
-  color: v.$color-black-400;
+  gap: v.$spacing-unit * 2;
+  flex-wrap: wrap;
+  justify-content: center;
+  font-family: v.$font-family-base;
+  font-size: fn.r(12);
+  font-weight: v.$font-weight-regular;
+  color: v.$color-black-200;
+  line-height: fn.r(20);
 }
 
 .footerCopy {
-  @include m.text-caption;
-
-  color: v.$color-black-300;
+  font-family: v.$font-family-base;
+  font-size: fn.r(12);
+  font-weight: v.$font-weight-regular;
+  color: v.$color-black-400;
+  line-height: fn.r(20);
 }
 
 // ===========================
@@ -509,50 +498,106 @@
 // ===========================
 @media (max-width: 640px) {
   .heroInner {
-    height: 480px;
-  }
-
-  .heroPhoneImage {
-    width: 200px;
+    height: 520px;
   }
 
   .heroTitle {
-    font-size: fn.r(24);
+    font-size: fn.r(28);
   }
 
   .activeWord,
   .fixedSuffix {
-    font-size: fn.r(24);
+    font-size: fn.r(28);
   }
 
   .revolvingWord {
-    font-size: fn.r(18);
-    height: 32px;
-    line-height: 32px;
+    font-size: fn.r(20);
+    height: 36px;
+    line-height: 36px;
+  }
+
+  .revolvingMask {
+    max-height: 72px;
+  }
+
+  .revolvingBelow {
+    max-height: 36px;
+  }
+
+  .heroInner {
+    height: 520px;
+  }
+
+  .heroLeft {
+    left: 50%;
+    transform: translate(-50%, calc(-50% - 24px));
+    align-items: center;
+    text-align: center;
+    white-space: nowrap;
+  }
+
+  .heroRight {
+    right: auto;
+    left: 50%;
+    top: auto;
+    bottom: 24px;
+    transform: translateX(-50%);
+    text-align: center;
+    white-space: nowrap;
+  }
+
+  .heroTitle {
+    text-align: center;
   }
 
   .showcaseSection {
     flex-direction: column !important;
-    padding: 40px 24px;
-    gap: v.$spacing-unit * 2;
+    padding: 48px 24px;
+    gap: v.$spacing-unit * 3;
   }
 
   .showcaseText {
     align-items: center;
     text-align: center;
+    max-width: 100%;
   }
 
-  .phoneMockupTilted {
-    width: 200px;
+  .showcaseTextRight {
+    align-items: center;
+    text-align: center;
   }
 
-  .phoneMockupStraight {
-    width: 200px;
+  .showcaseTitle {
+    font-size: fn.r(30);
+  }
+
+  .showcaseDesc {
+    font-size: fn.r(16);
+  }
+
+  .showcasePhoneImage {
+    margin-bottom: -40px;
+  }
+
+  .showcasePhoneImageTop {
+    margin-top: -30px;
   }
 
   .featureCard {
     width: 100%;
-    max-width: 280px;
+    max-width: 320px;
     min-height: auto;
+  }
+
+  .featureCardTitle {
+    font-size: fn.r(18);
+  }
+
+  .ctaMainText {
+    font-size: fn.r(22);
+  }
+
+  .footerLinks {
+    gap: v.$spacing-unit * 1.5;
   }
 }
