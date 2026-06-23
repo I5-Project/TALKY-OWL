@@ -44,6 +44,13 @@ export interface ChatMessage {
   content: string
 }
 
+const MAX_RETRIES = 2
+const RETRY_DELAY_MS = 1500
+
+async function sleep(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms))
+}
+
 export async function getChatbotResponse(
   userMessage: string,
   history: ChatMessage[]
@@ -65,8 +72,26 @@ export async function getChatbotResponse(
     ],
   })
 
-  const result = await chat.sendMessage(userMessage)
-  const response = result.response.text()
+  let lastError: unknown
 
-  return response
+  for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
+    try {
+      const result = await chat.sendMessage(userMessage)
+      return result.response.text()
+    } catch (error) {
+      lastError = error
+      const isRetryable =
+        error instanceof Error &&
+        (error.message.includes('503') ||
+          error.message.includes('429') ||
+          error.message.includes('Service Unavailable') ||
+          error.message.includes('high demand'))
+
+      if (!isRetryable || attempt === MAX_RETRIES) break
+
+      await sleep(RETRY_DELAY_MS * (attempt + 1))
+    }
+  }
+
+  throw lastError
 }
