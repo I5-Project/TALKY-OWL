@@ -1,18 +1,30 @@
 import { GoogleGenerativeAI } from '@google/generative-ai'
 
-const MODEL_NAME = 'gemini-2.5-flash'
-const MODEL_FALLBACKS = ['gemini-2.0-flash-lite', 'gemini-2.5-flash', 'gemini-2.0-flash']
+const MODEL_FALLBACKS = ['gemini-2.5-flash', 'gemini-2.5-pro']
+const MAX_RETRIES_PER_MODEL = 2
+const RETRY_DELAY_MS = 1500
 
-function isFallbackable(err: unknown): boolean {
+function isRetryable(err: unknown): boolean {
   const msg = err instanceof Error ? err.message : String(err)
   return (
     msg.includes('503') ||
     msg.includes('Service Unavailable') ||
     msg.includes('high demand') ||
+    msg.includes('429')
+  )
+}
+
+function shouldFallback(err: unknown): boolean {
+  const msg = err instanceof Error ? err.message : String(err)
+  return (
     msg.includes('404') ||
     msg.includes('Not Found') ||
     msg.includes('no longer available')
   )
+}
+
+async function sleep(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms))
 }
 
 const CATEGORY_GROUP_KO: Record<string, string> = {
@@ -89,37 +101,48 @@ export async function extractDisputeMeta(statement: string): Promise<DisputeMeta
 
   let lastErr: unknown
   for (const modelName of MODEL_FALLBACKS) {
-    try {
-      const model = genAI.getGenerativeModel({ model: modelName })
-      const result = await model.generateContent(prompt)
-      const text = result.response.text().trim()
-
-      const jsonMatch = text.match(/\{[\s\S]*\}/)
-      if (!jsonMatch) throw new Error('JSON')
-
-      let parsed: { title?: unknown; summary?: unknown }
+    for (let attempt = 0; attempt <= MAX_RETRIES_PER_MODEL; attempt++) {
       try {
-        parsed = JSON.parse(jsonMatch[0])
-      } catch {
-        throw new Error('JSON')
-      }
+        const model = genAI.getGenerativeModel({ model: modelName })
+        const result = await model.generateContent(prompt)
+        const text = result.response.text().trim()
 
-      if (typeof parsed.title !== 'string' || typeof parsed.summary !== 'string') {
-        throw new Error('JSON')
-      }
+        const jsonMatch = text.match(/\{[\s\S]*\}/)
+        if (!jsonMatch) throw new Error('JSON')
 
-      return {
-        title: Array.from(parsed.title as string).slice(0, 20).join(''),
-        summary: Array.from(parsed.summary as string).slice(0, 50).join(''),
-        modelName,
-      }
-    } catch (err) {
-      if (isFallbackable(err)) {
-        console.warn(`[extractDisputeMeta] ${modelName} unavailable, trying next model...`)
+        let parsed: { title?: unknown; summary?: unknown }
+        try {
+          parsed = JSON.parse(jsonMatch[0])
+        } catch {
+          throw new Error('JSON')
+        }
+
+        if (typeof parsed.title !== 'string' || typeof parsed.summary !== 'string') {
+          throw new Error('JSON')
+        }
+
+        return {
+          title: Array.from(parsed.title as string).slice(0, 20).join(''),
+          summary: Array.from(parsed.summary as string).slice(0, 50).join(''),
+          modelName,
+        }
+      } catch (err) {
         lastErr = err
-        continue
+        const errMsg = err instanceof Error ? err.message : String(err)
+
+        if (shouldFallback(err)) {
+          console.warn(`[extractDisputeMeta] ${modelName} unavailable: ${errMsg}, switching model...`)
+          break
+        }
+
+        if (isRetryable(err) && attempt < MAX_RETRIES_PER_MODEL) {
+          console.warn(`[extractDisputeMeta] ${modelName} retry ${attempt + 1}/${MAX_RETRIES_PER_MODEL}: ${errMsg}`)
+          await sleep(RETRY_DELAY_MS * (attempt + 1))
+          continue
+        }
+
+        throw err
       }
-      throw err
     }
   }
 
@@ -225,34 +248,45 @@ async function callJudgmentAi(
 ): Promise<{ result: Record<string, unknown>; modelName: string }> {
   let lastErr: unknown
   for (const modelName of MODEL_FALLBACKS) {
-    try {
-      const model = genAI.getGenerativeModel({ model: modelName })
-      const result = await model.generateContent(prompt)
-      const text = result.response.text().trim()
-
-      const jsonMatch = text.match(/\{[\s\S]*\}/)
-      if (!jsonMatch) throw new Error('JSON')
-
-      let parsed: Record<string, unknown>
+    for (let attempt = 0; attempt <= MAX_RETRIES_PER_MODEL; attempt++) {
       try {
-        parsed = JSON.parse(jsonMatch[0])
-      } catch {
-        throw new Error('JSON')
-      }
+        const model = genAI.getGenerativeModel({ model: modelName })
+        const result = await model.generateContent(prompt)
+        const text = result.response.text().trim()
 
-      const conflictType = parsed.conflictType as { code?: unknown } | undefined
-      if (typeof parsed.summary !== 'string' || typeof conflictType?.code !== 'string') {
-        throw new Error('JSON')
-      }
+        const jsonMatch = text.match(/\{[\s\S]*\}/)
+        if (!jsonMatch) throw new Error('JSON')
 
-      return { result: parsed, modelName }
-    } catch (err) {
-      if (isFallbackable(err)) {
-        console.warn(`[callJudgmentAi] ${modelName} unavailable, trying next model...`)
+        let parsed: Record<string, unknown>
+        try {
+          parsed = JSON.parse(jsonMatch[0])
+        } catch {
+          throw new Error('JSON')
+        }
+
+        const conflictType = parsed.conflictType as { code?: unknown } | undefined
+        if (typeof parsed.summary !== 'string' || typeof conflictType?.code !== 'string') {
+          throw new Error('JSON')
+        }
+
+        return { result: parsed, modelName }
+      } catch (err) {
         lastErr = err
-        continue
+        const errMsg = err instanceof Error ? err.message : String(err)
+
+        if (shouldFallback(err)) {
+          console.warn(`[callJudgmentAi] ${modelName} unavailable: ${errMsg}, switching model...`)
+          break
+        }
+
+        if (isRetryable(err) && attempt < MAX_RETRIES_PER_MODEL) {
+          console.warn(`[callJudgmentAi] ${modelName} retry ${attempt + 1}/${MAX_RETRIES_PER_MODEL}: ${errMsg}`)
+          await sleep(RETRY_DELAY_MS * (attempt + 1))
+          continue
+        }
+
+        throw err
       }
-      throw err
     }
   }
 

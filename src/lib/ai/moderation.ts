@@ -9,18 +9,31 @@ export interface ModerationResult {
   modelName: string
 }
 
-const MODEL_FALLBACKS = ['gemini-2.0-flash-lite', 'gemini-2.5-flash', 'gemini-2.0-flash']
+const MODEL_FALLBACKS = ['gemini-2.5-flash', 'gemini-2.5-pro']
+const MAX_RETRIES_PER_MODEL = 2
+const RETRY_DELAY_MS = 1500
 
-function isFallbackable(err: unknown): boolean {
+function isRetryable(err: unknown): boolean {
   const msg = err instanceof Error ? err.message : String(err)
   return (
     msg.includes('503') ||
     msg.includes('Service Unavailable') ||
     msg.includes('high demand') ||
+    msg.includes('429')
+  )
+}
+
+function shouldFallback(err: unknown): boolean {
+  const msg = err instanceof Error ? err.message : String(err)
+  return (
     msg.includes('404') ||
     msg.includes('Not Found') ||
     msg.includes('no longer available')
   )
+}
+
+async function sleep(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms))
 }
 
 const PROMPT_TEMPLATE = `You are a content moderation AI for a Korean conflict resolution service called TALKY-OWL.
@@ -71,37 +84,48 @@ export async function moderateContent(content: string): Promise<ModerationResult
 
   let lastErr: unknown
   for (const modelName of MODEL_FALLBACKS) {
-    try {
-      const model = genAI.getGenerativeModel({ model: modelName })
-      const result = await model.generateContent(prompt)
-      const durationMs = Date.now() - startTime
-      const text = result.response.text().trim()
-
-      const jsonMatch = text.match(/\{[\s\S]*\}/)
-      if (!jsonMatch) throw new Error('Gemini moderation returned invalid JSON')
-
-      let parsed: { isBlocked?: unknown; reason?: unknown; confidenceScore?: unknown; hasPersonalInfo?: unknown }
+    for (let attempt = 0; attempt <= MAX_RETRIES_PER_MODEL; attempt++) {
       try {
-        parsed = JSON.parse(jsonMatch[0])
-      } catch {
-        throw new Error('Gemini moderation returned unparseable JSON')
-      }
+        const model = genAI.getGenerativeModel({ model: modelName })
+        const result = await model.generateContent(prompt)
+        const durationMs = Date.now() - startTime
+        const text = result.response.text().trim()
 
-      return {
-        isBlocked: Boolean(parsed.isBlocked),
-        reason: typeof parsed.reason === 'string' ? parsed.reason.slice(0, 255) : null,
-        confidenceScore: Math.min(1, Math.max(0, Number(parsed.confidenceScore) || 0)),
-        hasPersonalInfo: Boolean(parsed.hasPersonalInfo),
-        durationMs,
-        modelName,
-      }
-    } catch (err) {
-      if (isFallbackable(err)) {
-        console.warn(`[moderation] ${modelName} unavailable, trying next model...`)
+        const jsonMatch = text.match(/\{[\s\S]*\}/)
+        if (!jsonMatch) throw new Error('Gemini moderation returned invalid JSON')
+
+        let parsed: { isBlocked?: unknown; reason?: unknown; confidenceScore?: unknown; hasPersonalInfo?: unknown }
+        try {
+          parsed = JSON.parse(jsonMatch[0])
+        } catch {
+          throw new Error('Gemini moderation returned unparseable JSON')
+        }
+
+        return {
+          isBlocked: Boolean(parsed.isBlocked),
+          reason: typeof parsed.reason === 'string' ? parsed.reason.slice(0, 255) : null,
+          confidenceScore: Math.min(1, Math.max(0, Number(parsed.confidenceScore) || 0)),
+          hasPersonalInfo: Boolean(parsed.hasPersonalInfo),
+          durationMs,
+          modelName,
+        }
+      } catch (err) {
         lastErr = err
-        continue
+        const errMsg = err instanceof Error ? err.message : String(err)
+
+        if (shouldFallback(err)) {
+          console.warn(`[moderation] ${modelName} unavailable: ${errMsg}, switching model...`)
+          break
+        }
+
+        if (isRetryable(err) && attempt < MAX_RETRIES_PER_MODEL) {
+          console.warn(`[moderation] ${modelName} retry ${attempt + 1}/${MAX_RETRIES_PER_MODEL}: ${errMsg}`)
+          await sleep(RETRY_DELAY_MS * (attempt + 1))
+          continue
+        }
+
+        throw err
       }
-      throw err
     }
   }
 
