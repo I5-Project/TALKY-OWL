@@ -4,6 +4,7 @@ import Image from 'next/image'
 import { useSession } from 'next-auth/react'
 import ActionPrompt from '@/components/ui/ActionPrompt'
 import { useToastStore } from '@/stores/toastStore'
+import { getSessionUserId } from '@/lib/auth/session'
 import type { AiJudgmentDto } from '@/types/judgment'
 import type { DisputeParticipantDto } from '@/types/dispute'
 import styles from './JudgmentTypeResult.module.scss'
@@ -18,8 +19,9 @@ export default function JudgmentTypeResult({ judgment, participants, disputeId }
   const showToast = useToastStore((s) => s.show)
   const { data: session } = useSession()
 
-  const viewer = participants.find((p) => p.userId === session?.user?.id)
-  const viewerLabel = viewer?.name ?? '나'
+  const currentUserId = getSessionUserId(session)
+  const viewer = participants.find((p) => p.userId === currentUserId)
+  const viewerLabel = viewer?.name ?? ''
 
   const { cardImageUrl, displayName } = judgment.resultConflictDetail
 
@@ -69,7 +71,7 @@ export default function JudgmentTypeResult({ judgment, participants, disputeId }
 
   return (
     <div className={styles.container}>
-      <p className={styles.title}>{viewerLabel}님의 유형은?</p>
+      <p className={styles.title}>{viewerLabel ? `${viewerLabel}님의 유형은?` : '나의 유형은?'}</p>
 
       {/* 유형 카드 이미지 */}
       <div className={styles.cardImageWrapper}>
