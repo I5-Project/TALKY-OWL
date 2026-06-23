@@ -119,6 +119,13 @@ export default function AboutPage() {
           {/* ===== HERO ===== */}
           <section className={styles.heroSection}>
             <div className={styles.heroInner}>
+              <Image
+                src="/images/about/s1_bg.svg"
+                alt=""
+                width={900}
+                height={900}
+                className={styles.heroBg}
+              />
               <div className={styles.heroCenter}>
                 <motion.div
                   initial={{ y: 80 }}
@@ -169,17 +176,12 @@ export default function AboutPage() {
                 </AnimatePresence>
               </div>
 
-              <motion.div
-                className={styles.heroRight}
-                initial={{ opacity: 0, x: 40 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.8, delay: 0.6, ease: 'easeOut' }}
-              >
+              <div className={styles.heroRight}>
                 <h1 className={styles.heroTitle}>
                   <Image src="/images/common/logo.svg" alt="말해부엉" width={200} height={50} />
                   하나로 해결가능
                 </h1>
-              </motion.div>
+              </div>
             </div>
           </section>
 
