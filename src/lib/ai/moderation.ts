@@ -9,8 +9,8 @@ export interface ModerationResult {
   modelName: string
 }
 
-const MODEL_FALLBACKS = ['gemini-2.5-flash', 'gemini-2.5-pro']
-const MAX_RETRIES_PER_MODEL = 2
+const MODEL_NAME = 'gemini-2.5-flash'
+const MAX_RETRIES = 3
 const RETRY_DELAY_MS = 1500
 
 function isRetryable(err: unknown): boolean {
@@ -20,15 +20,6 @@ function isRetryable(err: unknown): boolean {
     msg.includes('Service Unavailable') ||
     msg.includes('high demand') ||
     msg.includes('429')
-  )
-}
-
-function shouldFallback(err: unknown): boolean {
-  const msg = err instanceof Error ? err.message : String(err)
-  return (
-    msg.includes('404') ||
-    msg.includes('Not Found') ||
-    msg.includes('no longer available')
   )
 }
 
@@ -83,49 +74,42 @@ export async function moderateContent(content: string): Promise<ModerationResult
   const startTime = Date.now()
 
   let lastErr: unknown
-  for (const modelName of MODEL_FALLBACKS) {
-    for (let attempt = 0; attempt <= MAX_RETRIES_PER_MODEL; attempt++) {
+  for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
+    try {
+      const model = genAI.getGenerativeModel({ model: MODEL_NAME })
+      const result = await model.generateContent(prompt)
+      const durationMs = Date.now() - startTime
+      const text = result.response.text().trim()
+
+      const jsonMatch = text.match(/\{[\s\S]*\}/)
+      if (!jsonMatch) throw new Error('Gemini moderation returned invalid JSON')
+
+      let parsed: { isBlocked?: unknown; reason?: unknown; confidenceScore?: unknown; hasPersonalInfo?: unknown }
       try {
-        const model = genAI.getGenerativeModel({ model: modelName })
-        const result = await model.generateContent(prompt)
-        const durationMs = Date.now() - startTime
-        const text = result.response.text().trim()
-
-        const jsonMatch = text.match(/\{[\s\S]*\}/)
-        if (!jsonMatch) throw new Error('Gemini moderation returned invalid JSON')
-
-        let parsed: { isBlocked?: unknown; reason?: unknown; confidenceScore?: unknown; hasPersonalInfo?: unknown }
-        try {
-          parsed = JSON.parse(jsonMatch[0])
-        } catch {
-          throw new Error('Gemini moderation returned unparseable JSON')
-        }
-
-        return {
-          isBlocked: Boolean(parsed.isBlocked),
-          reason: typeof parsed.reason === 'string' ? parsed.reason.slice(0, 255) : null,
-          confidenceScore: Math.min(1, Math.max(0, Number(parsed.confidenceScore) || 0)),
-          hasPersonalInfo: Boolean(parsed.hasPersonalInfo),
-          durationMs,
-          modelName,
-        }
-      } catch (err) {
-        lastErr = err
-        const errMsg = err instanceof Error ? err.message : String(err)
-
-        if (shouldFallback(err)) {
-          console.warn(`[moderation] ${modelName} unavailable: ${errMsg}, switching model...`)
-          break
-        }
-
-        if (isRetryable(err) && attempt < MAX_RETRIES_PER_MODEL) {
-          console.warn(`[moderation] ${modelName} retry ${attempt + 1}/${MAX_RETRIES_PER_MODEL}: ${errMsg}`)
-          await sleep(RETRY_DELAY_MS * (attempt + 1))
-          continue
-        }
-
-        throw err
+        parsed = JSON.parse(jsonMatch[0])
+      } catch {
+        throw new Error('Gemini moderation returned unparseable JSON')
       }
+
+      return {
+        isBlocked: Boolean(parsed.isBlocked),
+        reason: typeof parsed.reason === 'string' ? parsed.reason.slice(0, 255) : null,
+        confidenceScore: Math.min(1, Math.max(0, Number(parsed.confidenceScore) || 0)),
+        hasPersonalInfo: Boolean(parsed.hasPersonalInfo),
+        durationMs,
+        modelName: MODEL_NAME,
+      }
+    } catch (err) {
+      lastErr = err
+      const errMsg = err instanceof Error ? err.message : String(err)
+
+      if (isRetryable(err) && attempt < MAX_RETRIES) {
+        console.warn(`[moderation] ${MODEL_NAME} retry ${attempt + 1}/${MAX_RETRIES}: ${errMsg}`)
+        await sleep(RETRY_DELAY_MS * (attempt + 1))
+        continue
+      }
+
+      throw err
     }
   }
 

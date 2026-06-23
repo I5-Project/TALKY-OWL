@@ -1,7 +1,7 @@
 import { GoogleGenerativeAI } from '@google/generative-ai'
 
-const MODEL_FALLBACKS = ['gemini-2.5-flash', 'gemini-2.5-pro']
-const MAX_RETRIES_PER_MODEL = 2
+const MODEL_NAME = 'gemini-2.5-flash'
+const MAX_RETRIES = 3
 const RETRY_DELAY_MS = 1500
 const REQUEST_TIMEOUT_MS = 30000
 
@@ -71,15 +71,6 @@ function isRetryable(err: unknown): boolean {
   )
 }
 
-function shouldFallback(err: unknown): boolean {
-  const msg = err instanceof Error ? err.message : String(err)
-  return (
-    msg.includes('404') ||
-    msg.includes('Not Found') ||
-    msg.includes('no longer available')
-  )
-}
-
 async function sleep(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms))
 }
@@ -112,33 +103,26 @@ export async function getChatbotResponse(
 
   let lastError: unknown
 
-  for (const modelName of MODEL_FALLBACKS) {
-    for (let attempt = 0; attempt <= MAX_RETRIES_PER_MODEL; attempt++) {
-      try {
-        const model = genAI.getGenerativeModel({ model: modelName })
-        const chat = model.startChat({ history: chatHistory })
-        const result = await withTimeout(chat.sendMessage(userMessage), REQUEST_TIMEOUT_MS)
-        return result.response.text()
-      } catch (error) {
-        lastError = error
-        const errMsg = error instanceof Error ? error.message : String(error)
+  for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
+    try {
+      const model = genAI.getGenerativeModel({ model: MODEL_NAME })
+      const chat = model.startChat({ history: chatHistory })
+      const result = await withTimeout(chat.sendMessage(userMessage), REQUEST_TIMEOUT_MS)
+      return result.response.text()
+    } catch (error) {
+      lastError = error
+      const errMsg = error instanceof Error ? error.message : String(error)
 
-        if (error instanceof ChatbotTimeoutError) throw error
+      if (error instanceof ChatbotTimeoutError) throw error
 
-        if (shouldFallback(error)) {
-          console.warn(`[chatbot] ${modelName} unavailable: ${errMsg}, switching model...`)
-          break
-        }
-
-        if (isRetryable(error) && attempt < MAX_RETRIES_PER_MODEL) {
-          console.warn(`[chatbot] ${modelName} retry ${attempt + 1}/${MAX_RETRIES_PER_MODEL}: ${errMsg}`)
-          await sleep(RETRY_DELAY_MS * (attempt + 1))
-          continue
-        }
-
-        console.warn(`[chatbot] ${modelName} failed: ${errMsg}`)
-        break
+      if (isRetryable(error) && attempt < MAX_RETRIES) {
+        console.warn(`[chatbot] ${MODEL_NAME} retry ${attempt + 1}/${MAX_RETRIES}: ${errMsg}`)
+        await sleep(RETRY_DELAY_MS * (attempt + 1))
+        continue
       }
+
+      console.warn(`[chatbot] ${MODEL_NAME} failed: ${errMsg}`)
+      break
     }
   }
 

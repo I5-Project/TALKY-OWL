@@ -1,7 +1,7 @@
 import { GoogleGenerativeAI } from '@google/generative-ai'
 
-const MODEL_FALLBACKS = ['gemini-2.5-flash', 'gemini-2.5-pro']
-const MAX_RETRIES_PER_MODEL = 2
+const MODEL_NAME = 'gemini-2.5-flash'
+const MAX_RETRIES = 3
 const RETRY_DELAY_MS = 1500
 
 function isRetryable(err: unknown): boolean {
@@ -11,15 +11,6 @@ function isRetryable(err: unknown): boolean {
     msg.includes('Service Unavailable') ||
     msg.includes('high demand') ||
     msg.includes('429')
-  )
-}
-
-function shouldFallback(err: unknown): boolean {
-  const msg = err instanceof Error ? err.message : String(err)
-  return (
-    msg.includes('404') ||
-    msg.includes('Not Found') ||
-    msg.includes('no longer available')
   )
 }
 
@@ -100,49 +91,42 @@ export async function extractDisputeMeta(statement: string): Promise<DisputeMeta
   const prompt = META_PROMPT.replace('{statement}', statement)
 
   let lastErr: unknown
-  for (const modelName of MODEL_FALLBACKS) {
-    for (let attempt = 0; attempt <= MAX_RETRIES_PER_MODEL; attempt++) {
+  for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
+    try {
+      const model = genAI.getGenerativeModel({ model: MODEL_NAME })
+      const result = await model.generateContent(prompt)
+      const text = result.response.text().trim()
+
+      const jsonMatch = text.match(/\{[\s\S]*\}/)
+      if (!jsonMatch) throw new Error('JSON')
+
+      let parsed: { title?: unknown; summary?: unknown }
       try {
-        const model = genAI.getGenerativeModel({ model: modelName })
-        const result = await model.generateContent(prompt)
-        const text = result.response.text().trim()
-
-        const jsonMatch = text.match(/\{[\s\S]*\}/)
-        if (!jsonMatch) throw new Error('JSON')
-
-        let parsed: { title?: unknown; summary?: unknown }
-        try {
-          parsed = JSON.parse(jsonMatch[0])
-        } catch {
-          throw new Error('JSON')
-        }
-
-        if (typeof parsed.title !== 'string' || typeof parsed.summary !== 'string') {
-          throw new Error('JSON')
-        }
-
-        return {
-          title: Array.from(parsed.title as string).slice(0, 20).join(''),
-          summary: Array.from(parsed.summary as string).slice(0, 50).join(''),
-          modelName,
-        }
-      } catch (err) {
-        lastErr = err
-        const errMsg = err instanceof Error ? err.message : String(err)
-
-        if (shouldFallback(err)) {
-          console.warn(`[extractDisputeMeta] ${modelName} unavailable: ${errMsg}, switching model...`)
-          break
-        }
-
-        if (isRetryable(err) && attempt < MAX_RETRIES_PER_MODEL) {
-          console.warn(`[extractDisputeMeta] ${modelName} retry ${attempt + 1}/${MAX_RETRIES_PER_MODEL}: ${errMsg}`)
-          await sleep(RETRY_DELAY_MS * (attempt + 1))
-          continue
-        }
-
-        throw err
+        parsed = JSON.parse(jsonMatch[0])
+      } catch {
+        throw new Error('JSON')
       }
+
+      if (typeof parsed.title !== 'string' || typeof parsed.summary !== 'string') {
+        throw new Error('JSON')
+      }
+
+      return {
+        title: Array.from(parsed.title as string).slice(0, 20).join(''),
+        summary: Array.from(parsed.summary as string).slice(0, 50).join(''),
+        modelName: MODEL_NAME,
+      }
+    } catch (err) {
+      lastErr = err
+      const errMsg = err instanceof Error ? err.message : String(err)
+
+      if (isRetryable(err) && attempt < MAX_RETRIES) {
+        console.warn(`[extractDisputeMeta] ${MODEL_NAME} retry ${attempt + 1}/${MAX_RETRIES}: ${errMsg}`)
+        await sleep(RETRY_DELAY_MS * (attempt + 1))
+        continue
+      }
+
+      throw err
     }
   }
 
@@ -247,46 +231,39 @@ async function callJudgmentAi(
   prompt: string,
 ): Promise<{ result: Record<string, unknown>; modelName: string }> {
   let lastErr: unknown
-  for (const modelName of MODEL_FALLBACKS) {
-    for (let attempt = 0; attempt <= MAX_RETRIES_PER_MODEL; attempt++) {
+  for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
+    try {
+      const model = genAI.getGenerativeModel({ model: MODEL_NAME })
+      const result = await model.generateContent(prompt)
+      const text = result.response.text().trim()
+
+      const jsonMatch = text.match(/\{[\s\S]*\}/)
+      if (!jsonMatch) throw new Error('JSON')
+
+      let parsed: Record<string, unknown>
       try {
-        const model = genAI.getGenerativeModel({ model: modelName })
-        const result = await model.generateContent(prompt)
-        const text = result.response.text().trim()
-
-        const jsonMatch = text.match(/\{[\s\S]*\}/)
-        if (!jsonMatch) throw new Error('JSON')
-
-        let parsed: Record<string, unknown>
-        try {
-          parsed = JSON.parse(jsonMatch[0])
-        } catch {
-          throw new Error('JSON')
-        }
-
-        const conflictType = parsed.conflictType as { code?: unknown } | undefined
-        if (typeof parsed.summary !== 'string' || typeof conflictType?.code !== 'string') {
-          throw new Error('JSON')
-        }
-
-        return { result: parsed, modelName }
-      } catch (err) {
-        lastErr = err
-        const errMsg = err instanceof Error ? err.message : String(err)
-
-        if (shouldFallback(err)) {
-          console.warn(`[callJudgmentAi] ${modelName} unavailable: ${errMsg}, switching model...`)
-          break
-        }
-
-        if (isRetryable(err) && attempt < MAX_RETRIES_PER_MODEL) {
-          console.warn(`[callJudgmentAi] ${modelName} retry ${attempt + 1}/${MAX_RETRIES_PER_MODEL}: ${errMsg}`)
-          await sleep(RETRY_DELAY_MS * (attempt + 1))
-          continue
-        }
-
-        throw err
+        parsed = JSON.parse(jsonMatch[0])
+      } catch {
+        throw new Error('JSON')
       }
+
+      const conflictType = parsed.conflictType as { code?: unknown } | undefined
+      if (typeof parsed.summary !== 'string' || typeof conflictType?.code !== 'string') {
+        throw new Error('JSON')
+      }
+
+      return { result: parsed, modelName: MODEL_NAME }
+    } catch (err) {
+      lastErr = err
+      const errMsg = err instanceof Error ? err.message : String(err)
+
+      if (isRetryable(err) && attempt < MAX_RETRIES) {
+        console.warn(`[callJudgmentAi] ${MODEL_NAME} retry ${attempt + 1}/${MAX_RETRIES}: ${errMsg}`)
+        await sleep(RETRY_DELAY_MS * (attempt + 1))
+        continue
+      }
+
+      throw err
     }
   }
 
