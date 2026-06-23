@@ -44,7 +44,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       <body suppressHydrationWarning>
         <AuthProvider session={session}>
           <QueryProvider>
-            <div className="container">{children}</div>
+            {children}
             <Toast />
           </QueryProvider>
         </AuthProvider>
