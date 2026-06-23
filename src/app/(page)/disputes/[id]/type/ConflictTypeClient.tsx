@@ -15,9 +15,10 @@ interface Props {
 
 export default function ConflictTypeClient({ data }: Props) {
   const router = useRouter()
-  const { status: sessionStatus } = useSession()
+  const { data: session, status: sessionStatus } = useSession()
   const isSessionLoading = sessionStatus === 'loading'
   const isLoggedIn = sessionStatus === 'authenticated'
+  const userName = session?.user?.name
 
   const handleDownload = async () => {
     if (!data?.cardImageUrl) return
@@ -43,6 +44,7 @@ export default function ConflictTypeClient({ data }: Props) {
     return (
       <div className={styles.centerWrap}>
         <p className={styles.errorText}>갈등 유형 결과를 불러올 수 없어요.</p>
+        <button className={styles.backLink} onClick={() => router.back()}>이전 페이지로 돌아가기</button>
       </div>
     )
   }
@@ -54,7 +56,7 @@ export default function ConflictTypeClient({ data }: Props) {
       </div>
 
       <div className={styles.content}>
-        <p className={styles.title}>나의 갈등 유형은?</p>
+        <p className={styles.title}>{userName ? `${userName}님의 갈등 유형은?` : '나의 갈등 유형은?'}</p>
 
         <div className={styles.cardImageWrapper}>
           {data.cardImageUrl ? (
@@ -81,7 +83,7 @@ export default function ConflictTypeClient({ data }: Props) {
           isLoggedIn ? (
             <Button onClick={handleDownload}>결과 다운받기</Button>
           ) : (
-            <Button onClick={() => router.push('/about')}>갈등 해결하러가기</Button>
+            <Button onClick={() => router.push('/login')}>갈등 해결하러가기</Button>
           )
         )}
       </div>

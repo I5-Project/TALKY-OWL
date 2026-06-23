@@ -12,9 +12,22 @@
 
 .centerWrap {
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
+  gap: fn.r(16);
   min-height: 100dvh;
+}
+
+.backLink {
+  @include m.text-body-s;
+
+  color: v.$color-black-400;
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-decoration: underline;
+  padding: 0;
 }
 
 .errorText {
@@ -45,6 +58,8 @@
 
 .cardImageWrapper {
   width: 100%;
+  max-width: fn.r(360);
+  margin: 0 auto;
   border-radius: fn.r(16);
   overflow: hidden;
   background-color: v.$color-black-100;

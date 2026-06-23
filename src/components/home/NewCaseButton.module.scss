@@ -28,11 +28,7 @@
 .overlay {
   position: fixed;
   inset: 0;
-
-  // 페이지 배경을 불투명 베이스로 깔아 콘텐츠가 비치지 않게 하고,
-  // 그 위에 color-black-700 40% 틴트를 적용
-  background-color: var(--bg-page);
-  background-image: linear-gradient(rgba(26, 29, 31, 0.4), rgba(26, 29, 31, 0.4));
+  background-color: rgba(0, 0, 0, 0.6);
   z-index: 200;
 }
 
@@ -59,14 +55,6 @@
   align-items: center;
   justify-content: center;
   gap: fn.r(8);
-}
-
-.errorMessage {
-  @include m.text-label-s;
-
-  color: #e53e3e;
-  text-align: center;
-  width: 100%;
 }
 
 .item {
@@ -96,8 +84,8 @@
   flex-shrink: 0;
 }
 
-// ─── 카테고리 한도 초과 에러 모달 ─────────────────────────────
-.limitOverlay {
+// ─── 공통 알림 모달 (한도 초과 / 서버 오류 등) ────────────────
+.alertOverlay {
   position: fixed;
   inset: 0;
   background-color: rgba(0, 0, 0, 0.6);
@@ -107,7 +95,7 @@
   z-index: 300;
 }
 
-.limitModal {
+.alertModal {
   background-color: #ffffff;
   border-radius: fn.r(16);
   padding: fn.r(28) fn.r(24);
@@ -118,7 +106,7 @@
   gap: fn.r(20);
 }
 
-.limitMessage {
+.alertMessage {
   @include m.text-body-m;
 
   color: var(--text-primary);
@@ -127,7 +115,7 @@
   white-space: pre-line;
 }
 
-.limitCloseButton {
+.alertCloseButton {
   @include m.text-label-m;
 
   width: 100%;
