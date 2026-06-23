@@ -1,7 +1,7 @@
 'use client'
 
 import { useUserMe } from '@/domains/user/hooks'
-import styles from '@/app/page.module.scss'
+import styles from '@/app/(page)/page.module.scss'
 
 export default function HomeGreeting() {
   const { data: user } = useUserMe()

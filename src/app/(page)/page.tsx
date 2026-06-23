@@ -1,21 +1,21 @@
-import Image from 'next/image'
-import Link from 'next/link'
-import { getCachedSession } from '@/lib/auth/getSession'
-import SetHeader from '@/components/layout/SetHeader'
-import StatsCategorySection from '@/components/home/StatsCategorySection'
-import ActiveCasesSection from '@/components/home/ActiveCasesSection'
-import NewCaseButton from '@/components/home/NewCaseButton'
-import HomeServiceInfo from '@/components/home/HomeServiceInfo'
-import HomeGreeting from '@/components/home/HomeGreeting'
-import styles from '../page.module.scss'
+import Image from 'next/image';
+import Link from 'next/link';
+import { getCachedSession } from '@/lib/auth/getSession';
+import Header from '@/components/layout/Header';
+import StatsCategorySection from '@/components/home/StatsCategorySection';
+import ActiveCasesSection from '@/components/home/ActiveCasesSection';
+import NewCaseButton from '@/components/home/NewCaseButton';
+import HomeServiceInfo from '@/components/home/HomeServiceInfo';
+import HomeGreeting from '@/components/home/HomeGreeting';
+import styles from './page.module.scss';
 
 export default async function HomePage() {
-  const session = await getCachedSession()
-  const isLoggedIn = !!session
+  const session = await getCachedSession();
+  const isLoggedIn = !!session;
 
   return (
     <div className={styles.page}>
-      <SetHeader variant="logo" transparent />
+      <Header variant="logo" transparent className={styles.headerSpacer} />
 
       <Image
         src="/images/characters/character-home.svg"
@@ -71,5 +71,5 @@ export default async function HomePage() {
 
       {isLoggedIn && <NewCaseButton />}
     </div>
-  )
+  );
 }
