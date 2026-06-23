@@ -6,6 +6,7 @@ import Header from '@/components/layout/Header';
 import Input from '@/components/ui/Input';
 import Textarea from '@/components/ui/Textarea';
 import Button from '@/components/ui/Button';
+import Modal from '@/components/ui/Modal';
 import type { EmotionType, DiaryDetail } from '@/types/diary';
 import styles from '@/app/(page)/diary/create/page.module.scss';
 import CategoryFilter from '@/components/ui/CategoryFilter';
@@ -29,13 +30,19 @@ export default function DiaryCreate({ mode = 'create', diary }: DiaryCreateProps
   const updateMutation = useUpdateDiary(diary?.diaryDate ?? '');
 
   const isPending = createMutation.isPending || updateMutation.isPending;
+  const isSuccess = createMutation.isSuccess || updateMutation.isSuccess;
+  const [limitModalOpen, setLimitModalOpen] = useState(false);
 
   const handleSubmit = () => {
     if (!content.trim()) return;
 
     if (mode === 'create') {
       const diaryDate = new Date().toISOString().slice(0, 10);
-      createMutation.mutate({ title, content, emotionType: emotion, diaryDate });
+      createMutation.mutate({ title, content, emotionType: emotion, diaryDate }, {
+        onError: (error) => {
+          if (error.message === 'DIARY_LIMIT_EXCEEDED') setLimitModalOpen(true);
+        },
+      });
     } else {
       updateMutation.mutate({
         id: diary!.id,
@@ -86,11 +93,20 @@ export default function DiaryCreate({ mode = 'create', diary }: DiaryCreateProps
           size="md"
           className={styles['create-diary__submit']}
           onClick={handleSubmit}
-          disabled={isPending || !content.trim()}
+          disabled={isPending || isSuccess || !content.trim()}
         >
           {mode === 'create' ? '작성하기' : '수정하기'}
         </Button>
       </div>
+
+      <Modal open={limitModalOpen} onClose={() => setLimitModalOpen(false)}>
+        <div className={styles['create-diary__modal-content']}>
+          <p>하루에 같은 카테고리 3개 이상은 등록할 수 없습니다.</p>
+          <Button variant="primary" size="md" onClick={() => setLimitModalOpen(false)}>
+            확인
+          </Button>
+        </div>
+      </Modal>
     </>
   );
 }

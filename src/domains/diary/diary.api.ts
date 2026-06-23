@@ -20,7 +20,7 @@ export async function createDiary(body: {
     body: JSON.stringify(body),
   })
   const json: ApiResponse<{ id: string }> = await res.json()
-  if (!json.success || !json.data) throw new Error(json.error?.message ?? '일기 작성 실패')
+  if (!json.success || !json.data) throw new Error(json.error?.code ?? json.error?.message ?? '일기 작성 실패')
   return json.data
 }
 
