@@ -11,9 +11,10 @@ import ConfirmModal from '@/components/ui/ConfirmModal';
 import { useUserMe } from '@/domains/user/hooks';
 import SettingsRoundedIcon from '@mui/icons-material/SettingsRounded';
 import ChevronRightRoundedIcon from '@mui/icons-material/ChevronRightRounded';
+import Chatbot from '@/components/chatbot/Chatbot';
 import styles from './page.module.scss';
 
-const PREPARING_ITEMS = ['shop', 'contact'] as const;
+const PREPARING_ITEMS = ['shop'] as const;
 type PreparingKey = (typeof PREPARING_ITEMS)[number];
 
 const LINK_ITEMS = [
@@ -21,7 +22,6 @@ const LINK_ITEMS = [
   { key: 'about', label: '서비스 소개', href: '/about' },
   { key: 'privacy', label: '개인정보처리방침', href: '/privacy' },
   { key: 'terms', label: '이용약관', href: '/terms' },
-  { key: 'contact', label: '고객문의', href: '/contact' },
 ] as const;
 
 export default function MyPage() {
@@ -104,6 +104,8 @@ export default function MyPage() {
         onClose={() => setLogoutOpen(false)}
         onConfirm={handleLogout}
       />
+
+      <Chatbot />
     </>
   );
 }
