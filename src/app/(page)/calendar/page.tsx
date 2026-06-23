@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import AddRoundedIcon from '@mui/icons-material/AddRounded';
 import dayjs from 'dayjs';
 import Header from '@/components/layout/Header';
 import CalendarView from '@/components/calendar/CalendarView';
@@ -64,8 +65,7 @@ export default function Calendar() {
 
       {activeTab === 'emotion' && (
         <button className={styles.fab} onClick={() => router.push('/diary/create')}>
-          <span>새 일기</span>
-          <span>+</span>
+          새 일기 <AddRoundedIcon sx={{ fontSize: 18 }} />
         </button>
       )}
     </div>
