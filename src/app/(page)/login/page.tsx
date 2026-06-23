@@ -7,9 +7,19 @@ import { signIn } from 'next-auth/react';
 import Button from '@/components/ui/Button';
 import styles from './login.module.scss';
 
+function toRelativePath(url: string): string {
+  try {
+    const parsed = new URL(url, 'http://placeholder');
+    return parsed.pathname + parsed.search + parsed.hash;
+  } catch {
+    return '/';
+  }
+}
+
 export default function LoginPage() {
   const searchParams = useSearchParams();
-  const returnTo = searchParams.get('callbackUrl');
+  const raw = searchParams.get('callbackUrl');
+  const returnTo = raw ? toRelativePath(raw) : null;
   const callbackUrl = returnTo
     ? `/auth/callback?callbackUrl=${encodeURIComponent(returnTo)}`
     : '/auth/callback';
