@@ -81,14 +81,9 @@
   padding: 6px 16px;
   border: 1px solid v.$color-black-300;
   border-radius: 4px;
-  background: v.$color-white;
-  color: v.$color-black-500;
-  font-family: v.$font-family-base;
-  font-size: fn.r(14);
-  font-weight: v.$font-weight-regular;
-  line-height: fn.r(24);
   cursor: pointer;
   transition: background 0.2s;
+  @include m.text-body-m;
 
   &:hover {
     background: v.$color-primary-100;
@@ -116,7 +111,7 @@
   position: absolute;
   left: 50%;
   top: 50%;
-  transform: translate(-60%, -50%);
+  transform: translate(-55%, -50%);
   z-index: 0;
   pointer-events: none;
 }
@@ -139,7 +134,7 @@
 
 .heroLeft {
   position: absolute;
-  left: 0;
+  left: 20px;
   top: 50%;
   transform: translateY(calc(-50% - 40px));
   display: flex;
@@ -239,7 +234,7 @@
 // TAB 2: Feature Cards
 // ===========================
 .featureCardsSection {
-  padding: 72px 24px 100px;
+  padding: 120px 0;
   background: v.$color-primary-100;
   overflow: hidden;
 }
@@ -294,30 +289,33 @@
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  gap: v.$spacing-unit * 1.5;
+
   padding: 32px 28px;
   border-radius: 20px;
   border: 2px solid v.$color-black;
   background: v.$color-white;
   flex: 1;
-  min-width: 260px;
-  max-width: 420px;
-  min-height: 240px;
+  min-height: 540px;
 }
-
+.featureCardText {
+  display: flex;
+  flex-direction: column;
+  gap: v.$spacing-unit * 5;
+}
 .featureNum {
   font-family: v.$font-family-base;
-  font-size: fn.r(13);
+  font-size: fn.r(20);
   font-weight: v.$font-weight-bold;
   color: v.$color-primary-700;
   text-transform: uppercase;
   letter-spacing: 0.06em;
   line-height: fn.r(20);
+  letter-spacing: -0.05em;
 }
 
 .featureCardTitle {
   font-family: v.$font-family-base;
-  font-size: fn.r(22);
+  font-size: fn.r(36);
   font-weight: v.$font-weight-semibold;
   color: v.$color-black-700;
   white-space: pre-line;

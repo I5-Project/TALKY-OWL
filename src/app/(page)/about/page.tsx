@@ -19,17 +19,17 @@ const featureCards = [
   {
     num: 'feature 01',
     title: '갈등을 AI로\n판결받아보세요',
-    icon: <BalanceIcon sx={{ fontSize: 32, color: 'inherit' }} />,
+    icon: <BalanceIcon sx={{ fontSize: 48, color: 'inherit' }} />,
   },
   {
     num: 'feature 02',
     title: '갈등을 해결하고\n내 갈등유형을\n확인해보세요',
-    icon: <LibraryAddCheckIcon sx={{ fontSize: 32, color: 'inherit' }} />,
+    icon: <LibraryAddCheckIcon sx={{ fontSize: 48, color: 'inherit' }} />,
   },
   {
     num: 'feature 03',
     title: '감정일기로\n그날하루를 기록하세요',
-    icon: <CalendarMonthIcon sx={{ fontSize: 32, color: 'inherit' }} />,
+    icon: <CalendarMonthIcon sx={{ fontSize: 48, color: 'inherit' }} />,
   },
 ];
 
@@ -212,7 +212,7 @@ export default function AboutPage() {
               <div className={styles.featureCardsInner}>
                 {featureCards.map((card) => (
                   <div key={card.num} className={styles.featureCard}>
-                    <div>
+                    <div className={styles.featureCardText}>
                       <span className={styles.featureNum}>{card.num}</span>
                       <p className={styles.featureCardTitle}>{card.title}</p>
                     </div>
