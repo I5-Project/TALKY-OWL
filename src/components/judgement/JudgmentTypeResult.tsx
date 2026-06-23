@@ -1,6 +1,7 @@
 'use client'
 
 import Image from 'next/image'
+import { useSession } from 'next-auth/react'
 import ActionPrompt from '@/components/ui/ActionPrompt'
 import { useToastStore } from '@/stores/toastStore'
 import type { AiJudgmentDto } from '@/types/judgment'
@@ -15,9 +16,10 @@ interface Props {
 
 export default function JudgmentTypeResult({ judgment, participants, disputeId }: Props) {
   const showToast = useToastStore((s) => s.show)
+  const { data: session } = useSession()
 
-  const roleA = participants.find((p) => p.role === 'role_a')
-  const viewerLabel = roleA?.name ?? 'A'
+  const viewer = participants.find((p) => p.userId === session?.user?.id)
+  const viewerLabel = viewer?.name ?? '나'
 
   const { cardImageUrl, displayName } = judgment.resultConflictDetail
 
