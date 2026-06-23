@@ -22,7 +22,7 @@ export default function PageLayout({ children }: { children: React.ReactNode }) 
     isAbout
 
   return (
-    <div className={styles.layout}>
+    <div className={`${styles.layout} ${isAbout ? '' : 'container'}`}>
       {header && !isAbout && (
         header.variant === 'logo'
           ? <Header variant="logo" transparent={header.transparent} />
