@@ -1,0 +1,22 @@
+@use '@/styles/abstracts/variables' as v;
+@use '@/styles/abstracts/functions' as fn;
+@use '@/styles/abstracts/mixins' as typo;
+
+.modalContent {
+  display: flex;
+  flex-direction: column;
+  gap: fn.r(20);
+}
+
+.modalTitle {
+  @include typo.text-title-s
+}
+
+.modalButtons {
+  display: flex;
+  gap: fn.r(8);
+
+  > * {
+    flex: 1;
+  }
+}
