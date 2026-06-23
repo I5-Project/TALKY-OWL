@@ -82,6 +82,15 @@
   margin: 0 auto;
 }
 
+.headerLogoBtn {
+  display: flex;
+  align-items: center;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+
 .headerLogo {
   height: 28px;
   width: auto;

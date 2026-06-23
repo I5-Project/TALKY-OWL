@@ -163,13 +163,15 @@ export default function AboutPage() {
           {/* ===== HEADER ===== */}
           <header className={styles.aboutHeader}>
             <div className={styles.aboutHeaderInner}>
-              <Image
-                src="/images/common/logo.svg"
-                alt="말해부엉"
-                width={120}
-                height={32}
-                className={styles.headerLogo}
-              />
+              <button className={styles.headerLogoBtn} onClick={() => router.push('/')}>
+                <Image
+                  src="/images/common/logo.svg"
+                  alt="말해부엉"
+                  width={120}
+                  height={32}
+                  className={styles.headerLogo}
+                />
+              </button>
               <button className={styles.headerLink} onClick={() => router.push('/')}>
                 서비스 바로가기
               </button>
