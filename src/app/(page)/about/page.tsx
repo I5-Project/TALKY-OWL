@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { useSession } from 'next-auth/react';
 import Image from 'next/image';
 import { motion, AnimatePresence, type Variants } from 'framer-motion';
 import BalanceIcon from '@mui/icons-material/Balance';
@@ -95,6 +96,7 @@ const featureCards = [
 
 export default function AboutPage() {
   const router = useRouter();
+  const { status } = useSession();
   const setHeader = useHeaderStore((s) => s.setHeader);
   const [phase, setPhase] = useState<'animation' | 'iris-out' | 'content'>('animation');
   const [orderIdx, setOrderIdx] = useState(0);
@@ -431,7 +433,7 @@ export default function AboutPage() {
               <span className={styles.highlight}>말해부엉</span>으로 어디서나 편하게 갈등해결할 수
               있어요
             </p>
-            <button className={styles.ctaButton} onClick={() => router.push('/login')}>
+            <button className={styles.ctaButton} onClick={() => router.push(status === 'authenticated' ? '/' : '/login')}>
               말해부엉 바로가기
             </button>
           </motion.section>

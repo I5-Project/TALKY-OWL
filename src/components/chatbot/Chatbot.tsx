@@ -34,7 +34,7 @@ const MENU_ITEMS = [
 
 const WELCOME_MESSAGE: Message = {
   role: 'bot',
-  content: '안녕하세요! 토키올 고객문의 챗봇입니다.\n궁금한 점이 있으시면 편하게 질문해주세요!',
+  content: '안녕하세요! 부엉봇 고객문의 챗봇입니다.\n궁금한 점이 있으시면 편하게 질문해주세요!',
   timestamp: new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' }),
 }
 
@@ -337,7 +337,7 @@ export default function Chatbot() {
                 >
                   {msg.role === 'bot' ? (
                     <>
-                      <span className={styles.message__sender}>토키올</span>
+                      <span className={styles.message__sender}>부엉봇</span>
                       <div className={styles.botRow}>
                         <div className={styles.botAvatar}>AI</div>
                         <div className={styles.botContent}>
