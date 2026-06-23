@@ -305,7 +305,9 @@ export default function AboutPage() {
           </section>
 
           {/* ===== FOOTER ===== */}
-          <HomeServiceInfo />
+          <div className={styles.serviceInfoWrapper}>
+            <HomeServiceInfo />
+          </div>
         </div>
       )}
     </div>
