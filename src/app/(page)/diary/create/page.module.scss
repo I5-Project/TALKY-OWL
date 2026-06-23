@@ -47,4 +47,13 @@
   &__submit {
     margin-top: fn.r(100);
   }
+
+  &__modal-content {
+    display: flex;
+    flex-direction: column;
+    gap: fn.r(20);
+    padding: fn.r(4) 0 fn.r(4);
+    text-align: center;
+    @include typo.text-title-s;
+  }
 }

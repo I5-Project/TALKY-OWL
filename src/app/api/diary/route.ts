@@ -54,6 +54,26 @@ export async function POST(request: NextRequest) {
   }
 
   try {
+    const parsedDateObj = new Date(`${diaryDate}T00:00:00.000Z`);
+    const nextDay = new Date(parsedDateObj);
+    nextDay.setUTCDate(nextDay.getUTCDate() + 1);
+
+    const existingCount = await prisma.emotionDiary.count({
+      where: {
+        userId,
+        emotionType: emotionType ?? 'neutral',
+        diaryDate: { gte: parsedDateObj, lt: nextDay },
+        deletedAt: null,
+      },
+    });
+
+    if (existingCount >= 2) {
+      return NextResponse.json<ApiResponse>(
+        { success: false, error: { code: 'DIARY_LIMIT_EXCEEDED', message: '하루에 같은 카테고리 3개 이상은 등록할 수 없습니다.' } },
+        { status: 422 },
+      );
+    }
+
     const diaryId = await createDiary(userId, { title: title ?? '', content, emotionType: emotionType ?? 'neutral', diaryDate });
     if (!diaryId) {
       return NextResponse.json<ApiResponse>(
