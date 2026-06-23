@@ -237,6 +237,7 @@
   padding: 120px 0;
   background: v.$color-primary-100;
   overflow: hidden;
+  position: relative;
 }
 
 .featureCardsOuter {
@@ -254,35 +255,24 @@
   z-index: 1;
 }
 
-.animalCat {
+.animalCatnDog {
   position: absolute;
-  left: -20px;
-  bottom: -40px;
+  left: 0;
+  bottom: 0;
   z-index: 2;
-  width: 140px;
-  height: auto;
-  object-fit: contain;
-}
-
-.animalDog {
-  position: absolute;
-  left: 50%;
-  bottom: -45px;
-  transform: translateX(-70%);
-  z-index: 2;
-  width: 120px;
   height: auto;
   object-fit: contain;
 }
 
 .animalPanda {
   position: absolute;
-  right: -10px;
-  top: -45px;
+  right: 25px;
+  top: -80px;
   z-index: 0;
   width: 100px;
   height: auto;
   object-fit: contain;
+  z-index: 2;
 }
 
 .featureCard {

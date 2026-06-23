@@ -187,23 +187,16 @@ export default function AboutPage() {
 
           {/* ===== FEATURE CARDS ===== */}
           <section className={styles.featureCardsSection}>
+            <Image
+              src="/images/about/animals01.png"
+              alt="고양이와강아지"
+              width={700}
+              height={422}
+              className={styles.animalCatnDog}
+            />
             <div className={styles.featureCardsOuter}>
               <Image
-                src="/images/about/animal01.png"
-                alt="고양이"
-                width={160}
-                height={160}
-                className={styles.animalCat}
-              />
-              <Image
-                src="/images/about/animal02.png"
-                alt="강아지"
-                width={140}
-                height={140}
-                className={styles.animalDog}
-              />
-              <Image
-                src="/images/about/animal03.png"
+                src="/images/about/animals02.png"
                 alt="판다"
                 width={120}
                 height={120}
