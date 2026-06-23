@@ -5,7 +5,6 @@ const LINKS = [
   { label: '서비스 소개', href: '/about' },
   { label: '개인정보 처리방침', href: '/privacy' },
   { label: '이용약관', href: '/terms' },
-  { label: '고객문의', href: null },
 ];
 
 export default function HomeServiceInfo() {
