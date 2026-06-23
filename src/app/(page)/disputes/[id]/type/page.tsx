@@ -16,7 +16,7 @@ async function getConflictType(id: string): Promise<ConflictTypePublicDto | null
       aiJudgment: {
         select: {
           resultConflictDetail: {
-            select: { displayName: true, description: true, cardImageUrl: true },
+            select: { displayName: true, description: true, card_image_url: true },
           },
         },
       },
@@ -24,7 +24,8 @@ async function getConflictType(id: string): Promise<ConflictTypePublicDto | null
   })
 
   if (!dispute?.aiJudgment?.resultConflictDetail) return null
-  return dispute.aiJudgment.resultConflictDetail
+  const { displayName, description, card_image_url } = dispute.aiJudgment.resultConflictDetail
+  return { displayName, description, cardImageUrl: card_image_url }
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {

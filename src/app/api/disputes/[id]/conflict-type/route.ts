@@ -30,7 +30,7 @@ export async function GET(
               select: {
                 displayName: true,
                 description: true,
-                cardImageUrl: true,
+                card_image_url: true,
               },
             },
           },
@@ -45,11 +45,11 @@ export async function GET(
       )
     }
 
-    const { displayName, description, cardImageUrl } = dispute.aiJudgment.resultConflictDetail
+    const { displayName, description, card_image_url } = dispute.aiJudgment.resultConflictDetail
 
     return NextResponse.json<ApiResponse<ConflictTypePublicDto>>({
       success: true,
-      data: { displayName, description, cardImageUrl },
+      data: { displayName, description, cardImageUrl: card_image_url },
     })
   } catch {
     return NextResponse.json<ApiResponse>(
