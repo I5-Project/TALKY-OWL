@@ -23,6 +23,9 @@ export default function ConflictTypeClient({ data }: Props) {
     if (!data?.cardImageUrl) return
     try {
       const res = await fetch(data.cardImageUrl)
+      if (!res.ok) {
+        throw new Error(`Image download failed: ${res.status}`)
+      }
       const blob = await res.blob()
       const objectUrl = URL.createObjectURL(blob)
       const a = document.createElement('a')

@@ -19,6 +19,7 @@
 
 .errorText {
   @include m.text-body-m;
+
   color: v.$color-black-400;
 }
 
@@ -37,6 +38,7 @@
 
 .title {
   @include m.text-title-s;
+
   color: v.$color-black-700;
   text-align: center;
 }
@@ -64,11 +66,13 @@
 
 .fallbackText {
   @include m.text-title-m;
+
   color: v.$color-black-400;
 }
 
 .description {
   @include m.text-body-m;
+
   color: v.$color-black-500;
   text-align: center;
   line-height: 1.6;
