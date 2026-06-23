@@ -372,7 +372,7 @@ export default function DisputePage({ params }: { params: Promise<{ id: string }
             ) : judgmentSubTab === 'verdict' ? (
               <JudgmentResult judgment={judgment} participants={dispute.participants} />
             ) : (
-              <JudgmentTypeResult judgment={judgment} participants={dispute.participants} />
+              <JudgmentTypeResult judgment={judgment} participants={dispute.participants} disputeId={id} />
             )}
           </>
         )}

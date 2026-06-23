@@ -44,6 +44,6 @@ export function useStatistics() {
 
       return { items: stats, total: resolvedTotal }
     },
-    staleTime: 1000 * 60 * 60 * 24, // 서버 revalidate(86400s)와 맞춤
+    staleTime: 1000 * 60 * 60, // 1시간 — 서버는 24시간 캐시, 클라이언트는 1시간마다 재요청
   })
 }

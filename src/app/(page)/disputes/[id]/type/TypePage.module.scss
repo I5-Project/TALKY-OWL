@@ -1,0 +1,86 @@
+@use '@/styles/abstracts/variables' as v;
+@use '@/styles/abstracts/mixins' as m;
+@use '@/styles/abstracts/functions' as fn;
+
+.page {
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+  padding: fn.r(24) fn.r(16) fn.r(32);
+  background-color: v.$color-white;
+}
+
+.centerWrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100dvh;
+}
+
+.errorText {
+  @include m.text-body-m;
+
+  color: v.$color-black-400;
+}
+
+.logoWrap {
+  display: flex;
+  justify-content: center;
+  margin-bottom: fn.r(32);
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: fn.r(16);
+  flex: 1;
+}
+
+.title {
+  @include m.text-title-s;
+
+  color: v.$color-black-700;
+  text-align: center;
+}
+
+.cardImageWrapper {
+  width: 100%;
+  border-radius: fn.r(16);
+  overflow: hidden;
+  background-color: v.$color-black-100;
+}
+
+.cardImage {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.cardImageFallback {
+  width: 100%;
+  min-height: fn.r(240);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.fallbackText {
+  @include m.text-title-m;
+
+  color: v.$color-black-400;
+}
+
+.description {
+  @include m.text-body-m;
+
+  color: v.$color-black-500;
+  text-align: center;
+  line-height: 1.6;
+}
+
+.actions {
+  margin-top: fn.r(24);
+  display: flex;
+  flex-direction: column;
+  gap: fn.r(12);
+}
