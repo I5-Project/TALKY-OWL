@@ -12,9 +12,22 @@
 
 .centerWrap {
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
+  gap: fn.r(16);
   min-height: 100dvh;
+}
+
+.backLink {
+  @include m.text-body-s;
+
+  color: v.$color-black-400;
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-decoration: underline;
+  padding: 0;
 }
 
 .errorText {
