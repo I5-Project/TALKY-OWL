@@ -1,6 +1,6 @@
 import { GoogleGenerativeAI } from '@google/generative-ai'
 
-const MODEL_FALLBACKS = ['gemini-2.0-flash-lite', 'gemini-2.5-flash', 'gemini-1.5-flash']
+const MODEL_FALLBACKS = ['gemini-2.0-flash-lite', 'gemini-2.5-flash', 'gemini-2.0-flash']
 const REQUEST_TIMEOUT_MS = 30000
 
 const SYSTEM_PROMPT = `당신은 "부엉봇" AI 갈등 조정 판결 서비스의 고객문의 챗봇입니다.

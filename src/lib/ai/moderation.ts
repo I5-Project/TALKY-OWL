@@ -9,7 +9,7 @@ export interface ModerationResult {
   modelName: string
 }
 
-const MODEL_FALLBACKS = ['gemini-2.0-flash-lite', 'gemini-2.5-flash', 'gemini-1.5-flash']
+const MODEL_FALLBACKS = ['gemini-2.0-flash-lite', 'gemini-2.5-flash', 'gemini-2.0-flash']
 
 function isFallbackable(err: unknown): boolean {
   const msg = err instanceof Error ? err.message : String(err)
