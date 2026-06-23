@@ -158,9 +158,6 @@
   }
 }
 
-.heroPhone {
-}
-
 .heroPhoneImage {
   display: block;
   object-fit: contain;
@@ -203,11 +200,6 @@
     display: block;
     max-height: 160px;
   }
-}
-
-.revolvingTrack {
-  display: flex;
-  flex-direction: column;
 }
 
 .revolvingWord {
@@ -272,11 +264,6 @@
   }
 }
 
-.revolvingTrackBelow {
-  display: flex;
-  flex-direction: column;
-}
-
 .heroRight {
   position: absolute;
   z-index: 1;
@@ -333,16 +320,11 @@
   font-weight: v.$font-weight-semibold;
 }
 
-.titleBold {
-  color: v.$color-black-700;
-  font-weight: v.$font-weight-semibold;
-}
-
 // ===========================
 // TAB 2: Feature Cards
 // ===========================
 .featureCardsSection {
-  padding: 60px 20px 80px;
+  padding: 60px 20px 180px;
   background: v.$color-primary-100;
   overflow: hidden;
   position: relative;
@@ -423,11 +405,18 @@
   border-radius: 20px;
   border: 2px solid v.$color-black;
   background: v.$color-white;
+  cursor: pointer;
+  transition: box-shadow 0.2s ease;
+
+  &:hover {
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.1);
+  }
 
   @include m.respond-to('lg') {
     flex: 1;
     min-height: 540px;
     padding: 32px 28px;
+    align-items: flex-start;
   }
 }
 
@@ -653,45 +642,3 @@
   }
 }
 
-// ===========================
-// Footer (dark section)
-// ===========================
-.siteFooter {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: v.$spacing-unit * 1.5;
-  padding: 40px 24px;
-  background: v.$color-black-700;
-}
-
-.footerLogo {
-  font-family: v.$font-family-base;
-  font-size: fn.r(18);
-  font-weight: v.$font-weight-bold;
-  color: v.$color-primary-700;
-}
-
-.footerLinks {
-  display: flex;
-  gap: v.$spacing-unit * 1.5;
-  flex-wrap: wrap;
-  justify-content: center;
-  font-family: v.$font-family-base;
-  font-size: fn.r(12);
-  font-weight: v.$font-weight-regular;
-  color: v.$color-black-200;
-  line-height: fn.r(20);
-
-  @include m.respond-to('lg') {
-    gap: v.$spacing-unit * 2;
-  }
-}
-
-.footerCopy {
-  font-family: v.$font-family-base;
-  font-size: fn.r(12);
-  font-weight: v.$font-weight-regular;
-  color: v.$color-black-400;
-  line-height: fn.r(20);
-}

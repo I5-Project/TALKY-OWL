@@ -284,7 +284,12 @@ export default function AboutPage() {
                 viewport={{ once: true, amount: 0.2 }}
               >
                 {featureCards.map((card) => (
-                  <motion.div key={card.num} className={styles.featureCard} variants={cardItem}>
+                  <motion.div
+                    key={card.num}
+                    className={styles.featureCard}
+                    variants={cardItem}
+                    whileHover={{ y: -6, transition: { duration: 0.2, ease: EASE } }}
+                  >
                     <div className={styles.featureCardText}>
                       <span className={styles.featureNum}>{card.num}</span>
                       <p className={styles.featureCardTitle}>{card.title}</p>
