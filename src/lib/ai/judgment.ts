@@ -1,18 +1,21 @@
 import { GoogleGenerativeAI } from '@google/generative-ai'
 
 const MODEL_NAME = 'gemini-2.5-flash'
-const MODEL_FALLBACKS = ['gemini-2.0-flash-lite', 'gemini-2.5-flash', 'gemini-1.5-flash']
+const MAX_RETRIES = 3
+const RETRY_DELAY_MS = 1500
 
-function isFallbackable(err: unknown): boolean {
+function isRetryable(err: unknown): boolean {
   const msg = err instanceof Error ? err.message : String(err)
   return (
     msg.includes('503') ||
     msg.includes('Service Unavailable') ||
     msg.includes('high demand') ||
-    msg.includes('404') ||
-    msg.includes('Not Found') ||
-    msg.includes('no longer available')
+    msg.includes('429')
   )
+}
+
+async function sleep(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms))
 }
 
 const CATEGORY_GROUP_KO: Record<string, string> = {
@@ -88,9 +91,9 @@ export async function extractDisputeMeta(statement: string): Promise<DisputeMeta
   const prompt = META_PROMPT.replace('{statement}', statement)
 
   let lastErr: unknown
-  for (const modelName of MODEL_FALLBACKS) {
+  for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
     try {
-      const model = genAI.getGenerativeModel({ model: modelName })
+      const model = genAI.getGenerativeModel({ model: MODEL_NAME })
       const result = await model.generateContent(prompt)
       const text = result.response.text().trim()
 
@@ -111,14 +114,18 @@ export async function extractDisputeMeta(statement: string): Promise<DisputeMeta
       return {
         title: Array.from(parsed.title as string).slice(0, 20).join(''),
         summary: Array.from(parsed.summary as string).slice(0, 50).join(''),
-        modelName,
+        modelName: MODEL_NAME,
       }
     } catch (err) {
-      if (isFallbackable(err)) {
-        console.warn(`[extractDisputeMeta] ${modelName} unavailable, trying next model...`)
-        lastErr = err
+      lastErr = err
+      const errMsg = err instanceof Error ? err.message : String(err)
+
+      if (isRetryable(err) && attempt < MAX_RETRIES) {
+        console.warn(`[extractDisputeMeta] ${MODEL_NAME} retry ${attempt + 1}/${MAX_RETRIES}: ${errMsg}`)
+        await sleep(RETRY_DELAY_MS * (attempt + 1))
         continue
       }
+
       throw err
     }
   }
@@ -224,9 +231,9 @@ async function callJudgmentAi(
   prompt: string,
 ): Promise<{ result: Record<string, unknown>; modelName: string }> {
   let lastErr: unknown
-  for (const modelName of MODEL_FALLBACKS) {
+  for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
     try {
-      const model = genAI.getGenerativeModel({ model: modelName })
+      const model = genAI.getGenerativeModel({ model: MODEL_NAME })
       const result = await model.generateContent(prompt)
       const text = result.response.text().trim()
 
@@ -245,13 +252,17 @@ async function callJudgmentAi(
         throw new Error('JSON')
       }
 
-      return { result: parsed, modelName }
+      return { result: parsed, modelName: MODEL_NAME }
     } catch (err) {
-      if (isFallbackable(err)) {
-        console.warn(`[callJudgmentAi] ${modelName} unavailable, trying next model...`)
-        lastErr = err
+      lastErr = err
+      const errMsg = err instanceof Error ? err.message : String(err)
+
+      if (isRetryable(err) && attempt < MAX_RETRIES) {
+        console.warn(`[callJudgmentAi] ${MODEL_NAME} retry ${attempt + 1}/${MAX_RETRIES}: ${errMsg}`)
+        await sleep(RETRY_DELAY_MS * (attempt + 1))
         continue
       }
+
       throw err
     }
   }

@@ -9,18 +9,22 @@ export interface ModerationResult {
   modelName: string
 }
 
-const MODEL_FALLBACKS = ['gemini-2.0-flash-lite', 'gemini-2.5-flash', 'gemini-1.5-flash']
+const MODEL_NAME = 'gemini-2.5-flash'
+const MAX_RETRIES = 3
+const RETRY_DELAY_MS = 1500
 
-function isFallbackable(err: unknown): boolean {
+function isRetryable(err: unknown): boolean {
   const msg = err instanceof Error ? err.message : String(err)
   return (
     msg.includes('503') ||
     msg.includes('Service Unavailable') ||
     msg.includes('high demand') ||
-    msg.includes('404') ||
-    msg.includes('Not Found') ||
-    msg.includes('no longer available')
+    msg.includes('429')
   )
+}
+
+async function sleep(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms))
 }
 
 const PROMPT_TEMPLATE = `You are a content moderation AI for a Korean conflict resolution service called TALKY-OWL.
@@ -70,9 +74,9 @@ export async function moderateContent(content: string): Promise<ModerationResult
   const startTime = Date.now()
 
   let lastErr: unknown
-  for (const modelName of MODEL_FALLBACKS) {
+  for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
     try {
-      const model = genAI.getGenerativeModel({ model: modelName })
+      const model = genAI.getGenerativeModel({ model: MODEL_NAME })
       const result = await model.generateContent(prompt)
       const durationMs = Date.now() - startTime
       const text = result.response.text().trim()
@@ -93,14 +97,18 @@ export async function moderateContent(content: string): Promise<ModerationResult
         confidenceScore: Math.min(1, Math.max(0, Number(parsed.confidenceScore) || 0)),
         hasPersonalInfo: Boolean(parsed.hasPersonalInfo),
         durationMs,
-        modelName,
+        modelName: MODEL_NAME,
       }
     } catch (err) {
-      if (isFallbackable(err)) {
-        console.warn(`[moderation] ${modelName} unavailable, trying next model...`)
-        lastErr = err
+      lastErr = err
+      const errMsg = err instanceof Error ? err.message : String(err)
+
+      if (isRetryable(err) && attempt < MAX_RETRIES) {
+        console.warn(`[moderation] ${MODEL_NAME} retry ${attempt + 1}/${MAX_RETRIES}: ${errMsg}`)
+        await sleep(RETRY_DELAY_MS * (attempt + 1))
         continue
       }
+
       throw err
     }
   }
