@@ -13,11 +13,16 @@ export async function getOrCreateSession(userId: string) {
   })
 }
 
+const MAX_HISTORY_MESSAGES = 30
+
 export async function getSessionMessages(sessionId: string) {
-  return prisma.chatMessage.findMany({
+  const messages = await prisma.chatMessage.findMany({
     where: { sessionId },
-    orderBy: { createdAt: 'asc' },
+    orderBy: { createdAt: 'desc' },
+    take: MAX_HISTORY_MESSAGES,
   })
+
+  return messages.reverse()
 }
 
 export async function saveMessage(

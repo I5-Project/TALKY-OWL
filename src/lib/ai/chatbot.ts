@@ -1,6 +1,9 @@
 import { GoogleGenerativeAI } from '@google/generative-ai'
 
 const MODEL_NAME = 'gemini-2.5-flash'
+const MAX_RETRIES = 2
+const RETRY_DELAY_MS = 1500
+const REQUEST_TIMEOUT_MS = 30000
 
 const SYSTEM_PROMPT = `당신은 "토키올" AI 갈등 조정 판결 서비스의 고객문의 챗봇입니다.
 친절하고 간결하게 답변해주세요. 존댓말을 사용하세요.
@@ -44,11 +47,31 @@ export interface ChatMessage {
   content: string
 }
 
-const MAX_RETRIES = 2
-const RETRY_DELAY_MS = 1500
+export class ChatbotTimeoutError extends Error {
+  constructor() {
+    super('Gemini request timed out')
+    this.name = 'ChatbotTimeoutError'
+  }
+}
+
+export class ChatbotGeminiError extends Error {
+  constructor(message: string) {
+    super(message)
+    this.name = 'ChatbotGeminiError'
+  }
+}
 
 async function sleep(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms))
+}
+
+function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
+  return Promise.race([
+    promise,
+    new Promise<never>((_, reject) =>
+      setTimeout(() => reject(new ChatbotTimeoutError()), ms)
+    ),
+  ])
 }
 
 export async function getChatbotResponse(
@@ -76,10 +99,13 @@ export async function getChatbotResponse(
 
   for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
     try {
-      const result = await chat.sendMessage(userMessage)
+      const result = await withTimeout(chat.sendMessage(userMessage), REQUEST_TIMEOUT_MS)
       return result.response.text()
     } catch (error) {
       lastError = error
+
+      if (error instanceof ChatbotTimeoutError) throw error
+
       const isRetryable =
         error instanceof Error &&
         (error.message.includes('503') ||
@@ -93,5 +119,8 @@ export async function getChatbotResponse(
     }
   }
 
-  throw lastError
+  if (lastError instanceof Error) {
+    throw new ChatbotGeminiError(lastError.message)
+  }
+  throw new ChatbotGeminiError('Unknown Gemini error')
 }

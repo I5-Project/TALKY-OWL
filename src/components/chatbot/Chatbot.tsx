@@ -211,14 +211,14 @@ export default function Chatbot() {
     if (historyLoaded) return
     try {
       const res = await fetch('/api/chatbot')
+      if (!res.ok) return
       const data = await res.json()
       if (data.success && data.data.messages.length > 0) {
         setMessages([WELCOME_MESSAGE, ...data.data.messages])
       }
-    } catch {
-      // 히스토리 로드 실패 시 웰컴 메시지만 유지
-    } finally {
       setHistoryLoaded(true)
+    } catch {
+      // 히스토리 로드 실패 시 웰컴 메시지만 유지, 다음 열기 시 재시도
     }
   }, [historyLoaded])
 
@@ -239,8 +239,16 @@ export default function Chatbot() {
     if (!text.trim() || isLoading) return
 
     if (text.trim() === '처음으로') {
-      setMessages([WELCOME_MESSAGE])
-      fetch('/api/chatbot', { method: 'DELETE' }).catch(() => {})
+      try {
+        const res = await fetch('/api/chatbot', { method: 'DELETE' })
+        if (!res.ok) throw new Error()
+        setMessages([WELCOME_MESSAGE])
+      } catch {
+        setMessages((prev) => [
+          ...prev,
+          { role: 'bot', content: '대화 초기화에 실패했습니다. 잠시 후 다시 시도해주세요.', timestamp: getNow() },
+        ])
+      }
       return
     }
 

@@ -2,13 +2,17 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { getSessionUserId } from '@/lib/auth/session'
-import { getChatbotResponse } from '@/lib/ai/chatbot'
+import { getChatbotResponse, ChatbotTimeoutError, ChatbotGeminiError } from '@/lib/ai/chatbot'
 import {
   getOrCreateSession,
   getSessionMessages,
   saveMessage,
   clearSession,
 } from '@/domains/common/chatbot.service'
+
+function mapRole(role: string): 'user' | 'bot' {
+  return role.toLowerCase() === 'user' ? 'user' : 'bot'
+}
 
 export async function POST(req: NextRequest) {
   try {
@@ -42,7 +46,7 @@ export async function POST(req: NextRequest) {
     const dbMessages = await getSessionMessages(chatSession.id)
 
     const history = dbMessages.map((m) => ({
-      role: m.role === 'USER' ? 'user' as const : 'bot' as const,
+      role: mapRole(m.role),
       content: m.content,
     }))
 
@@ -55,6 +59,20 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ success: true, data: { reply } })
   } catch (error) {
     console.error('[Chatbot API Error]', error instanceof Error ? error.message : error)
+
+    if (error instanceof ChatbotTimeoutError) {
+      return NextResponse.json(
+        { success: false, error: '응답 시간이 초과되었습니다. 잠시 후 다시 시도해주세요.' },
+        { status: 504 }
+      )
+    }
+    if (error instanceof ChatbotGeminiError) {
+      return NextResponse.json(
+        { success: false, error: 'AI 서비스에 일시적인 문제가 발생했습니다. 잠시 후 다시 시도해주세요.' },
+        { status: 502 }
+      )
+    }
+
     return NextResponse.json(
       { success: false, error: '답변 생성에 실패했습니다. 잠시 후 다시 시도해주세요.' },
       { status: 500 }
@@ -77,7 +95,7 @@ export async function GET() {
     const messages = await getSessionMessages(chatSession.id)
 
     const data = messages.map((m) => ({
-      role: m.role === 'USER' ? 'user' : 'bot',
+      role: mapRole(m.role),
       content: m.content,
       timestamp: m.createdAt.toLocaleTimeString('ko-KR', {
         hour: '2-digit',
