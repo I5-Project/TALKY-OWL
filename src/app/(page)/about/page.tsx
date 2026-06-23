@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, type Variants } from 'framer-motion';
 import BalanceIcon from '@mui/icons-material/Balance';
 import LibraryAddCheckIcon from '@mui/icons-material/LibraryAddCheck';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
@@ -11,6 +11,65 @@ import { useHeaderStore } from '@/stores/headerStore';
 import SpriteAnimation from '@/components/about/SpriteAnimation';
 import styles from './page.module.scss';
 import HomeServiceInfo from '@/components/home/HomeServiceInfo';
+
+const EASE: [number, number, number, number] = [0.25, 0.1, 0.25, 1];
+
+// 아래에서 페이드
+const fadeUp: Variants = {
+  hidden: { opacity: 0, y: 30 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: EASE } },
+};
+
+// 왼쪽 슬라이드
+const slideLeft: Variants = {
+  hidden: { opacity: 0, x: -50 },
+  visible: { opacity: 1, x: 0, transition: { duration: 0.65, ease: EASE } },
+};
+
+// 오른쪽 슬라이드
+const slideRight: Variants = {
+  hidden: { opacity: 0, x: 50 },
+  visible: { opacity: 1, x: 0, transition: { duration: 0.65, ease: EASE } },
+};
+
+// 대각선 걸어오는 느낌 (animals01)
+const walkIn: Variants = {
+  hidden: { opacity: 0, x: -60, y: 40 },
+  visible: { opacity: 1, x: 0, y: 0, transition: { duration: 0.8, ease: EASE } },
+};
+
+// 위에서 스프링 바운스 (animals02)
+const dropBounce: Variants = {
+  hidden: { opacity: 0, y: -50 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { type: 'spring', stiffness: 180, damping: 14, delay: 0.2 },
+  },
+};
+
+// 스케일 + 페이드 (feature cards)
+const cardContainer: Variants = {
+  hidden: {},
+  visible: { transition: { staggerChildren: 0.13 } },
+};
+
+const cardItem: Variants = {
+  hidden: { opacity: 0, y: 36, scale: 0.95 },
+  visible: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.5, ease: EASE } },
+};
+
+// 스케일업 (showcase 폰 이미지)
+const scaleUp: Variants = {
+  hidden: { opacity: 0, scale: 0.88 },
+  visible: { opacity: 1, scale: 1, transition: { duration: 0.7, ease: EASE } },
+};
+
+// 아래서 크게 올라옴 (showcase 3 폰)
+const riseUp: Variants = {
+  hidden: { opacity: 0, y: 70 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.75, ease: EASE } },
+};
 
 const REVOLVING_WORDS = ['남친', '친구', '상사', '엄마'];
 const REVOLVING_ORDER = [2, 3, 0, 1];
@@ -188,39 +247,65 @@ export default function AboutPage() {
 
           {/* ===== FEATURE CARDS ===== */}
           <section className={styles.featureCardsSection}>
-            <Image
-              src="/images/about/animals01.png"
-              alt="고양이와강아지"
-              width={700}
-              height={422}
+            <motion.div
+              variants={walkIn}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, amount: 0.2 }}
               className={styles.animalCatnDog}
-            />
-            <div className={styles.featureCardsOuter}>
+            >
               <Image
-                src="/images/about/animals02.png"
-                alt="판다"
-                width={120}
-                height={120}
-                className={styles.animalPanda}
+                src="/images/about/animals01.png"
+                alt="고양이와강아지"
+                width={700}
+                height={422}
               />
-              <div className={styles.featureCardsInner}>
+            </motion.div>
+            <div className={styles.featureCardsOuter}>
+              <motion.div
+                variants={dropBounce}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true, amount: 0.2 }}
+                className={styles.animalPanda}
+              >
+                <Image
+                  src="/images/about/animals02.png"
+                  alt="판다"
+                  width={120}
+                  height={120}
+                />
+              </motion.div>
+              <motion.div
+                className={styles.featureCardsInner}
+                variants={cardContainer}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true, amount: 0.2 }}
+              >
                 {featureCards.map((card) => (
-                  <div key={card.num} className={styles.featureCard}>
+                  <motion.div key={card.num} className={styles.featureCard} variants={cardItem}>
                     <div className={styles.featureCardText}>
                       <span className={styles.featureNum}>{card.num}</span>
                       <p className={styles.featureCardTitle}>{card.title}</p>
                     </div>
                     <div className={styles.featureCardIcon}>{card.icon}</div>
-                  </div>
+                  </motion.div>
                 ))}
-              </div>
+              </motion.div>
             </div>
           </section>
 
           {/* ===== 상대 초대 ===== */}
           <div className={`${styles.showcaseWrapper} ${styles.bgWhite}`}>
             <div className={styles.showcaseSection}>
-              <div className={styles.showcaseText}>
+              <motion.div
+                className={styles.showcaseText}
+                variants={fadeUp}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true, amount: 0.3 }}
+              >
                 <h2 className={styles.showcaseTitle}>
                   {'상대를 초대해\n둘만의 방을 만들어보세요'}
                 </h2>
@@ -229,8 +314,14 @@ export default function AboutPage() {
                   <br />
                   상대를 초대해 판결받으면 더욱 객관적인 판결결과를 얻을수 있어요
                 </p>
-              </div>
-              <div className={styles.showcasePhoneWrap}>
+              </motion.div>
+              <motion.div
+                className={styles.showcasePhoneWrap}
+                variants={scaleUp}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true, amount: 0.3 }}
+              >
                 <Image
                   src="/images/about/mockup02.png"
                   alt="상대 초대"
@@ -238,14 +329,20 @@ export default function AboutPage() {
                   height={672}
                   className={styles.showcasePhoneImage}
                 />
-              </div>
+              </motion.div>
             </div>
           </div>
 
           {/* ===== 감정일기 ===== */}
           <div className={`${styles.showcaseWrapper} ${styles.bgLight}`}>
             <div className={styles.showcaseSection}>
-              <div className={styles.showcasePhoneWrap}>
+              <motion.div
+                className={styles.showcasePhoneWrap}
+                variants={slideLeft}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true, amount: 0.3 }}
+              >
                 <Image
                   src="/images/about/mockup03.png"
                   alt="감정일기"
@@ -253,18 +350,30 @@ export default function AboutPage() {
                   height={775}
                   className={styles.showcasePhoneImage}
                 />
-              </div>
-              <div className={`${styles.showcaseText} ${styles.showcaseTextRight}`}>
+              </motion.div>
+              <motion.div
+                className={`${styles.showcaseText} ${styles.showcaseTextRight}`}
+                variants={fadeUp}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true, amount: 0.3 }}
+              >
                 <h2 className={styles.showcaseTitle}>하루의 감정을 기록해 보세요</h2>
                 <p className={styles.showcaseDesc}>오늘 감정을 기록하고 푸른하늘에 묻어버리세요!</p>
-              </div>
+              </motion.div>
             </div>
           </div>
 
           {/* ===== 쌓인 기록 ===== */}
           <div className={`${styles.showcaseWrapper} ${styles.bgWhite}`}>
             <div className={styles.showcaseSection}>
-              <div className={styles.showcaseText}>
+              <motion.div
+                className={styles.showcaseText}
+                variants={slideLeft}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true, amount: 0.3 }}
+              >
                 <h2 className={styles.showcaseTitle}>
                   {'쌓인 기록으로\n서로를 이해하는 시간을 가져보세요'}
                 </h2>
@@ -273,8 +382,14 @@ export default function AboutPage() {
                   <br />
                   말해부엉이 상대방에게 건네줄 사과 대본까지 만들어드려요
                 </p>
-              </div>
-              <div className={styles.showcasePhoneWrap}>
+              </motion.div>
+              <motion.div
+                className={styles.showcasePhoneWrap}
+                variants={riseUp}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true, amount: 0.3 }}
+              >
                 <Image
                   src="/images/about/mockup04.png"
                   alt="판결 결과"
@@ -282,12 +397,18 @@ export default function AboutPage() {
                   height={715}
                   className={styles.showcasePhoneImageTop}
                 />
-              </div>
+              </motion.div>
             </div>
           </div>
 
           {/* ===== CTA ===== */}
-          <section className={styles.ctaSection}>
+          <motion.section
+            className={styles.ctaSection}
+            variants={fadeUp}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.4 }}
+          >
             <Image
               src="/images/characters/character-welcome.svg"
               alt="말해부엉"
@@ -302,7 +423,7 @@ export default function AboutPage() {
             <button className={styles.ctaButton} onClick={() => router.push('/login')}>
               말해부엉 바로가기
             </button>
-          </section>
+          </motion.section>
 
           {/* ===== FOOTER ===== */}
           <div className={styles.serviceInfoWrapper}>
