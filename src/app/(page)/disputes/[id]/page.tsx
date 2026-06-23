@@ -112,8 +112,8 @@ export default function DisputePage({ params }: { params: Promise<{ id: string }
     return () => clearInterval(timer);
   }, [isJudging]);
 
-  // 판결 완료/종료 상태일 때만 fetch — 불필요한 API 호출 방지
-  const isJudged = !!dispute && dispute.status === 'judged';
+  // judged/closed 모두 판결 결과 fetch — isCompleted와 동일 범위
+  const isJudged = isCompleted;
 
   const {
     data: judgment,
@@ -372,7 +372,7 @@ export default function DisputePage({ params }: { params: Promise<{ id: string }
             ) : judgmentSubTab === 'verdict' ? (
               <JudgmentResult judgment={judgment} participants={dispute.participants} />
             ) : (
-              <JudgmentTypeResult judgment={judgment} participants={dispute.participants} />
+              <JudgmentTypeResult judgment={judgment} participants={dispute.participants} disputeId={id} />
             )}
           </>
         )}

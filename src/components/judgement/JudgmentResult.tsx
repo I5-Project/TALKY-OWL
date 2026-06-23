@@ -11,9 +11,12 @@ interface Props {
 }
 
 function replaceRoleNames(text: string, nameA: string, nameB: string): string {
+  // PUA 플레이스홀더로 먼저 치환해 nameA/B가 서로 영향 주는 것을 방지
   return text
-    .replace(/\bB\b/g, nameB)
-    .replace(/\bA\b/g, nameA)
+    .replace(/\bA\b/g, '')
+    .replace(/\bB\b/g, '')
+    .replace(//g, nameA)
+    .replace(//g, nameB)
 }
 
 function Avatar({ src }: { src: string | null }) {
@@ -62,7 +65,7 @@ export default function JudgmentResult({ judgment, participants }: Props) {
               <div className={styles.scoreHeader}>
                 <div className={styles.scoreAvatar}>
                   <Image
-                    src={moreGuiltyParticipant?.profileImageUrl ?? '/images/common/thumbnail-default.png'}
+                    src={moreGuiltyParticipant?.profileImageUrl ?? '/images/common/thumbnail-default.svg'}
                     alt=""
                     width={48}
                     height={48}

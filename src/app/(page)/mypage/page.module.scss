@@ -33,11 +33,7 @@
 
   &__badge {
     @include m.text-caption;
-    align-self: flex-start;
-    padding: fn.r(2) fn.r(8);
-    background-color: var(--bg-secondary);
     color: var(--text-secondary);
-    border-radius: fn.r(12);
   }
 
   &__setting {
