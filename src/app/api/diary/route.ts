@@ -54,15 +54,14 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const parsedDateObj = new Date(`${diaryDate}T00:00:00.000Z`);
-    const nextDay = new Date(parsedDateObj);
+    const nextDay = new Date(parsedDate);
     nextDay.setUTCDate(nextDay.getUTCDate() + 1);
 
     const existingCount = await prisma.emotionDiary.count({
       where: {
         userId,
         emotionType: emotionType ?? 'neutral',
-        diaryDate: { gte: parsedDateObj, lt: nextDay },
+        diaryDate: { gte: parsedDate, lt: nextDay },
         deletedAt: null,
       },
     });
