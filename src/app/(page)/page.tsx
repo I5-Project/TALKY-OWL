@@ -54,7 +54,7 @@ export default async function HomePage() {
             <ActiveCasesSection />
           </div>
         ) : (
-          <Link href="/login" className={styles.introBox} aria-label="말해부엉 알아보기">
+          <Link href="/about" className={styles.introBox} aria-label="말해부엉 알아보기">
             <div className={styles.diaryTextGroup}>
               <p className={styles.diaryTitle}>말해부엉이 궁금하신가요?</p>
               <p className={styles.diarySubtitle}>말해부엉 알아보기</p>
