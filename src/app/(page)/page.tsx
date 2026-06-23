@@ -2,12 +2,14 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { getCachedSession } from '@/lib/auth/getSession';
 import Header from '@/components/layout/Header';
+import AddRoundedIcon from '@mui/icons-material/AddRounded';
 import StatsCategorySection from '@/components/home/StatsCategorySection';
 import ActiveCasesSection from '@/components/home/ActiveCasesSection';
 import NewCaseButton from '@/components/home/NewCaseButton';
 import HomeServiceInfo from '@/components/home/HomeServiceInfo';
 import HomeGreeting from '@/components/home/HomeGreeting';
 import styles from './page.module.scss';
+import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 
 export default async function HomePage() {
   const session = await getCachedSession();
@@ -36,7 +38,7 @@ export default async function HomePage() {
             <p className={styles.diarySubtitle}>감정일기 작성하러가기</p>
           </div>
           <span className={styles.diaryButton} aria-hidden="true">
-            +
+            <AddRoundedIcon sx={{ fontSize: 24 }} />
           </span>
         </Link>
 
@@ -58,7 +60,7 @@ export default async function HomePage() {
               <p className={styles.diarySubtitle}>말해부엉 알아보기</p>
             </div>
             <span className={styles.introArrow} aria-hidden="true">
-              ›
+              <ChevronRightIcon sx={{ fontSize: 24 }} />
             </span>
           </Link>
         )}

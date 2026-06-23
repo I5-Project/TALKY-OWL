@@ -1,5 +1,6 @@
 @use '@/styles/abstracts/variables' as v;
 @use '@/styles/abstracts/functions' as fn;
+@use '@/styles/abstracts/mixins' as m;
 
 .section {
   display: flex;
@@ -9,9 +10,7 @@
 }
 
 .title {
-  font-size: v.$font-size-title-s;
-  font-weight: v.$font-weight-bold;
-  line-height: v.$line-height-title-s;
+  @include m.text-title-s;
   color: var(--text-primary);
 }
 
@@ -21,17 +20,28 @@
   width: 100%;
   height: fn.r(12);
   align-self: center;
+  border-radius: fn.r(8);
   overflow: hidden;
-  border-radius: 0;
 
   &__segment {
+    width: 50%;
     height: 100%;
 
-    &--romance     { background-color: var(--category-love-bg); }
-    &--work        { background-color: var(--category-work-bg); }
-    &--friend      { background-color: var(--category-friend-bg); }
-    &--family      { background-color: var(--category-family-bg); }
-    &--placeholder { background-color: var(--bg-disabled); }
+    &--romance {
+      background-color: var(--category-love-bg);
+    }
+    &--work {
+      background-color: var(--category-work-bg);
+    }
+    &--friend {
+      background-color: var(--category-friend-bg);
+    }
+    &--family {
+      background-color: var(--category-family-bg);
+    }
+    &--placeholder {
+      background-color: var(--bg-disabled);
+    }
   }
 }
 
@@ -39,9 +49,8 @@
 .labels {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: fn.r(8) fn.r(0);
+  gap: fn.r(8);
   margin-top: fn.r(1); // bar ↔ labels: 13px (gap 12 + 1 = 13)
-  justify-items: center;
 }
 
 .label {
@@ -50,35 +59,51 @@
   gap: fn.r(4);
 
   &__icon {
-    font-size: fn.r(14) !important;
-
-    &--romance { color: var(--category-love-text); }
-    &--work    { color: var(--category-work-text); }
-    &--friend  { color: var(--category-friend-text); }
-    &--family  { color: var(--category-family-text); }
+    &--romance {
+      color: var(--category-love-text);
+    }
+    &--work {
+      color: var(--category-work-text);
+    }
+    &--friend {
+      color: var(--category-friend-text);
+    }
+    &--family {
+      color: var(--category-family-text);
+    }
   }
+  .labelText {
+    @include m.text-body-s;
+    font-weight: v.$font-weight-bold;
 
-  &__text {
-    font-size: v.$font-size-caption;
-    font-weight: v.$font-weight-regular;
-    line-height: v.$line-height-caption;
-
-    &--romance { color: var(--category-love-text); }
-    &--work    { color: var(--category-work-text); }
-    &--friend  { color: var(--category-friend-text); }
-    &--family  { color: var(--category-family-text); }
-
-    &--bold { font-weight: v.$font-weight-bold; }
+    &--romance {
+      color: var(--category-love-text);
+    }
+    &--work {
+      color: var(--category-work-text);
+    }
+    &--friend {
+      color: var(--category-friend-text);
+    }
+    &--family {
+      color: var(--category-family-text);
+    }
   }
 
   &__percent {
-    font-size: v.$font-size-caption;
-    font-weight: v.$font-weight-regular;
-    line-height: v.$line-height-caption;
+    @include m.text-caption;
 
-    &--romance { color: var(--category-love-text); }
-    &--work    { color: var(--category-work-text); }
-    &--friend  { color: var(--category-friend-text); }
-    &--family  { color: var(--category-family-text); }
+    &--romance {
+      color: var(--category-love-text);
+    }
+    &--work {
+      color: var(--category-work-text);
+    }
+    &--friend {
+      color: var(--category-friend-text);
+    }
+    &--family {
+      color: var(--category-family-text);
+    }
   }
 }
