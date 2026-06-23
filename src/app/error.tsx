@@ -1,5 +1,6 @@
 'use client'
 
+import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import Header from '@/components/layout/Header'
 import Button from '@/components/ui/Button'
@@ -18,7 +19,7 @@ export default function Error({
       <Header variant="logo" />
       <div className={styles.content}>
         <div className={styles.character}>
-          <img src="/images/characters/character-error.svg" alt="" width={220} height={220} />
+          <Image src="/images/characters/character-error.svg" alt="" width={220} height={220} />
         </div>
         <div className={styles.textGroup}>
           <h1 className={styles.title}>{'일시적인 오류가\n발생했어요'}</h1>

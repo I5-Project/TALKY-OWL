@@ -10,9 +10,11 @@ export default function GlobalError({
     <html lang="ko">
       <body style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', minHeight: '100vh', padding: '40px 20px 32px', backgroundColor: '#ffffff', fontFamily: 'sans-serif', margin: 0 }}>
         <header style={{ display: 'flex', alignItems: 'center', height: '52px', padding: '0 4px' }}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/images/common/logo.svg" alt="말해부엉" width={66} height={19} />
         </header>
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '40px' }}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/images/characters/character-error.svg" alt="" width={220} height={220} />
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
             <h1 style={{ fontSize: '20px', fontWeight: 700, color: '#353a3d', textAlign: 'center', whiteSpace: 'pre-line', margin: 0 }}>
@@ -27,7 +29,7 @@ export default function GlobalError({
           <button onClick={reset} style={{ width: '100%', height: '52px', borderRadius: '12px', backgroundColor: '#72aea6', color: '#ffffff', fontSize: '15px', fontWeight: 600, border: 'none', cursor: 'pointer' }}>
             다시 시도하기
           </button>
-          <button onClick={() => window.history.back()} style={{ width: '100%', height: '52px', borderRadius: '12px', backgroundColor: 'transparent', color: '#7f8387', fontSize: '15px', fontWeight: 600, border: '1px solid #d7dbde', cursor: 'pointer' }}>
+          <button onClick={() => window.history.back()} style={{ width: '100%', height: '52px', borderRadius: '12px', backgroundColor: '#5e9d96', color: '#ffffff', fontSize: '15px', fontWeight: 600, border: 'none', cursor: 'pointer' }}>
             이전 페이지로 이동하기
           </button>
         </div>
