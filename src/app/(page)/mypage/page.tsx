@@ -61,6 +61,10 @@ export default function MyPage() {
         </section>
 
         <nav className={styles.menu}>
+          <button type="button" className={styles.menu__item} onClick={() => setLogoutOpen(true)}>
+            <span className={styles.menu__label}>로그아웃</span>
+            <ChevronRightRoundedIcon className={styles.menu__arrow} />
+          </button>
           {LINK_ITEMS.map((item) =>
             isPreparing(item.key) ? (
               <button
@@ -87,11 +91,6 @@ export default function MyPage() {
           >
             <span className={styles.menu__label}>회원탈퇴</span>
             <ChevronRightRoundedIcon className={styles.menu__arrow} sx={{ fontSize: 24 }} />
-          </button>
-
-          <button type="button" className={styles.menu__item} onClick={() => setLogoutOpen(true)}>
-            <span className={styles.menu__label}>로그아웃</span>
-            <ChevronRightRoundedIcon className={styles.menu__arrow} />
           </button>
         </nav>
       </main>

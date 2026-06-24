@@ -73,9 +73,9 @@
     color: var(--text-primary);
   }
 
-  &__item--danger {
-    color: var(--text-danger);
-  }
+  // &__item--danger {
+  //   color: var(--text-danger);
+  // }
 
   &__label {
     @include m.text-title-s;
