@@ -79,7 +79,6 @@
 
 .diaryTitle {
   @include m.text-title-s;
-
   font-weight: v.$font-weight-semibold;
   color: v.$color-black-700;
 }
