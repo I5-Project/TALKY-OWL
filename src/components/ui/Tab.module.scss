@@ -15,12 +15,10 @@
   width: fn.r(60);
   padding: fn.r(4) fn.r(16);
   border-radius: fn.r(4);
-
   cursor: pointer;
   transition: all 0.15s ease;
   border: 1px solid var(--border-strong);
   white-space: nowrap;
-
   @include m.text-body-m;
 
   &--inactive {

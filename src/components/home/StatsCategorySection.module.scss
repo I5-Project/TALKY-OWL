@@ -74,6 +74,7 @@
   }
   .labelText {
     @include m.text-body-s;
+
     font-weight: v.$font-weight-bold;
 
     &--romance {
