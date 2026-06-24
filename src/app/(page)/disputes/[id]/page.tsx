@@ -292,7 +292,7 @@ export default function DisputePage({ params }: { params: Promise<{ id: string }
       {isCompleted && <Tabs tabs={TABS} activeId={activeTab} onChange={setActiveTab} />}
 
       {/* 컨텐츠 */}
-      <div className={isCompleted ? styles.content : styles.contentWithFooter}>
+      <div className={!isCompleted ? styles.contentWithFooter : judgmentSubTab === 'type' ? styles.contentType : styles.content}>
         {(!isCompleted || activeTab === 'statement') && (
           <div className={styles.statements}>
             {roleAStatement && (

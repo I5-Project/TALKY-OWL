@@ -148,6 +148,11 @@
   padding-bottom: fn.r(80);
 }
 
+.contentType {
+  flex: 1;
+  overflow-y: auto;
+}
+
 .contentWithFooter {
   flex: 1;
   overflow-y: auto;
