@@ -98,11 +98,14 @@
 }
 
 .headerLink {
-  padding: 6px 16px;
+  height: fn.r(36);
+  padding: 0 16px;
   border: 1px solid v.$color-black-300;
   border-radius: 4px;
   cursor: pointer;
   transition: background 0.2s;
+  color: v.$color-black-700;
+  font-weight: v.$font-weight-bold;
   @include m.text-body-m;
 
   &:hover {
@@ -650,4 +653,3 @@
     transform: scale(0.98);
   }
 }
-
