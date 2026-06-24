@@ -9,11 +9,14 @@ import styles from './StatsCategorySection.module.scss';
 
 type CategoryKey = 'ROMANCE' | 'WORK' | 'FRIEND' | 'FAMILY';
 
-const CATEGORY_CONFIG: Record<CategoryKey, { label: string; icon: React.ElementType; styleKey: string }> = {
-  ROMANCE: { label: '연인관계', icon: FavoriteIcon,         styleKey: 'romance' },
-  WORK:    { label: '직장관계', icon: BusinessCenterIcon,   styleKey: 'work'    },
-  FRIEND:  { label: '친구관계', icon: Diversity3Icon,       styleKey: 'friend'  },
-  FAMILY:  { label: '가족관계', icon: FamilyRestroomIcon,   styleKey: 'family'  },
+const CATEGORY_CONFIG: Record<
+  CategoryKey,
+  { label: string; icon: React.ElementType; styleKey: string }
+> = {
+  ROMANCE: { label: '연인관계', icon: FavoriteIcon, styleKey: 'romance' },
+  WORK: { label: '직장관계', icon: BusinessCenterIcon, styleKey: 'work' },
+  FRIEND: { label: '친구관계', icon: Diversity3Icon, styleKey: 'friend' },
+  FAMILY: { label: '가족관계', icon: FamilyRestroomIcon, styleKey: 'family' },
 };
 
 const PLACEHOLDER_CATEGORIES = ['ROMANCE', 'WORK', 'FRIEND', 'FAMILY'] as const;
@@ -35,7 +38,6 @@ export default function StatsCategorySection() {
               <div
                 key={category}
                 className={`${styles.bar__segment} ${styles['bar__segment--placeholder']}`}
-                style={{ width: '25%' }}
               />
             ))
           : data!.items.map(({ category, percentage }) => {
@@ -54,11 +56,16 @@ export default function StatsCategorySection() {
       <div className={styles.labels}>
         {PLACEHOLDER_CATEGORIES.map((category) => {
           const { label, icon: Icon, styleKey } = CATEGORY_CONFIG[category];
-          const percentage = showPlaceholder ? null : data!.items.find((i) => i.category === category)?.percentage ?? 0;
+          const percentage = showPlaceholder
+            ? null
+            : (data!.items.find((i) => i.category === category)?.percentage ?? 0);
           return (
             <div key={category} className={styles.label}>
-              <Icon className={`${styles.label__icon} ${styles[`label__icon--${styleKey}`]}`} />
-              <span className={`${styles.label__text} ${styles[`label__text--${styleKey}`]} ${styles['label__text--bold']}`}>
+              <Icon
+                className={`${styles.label__icon} ${styles[`label__icon--${styleKey}`]}`}
+                size="18"
+              />
+              <span className={`${styles.labelText} ${styles[`labelText--${styleKey}`]}`}>
                 {label}
               </span>
               <span className={`${styles.label__percent} ${styles[`label__percent--${styleKey}`]}`}>

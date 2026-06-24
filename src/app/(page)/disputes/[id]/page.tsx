@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useQueryClient } from '@tanstack/react-query';
 import AutorenewRoundedIcon from '@mui/icons-material/AutorenewRounded';
+import AddRoundedIcon from '@mui/icons-material/AddRounded';
 import CircularProgress from '@mui/material/CircularProgress';
 import { useHeaderStore } from '@/stores/headerStore';
 import Button from '@/components/ui/Button';
@@ -135,7 +136,9 @@ export default function DisputePage({ params }: { params: Promise<{ id: string }
   React.useEffect(() => {
     if (judgmentError && !judgmentErrorModal) {
       setJudgmentErrorMessage(
-        judgmentErrorData instanceof Error ? judgmentErrorData.message : '판결 결과를 불러올 수 없습니다.',
+        judgmentErrorData instanceof Error
+          ? judgmentErrorData.message
+          : '판결 결과를 불러올 수 없습니다.',
       );
       setJudgmentErrorModal(true);
     }
@@ -278,10 +281,10 @@ export default function DisputePage({ params }: { params: Promise<{ id: string }
       {isSolo && !isCompleted && (
         <button className={styles.inviteBanner} onClick={() => void handleInvite()}>
           <div className={styles.inviteBannerText}>
-            <span className={styles.inviteBannerTitle}>상대를 초대해</span>
+            <span className={styles.inviteBannerTitle}>상대를 초대</span>해<br />
             <span className={styles.inviteBannerDesc}>더 좋은 판결 결과를 얻어보세요</span>
           </div>
-          <span className={styles.inviteBannerPlus}>+</span>
+          <AddRoundedIcon sx={{ fontSize: 24 }} />
         </button>
       )}
 
@@ -295,11 +298,26 @@ export default function DisputePage({ params }: { params: Promise<{ id: string }
             {roleAStatement && (
               <div
                 className={`${styles.statementCard}${myRole === 'role_a' && !isCompleted ? ` ${styles.statementCardEditable}` : ''}`}
-                onClick={myRole === 'role_a' && !isCompleted ? () => router.push(`/disputes/${id}/statement?edit=true`) : undefined}
-                {...(myRole === 'role_a' && !isCompleted ? { role: 'button', tabIndex: 0, onKeyDown: (e) => { if (e.key === 'Enter' || e.key === ' ') router.push(`/disputes/${id}/statement?edit=true`) } } : {})}
+                onClick={
+                  myRole === 'role_a' && !isCompleted
+                    ? () => router.push(`/disputes/${id}/statement?edit=true`)
+                    : undefined
+                }
+                {...(myRole === 'role_a' && !isCompleted
+                  ? {
+                      role: 'button',
+                      tabIndex: 0,
+                      onKeyDown: (e) => {
+                        if (e.key === 'Enter' || e.key === ' ')
+                          router.push(`/disputes/${id}/statement?edit=true`);
+                      },
+                    }
+                  : {})}
               >
-                <p className={styles.statementLabel}>{participantA?.name ?? 'A'}님의 진술</p>
-                <p className={styles.statementContent}>{roleAStatement.content}</p>
+                <div className={styles.statementCardContent}>
+                  <p className={styles.statementLabel}>{participantA?.name ?? 'A'}님의 진술</p>
+                  <p className={styles.statementContent}>{roleAStatement.content}</p>
+                </div>
                 <div className={styles.statementFooter}>
                   <div className={styles.statementAvatar}>
                     <Image
@@ -318,11 +336,26 @@ export default function DisputePage({ params }: { params: Promise<{ id: string }
             {roleBStatement && (
               <div
                 className={`${styles.statementCard}${myRole === 'role_b' && !isCompleted ? ` ${styles.statementCardEditable}` : ''}`}
-                onClick={myRole === 'role_b' && !isCompleted ? () => router.push(`/disputes/${id}/statement?edit=true`) : undefined}
-                {...(myRole === 'role_b' && !isCompleted ? { role: 'button', tabIndex: 0, onKeyDown: (e) => { if (e.key === 'Enter' || e.key === ' ') router.push(`/disputes/${id}/statement?edit=true`) } } : {})}
+                onClick={
+                  myRole === 'role_b' && !isCompleted
+                    ? () => router.push(`/disputes/${id}/statement?edit=true`)
+                    : undefined
+                }
+                {...(myRole === 'role_b' && !isCompleted
+                  ? {
+                      role: 'button',
+                      tabIndex: 0,
+                      onKeyDown: (e) => {
+                        if (e.key === 'Enter' || e.key === ' ')
+                          router.push(`/disputes/${id}/statement?edit=true`);
+                      },
+                    }
+                  : {})}
               >
-                <p className={styles.statementLabel}>{participantB?.name ?? 'B'}님의 진술</p>
-                <p className={styles.statementContent}>{roleBStatement.content}</p>
+                <div className={styles.statementCardContent}>
+                  <p className={styles.statementLabel}>{participantB?.name ?? 'B'}님의 진술</p>
+                  <p className={styles.statementContent}>{roleBStatement.content}</p>
+                </div>
                 <div className={styles.statementFooter}>
                   <div className={styles.statementAvatar}>
                     <Image
@@ -372,7 +405,11 @@ export default function DisputePage({ params }: { params: Promise<{ id: string }
             ) : judgmentSubTab === 'verdict' ? (
               <JudgmentResult judgment={judgment} participants={dispute.participants} />
             ) : (
-              <JudgmentTypeResult judgment={judgment} participants={dispute.participants} disputeId={id} />
+              <JudgmentTypeResult
+                judgment={judgment}
+                participants={dispute.participants}
+                disputeId={id}
+              />
             )}
           </>
         )}

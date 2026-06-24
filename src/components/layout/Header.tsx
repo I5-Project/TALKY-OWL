@@ -10,6 +10,7 @@ type HeaderVariant = 'logo' | 'title';
 interface HeaderLogoProps {
   variant: 'logo';
   transparent?: boolean;
+  className?: string;
 }
 
 interface HeaderTitleProps {
@@ -18,6 +19,7 @@ interface HeaderTitleProps {
   subtitle?: string;
   onBack?: () => void;
   transparent?: boolean;
+  className?: string;
 }
 
 type HeaderProps = HeaderLogoProps | HeaderTitleProps;
@@ -26,7 +28,7 @@ export default function Header(props: HeaderProps) {
   if (props.variant === 'logo') {
     return (
       <header
-        className={`${styles.header} ${props.transparent ? styles['header--transparent'] : ''}`}
+        className={`${styles.header} ${props.transparent ? styles['header--transparent'] : ''} ${props.className ?? ''}`}
       >
         <div className={styles.header__logo}>
           <Link href="/">
@@ -43,10 +45,10 @@ export default function Header(props: HeaderProps) {
     );
   }
 
-  const { title, subtitle, onBack, transparent } = props;
+  const { title, subtitle, onBack, transparent, className } = props;
 
   return (
-    <header className={`${styles.header} ${transparent ? styles['header--transparent'] : ''}`}>
+    <header className={`${styles.header} ${transparent ? styles['header--transparent'] : ''} ${className ?? ''}`}>
       <div className={styles.header__nav}>
         {onBack && (
           <button className={styles.header__back} onClick={onBack} aria-label="뒤로가기">

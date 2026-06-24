@@ -48,10 +48,12 @@ export default function MyPage() {
     <>
       <main className={styles.main}>
         <section className={styles.profile}>
-          <Avatar size="l" src={user?.profileImageUrl ?? undefined} />
-          <div className={styles.profile__info}>
-            <span className={styles.profile__name}>{displayName}</span>
-            <span className={styles.profile__badge}>{user?.mbti ?? 'MBTI를 설정해주세요'}</span>
+          <div className={styles.profile__wrapper}>
+            <Avatar size="l" src={user?.profileImageUrl ?? undefined} />
+            <div className={styles.profile__info}>
+              <span className={styles.profile__name}>{displayName}</span>
+              <span className={styles.profile__badge}>{user?.mbti ?? 'MBTI를 설정해주세요'}</span>
+            </div>
           </div>
           <Link href="/mypage/edit" className={styles.profile__setting} aria-label="설정">
             <SettingsRoundedIcon sx={{ fontSize: 24 }} />
@@ -59,15 +61,6 @@ export default function MyPage() {
         </section>
 
         <nav className={styles.menu}>
-          <button
-            type="button"
-            className={styles.menu__item}
-            onClick={() => setLogoutOpen(true)}
-          >
-            <span className={styles.menu__label}>로그아웃</span>
-            <ChevronRightRoundedIcon className={styles.menu__arrow} />
-          </button>
-
           {LINK_ITEMS.map((item) =>
             isPreparing(item.key) ? (
               <button
@@ -77,12 +70,12 @@ export default function MyPage() {
                 onClick={() => showToast('준비중입니다.')}
               >
                 <span className={styles.menu__label}>{item.label}</span>
-                <ChevronRightRoundedIcon className={styles.menu__arrow} />
+                <ChevronRightRoundedIcon className={styles.menu__arrow} sx={{ fontSize: 24 }} />
               </button>
             ) : (
               <Link key={item.key} href={item.href} className={styles.menu__item}>
                 <span className={styles.menu__label}>{item.label}</span>
-                <ChevronRightRoundedIcon className={styles.menu__arrow} />
+                <ChevronRightRoundedIcon className={styles.menu__arrow} sx={{ fontSize: 24 }} />
               </Link>
             ),
           )}
@@ -93,6 +86,11 @@ export default function MyPage() {
             onClick={() => router.push('/mypage/withdraw')}
           >
             <span className={styles.menu__label}>회원탈퇴</span>
+            <ChevronRightRoundedIcon className={styles.menu__arrow} sx={{ fontSize: 24 }} />
+          </button>
+
+          <button type="button" className={styles.menu__item} onClick={() => setLogoutOpen(true)}>
+            <span className={styles.menu__label}>로그아웃</span>
             <ChevronRightRoundedIcon className={styles.menu__arrow} />
           </button>
         </nav>

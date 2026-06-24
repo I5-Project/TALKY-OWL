@@ -14,20 +14,20 @@
   flex-direction: column;
   align-items: center;
   gap: fn.r(12);
-  margin-bottom: fn.r(32);
 
   &__button {
     display: flex;
     align-items: center;
-    gap: fn.r(4);
-    padding: fn.r(6) fn.r(12);
-    background: none;
+    gap: fn.r(2);
+    padding: 0 fn.r(6);
+    height: fn.r(32);
+    background: var(--bg-surface);
     border: 1px solid var(--border-default);
-    border-radius: fn.r(20);
+    border-radius: fn.r(4);
     cursor: pointer;
     @include m.text-caption;
 
-    color: var(--text-secondary);
+    color: var(--text-primary);
 
     &:active {
       background-color: var(--bg-secondary);
