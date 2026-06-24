@@ -27,6 +27,9 @@ tsconfig.tsbuildinfo
 # MCP
 .playwright-mcp/
 
+# Local only
+TROUBLESHOOTING.md
+
 # Logs
 *.log
 npm-debug.log*

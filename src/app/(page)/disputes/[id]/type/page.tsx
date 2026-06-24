@@ -40,7 +40,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL ?? ''
 
   const title = data ? `나의 갈등 유형 — ${data.displayName}` : '갈등 유형 결과'
-  const description = data?.description ?? '나의 갈등 판결 유형을 확인해봐요!'
+  const description = data?.description ?? '나의 갈등 유형을 말해부엉을 통해 확인해봐요!'
   const imageUrl = data?.cardImageUrl ?? `${baseUrl}/images/common/ogimg.jpg`
 
   return {

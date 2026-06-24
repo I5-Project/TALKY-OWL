@@ -33,7 +33,7 @@ export default function JudgmentTypeResult({ judgment, participants, disputeId }
       try {
         await navigator.share({
           title: `${viewerLabel}님의 갈등 유형은 '${displayName}'`,
-          text: '나의 갈등 판결 유형을 확인해봐요!',
+          text: '나의 갈등 유형을 확인해봐요!',
           url: shareUrl,
         })
       } catch {
