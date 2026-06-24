@@ -308,8 +308,10 @@ export default function DisputePage({ params }: { params: Promise<{ id: string }
                       role: 'button',
                       tabIndex: 0,
                       onKeyDown: (e) => {
-                        if (e.key === 'Enter' || e.key === ' ')
+                        if (e.key === 'Enter' || e.key === ' ') {
+                          e.preventDefault();
                           router.push(`/disputes/${id}/statement?edit=true`);
+                        }
                       },
                     }
                   : {})}
@@ -346,8 +348,10 @@ export default function DisputePage({ params }: { params: Promise<{ id: string }
                       role: 'button',
                       tabIndex: 0,
                       onKeyDown: (e) => {
-                        if (e.key === 'Enter' || e.key === ' ')
+                        if (e.key === 'Enter' || e.key === ' ') {
+                          e.preventDefault();
                           router.push(`/disputes/${id}/statement?edit=true`);
+                        }
                       },
                     }
                   : {})}

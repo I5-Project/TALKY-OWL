@@ -5,7 +5,14 @@ import Link from 'next/link';
 import styles from '@/components/diary/DiaryCard.module.scss';
 import type { DiaryCardProps } from '@/types/diary';
 
-export default function DiaryCard({ id, title, content, date, emotionType, onClick }: DiaryCardProps) {
+export default function DiaryCard({
+  id,
+  title,
+  content,
+  date,
+  emotionType,
+  onClick,
+}: DiaryCardProps) {
   return (
     <Link
       href={`/diary/${id}`}
@@ -20,8 +27,8 @@ export default function DiaryCard({ id, title, content, date, emotionType, onCli
         <Image
           src={`/images/icons/emotions/emotion-${emotionType}.svg`}
           alt={emotionType}
-          width={24}
-          height={24}
+          width={30}
+          height={30}
           className={styles.card__emotion}
         />
       </div>

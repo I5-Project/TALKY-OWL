@@ -47,6 +47,8 @@
   bottom: fn.r(64);
   left: 0;
   right: 0;
+  max-width: v.$container-max-width;
+  margin: 0 auto;
   padding: fn.r(16) fn.r(20);
   background-color: var(--bg-base);
 }

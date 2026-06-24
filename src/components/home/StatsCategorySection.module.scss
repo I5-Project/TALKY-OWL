@@ -73,8 +73,8 @@
     }
   }
   .labelText {
-    @include m.text-body-s;
     font-weight: v.$font-weight-bold;
+    @include m.text-body-s;
 
     &--romance {
       color: var(--category-love-text);
