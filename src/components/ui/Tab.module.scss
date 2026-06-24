@@ -12,7 +12,7 @@
 }
 
 .tabItem {
-  width: fn.r(60);
+  min-width: fn.r(60);
   padding: fn.r(4) fn.r(16);
   border-radius: fn.r(4);
   cursor: pointer;
