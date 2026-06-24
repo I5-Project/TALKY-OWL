@@ -25,18 +25,23 @@ export default function ConflictTypeClient({ data }: Props) {
     if (!data?.cardImageUrl) return
     try {
       const res = await fetch(data.cardImageUrl)
-      if (!res.ok) {
-        throw new Error(`Image download failed: ${res.status}`)
-      }
+      if (!res.ok) throw new Error(`Image download failed: ${res.status}`)
       const blob = await res.blob()
+      const fileName = `갈등유형_${data.displayName}.jpg`
+      const file = new File([blob], fileName, { type: blob.type || 'image/jpeg' })
+
+      if (navigator.canShare?.({ files: [file] })) {
+        await navigator.share({ files: [file] })
+        return
+      }
+
       const objectUrl = URL.createObjectURL(blob)
       const a = document.createElement('a')
       a.href = objectUrl
-      a.download = `갈등유형_${data.displayName}.jpg`
+      a.download = fileName
       a.click()
       URL.revokeObjectURL(objectUrl)
     } catch {
-      // CORS 등 fetch 실패 시 새 탭으로 열어 수동 저장 유도
       window.open(data.cardImageUrl, '_blank')
     }
   }

@@ -58,10 +58,18 @@ export default function JudgmentTypeResult({ judgment, participants, disputeId }
     try {
       const res = await fetch(cardImageUrl)
       const blob = await res.blob()
+      const fileName = `갈등유형_${displayName}.jpg`
+      const file = new File([blob], fileName, { type: blob.type || 'image/jpeg' })
+
+      if (navigator.canShare?.({ files: [file] })) {
+        await navigator.share({ files: [file] })
+        return
+      }
+
       const objectUrl = URL.createObjectURL(blob)
       const a = document.createElement('a')
       a.href = objectUrl
-      a.download = `갈등유형_${displayName}.jpg`
+      a.download = fileName
       a.click()
       URL.revokeObjectURL(objectUrl)
     } catch {
