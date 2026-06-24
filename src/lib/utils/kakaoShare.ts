@@ -4,14 +4,16 @@ export function shareDisputeResult(
   description?: string,
   imageUrl?: string,
 ) {
-  if (!window.Kakao) return
+  if (typeof window === 'undefined' || !window.Kakao) return
 
   if (!window.Kakao.isInitialized()) {
-    window.Kakao.init(process.env.NEXT_PUBLIC_KAKAO_JAVASCRIPT_KEY)
+    const kakaoKey = process.env.NEXT_PUBLIC_KAKAO_JAVASCRIPT_KEY
+    if (!kakaoKey) return
+    window.Kakao.init(kakaoKey)
   }
 
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL ?? window.location.origin
-  const shareUrl = `${baseUrl}/disputes/${disputeId}`
+  const shareUrl = `${baseUrl}/disputes/${encodeURIComponent(disputeId)}`
   const resolvedImageUrl = imageUrl ?? `${baseUrl}/images/common/ogimg.jpg`
 
   window.Kakao.Share.sendDefault({
