@@ -4,6 +4,7 @@ import React from 'react'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { useSession } from 'next-auth/react'
+import Header from '@/components/layout/Header'
 import Button from '@/components/ui/Button'
 import type { ConflictTypePublicDto } from '@/app/api/disputes/[id]/conflict-type/route'
 import styles from './TypePage.module.scss'
@@ -51,9 +52,7 @@ export default function ConflictTypeClient({ data }: Props) {
 
   return (
     <div className={styles.page}>
-      <div className={styles.logoWrap}>
-        <Image src="/images/common/logo.svg" alt="TALKY OWL" width={120} height={32} />
-      </div>
+      <Header variant="logo" />
 
       <div className={styles.content}>
         <p className={styles.title}>
