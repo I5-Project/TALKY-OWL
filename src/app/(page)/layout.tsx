@@ -11,6 +11,7 @@ export default function PageLayout({ children }: { children: React.ReactNode }) 
   const header = useHeaderStore((s) => s.header)
 
   const isAbout = pathname === '/about' || pathname.startsWith('/about/')
+  const isHome = pathname === '/'
 
   const hideNav =
     pathname.endsWith('/statement') ||
@@ -23,7 +24,7 @@ export default function PageLayout({ children }: { children: React.ReactNode }) 
 
   return (
     <div className={`${styles.layout} ${isAbout ? '' : 'container'}`}>
-      {header && !isAbout && (
+      {header && !isAbout && !isHome && (
         header.variant === 'logo'
           ? <Header variant="logo" transparent={header.transparent} />
           : <Header variant="title" title={header.title} subtitle={header.subtitle} onBack={header.onBack} transparent={header.transparent} />

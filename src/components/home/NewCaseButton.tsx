@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import CloseIcon from '@mui/icons-material/Close'
+import AddRoundedIcon from '@mui/icons-material/AddRounded'
 import CategoryIcon from '@/components/ui/CategoryIcon'
 import type { CategoryGroup } from '@/types/common'
 import styles from './NewCaseButton.module.scss'
@@ -125,7 +126,7 @@ export default function NewCaseButton() {
           onClick={() => setIsOpen(true)}
           aria-label="새 사건 작성"
         >
-          새 사건 +
+          새 사건 <AddRoundedIcon sx={{ fontSize: 18 }} />
         </button>
       )}
     </>

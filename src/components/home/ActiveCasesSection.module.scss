@@ -44,10 +44,14 @@
     padding-bottom: 0;
 
     // 빈 date 태그 공간 제거
-    time { display: none; }
+    time {
+      display: none;
+    }
 
     // preview → footer 간격 8px
-    > p { margin-bottom: fn.r(8); }
+    > p {
+      margin-bottom: fn.r(8);
+    }
   }
 }
 
@@ -69,7 +73,7 @@
   flex-direction: column;
   align-items: center;
   gap: fn.r(12);
-  padding: fn.r(24) 0;
+  padding: fn.r(50) 0;
 }
 
 .emptyImage {
@@ -81,6 +85,6 @@
 .empty {
   @include m.text-body-s;
 
-  color: v.$color-black-400;
+  color: var(--text-primary);
   text-align: center;
 }
