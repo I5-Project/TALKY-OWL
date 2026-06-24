@@ -29,7 +29,16 @@ export default function GlobalError({
           <button onClick={reset} style={{ width: '100%', height: '52px', borderRadius: '12px', backgroundColor: '#72aea6', color: '#ffffff', fontSize: '15px', fontWeight: 600, border: 'none', cursor: 'pointer' }}>
             다시 시도하기
           </button>
-          <button onClick={() => window.history.back()} style={{ width: '100%', height: '52px', borderRadius: '12px', backgroundColor: '#5e9d96', color: '#ffffff', fontSize: '15px', fontWeight: 600, border: 'none', cursor: 'pointer' }}>
+          <button
+            onClick={() => {
+              if (window.history.length > 1) {
+                window.history.back()
+              } else {
+                window.location.href = '/'
+              }
+            }}
+            style={{ width: '100%', height: '52px', borderRadius: '12px', backgroundColor: '#5e9d96', color: '#ffffff', fontSize: '15px', fontWeight: 600, border: 'none', cursor: 'pointer' }}
+          >
             이전 페이지로 이동하기
           </button>
         </div>

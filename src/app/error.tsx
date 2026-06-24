@@ -28,7 +28,12 @@ export default function Error({
       </div>
       <div className={styles.footer}>
         <Button onClick={reset}>다시 시도하기</Button>
-        <Button onClick={() => router.back()}>
+        <Button
+          onClick={() => {
+            if (window.history.length > 1) router.back()
+            else router.push('/')
+          }}
+        >
           이전 페이지로 이동하기
         </Button>
       </div>
