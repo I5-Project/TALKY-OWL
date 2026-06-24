@@ -31,8 +31,13 @@ export default function ConflictTypeClient({ data }: Props) {
       const file = new File([blob], fileName, { type: blob.type || 'image/jpeg' })
 
       if (navigator.canShare?.({ files: [file] })) {
-        await navigator.share({ files: [file] })
-        return
+        try {
+          await navigator.share({ files: [file] })
+          return
+        } catch (error) {
+          if (error instanceof DOMException && error.name === 'AbortError') return
+          throw error
+        }
       }
 
       const objectUrl = URL.createObjectURL(blob)

@@ -57,13 +57,19 @@ export default function JudgmentTypeResult({ judgment, participants, disputeId }
     }
     try {
       const res = await fetch(cardImageUrl)
+      if (!res.ok) throw new Error(`Image download failed: ${res.status}`)
       const blob = await res.blob()
       const fileName = `갈등유형_${displayName}.jpg`
       const file = new File([blob], fileName, { type: blob.type || 'image/jpeg' })
 
       if (navigator.canShare?.({ files: [file] })) {
-        await navigator.share({ files: [file] })
-        return
+        try {
+          await navigator.share({ files: [file] })
+          return
+        } catch (error) {
+          if (error instanceof DOMException && error.name === 'AbortError') return
+          throw error
+        }
       }
 
       const objectUrl = URL.createObjectURL(blob)
