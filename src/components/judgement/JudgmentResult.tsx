@@ -1,13 +1,16 @@
 'use client';
 
+import React from 'react';
 import Image from 'next/image';
 import type { AiJudgmentDto } from '@/types/judgment';
-import type { DisputeParticipantDto } from '@/types/dispute';
+import type { DisputeParticipantDto, ParticipantRole } from '@/types/dispute';
+import GiftRecommendation from './GiftRecommendation';
 import styles from './JudgmentResult.module.scss';
 
 interface Props {
   judgment: AiJudgmentDto;
   participants: DisputeParticipantDto[];
+  myRole?: ParticipantRole;
 }
 
 function replaceRoleNames(text: string, nameA: string, nameB: string): string {
@@ -28,13 +31,15 @@ function Avatar({ src }: { src: string | null }) {
   );
 }
 
-export default function JudgmentResult({ judgment, participants }: Props) {
-
+export default function JudgmentResult({ judgment, participants, myRole }: Props) {
   const isSolo = participants.length === 1;
   const participantA = participants.find((p) => p.role === 'role_a');
   const participantB = participants.find((p) => p.role === 'role_b');
   const nameA = participantA?.name ?? 'A';
   const nameB = participantB?.name ?? 'B';
+
+  const opponentParticipant = myRole === 'role_a' ? participantB : myRole === 'role_b' ? participantA : participantB;
+  const opponentName = opponentParticipant?.name ?? '상대방';
 
   const showReconcile = !!judgment.aSuggestedLine || (!isSolo && !!judgment.bSuggestedLine);
 
@@ -117,7 +122,6 @@ export default function JudgmentResult({ judgment, participants }: Props) {
             </div>
           )}
 
-          {/* B의 잘못은 2인 판결에서만 노출 */}
           {!isSolo && judgment.bFault && (
             <div className={styles.card}>
               <div className={styles.cardHeader}>
@@ -136,13 +140,10 @@ export default function JudgmentResult({ judgment, participants }: Props) {
       {showReconcile && (
         <section className={styles.reconcileSection}>
           <h3 className={styles.sectionTitle}>이렇게 사과해보면 어떨까요?</h3>
-          {/* 선물 아이콘: 제목 우측 상단 고정, 아래 카드와 살짝 겹침 */}
-          <Image
-            src="/images/characters/character-gift.svg"
-            alt=""
-            width={52}
-            height={52}
-            className={styles.reconcileIcon}
+          <GiftRecommendation
+            disputeId={judgment.disputeId}
+            opponentName={opponentName}
+            opponentParticipant={opponentParticipant}
           />
 
           <div className={styles.cards}>

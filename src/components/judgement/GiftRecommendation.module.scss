@@ -1,0 +1,162 @@
+@use '@/styles/abstracts/variables' as v;
+@use '@/styles/abstracts/mixins' as m;
+@use '@/styles/abstracts/functions' as fn;
+
+.reconcileIconBtn {
+  position: absolute;
+  right: 0;
+  top: 0;
+  z-index: 1;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ──────────────────────────────────────
+   선물 모달 너비 오버라이드
+────────────────────────────────────── */
+
+.giftInfoModalPaper {
+  max-width: fn.r(365) !important;
+}
+
+.giftResultModalPaper {
+  max-width: fn.r(389) !important;
+}
+
+/* ──────────────────────────────────────
+   선물 정보 입력 모달
+────────────────────────────────────── */
+
+.giftModal {
+  &__title {
+    @include m.text-title-s;
+
+    color: v.$color-black-700;
+    margin-bottom: fn.r(16);
+  }
+
+  &__form {
+    display: flex;
+    flex-direction: column;
+    gap: fn.r(8);
+    margin-bottom: fn.r(16);
+  }
+
+  &__selectTrigger {
+    border-color: var(--border-default) !important;
+  }
+
+  &__ageWrapper {
+    position: relative;
+  }
+
+  &__ageInput {
+    padding-right: fn.r(36) !important;
+  }
+
+  &__ageSuffix {
+    @include m.text-body-m;
+
+    position: absolute;
+    right: fn.r(16);
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-secondary);
+    pointer-events: none;
+  }
+
+  &__privacyNote {
+    @include m.text-caption;
+
+    color: var(--text-secondary);
+    text-align: center;
+    margin-top: fn.r(12);
+  }
+}
+
+/* ──────────────────────────────────────
+   선물 추천 결과 모달
+────────────────────────────────────── */
+
+.giftResult {
+  &__loadingText {
+    @include m.text-body-s;
+
+    color: var(--text-secondary);
+    text-align: center;
+    padding: fn.r(24) 0;
+  }
+
+  &__title {
+    @include m.text-title-s;
+
+    color: v.$color-black-700;
+    text-align: center;
+    margin-bottom: fn.r(12);
+  }
+
+  &__imageWrapper {
+    position: relative;
+    width: 50%;
+    aspect-ratio: 1;
+    border-radius: fn.r(12);
+    overflow: hidden;
+    margin: 0 auto fn.r(12);
+    background-color: var(--bg-surface-soft);
+  }
+
+  &__image {
+    object-fit: cover;
+  }
+
+  &__imageFallback {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--bg-surface-soft);
+  }
+
+  &__imageFallbackText {
+    font-size: v.$font-size-body-m;
+    font-weight: v.$font-weight-semibold;
+    color: v.$color-black-400;
+    text-align: center;
+    padding: fn.r(8);
+  }
+
+  &__avatar {
+    position: absolute;
+    bottom: fn.r(8);
+    right: fn.r(8);
+    width: fn.r(28);
+    height: fn.r(28);
+    border-radius: 50%;
+    overflow: hidden;
+    border: fn.r(2) solid white;
+  }
+
+  &__avatarImg {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  &__desc {
+    @include m.text-body-s;
+
+    color: v.$color-black-700;
+    text-align: center;
+    margin-bottom: fn.r(16);
+  }
+
+  &__itemName {
+    font-weight: v.$font-weight-semibold;
+  }
+}

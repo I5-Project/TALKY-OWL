@@ -211,12 +211,3 @@
   flex-direction: column;
   gap: fn.r(16);
 }
-
-.reconcileIcon {
-  position: absolute;
-  right: 0;
-  /* top 0 기준: 제목 높이(~24px) + gap(16px) = 카드 시작점(~40px)
-     아이콘 높이 52px → 카드에 약 12px 겹침 */
-  top: 0;
-  z-index: 1;
-}
