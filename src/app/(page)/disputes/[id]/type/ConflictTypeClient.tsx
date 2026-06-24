@@ -56,7 +56,13 @@ export default function ConflictTypeClient({ data }: Props) {
       </div>
 
       <div className={styles.content}>
-        <p className={styles.title}>{userName ? `${userName}님의 갈등 유형은?` : '나의 갈등 유형은?'}</p>
+        <p className={styles.title}>
+          {userName
+            ? `${userName}님의 갈등 유형은?`
+            : data.ownerName
+              ? `${data.ownerName}님의 갈등 유형은?`
+              : '나의 갈등 유형은?'}
+        </p>
 
         <div className={styles.cardImageWrapper}>
           {data.cardImageUrl ? (

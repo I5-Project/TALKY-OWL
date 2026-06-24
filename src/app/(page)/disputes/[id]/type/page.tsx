@@ -20,12 +20,18 @@ async function getConflictType(id: string): Promise<ConflictTypePublicDto | null
           },
         },
       },
+      participants: {
+        where: { role: 'ROLE_A' },
+        select: { user: { select: { name: true } } },
+        take: 1,
+      },
     },
   })
 
   if (!dispute?.aiJudgment?.resultConflictDetail) return null
   const { displayName, description, card_image_url } = dispute.aiJudgment.resultConflictDetail
-  return { displayName, description, cardImageUrl: card_image_url }
+  const ownerName = dispute.participants[0]?.user.name ?? null
+  return { displayName, description, cardImageUrl: card_image_url, ownerName }
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
