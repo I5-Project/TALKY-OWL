@@ -64,7 +64,7 @@
   height: 88px;
   padding: 20px 16px;
   border: 2px solid v.$color-black-700;
-  border-radius: 12px;
+  border-radius: fn.r(8);
   background-color: v.$color-primary-100;
   box-sizing: border-box;
   text-decoration: none;
@@ -133,7 +133,7 @@
   padding: 20px 16px;
   background-color: v.$color-white;
   border: 2px solid v.$color-black-300;
-  border-radius: 12px;
+  border-radius: fn.r(8);
   box-sizing: border-box;
   text-decoration: none;
   cursor: pointer;

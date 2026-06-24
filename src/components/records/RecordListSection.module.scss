@@ -17,7 +17,7 @@
 .list {
   display: flex;
   flex-direction: column;
-  gap: fn.r(12);
+  gap: fn.r(8);
   padding: fn.r(16);
   list-style: none;
 }
@@ -52,7 +52,7 @@
 }
 
 .allLoaded {
-  @include m.text-caption;
-
   color: var(--text-secondary);
+  padding: fn.r(4) 0;
+  @include m.text-caption;
 }

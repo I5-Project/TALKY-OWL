@@ -63,7 +63,7 @@ export default function StatsCategorySection() {
             <div key={category} className={styles.label}>
               <Icon
                 className={`${styles.label__icon} ${styles[`label__icon--${styleKey}`]}`}
-                size="18"
+                sx={{ fontSize: 18 }}
               />
               <span className={`${styles.labelText} ${styles[`labelText--${styleKey}`]}`}>
                 {label}

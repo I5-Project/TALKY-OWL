@@ -51,8 +51,8 @@ export default function CaseRecordCard({
             max={2}
             sx={{
               '& .MuiAvatar-root': {
-                width: 24,
-                height: 24,
+                width: 20,
+                height: 20,
                 fontSize: 10,
                 border: '1.5px solid var(--bg-surface)',
               },
@@ -62,7 +62,7 @@ export default function CaseRecordCard({
               <MuiAvatar
                 key={i}
                 src={p.profileImageUrl ?? '/images/common/thumbnail-default.svg'}
-                sx={{ width: 24, height: 24 }}
+                sx={{ width: 20, height: 20 }}
               />
             ))}
           </MuiAvatarGroup>

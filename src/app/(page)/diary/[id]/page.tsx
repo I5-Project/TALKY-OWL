@@ -8,11 +8,7 @@ import styles from './page.module.scss';
 import DiaryActions from './DiaryActions';
 import DiaryDetailHeader from './DiaryDetailHeader';
 
-export default async function DiaryDetailPage({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
+export default async function DiaryDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const session = await getServerSession(authOptions);
   const userId = getSessionUserId(session);
   if (!userId) redirect('/login');
@@ -25,24 +21,24 @@ export default async function DiaryDetailPage({
     <>
       <DiaryDetailHeader />
       <div className={styles.diary}>
-      <div className={styles['diary__body']}>
-        <Image
-          className={styles['diary__character']}
-          src="/images/characters/character-closed.png"
-          alt=""
-          width={355}
-          height={194}
-        />
+        <div className={styles['diary__body']}>
+          <Image
+            className={styles['diary__character']}
+            src="/images/characters/character-closed.svg"
+            alt=""
+            width={355}
+            height={194}
+          />
 
-        <div className={styles['diary__title']}>{diary.title}</div>
-        <div className={styles['diary__content']}>{diary.content}</div>
-        <time className={styles['diary__createdAt']}>{diary.diaryDate}</time>
-      </div>
+          <div className={styles['diary__title']}>{diary.title}</div>
+          <div className={styles['diary__content']}>{diary.content}</div>
+          <time className={styles['diary__createdAt']}>{diary.diaryDate}</time>
+        </div>
 
-      <div className={styles['diary__actions']}>
-        <DiaryActions diaryId={id} diaryDate={diary.diaryDate} className={styles.diaryActions} />
+        <div className={styles['diary__actions']}>
+          <DiaryActions diaryId={id} diaryDate={diary.diaryDate} className={styles.diaryActions} />
+        </div>
       </div>
-    </div>
     </>
   );
 }
