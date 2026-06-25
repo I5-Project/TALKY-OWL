@@ -105,7 +105,7 @@ export default function CalendarView({
             '& *': { fontFamily: 'inherit' },
 
             '& .MuiDayCalendar-slideTransition': {
-              minHeight: 512,
+              // minHeight: 512,
               overflow: 'visible',
             },
 
