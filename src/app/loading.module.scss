@@ -1,29 +1,9 @@
 @use '@/styles/abstracts/variables' as v;
-@use '@/styles/abstracts/functions' as fn;
 
 .container {
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
   min-height: 100vh;
-  gap: fn.r(16);
   background-color: v.$color-white;
-}
-
-.owl {
-  width: fn.r(120);
-  height: fn.r(120);
-  animation: float 1.2s ease-in-out infinite;
-}
-
-
-@keyframes float {
-  0%,
-  100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(fn.r(-12));
-  }
 }
