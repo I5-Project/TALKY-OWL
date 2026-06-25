@@ -178,4 +178,4 @@ src/
 | <nobr>천주아</nobr> | [@juahcheon](https://github.com/juahcheon) | Full-Stack | 사건 도메인 API 설계, AI 판결 로직, 진술·사건조회 페이지, 욕설 필터 |
 | <nobr>박정민</nobr> | [@wjdalss21](https://github.com/wjdalss21) | Full-Stack | 홈 화면, 판결 결과 페이지, 사건기록, 통계 API, 에러 페이지 |
 | <nobr>배근영</nobr> | [@lyla-bae](https://github.com/lyla-bae) | Design / Frontend | 디자인 시스템, 전체 UI 스타일 개편, 초대 링크 연결, 에셋 관리 |
-| <nobr>이승규</nobr> | [@SG-Develope](https://github.com/SG-Develope) | Full-Stack | 캘린더·월별 조회 API, 감정일기 CRUD, 선물추천 기능 |
+| <nobr>이승규</nobr> | [@SG-Develope](https://github.com/SG-Develope) | Full-Stack / DB | 캘린더·월별 조회 API, 감정일기 CRUD, 선물추천 기능, DB 관리 |
