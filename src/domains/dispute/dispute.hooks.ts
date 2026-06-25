@@ -1,6 +1,6 @@
 'use client';
 
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient, useInfiniteQuery } from '@tanstack/react-query';
 import type { UseQueryOptions } from '@tanstack/react-query';
 import type { CategoryGroup } from '@/types/common';
 import type { DisputeDto, DisputeStatus } from '@/types/dispute';
@@ -22,9 +22,11 @@ export const disputeKeys = {
 };
 
 export function useCompletedCases(categoryGroup?: CategoryGroup) {
-  return useQuery({
+  return useInfiniteQuery({
     queryKey: disputeKeys.completedList(categoryGroup),
-    queryFn: () => fetchCompletedCases(categoryGroup),
+    queryFn: ({ pageParam }) => fetchCompletedCases(categoryGroup, pageParam),
+    initialPageParam: 1,
+    getNextPageParam: (lastPage) => (lastPage.hasNext ? lastPage.page + 1 : undefined),
     staleTime: 1000 * 60,
   });
 }

@@ -257,8 +257,9 @@ export async function POST(
 
     // AI 2: title/description 추출 — ROLE_A 최초 저장 시에만, DB 저장 전에 실행
     let disputeMeta: { title: string; description: string } | null = null
+    console.log('[statements] role:', participant.role, 'isNew:', isNew)
     if (participant.role === 'ROLE_A' && isNew) {
-      const META_TIMEOUT_MS = 10000
+      const META_TIMEOUT_MS = 30000
       try {
         const meta = await Promise.race([
           extractDisputeMeta(content),

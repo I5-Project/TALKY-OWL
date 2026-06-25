@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useQueryClient } from '@tanstack/react-query';
 import AutorenewRoundedIcon from '@mui/icons-material/AutorenewRounded';
+import AddRoundedIcon from '@mui/icons-material/AddRounded';
 import CircularProgress from '@mui/material/CircularProgress';
 import { useHeaderStore } from '@/stores/headerStore';
 import Button from '@/components/ui/Button';
@@ -87,7 +88,15 @@ export default function DisputePage({ params }: { params: Promise<{ id: string }
     '진술 내용을 정리하고 있어요',
     '거의 다 됐어요, 잠시만요',
   ];
+  const JUDGING_MESSAGES = [
+    '작성한 진술서를 바탕으로\n분석중이에요',
+    'AI가 양측 진술을\n검토하고 있어요',
+    '핵심 쟁점을\n파악하고 있어요',
+    '공정한 판결을\n준비하고 있어요',
+    '거의 다 됐어요,\n잠시만요',
+  ];
   const [metaMsgIdx, setMetaMsgIdx] = React.useState(0);
+  const [judgingMsgIdx, setJudgingMsgIdx] = React.useState(0);
   React.useEffect(() => {
     if (!isExtractingMeta) return;
     const timer = setInterval(() => {
@@ -96,13 +105,23 @@ export default function DisputePage({ params }: { params: Promise<{ id: string }
     return () => clearInterval(timer);
   }, [isExtractingMeta]);
 
-  // 판결 완료/종료 상태일 때만 fetch — 불필요한 API 호출 방지
+  React.useEffect(() => {
+    if (!isJudging) return;
+    const timer = setInterval(() => {
+      setJudgingMsgIdx((i) => (i + 1) % JUDGING_MESSAGES.length);
+    }, 2500);
+    return () => clearInterval(timer);
+  }, [isJudging]);
+
+  // judged/closed 모두 판결 결과 fetch — isCompleted와 동일 범위
+  const isJudged = isCompleted;
+
   const {
     data: judgment,
     isLoading: judgmentLoading,
     isError: judgmentError,
     error: judgmentErrorData,
-  } = useJudgment(id, isCompleted);
+  } = useJudgment(id, isJudged);
 
   const showToast = useToastStore((s) => s.show);
 
@@ -117,7 +136,9 @@ export default function DisputePage({ params }: { params: Promise<{ id: string }
   React.useEffect(() => {
     if (judgmentError && !judgmentErrorModal) {
       setJudgmentErrorMessage(
-        judgmentErrorData instanceof Error ? judgmentErrorData.message : '판결 결과를 불러올 수 없습니다.',
+        judgmentErrorData instanceof Error
+          ? judgmentErrorData.message
+          : '판결 결과를 불러올 수 없습니다.',
       );
       setJudgmentErrorModal(true);
     }
@@ -187,7 +208,7 @@ export default function DisputePage({ params }: { params: Promise<{ id: string }
       <div className={styles.judgingScreen}>
         <div className={styles.judgingContent}>
           <Spinner />
-          <p className={styles.judgingText}>{'작성한 진술서를 바탕으로\n분석중이에요'}</p>
+          <p className={styles.judgingText}>{JUDGING_MESSAGES[judgingMsgIdx]}</p>
         </div>
       </div>
     );
@@ -260,10 +281,10 @@ export default function DisputePage({ params }: { params: Promise<{ id: string }
       {isSolo && !isCompleted && (
         <button className={styles.inviteBanner} onClick={() => void handleInvite()}>
           <div className={styles.inviteBannerText}>
-            <span className={styles.inviteBannerTitle}>상대를 초대해</span>
+            <span className={styles.inviteBannerTitle}>상대를 초대</span>해<br />
             <span className={styles.inviteBannerDesc}>더 좋은 판결 결과를 얻어보세요</span>
           </div>
-          <span className={styles.inviteBannerPlus}>+</span>
+          <AddRoundedIcon sx={{ fontSize: 24 }} />
         </button>
       )}
 
@@ -271,17 +292,42 @@ export default function DisputePage({ params }: { params: Promise<{ id: string }
       {isCompleted && <Tabs tabs={TABS} activeId={activeTab} onChange={setActiveTab} />}
 
       {/* 컨텐츠 */}
-      <div className={isCompleted ? styles.content : styles.contentWithFooter}>
+      <div
+        className={
+          !isCompleted
+            ? styles.contentWithFooter
+            : activeTab === 'judgement' && judgmentSubTab === 'type'
+              ? styles.contentType
+              : styles.content
+        }
+      >
         {(!isCompleted || activeTab === 'statement') && (
           <div className={styles.statements}>
             {roleAStatement && (
               <div
                 className={`${styles.statementCard}${myRole === 'role_a' && !isCompleted ? ` ${styles.statementCardEditable}` : ''}`}
-                onClick={myRole === 'role_a' && !isCompleted ? () => router.push(`/disputes/${id}/statement?edit=true`) : undefined}
-                {...(myRole === 'role_a' && !isCompleted ? { role: 'button', tabIndex: 0, onKeyDown: (e) => { if (e.key === 'Enter' || e.key === ' ') router.push(`/disputes/${id}/statement?edit=true`) } } : {})}
+                onClick={
+                  myRole === 'role_a' && !isCompleted
+                    ? () => router.push(`/disputes/${id}/statement?edit=true`)
+                    : undefined
+                }
+                {...(myRole === 'role_a' && !isCompleted
+                  ? {
+                      role: 'button',
+                      tabIndex: 0,
+                      onKeyDown: (e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                          e.preventDefault();
+                          router.push(`/disputes/${id}/statement?edit=true`);
+                        }
+                      },
+                    }
+                  : {})}
               >
-                <p className={styles.statementLabel}>{participantA?.name ?? 'A'}님의 진술</p>
-                <p className={styles.statementContent}>{roleAStatement.content}</p>
+                <div className={styles.statementCardContent}>
+                  <p className={styles.statementLabel}>{participantA?.name ?? 'A'}님의 진술</p>
+                  <p className={styles.statementContent}>{roleAStatement.content}</p>
+                </div>
                 <div className={styles.statementFooter}>
                   <div className={styles.statementAvatar}>
                     <Image
@@ -300,11 +346,28 @@ export default function DisputePage({ params }: { params: Promise<{ id: string }
             {roleBStatement && (
               <div
                 className={`${styles.statementCard}${myRole === 'role_b' && !isCompleted ? ` ${styles.statementCardEditable}` : ''}`}
-                onClick={myRole === 'role_b' && !isCompleted ? () => router.push(`/disputes/${id}/statement?edit=true`) : undefined}
-                {...(myRole === 'role_b' && !isCompleted ? { role: 'button', tabIndex: 0, onKeyDown: (e) => { if (e.key === 'Enter' || e.key === ' ') router.push(`/disputes/${id}/statement?edit=true`) } } : {})}
+                onClick={
+                  myRole === 'role_b' && !isCompleted
+                    ? () => router.push(`/disputes/${id}/statement?edit=true`)
+                    : undefined
+                }
+                {...(myRole === 'role_b' && !isCompleted
+                  ? {
+                      role: 'button',
+                      tabIndex: 0,
+                      onKeyDown: (e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                          e.preventDefault();
+                          router.push(`/disputes/${id}/statement?edit=true`);
+                        }
+                      },
+                    }
+                  : {})}
               >
-                <p className={styles.statementLabel}>{participantB?.name ?? 'B'}님의 진술</p>
-                <p className={styles.statementContent}>{roleBStatement.content}</p>
+                <div className={styles.statementCardContent}>
+                  <p className={styles.statementLabel}>{participantB?.name ?? 'B'}님의 진술</p>
+                  <p className={styles.statementContent}>{roleBStatement.content}</p>
+                </div>
                 <div className={styles.statementFooter}>
                   <div className={styles.statementAvatar}>
                     <Image
@@ -347,10 +410,18 @@ export default function DisputePage({ params }: { params: Promise<{ id: string }
               <div className={styles.judgementPlaceholder}>
                 <p className={styles.empty}>판결 결과를 불러올 수 없습니다.</p>
               </div>
+            ) : !judgment ? (
+              <div className={styles.judgementPlaceholder}>
+                <p className={styles.empty}>판결 결과를 불러올 수 없습니다.</p>
+              </div>
             ) : judgmentSubTab === 'verdict' ? (
-              <JudgmentResult disputeId={id} />
+              <JudgmentResult judgment={judgment} participants={dispute.participants} />
             ) : (
-              <JudgmentTypeResult disputeId={id} />
+              <JudgmentTypeResult
+                judgment={judgment}
+                participants={dispute.participants}
+                disputeId={id}
+              />
             )}
           </>
         )}

@@ -15,11 +15,11 @@ import type { CategoryGroup } from '@/types/common';
 
 // DB 영문 emotion_type → EmotionIcon이 기대하는 한글 Feel 매핑
 const EMOTION_TYPE_TO_FEEL: Record<string, string> = {
-  happy:   '기쁨',
-  sad:     '슬픔',
+  happy: '기쁨',
+  sad: '슬픔',
   neutral: '보통',
   annoyed: '짜증',
-  angry:   '화남',
+  angry: '화남',
 };
 
 type CustomDayProps = React.ComponentProps<typeof PickerDay> & {
@@ -99,13 +99,13 @@ export default function CalendarView({
           }}
           sx={{
             width: '100%',
-            minHeight: 600,
+            minHeight: 512,
             overflow: 'visible',
             fontFamily: 'var(--font-pretendard), Pretendard, -apple-system, sans-serif',
             '& *': { fontFamily: 'inherit' },
 
             '& .MuiDayCalendar-slideTransition': {
-              minHeight: 480,
+              minHeight: 512,
               overflow: 'visible',
             },
 

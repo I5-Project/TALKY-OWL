@@ -78,22 +78,16 @@
 }
 
 .infoTitle {
-  font-family: v.$font-family-base;
-  font-size: v.$font-size-title-s;
-  font-weight: v.$font-weight-semibold;
-  line-height: v.$line-height-title-s;
   color: var(--text-primary);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  @include m.text-title-s;
 }
 
 .infoDesc {
-  font-family: v.$font-family-base;
-  font-size: v.$font-size-body-s;
-  font-weight: v.$font-weight-regular;
-  line-height: v.$line-height-body-s;
   color: var(--text-primary);
+  @include m.text-body-s;
 }
 
 .infoMeta {
@@ -140,11 +134,8 @@
 }
 
 .infoDate {
-  font-family: v.$font-family-base;
-  font-size: v.$font-size-label-s;
-  font-weight: v.$font-weight-semibold;
-  line-height: v.$line-height-label-s;
-  color: var(--text-secondary);
+  color: v.$color-black-400;
+  @include m.text-label-s;
 }
 
 // ===========================
@@ -155,6 +146,11 @@
   flex: 1;
   overflow-y: auto;
   padding-bottom: fn.r(80);
+}
+
+.contentType {
+  flex: 1;
+  overflow-y: auto;
 }
 
 .contentWithFooter {
@@ -177,7 +173,7 @@
 .statementCard {
   display: flex;
   flex-direction: column;
-  gap: fn.r(8);
+  gap: fn.r(12);
   padding: fn.r(20) fn.r(16);
   border: 2px solid #{v.$color-black-700};
   border-radius: fn.r(8);
@@ -186,27 +182,26 @@
 .statementCardEditable {
   cursor: pointer;
 
-  &:hover,
   &:focus {
     border-color: v.$color-primary-500;
     outline: none;
   }
 }
 
+.statementCardContent {
+  display: flex;
+  flex-direction: column;
+  gap: fn.r(4);
+}
+
 .statementLabel {
-  font-family: v.$font-family-base;
-  font-size: v.$font-size-label-m;
-  font-weight: v.$font-weight-medium;
-  line-height: v.$line-height-label-m;
   color: var(--text-primary);
+  @include m.text-label-m;
 }
 
 .statementContent {
-  font-family: v.$font-family-base;
-  font-size: v.$font-size-body-s;
-  font-weight: v.$font-weight-regular;
-  line-height: v.$line-height-body-s;
   color: var(--text-primary);
+  @include m.text-body-s;
 }
 
 .statementFooter {
@@ -217,8 +212,8 @@
 
 .statementAvatar {
   position: relative;
-  width: fn.r(24);
-  height: fn.r(24);
+  width: fn.r(20);
+  height: fn.r(20);
   border-radius: 50%;
   overflow: hidden;
   flex-shrink: 0;
@@ -229,9 +224,8 @@
 }
 
 .statementMbti {
-  @include m.text-label-s;
-
   color: v.$color-black-400;
+  @include m.text-label-s;
 }
 
 // ===========================
@@ -241,7 +235,6 @@
 .judgmentSubTabs {
   padding: fn.r(16) fn.r(20) 0;
 }
-
 
 // ===========================
 // Judgement Placeholder
@@ -278,7 +271,6 @@
   justify-content: space-between;
   padding: fn.r(16) fn.r(20);
   background: #{v.$color-primary-100};
-  border-radius: fn.r(8);
   border: none;
   cursor: pointer;
   width: 100%;
@@ -286,30 +278,20 @@
 }
 
 .inviteBannerText {
-  display: flex;
-  flex-direction: column;
   gap: fn.r(2);
+  @include m.text-label-m;
 }
 
 .inviteBannerTitle {
-  font-family: v.$font-family-base;
-  font-size: v.$font-size-body-s;
-  font-weight: v.$font-weight-semibold;
-  line-height: v.$line-height-body-s;
   color: var(--text-brand);
 }
 
 .inviteBannerDesc {
-  font-family: v.$font-family-base;
-  font-size: v.$font-size-body-m;
-  font-weight: v.$font-weight-semibold;
-  line-height: v.$line-height-body-m;
   color: var(--text-primary);
 }
 
 .inviteBannerPlus {
   font-size: fn.r(24);
-  font-weight: v.$font-weight-regular;
   color: var(--text-primary);
   flex-shrink: 0;
 }
@@ -323,6 +305,8 @@
   bottom: fn.r(64);
   left: 0;
   right: 0;
+  max-width: v.$container-max-width;
+  margin: 0 auto;
   padding: fn.r(16) fn.r(20);
   background: var(--bg-page);
 }

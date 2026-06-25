@@ -1,6 +1,6 @@
-@use '../../styles/abstracts/variables' as v;
-@use '../../styles/abstracts/functions' as fn;
-@use '../../styles/abstracts/mixins' as m;
+@use '@/styles/abstracts/variables' as v;
+@use '@/styles/abstracts/functions' as fn;
+@use '@/styles/abstracts/mixins' as m;
 
 .list {
   list-style: none;
@@ -13,7 +13,7 @@
 }
 
 .empty {
-  min-height: fn.r(400);
+  min-height: fn.r(300);
   display: flex;
   align-items: center;
   justify-content: center;

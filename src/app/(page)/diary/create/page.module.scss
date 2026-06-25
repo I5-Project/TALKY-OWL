@@ -17,10 +17,27 @@
     @include typo.text-body-s;
   }
 
+  &__form-area {
+    position: relative;
+  }
+
   &__form {
     display: flex;
     flex-direction: column;
     gap: fn.r(12);
+
+    &--loading {
+      opacity: 0.4;
+      pointer-events: none;
+    }
+  }
+
+  &__spinner-overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 
   &__textarea {
@@ -29,5 +46,14 @@
 
   &__submit {
     margin-top: fn.r(100);
+  }
+
+  &__modal-content {
+    display: flex;
+    flex-direction: column;
+    gap: fn.r(20);
+    padding: fn.r(4) 0 fn.r(4);
+    text-align: center;
+    @include typo.text-title-s;
   }
 }

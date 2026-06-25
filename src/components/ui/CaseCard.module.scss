@@ -1,5 +1,6 @@
 @use '@/styles/abstracts/variables' as v;
 @use '@/styles/abstracts/functions' as fn;
+@use '@/styles/abstracts/mixins' as m;
 
 .card {
   background-color: var(--bg-surface);
@@ -18,8 +19,9 @@
   &__header {
     display: flex;
     align-items: flex-start;
+    flex-direction: column;
     justify-content: space-between;
-    margin-bottom: fn.r(8);
+    gap: fn.r(4);
   }
 
   &__titleRow {
@@ -51,18 +53,11 @@
   }
 
   &__title {
-    font-family: v.$font-family-base;
-    font-size: v.$font-size-body-m;
-    font-weight: v.$font-weight-semibold;
-    line-height: v.$line-height-body-m;
     color: var(--text-primary);
+    @include m.text-title-s;
   }
 
   &__preview {
-    font-family: v.$font-family-base;
-    font-size: v.$font-size-body-s;
-    font-weight: v.$font-weight-regular;
-    line-height: v.$line-height-body-s;
     color: v.$color-black-700;
     display: -webkit-box;
     -webkit-line-clamp: 2;
@@ -70,6 +65,7 @@
     overflow: hidden;
     margin-bottom: fn.r(10);
     word-break: keep-all;
+    @include m.text-body-s;
   }
 
   &__footer {
@@ -80,11 +76,7 @@
 
   &__date {
     display: block;
-    font-family: v.$font-family-base;
-    font-size: v.$font-size-caption;
-    font-weight: v.$font-weight-regular;
-    line-height: v.$line-height-caption;
     color: var(--text-secondary);
-    text-align: right;
+    @include m.text-label-s;
   }
 }

@@ -1,5 +1,6 @@
 @use '@/styles/abstracts/variables' as v;
 @use '@/styles/abstracts/functions' as fn;
+@use '@/styles/abstracts/mixins' as m;
 
 .field {
   display: flex;
@@ -22,10 +23,6 @@
     width: 100%;
     min-height: fn.r(140);
     padding: fn.r(14) fn.r(16) fn.r(32);
-    font-family: v.$font-family-base;
-    font-size: v.$font-size-body-m;
-    font-weight: v.$font-weight-regular;
-    line-height: v.$line-height-body-m;
     color: var(--text-primary);
     background-color: var(--bg-surface);
     border: 1px solid var(--border-strong);
@@ -33,6 +30,7 @@
     outline: none;
     resize: none;
     transition: border-color 0.15s;
+    @include m.text-body-m;
 
     &:focus {
       border-color: var(--border-strong);
@@ -71,8 +69,8 @@
 
   &__counter {
     position: absolute;
-    bottom: fn.r(10);
-    right: fn.r(12);
+    bottom: fn.r(20);
+    right: fn.r(20);
     font-family: v.$font-family-base;
     font-size: v.$font-size-caption;
     font-weight: v.$font-weight-regular;

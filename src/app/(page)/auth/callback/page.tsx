@@ -12,11 +12,18 @@ export default function AuthCallbackPage() {
 
   useEffect(() => {
     if (status === 'authenticated') {
+      let callbackUrl = '/';
       const raw = searchParams.get('callbackUrl');
-      const callbackUrl =
-        raw && raw.startsWith('/') && !raw.startsWith('//') && !raw.startsWith('/auth/callback')
-          ? raw
-          : '/';
+      if (raw) {
+        try {
+          const path = new URL(raw, window.location.origin).pathname;
+          if (path && path !== '/auth/callback' && !path.startsWith('//')) {
+            callbackUrl = path;
+          }
+        } catch {
+          /* invalid URL */
+        }
+      }
       router.replace(callbackUrl);
     }
 

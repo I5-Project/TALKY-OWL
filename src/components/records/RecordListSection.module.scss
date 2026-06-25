@@ -10,18 +10,17 @@
 }
 
 .filterWrapper {
-  padding: fn.r(16) fn.r(16) fn.r(8);
-  border-bottom: 1px solid var(--border-default);
+  padding: fn.r(20) fn.r(16);
+  border-bottom: 8px solid var(--border-default);
 }
 
 .list {
   display: flex;
   flex-direction: column;
-  gap: fn.r(12);
+  gap: fn.r(8);
   padding: fn.r(16);
   list-style: none;
 }
-
 
 .center {
   flex: 1;
@@ -37,11 +36,23 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: fn.r(16);
-  padding: fn.r(60) 0;
+  gap: fn.r(20);
+  padding: fn.r(50) 0;
 }
 
 .emptyText {
-  font-size: v.$font-size-body-s;
+  font-size: v.$font-size-body-l;
+  color: var(--text-primary);
+}
+
+.bottomObserver {
+  display: flex;
+  justify-content: center;
+  padding: fn.r(16) 0;
+}
+
+.allLoaded {
   color: var(--text-secondary);
+  padding: fn.r(4) 0;
+  @include m.text-caption;
 }

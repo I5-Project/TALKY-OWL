@@ -13,4 +13,5 @@ export interface TabsProps {
   tabs: Tab[]
   activeId: string
   onChange: (id: string) => void
+  className?: string
 }

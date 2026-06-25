@@ -18,6 +18,8 @@
 /* 유형 카드 이미지 — 원본 비율 유지 */
 .cardImageWrapper {
   width: 100%;
+  max-width: fn.r(360);
+  margin: 0 auto;
   border-radius: fn.r(16);
   overflow: hidden;
   background-color: v.$color-black-100;

@@ -1,39 +1,91 @@
 'use client'
 
 import Image from 'next/image'
+import { useSession } from 'next-auth/react'
 import ActionPrompt from '@/components/ui/ActionPrompt'
-import { useDispute } from '@/domains/dispute/dispute.hooks'
-import { useJudgment } from '@/domains/judgement/judgement.hooks'
 import { useToastStore } from '@/stores/toastStore'
+import { getSessionUserId } from '@/lib/auth/session'
+import type { AiJudgmentDto } from '@/types/judgment'
+import type { DisputeParticipantDto } from '@/types/dispute'
 import styles from './JudgmentTypeResult.module.scss'
 
 interface Props {
+  judgment: AiJudgmentDto
+  participants: DisputeParticipantDto[]
   disputeId: string
 }
 
-export default function JudgmentTypeResult({ disputeId }: Props) {
+export default function JudgmentTypeResult({ judgment, participants, disputeId }: Props) {
   const showToast = useToastStore((s) => s.show)
-  const { data: dispute } = useDispute(disputeId)
-  const { data: judgment } = useJudgment(disputeId)
+  const { data: session } = useSession()
 
-  if (!judgment || !dispute) return null
-
-  const roleA = dispute.participants.find((p) => p.role === 'role_a')
-  const viewerLabel = roleA?.name ?? 'A'
+  const currentUserId = getSessionUserId(session)
+  const viewer = participants.find((p) => p.userId === currentUserId)
+  const viewerLabel = viewer?.name ?? ''
 
   const { cardImageUrl, displayName } = judgment.resultConflictDetail
 
-  const handleShare = () => {
-    showToast('공유 기능은 준비 중이에요.')
+  const handleShare = async () => {
+    const shareUrl = `${window.location.origin}/disputes/${disputeId}/type`
+    const isMobile = typeof navigator.share === 'function'
+
+    if (isMobile) {
+      try {
+        await navigator.share({
+          title: `${viewerLabel}님의 갈등 유형은 '${displayName}'`,
+          text: '나의 갈등 유형을 확인해봐요!',
+          url: shareUrl,
+        })
+      } catch {
+        // 공유 취소 시 무시
+      }
+      return
+    }
+
+    try {
+      await navigator.clipboard.writeText(shareUrl)
+      showToast('링크가 복사되었어요.')
+    } catch {
+      showToast('링크 복사에 실패했어요.')
+    }
   }
 
-  const handleDownload = () => {
-    showToast('다운로드 기능은 준비 중이에요.')
+  const handleDownload = async () => {
+    if (!cardImageUrl) {
+      showToast('저장할 이미지가 없어요.')
+      return
+    }
+    try {
+      const res = await fetch(cardImageUrl)
+      if (!res.ok) throw new Error(`Image download failed: ${res.status}`)
+      const blob = await res.blob()
+      const fileName = `갈등유형_${displayName}.jpg`
+      const file = new File([blob], fileName, { type: blob.type || 'image/jpeg' })
+
+      if (navigator.canShare?.({ files: [file] })) {
+        try {
+          await navigator.share({ files: [file] })
+          return
+        } catch (error) {
+          if (error instanceof DOMException && error.name === 'AbortError') return
+          throw error
+        }
+      }
+
+      const objectUrl = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = objectUrl
+      a.download = fileName
+      a.click()
+      URL.revokeObjectURL(objectUrl)
+    } catch {
+      window.open(cardImageUrl, '_blank')
+    }
   }
 
   return (
     <div className={styles.container}>
-      <p className={styles.title}>{viewerLabel}님의 유형은?</p>
+      <p className={styles.title}>{viewerLabel ? `${viewerLabel}님의 유형은?` : '나의 유형은?'}</p>
 
       {/* 유형 카드 이미지 */}
       <div className={styles.cardImageWrapper}>

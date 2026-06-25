@@ -100,6 +100,7 @@ export interface DisputeListResponse {
   total: number
   page: number
   limit: number
+  hasNext: boolean
 }
 
 // ============================================================

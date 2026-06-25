@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import CloseIcon from '@mui/icons-material/Close'
+import AddRoundedIcon from '@mui/icons-material/AddRounded'
 import CategoryIcon from '@/components/ui/CategoryIcon'
 import type { CategoryGroup } from '@/types/common'
 import styles from './NewCaseButton.module.scss'
@@ -18,12 +19,13 @@ export default function NewCaseButton() {
   const [isOpen, setIsOpen] = useState(false)
   const [isCreating, setIsCreating] = useState(false)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
+  const [limitError, setLimitError] = useState<string | null>(null)
   const router = useRouter()
 
   useEffect(() => {
-    document.body.style.overflow = isOpen ? 'hidden' : ''
+    document.body.style.overflow = (isOpen || !!limitError || !!errorMessage) ? 'hidden' : ''
     return () => { document.body.style.overflow = '' }
-  }, [isOpen])
+  }, [isOpen, limitError, errorMessage])
 
   const handleCategoryClick = async (category: CategoryGroup) => {
     if (isCreating) return
@@ -39,22 +41,19 @@ export default function NewCaseButton() {
         body: JSON.stringify({ categoryGroup: category }),
         signal: controller.signal,
       })
-      const roomJson = await roomRes.json() as { success: boolean; data?: { id: string }; error?: { message?: string } }
-      if (!roomJson.success || !roomJson.data) throw new Error(roomJson.error?.message)
+      const roomJson = await roomRes.json() as { success: boolean; data?: { id: string }; error?: { code?: string; message?: string } }
+      if (!roomJson.success || !roomJson.data) {
+        if (roomJson.error?.code === 'CATEGORY_LIMIT_EXCEEDED') {
+          setIsOpen(false)
+          setLimitError(roomJson.error.message ?? '사건은 카테고리당 2개까지만\n생성이 가능합니다.')
+          return
+        }
+        throw new Error(roomJson.error?.message)
+      }
 
-      const disputeRes = await fetch('/api/disputes', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ roomId: roomJson.data.id, categoryGroup: category, title: '새 사건' }),
-        signal: controller.signal,
-      })
-      const disputeJson = await disputeRes.json() as { success: boolean; data?: { id: string }; error?: { message?: string } }
-      if (!disputeJson.success || !disputeJson.data) throw new Error(disputeJson.error?.message)
-
-      router.push(`/disputes/${disputeJson.data.id}/statement?category=${category}`)
+      router.push(`/rooms/${roomJson.data.id}/statement?category=${category}`)
     } catch (err) {
-      setErrorMessage(err instanceof Error && err.message ? err.message : '사건 생성에 실패했습니다. 다시 시도해주세요.')
-      setIsOpen(true)
+      setErrorMessage(err instanceof Error && err.message ? err.message : '방 생성에 실패했습니다. 다시 시도해주세요.')
     } finally {
       clearTimeout(timeout)
       setIsCreating(false)
@@ -63,6 +62,38 @@ export default function NewCaseButton() {
 
   return (
     <>
+      {limitError && (
+        <div
+          className={styles.alertOverlay}
+          onClick={() => setLimitError(null)}
+          role="dialog"
+          aria-modal="true"
+        >
+          <div className={styles.alertModal} onClick={(e) => e.stopPropagation()}>
+            <p className={styles.alertMessage}>{limitError}</p>
+            <button className={styles.alertCloseButton} onClick={() => setLimitError(null)}>
+              확인
+            </button>
+          </div>
+        </div>
+      )}
+
+      {errorMessage && (
+        <div
+          className={styles.alertOverlay}
+          onClick={() => setErrorMessage(null)}
+          role="dialog"
+          aria-modal="true"
+        >
+          <div className={styles.alertModal} onClick={(e) => e.stopPropagation()}>
+            <p className={styles.alertMessage}>{errorMessage}</p>
+            <button className={styles.alertCloseButton} onClick={() => setErrorMessage(null)}>
+              확인
+            </button>
+          </div>
+        </div>
+      )}
+
       {isOpen && (
         <div
           className={styles.overlay}
@@ -72,9 +103,6 @@ export default function NewCaseButton() {
         >
           <div className={styles.panel} onClick={(e) => e.stopPropagation()}>
             <div className={styles.categoryBox}>
-              {errorMessage && (
-                <p className={styles.errorMessage}>{errorMessage}</p>
-              )}
               {CATEGORY_ITEMS.map(({ category, label }) => (
                 <button key={category} className={styles.item} onClick={() => handleCategoryClick(category)} disabled={isCreating}>
                   <CategoryIcon category={category} />
@@ -98,7 +126,7 @@ export default function NewCaseButton() {
           onClick={() => setIsOpen(true)}
           aria-label="새 사건 작성"
         >
-          새 사건 +
+          새 사건 <AddRoundedIcon sx={{ fontSize: 18 }} />
         </button>
       )}
     </>
