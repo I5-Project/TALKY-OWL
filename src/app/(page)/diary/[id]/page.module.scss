@@ -16,7 +16,12 @@
     border-radius: fn.r(8);
     margin: 30px 20px;
     padding: fn.r(20);
-    background: linear-gradient(to bottom, #fff, #ebf0f7);
+
+    &[data-emotion='happy']   { background: linear-gradient(to bottom, #fff, var(--emotion-happy-bg)); }
+    &[data-emotion='sad']     { background: linear-gradient(to bottom, #fff, var(--emotion-sad-bg)); }
+    &[data-emotion='neutral'] { background: linear-gradient(to bottom, #fff, var(--emotion-neutral-bg)); }
+    &[data-emotion='annoyed'] { background: linear-gradient(to bottom, #fff, var(--emotion-annoyed-bg)); }
+    &[data-emotion='angry']   { background: linear-gradient(to bottom, #fff, var(--emotion-angry-bg)); }
   }
 
   &__character {

@@ -12,6 +12,7 @@ interface ActionPromptProps {
   secondaryVariant?: 'outline' | 'soft';
   size?: 'md' | 'sm';
   className?: string;
+  primaryDisabled?: boolean;
 }
 
 export default function ActionPrompt({
@@ -22,6 +23,7 @@ export default function ActionPrompt({
   secondaryVariant = 'outline',
   size = 'md',
   className,
+  primaryDisabled = false,
 }: ActionPromptProps) {
   return (
     <div className={clsx(styles.prompt, className)}>
@@ -29,7 +31,7 @@ export default function ActionPrompt({
         <Button variant={secondaryVariant} size={size} onClick={onSecondary}>
           {secondaryLabel}
         </Button>
-        <Button variant="primary" size={size} onClick={onPrimary}>
+        <Button variant="primary" size={size} onClick={onPrimary} disabled={primaryDisabled}>
           {primaryLabel}
         </Button>
       </div>

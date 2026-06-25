@@ -51,12 +51,12 @@ export async function GET(request: NextRequest) {
         orderBy: { createdAt: 'desc' },
       }),
 
-      // 사건: 종료된(CLOSED) 사건만 조회 (createdAt + categoryGroup만 선택)
+      // 사건: 종료된(JUDGED) 사건만 조회 (createdAt + categoryGroup만 선택)
       // participants.some으로 내가 참여한 사건만 필터링
       prisma.dispute.findMany({
         where: {
           deletedAt: null,
-          status: 'CLOSED',
+          status: 'JUDGED',
           createdAt: { gte: startDate, lt: endDate },
           participants: { some: { userId } },
         },
