@@ -4,6 +4,7 @@
 
 .calendarWrapper {
   position: relative;
+  min-height:  fn.r(612);
 }
 
 .calendarOverlay {
@@ -21,8 +22,7 @@
   background-color: var(--bg-surface-soft);
   justify-content: space-between;
   color: v.$color-primary-700;
-  margin-top: fn.r(16);
-  padding: fn.r(12) fn.r(30);
+  padding: fn.r(12) fn.r(20);
 
   &__label,
   &__count {
@@ -34,27 +34,34 @@
   }
 }
 
-.diaryMode {
-  margin-top: fn.r(24);
+.calendarTabs {
+  button[aria-selected='true'] {
+    color: v.$color-black-700;
+    border-bottom: 2px solid v.$color-black-700;
+  }
 }
 
 .tabContent {
-  min-height: fn.r(300);
+  min-height: fn.r(250);
 }
 
 .fab {
+  position: fixed;
+  bottom: fn.r(81);
+  right: max(fn.r(16), calc((100vw - #{v.$container-max-width}) / 2 + #{fn.r(16)}));
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  width: fn.r(115);
+  justify-content: center;
+  gap: fn.r(4);
+  min-width: fn.r(115);
   height: fn.r(48);
-  margin-left: auto;
-  margin-right: fn.r(20);
-  margin-bottom: fn.r(80);
-  padding: fn.r(12) fn.r(15);
   background-color: v.$color-black-700;
   color: v.$color-white;
   border: none;
-  border-radius: fn.r(999);
+  border-radius: fn.r(48);
+  cursor: pointer;
+  z-index: 101;
+  white-space: nowrap;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
   @include typo.text-title-s;
 }

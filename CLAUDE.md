@@ -545,20 +545,20 @@ Claude는 작업 시 아래 순서를 따른다.
 
 ```txt
 docs/PROJECT_DECISIONS.md
-docs/PRD.md
-docs/FUNCTIONAL_REQUIREMENTS.xlsx
-docs/NON_FUNCTIONAL_REQUIREMENTS.xlsx
-docs/TASK_ASSIGNMENT.xlsx
 docs/TECH_STACK.md
 docs/ERD.md
 docs/API_SPEC.md
 docs/ARCHITECTURE.md
+docs/DESIGN.md
 docs/INFRA.md
+docs/PAGES.md
 docs/guides/CLAUDE_WORKFLOW.md
 docs/guides/GIT_WORKFLOW.md
 docs/guides/PR_RULES.md
 docs/guides/ENV_GUIDE.md
 docs/guides/CODING_CONVENTION.md
+docs/guides/GITHUB_COLLABORATION_POLICY.md
+docs/guides/VERCEL_DEPLOYMENT_GUIDE.md
 docs/db/PRISMA_MAPPING.md
 docs/db/MASTER_DATA.md
 docs/db/STATUS_TRANSITION.md

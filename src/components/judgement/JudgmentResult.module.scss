@@ -40,8 +40,8 @@
   display: flex;
   flex-direction: column;
   gap: fn.r(8);
-  padding: fn.r(8) fn.r(12);
-  border-radius: fn.r(12);
+  padding: fn.r(12);
+  border-radius: fn.r(8);
   background-color: var(--bg-page);
   box-shadow: inset 0 0 0 1px var(--border-default);
 }
@@ -51,8 +51,8 @@
   display: flex;
   flex-direction: column;
   gap: fn.r(8);
-  padding: fn.r(8) fn.r(12);
-  border-radius: fn.r(12);
+  padding: fn.r(12);
+  border-radius: fn.r(8);
   background-color: var(--bg-surface-soft);
 }
 
@@ -64,8 +64,8 @@
 
 /* 아바타: 프로필 이미지 없을 때 회색 원 fallback */
 .avatar {
-  width: fn.r(24);
-  height: fn.r(24);
+  width: fn.r(20);
+  height: fn.r(20);
   border-radius: 50%;
   overflow: hidden;
   flex-shrink: 0;
@@ -159,8 +159,12 @@
   transition: width 0.4s ease;
 }
 
-.barDark  { background-color: var(--status-disabled-text); }
-.barLight { background-color: v.$color-black-200; }
+.barDark {
+  background-color: var(--status-disabled-text);
+}
+.barLight {
+  background-color: v.$color-black-200;
+}
 
 .barCenter {
   position: absolute;
@@ -210,13 +214,4 @@
   display: flex;
   flex-direction: column;
   gap: fn.r(16);
-}
-
-.reconcileIcon {
-  position: absolute;
-  right: 0;
-  /* top 0 기준: 제목 높이(~24px) + gap(16px) = 카드 시작점(~40px)
-     아이콘 높이 52px → 카드에 약 12px 겹침 */
-  top: 0;
-  z-index: 1;
 }

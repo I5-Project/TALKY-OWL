@@ -39,7 +39,7 @@ export async function GET(
     const tokenHash = hashInviteToken(token)
     const room = await prisma.disputeRoom.findFirst({
       where: { roomTokenHash: tokenHash, deletedAt: null },
-      include: { creator: { select: { nickname: true } } },
+      include: { creator: { select: { nickname: true, name: true } } },
     })
 
     if (!room) {
@@ -85,7 +85,7 @@ export async function GET(
         categoryGroup: room.categoryGroup.toLowerCase(),
         roomMode: room.roomMode.toLowerCase(),
         expiresAt: room.expiresAt?.toISOString() ?? null,
-        inviterNickname: room.creator.nickname ?? null,
+        inviterNickname: room.creator.nickname ?? room.creator.name ?? null,
       },
     })
   } catch {

@@ -1,4 +1,5 @@
 @use '@/styles/abstracts/functions' as fn;
+@use '@/styles/abstracts/mixins' as m;
 
 .tabList {
   display: inline-flex;
@@ -11,15 +12,14 @@
 }
 
 .tabItem {
-  width: fn.r(60);
-  height: fn.r(36);
-  border-radius: fn.r(8);
-  font-family: var(--font-family-base);
-  font-size: 1rem;
-  line-height: 1.5rem;
+  min-width: fn.r(60);
+  padding: fn.r(4) fn.r(16);
+  border-radius: fn.r(4);
   cursor: pointer;
   transition: all 0.15s ease;
-  border: 1.5px solid var(--border-strong);
+  border: 1px solid var(--border-strong);
+  white-space: nowrap;
+  @include m.text-body-m;
 
   &--inactive {
     background-color: var(--bg-page);

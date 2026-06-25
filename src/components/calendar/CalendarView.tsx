@@ -15,11 +15,11 @@ import type { CategoryGroup } from '@/types/common';
 
 // DB 영문 emotion_type → EmotionIcon이 기대하는 한글 Feel 매핑
 const EMOTION_TYPE_TO_FEEL: Record<string, string> = {
-  happy:   '기쁨',
-  sad:     '슬픔',
+  happy: '기쁨',
+  sad: '슬픔',
   neutral: '보통',
   annoyed: '짜증',
-  angry:   '화남',
+  angry: '화남',
 };
 
 type CustomDayProps = React.ComponentProps<typeof PickerDay> & {
@@ -92,6 +92,7 @@ export default function CalendarView({
           value={selectedDate ? dayjs(selectedDate) : null}
           views={['year', 'month', 'day']}
           onChange={(date) => date && onDateChange(date.format('YYYY-MM-DD'))}
+          onMonthChange={(date) => onDateChange(date.startOf('month').format('YYYY-MM-DD'))}
           dayOfWeekFormatter={(day) => ['S', 'M', 'T', 'W', 'T', 'F', 'S'][day.day()]}
           slots={{ day: (props) => <CustomDay {...props} recordMap={recordMap} /> }}
           slotProps={{
@@ -99,13 +100,12 @@ export default function CalendarView({
           }}
           sx={{
             width: '100%',
-            minHeight: 600,
             overflow: 'visible',
             fontFamily: 'var(--font-pretendard), Pretendard, -apple-system, sans-serif',
             '& *': { fontFamily: 'inherit' },
 
             '& .MuiDayCalendar-slideTransition': {
-              minHeight: 480,
+              // minHeight: 512,
               overflow: 'visible',
             },
 

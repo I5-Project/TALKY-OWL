@@ -1,0 +1,18 @@
+@use '@/styles/abstracts/variables' as v;
+
+@keyframes shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    v.$color-black-100 25%,
+    v.$color-black-200 50%,
+    v.$color-black-100 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.4s ease-in-out infinite;
+  border-radius: 4px;
+}

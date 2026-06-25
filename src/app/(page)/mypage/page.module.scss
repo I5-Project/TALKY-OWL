@@ -9,12 +9,18 @@
 .profile {
   display: flex;
   align-items: center;
-  gap: fn.r(12);
+  justify-content: space-between;
   padding: fn.r(20);
   margin: fn.r(8) fn.r(16);
-  background-color: var(--bg-surface);
-  border-radius: fn.r(16);
+  background-color: var(--bg-surface-soft);
+  border-radius: fn.r(8);
+  border: 2px solid #{v.$color-black-700};
 
+  &__wrapper {
+    display: flex;
+    gap: fn.r(12);
+    align-items: center;
+  }
   &__info {
     display: flex;
     flex-direction: column;
@@ -32,16 +38,15 @@
   }
 
   &__badge {
-    @include m.text-caption;
-    color: var(--text-secondary);
+    @include m.text-label-s;
+    align-self: flex-start;
+    color: var(--text-disabled);
   }
 
   &__setting {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: fn.r(32);
-    height: fn.r(32);
     flex-shrink: 0;
     background: none;
     border: none;
@@ -66,11 +71,11 @@
     cursor: pointer;
     text-decoration: none;
     color: var(--text-primary);
-
-    &--danger {
-      color: var(--text-danger, #e74c3c);
-    }
   }
+
+  // &__item--danger {
+  //   color: var(--text-danger);
+  // }
 
   &__label {
     @include m.text-title-s;
@@ -78,6 +83,5 @@
 
   &__arrow {
     color: var(--icon-secondary);
-    font-size: fn.r(20);
   }
 }

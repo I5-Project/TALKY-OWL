@@ -5,8 +5,7 @@
 .page {
   display: flex;
   flex-direction: column;
-  min-height: 100dvh;
-  padding: fn.r(24) fn.r(16) fn.r(32);
+  padding-bottom: fn.r(32);
   background-color: v.$color-white;
 }
 
@@ -36,17 +35,12 @@
   color: v.$color-black-400;
 }
 
-.logoWrap {
-  display: flex;
-  justify-content: center;
-  margin-bottom: fn.r(32);
-}
 
 .content {
   display: flex;
   flex-direction: column;
   gap: fn.r(16);
-  flex: 1;
+  padding: fn.r(24) fn.r(16) 0;
 }
 
 .title {
@@ -95,6 +89,7 @@
 
 .actions {
   margin-top: fn.r(24);
+  padding: 0 fn.r(16);
   display: flex;
   flex-direction: column;
   gap: fn.r(12);
