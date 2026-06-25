@@ -16,21 +16,17 @@ export default function RecordListSection() {
   const categoryGroup =
     selectedCategory === 'all' ? undefined : (selectedCategory as CategoryGroup);
 
-  const {
-    data,
-    isLoading,
-    isError,
-    fetchNextPage,
-    hasNextPage,
-    isFetchingNextPage,
-  } = useCompletedCases(categoryGroup);
+  const { data, isLoading, isError, fetchNextPage, hasNextPage, isFetchingNextPage } =
+    useCompletedCases(categoryGroup);
 
   const records = data?.pages.flatMap((p) => p.disputes) ?? [];
 
   useEffect(() => {
     if (!bottomRef.current || !hasNextPage) return;
     const observer = new IntersectionObserver(
-      (entries) => { if (entries[0].isIntersecting) fetchNextPage() },
+      (entries) => {
+        if (entries[0].isIntersecting) fetchNextPage();
+      },
       { threshold: 0.1 },
     );
     observer.observe(bottomRef.current);
@@ -51,7 +47,7 @@ export default function RecordListSection() {
         <p className={styles.empty}>사건 기록을 불러오지 못했어요. 잠시 후 다시 시도해주세요.</p>
       ) : records.length === 0 ? (
         <div className={styles.empty}>
-          <Image src="/images/characters/character-case.svg" alt="" width={120} height={120} />
+          <Image src="/images/characters/character-case.svg" alt="" width={150} height={150} />
           <p className={styles.emptyText}>등록한 사건이 없어요</p>
         </div>
       ) : (

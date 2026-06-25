@@ -3,9 +3,9 @@
 import type { TabsProps } from '@/types/ui';
 import styles from '@/components/ui/Tabs.module.scss';
 
-export default function Tabs({ tabs, activeId, onChange }: TabsProps) {
+export default function Tabs({ tabs, activeId, onChange, className }: TabsProps) {
   return (
-    <div className={styles.tabs} role="tablist">
+    <div className={`${styles.tabs} ${className ?? ''}`} role="tablist">
       {tabs.map((tab) => (
         <button
           key={tab.id}

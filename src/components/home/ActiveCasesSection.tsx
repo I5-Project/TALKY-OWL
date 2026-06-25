@@ -31,14 +31,6 @@ export default function ActiveCasesSection() {
 
       {cases.length === 0 ? (
         <div className={styles.emptyState}>
-          <Image
-            src="/images/characters/character-case.svg"
-            alt=""
-            width={80}
-            height={80}
-            className={styles.emptyImage}
-            priority
-          />
           <p className={styles.empty}>아직 진행중인 사건이 없어요</p>
         </div>
       ) : (

@@ -1,21 +1,23 @@
-import Image from 'next/image'
-import Link from 'next/link'
-import { getCachedSession } from '@/lib/auth/getSession'
-import SetHeader from '@/components/layout/SetHeader'
-import StatsCategorySection from '@/components/home/StatsCategorySection'
-import ActiveCasesSection from '@/components/home/ActiveCasesSection'
-import NewCaseButton from '@/components/home/NewCaseButton'
-import HomeServiceInfo from '@/components/home/HomeServiceInfo'
-import HomeGreeting from '@/components/home/HomeGreeting'
-import styles from '../page.module.scss'
+import Image from 'next/image';
+import Link from 'next/link';
+import { getCachedSession } from '@/lib/auth/getSession';
+import Header from '@/components/layout/Header';
+import AddRoundedIcon from '@mui/icons-material/AddRounded';
+import StatsCategorySection from '@/components/home/StatsCategorySection';
+import ActiveCasesSection from '@/components/home/ActiveCasesSection';
+import NewCaseButton from '@/components/home/NewCaseButton';
+import HomeServiceInfo from '@/components/home/HomeServiceInfo';
+import HomeGreeting from '@/components/home/HomeGreeting';
+import styles from './page.module.scss';
+import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 
 export default async function HomePage() {
-  const session = await getCachedSession()
-  const isLoggedIn = !!session
+  const session = await getCachedSession();
+  const isLoggedIn = !!session;
 
   return (
     <div className={styles.page}>
-      <SetHeader variant="logo" transparent />
+      <Header variant="logo" transparent className={styles.headerSpacer} />
 
       <Image
         src="/images/characters/character-home.svg"
@@ -30,13 +32,13 @@ export default async function HomePage() {
         <HomeGreeting />
 
         {/* 오늘의 일기 박스 */}
-        <Link href="/diary/new" className={styles.diaryBox} aria-label="감정일기 작성">
+        <Link href="/diary/create" className={styles.diaryBox} aria-label="감정일기 작성">
           <div className={styles.diaryTextGroup}>
             <p className={styles.diaryTitle}>오늘의 일기를 적어보세요</p>
             <p className={styles.diarySubtitle}>감정일기 작성하러가기</p>
           </div>
           <span className={styles.diaryButton} aria-hidden="true">
-            +
+            <AddRoundedIcon sx={{ fontSize: 24 }} />
           </span>
         </Link>
 
@@ -52,13 +54,13 @@ export default async function HomePage() {
             <ActiveCasesSection />
           </div>
         ) : (
-          <Link href="/login" className={styles.introBox} aria-label="말해부엉 알아보기">
+          <Link href="/about" className={styles.introBox} aria-label="말해부엉 알아보기">
             <div className={styles.diaryTextGroup}>
               <p className={styles.diaryTitle}>말해부엉이 궁금하신가요?</p>
               <p className={styles.diarySubtitle}>말해부엉 알아보기</p>
             </div>
             <span className={styles.introArrow} aria-hidden="true">
-              ›
+              <ChevronRightIcon sx={{ fontSize: 24 }} />
             </span>
           </Link>
         )}
@@ -71,5 +73,5 @@ export default async function HomePage() {
 
       {isLoggedIn && <NewCaseButton />}
     </div>
-  )
+  );
 }
