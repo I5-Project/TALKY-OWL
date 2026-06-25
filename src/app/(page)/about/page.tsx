@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { useSession } from 'next-auth/react';
 import Image from 'next/image';
 import { motion, AnimatePresence, type Variants } from 'framer-motion';
 import BalanceIcon from '@mui/icons-material/Balance';
@@ -71,7 +72,7 @@ const riseUp: Variants = {
   visible: { opacity: 1, y: 0, transition: { duration: 1.0, ease: EASE } },
 };
 
-const REVOLVING_WORDS = ['남친', '친구', '상사', '엄마'];
+const REVOLVING_WORDS = ['남친', '친구', '동료', '엄마'];
 const REVOLVING_ORDER = [2, 3, 0, 1];
 const CYCLE_DURATION = 2000;
 
@@ -95,6 +96,7 @@ const featureCards = [
 
 export default function AboutPage() {
   const router = useRouter();
+  const { status } = useSession();
   const setHeader = useHeaderStore((s) => s.setHeader);
   const [phase, setPhase] = useState<'animation' | 'iris-out' | 'content'>('animation');
   const [orderIdx, setOrderIdx] = useState(0);
@@ -271,12 +273,7 @@ export default function AboutPage() {
                 viewport={{ once: true, amount: 0.2 }}
                 className={styles.animalPanda}
               >
-                <Image
-                  src="/images/about/animals02.png"
-                  alt="판다"
-                  width={120}
-                  height={120}
-                />
+                <Image src="/images/about/animals02.png" alt="판다" width={120} height={120} />
               </motion.div>
               <motion.div
                 className={styles.featureCardsInner}
@@ -431,7 +428,10 @@ export default function AboutPage() {
               <span className={styles.highlight}>말해부엉</span>으로 어디서나 편하게 갈등해결할 수
               있어요
             </p>
-            <button className={styles.ctaButton} onClick={() => router.push('/login')}>
+            <button
+              className={styles.ctaButton}
+              onClick={() => router.push(status === 'authenticated' ? '/' : '/login')}
+            >
               말해부엉 바로가기
             </button>
           </motion.section>
