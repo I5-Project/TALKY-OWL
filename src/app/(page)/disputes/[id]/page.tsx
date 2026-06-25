@@ -415,7 +415,7 @@ export default function DisputePage({ params }: { params: Promise<{ id: string }
                 <p className={styles.empty}>판결 결과를 불러올 수 없습니다.</p>
               </div>
             ) : judgmentSubTab === 'verdict' ? (
-              <JudgmentResult judgment={judgment} participants={dispute.participants} />
+              <JudgmentResult judgment={judgment} participants={dispute.participants} myRole={myRole} />
             ) : (
               <JudgmentTypeResult
                 judgment={judgment}

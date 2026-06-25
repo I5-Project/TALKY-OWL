@@ -127,11 +127,6 @@
   object-fit: cover;
 }
 
-.avatarFallback {
-  width: 100%;
-  height: 100%;
-  background-color: var(--bg-disabled);
-}
 
 .infoDate {
   color: v.$color-black-400;
@@ -339,38 +334,3 @@
   white-space: pre-line;
 }
 
-.modalOverlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(26, 29, 31, 0.4);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0 fn.r(20);
-  z-index: 300;
-}
-
-.modal {
-  width: 100%;
-  background: var(--bg-surface);
-  border: 2px solid #{v.$color-black-700};
-  border-radius: fn.r(8);
-  padding: fn.r(20) fn.r(16);
-  display: flex;
-  flex-direction: column;
-  gap: fn.r(16);
-}
-
-.modalText {
-  font-family: v.$font-family-base;
-  font-size: v.$font-size-title-s;
-  font-weight: v.$font-weight-semibold;
-  line-height: v.$line-height-title-s;
-  color: var(--text-primary);
-  white-space: pre-line;
-}
-
-.modalActions {
-  display: flex;
-  gap: fn.r(8);
-}
