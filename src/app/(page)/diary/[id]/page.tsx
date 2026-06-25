@@ -25,10 +25,10 @@ export default async function DiaryDetailPage({
     <>
       <DiaryDetailHeader />
       <div className={styles.diary}>
-      <div className={styles['diary__body']}>
+      <div className={styles['diary__body']} data-emotion={diary.emotionType}>
         <Image
           className={styles['diary__character']}
-          src="/images/characters/character-closed.png"
+          src={`/images/characters/character-${diary.emotionType}.svg`}
           alt=""
           width={355}
           height={194}

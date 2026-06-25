@@ -10,11 +10,12 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: fn.r(115);
+  gap: fn.r(4);
+  min-width: fn.r(115);
   height: fn.r(48);
   background-color: v.$color-black-700;
   border: none;
-  border-radius: fn.r(100);
+  border-radius: fn.r(48);
   cursor: pointer;
   z-index: 101;
 
@@ -22,6 +23,7 @@
 
   color: #ffffff;
   white-space: nowrap;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
 }
 
 // ─── 카테고리 선택 모달 ──────────────────────────────────────

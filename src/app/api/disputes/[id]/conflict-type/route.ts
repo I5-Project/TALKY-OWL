@@ -6,6 +6,7 @@ export interface ConflictTypePublicDto {
   displayName: string
   description: string | null
   cardImageUrl: string | null
+  ownerName: string | null
 }
 
 // GET /api/disputes/:id/conflict-type
@@ -35,6 +36,11 @@ export async function GET(
             },
           },
         },
+        participants: {
+          where: { role: 'ROLE_A' },
+          select: { user: { select: { name: true } } },
+          take: 1,
+        },
       },
     })
 
@@ -46,10 +52,11 @@ export async function GET(
     }
 
     const { displayName, description, card_image_url } = dispute.aiJudgment.resultConflictDetail
+    const ownerName = dispute.participants[0]?.user.name ?? null
 
     return NextResponse.json<ApiResponse<ConflictTypePublicDto>>({
       success: true,
-      data: { displayName, description, cardImageUrl: card_image_url },
+      data: { displayName, description, cardImageUrl: card_image_url, ownerName },
     })
   } catch (error) {
     console.error('[GET /api/disputes/:id/conflict-type] failed', { disputeId: id, error })

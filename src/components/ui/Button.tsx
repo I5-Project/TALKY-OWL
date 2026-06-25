@@ -17,9 +17,7 @@ export default function Button({
   className,
   ...props
 }: ButtonProps) {
-  const variantClass = disabled
-    ? styles['button--disabled']
-    : styles[`button--${variant}`];
+  const variantClass = disabled ? styles['button--disabled'] : styles[`button--${variant}`];
   const sizeClass = size === 'sm' ? styles['button--sm'] : '';
 
   return (

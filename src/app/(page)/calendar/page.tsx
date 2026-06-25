@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import AddRoundedIcon from '@mui/icons-material/AddRounded';
 import dayjs from 'dayjs';
 import Header from '@/components/layout/Header';
 import CalendarView from '@/components/calendar/CalendarView';
@@ -11,6 +12,7 @@ import RecordList from '@/components/calendar/RecordList';
 import Tabs from '@/components/ui/Tabs';
 import { useCalendarRecords } from '@/domains/calendar/calendar.hooks';
 import Spinner from '@/components/ui/Spinner';
+import CircularProgress from '@mui/material/CircularProgress';
 import type { DiaryTab } from '@/types/diary';
 
 const tabItems = [
@@ -27,9 +29,8 @@ export default function Calendar() {
   const currentMonth = dayjs(selectedDate).month() + 1; // dayjs month는 0부터 시작
   const { data: calendarData, isLoading } = useCalendarRecords(currentYear, currentMonth);
 
-  const monthlyDisputeCount = calendarData?.records.reduce(
-    (sum, r) => sum + (r.dispute?.count ?? 0), 0
-  ) ?? 0;
+  const monthlyDisputeCount =
+    calendarData?.records.reduce((sum, r) => sum + (r.dispute?.count ?? 0), 0) ?? 0;
 
   return (
     <div>
@@ -50,12 +51,21 @@ export default function Calendar() {
       <div className={styles.summary}>
         <div className={styles['summary__label']}>이달 화해횟수</div>
         <div className={styles['summary__count']}>
-          {isLoading ? '불러오는 중...' : `${monthlyDisputeCount}번`}
+          {isLoading ? (
+            <CircularProgress size={16} thickness={4} sx={{ color: 'var(--text-secondary)' }} />
+          ) : (
+            `${monthlyDisputeCount}번`
+          )}
         </div>
       </div>
 
       <div className={styles.diaryMode}>
-        <Tabs tabs={tabItems} activeId={activeTab} onChange={(v) => setActiveTab(v as DiaryTab)} />
+        <Tabs
+          tabs={tabItems}
+          activeId={activeTab}
+          onChange={(v) => setActiveTab(v as DiaryTab)}
+          className={styles.calendarTabs}
+        />
         <div className={styles.tabContent}>
           {activeTab === 'emotion' && <EmotionDiaryList selectedDate={selectedDate} />}
           {activeTab === 'record' && <RecordList selectedDate={selectedDate} />}
@@ -64,8 +74,7 @@ export default function Calendar() {
 
       {activeTab === 'emotion' && (
         <button className={styles.fab} onClick={() => router.push('/diary/create')}>
-          <span>새 일기</span>
-          <span>+</span>
+          새 일기 <AddRoundedIcon sx={{ fontSize: 18 }} />
         </button>
       )}
     </div>

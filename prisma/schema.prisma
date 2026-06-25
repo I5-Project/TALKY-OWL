@@ -329,21 +329,26 @@ model GiftRecommendation {
 }
 
 model GiftRecommendationItem {
-  id               String             @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  recommendationId String             @map("recommendation_id") @db.Uuid
-  itemName         String             @map("item_name") @db.VarChar(200)
-  priceRange       String?            @map("price_range") @db.VarChar(100)
-  category         String?            @db.VarChar(100)
-  imageUrl         String?            @map("image_url")
-  externalUrl      String?            @map("external_url")
+  id               String              @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  recommendationId String?             @map("recommendation_id") @db.Uuid
+  targetGender     String?             @map("target_gender") @db.VarChar(20)
+  targetAgeGroup   Int?                @map("target_age_group")
+  targetMbti       String?             @map("target_mbti") @db.VarChar(4)
+  itemName         String              @map("item_name") @db.VarChar(200)
+  priceRange       String?             @map("price_range") @db.VarChar(100)
+  category         String?             @db.VarChar(100)
+  imageUrl         String?             @map("image_url")
+  externalUrl      String?             @map("external_url")
   reason           String?
-  sortOrder        Int                @default(0) @map("sort_order")
-  createdAt        DateTime           @default(now()) @map("created_at")
-  updatedAt        DateTime           @updatedAt @map("updated_at")
-  recommendation   GiftRecommendation @relation(fields: [recommendationId], references: [id], onDelete: Cascade)
+  isActive         Boolean             @default(true) @map("is_active")
+  sortOrder        Int                 @default(0) @map("sort_order")
+  createdAt        DateTime            @default(now()) @map("created_at")
+  updatedAt        DateTime            @updatedAt @map("updated_at")
+  recommendation   GiftRecommendation? @relation(fields: [recommendationId], references: [id], onDelete: Cascade)
 
   @@map("gift_recommendation_items")
 }
+
 
 model EmotionDiary {
   id          String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid

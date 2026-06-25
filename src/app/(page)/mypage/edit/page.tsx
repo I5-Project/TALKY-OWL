@@ -8,7 +8,7 @@ import Input from '@/components/ui/Input';
 import Select from '@/components/ui/Select';
 import Button from '@/components/ui/Button';
 import Spinner from '@/components/ui/Spinner';
-import PhotoCameraRoundedIcon from '@mui/icons-material/PhotoCameraRounded';
+import ImageIcon from '@mui/icons-material/Image';
 import { useUserMe, useUpdateProfile } from '@/domains/user/hooks';
 import { MBTI_OPTIONS } from '@/domains/user/constants';
 import { useProfileEditStore } from '@/stores/profileEditStore';
@@ -150,7 +150,7 @@ export default function ProfileEditPage() {
             className={styles.avatar__button}
             onClick={() => fileInputRef.current?.click()}
           >
-            <PhotoCameraRoundedIcon sx={{ fontSize: 16 }} />
+            <ImageIcon sx={{ fontSize: 16 }} />
             사진 변경
           </button>
         </div>

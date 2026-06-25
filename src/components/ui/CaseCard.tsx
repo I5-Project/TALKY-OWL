@@ -12,13 +12,17 @@ interface CaseCardProps {
   onClick?: () => void;
 }
 
-export default function CaseCard({ title, preview, date, categoryGroup, disputeStatus, onClick }: CaseCardProps) {
+export default function CaseCard({
+  title,
+  preview,
+  date,
+  categoryGroup,
+  disputeStatus,
+  onClick,
+}: CaseCardProps) {
   return (
     <article
-      className={[
-        styles.card,
-        onClick ? styles['card--clickable'] : '',
-      ].join(' ')}
+      className={[styles.card, onClick ? styles['card--clickable'] : ''].join(' ')}
       onClick={onClick}
       {...(onClick ? { role: 'button', tabIndex: 0 } : {})}
     >
@@ -31,8 +35,8 @@ export default function CaseCard({ title, preview, date, categoryGroup, disputeS
           )}
           <h3 className={styles.card__title}>{title}</h3>
         </div>
+        <p className={styles.card__preview}>{preview}</p>
       </div>
-      <p className={styles.card__preview}>{preview}</p>
       {disputeStatus ? (
         <div className={styles.card__footer}>
           <time className={styles.card__date}>{date}</time>
