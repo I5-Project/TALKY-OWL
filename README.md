@@ -168,6 +168,14 @@ src/
 
 ---
 
-## 팀 정보
+## 팀원 소개
 
-**I5-Project** 팀 프로젝트
+**I5-Project**
+
+| 이름 | GitHub | 역할 | 담당 영역 |
+|------|--------|------|-----------|
+| 백종우 | [@evenif99](https://github.com/evenif99) | Frontend / Backend | 프로젝트 초기 세팅·인프라 구축, 인증(카카오 로그인·약관동의), 마이페이지, 서비스 소개 페이지, 배포 관리, 문서화 |
+| 천주아 | [@juahcheon](https://github.com/juahcheon) | Frontend / Backend | 사건 도메인 API·타입 설계, AI 판결 로직(Gemini 연동·프롬프트), 진술 작성·사건조회 페이지, 욕설 필터 |
+| 박정민 | [@wjdalss21](https://github.com/wjdalss21) | Frontend / Backend | 홈 화면(통계·카테고리·진행중 사건), 판결 결과 페이지, 사건기록 페이지, 통계 API, 에러 페이지 |
+| 배근영 | [@lyla-bae](https://github.com/lyla-bae) | Design / Frontend | 디자인 시스템(토큰·전역 스타일), 전체 UI 스타일 개편, 초대 링크 API·프론트 연결, 이미지 에셋 관리 |
+| 이승규 | [@SG-Develope](https://github.com/SG-Develope) | Frontend / Backend | 캘린더 페이지·월별 조회 API, 감정일기(작성·상세·수정·조회 API), 선물추천 기능 |
