@@ -78,7 +78,7 @@ export async function POST(
       }
     })
 
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3030'
+    const appUrl = process.env.NEXT_PUBLIC_BASE_URL ?? 'http://localhost:3030'
     const inviteUrl = `${appUrl}/join/${token}`
 
     return NextResponse.json<ApiResponse<InviteResponse>>(

@@ -14,10 +14,6 @@ const pretendard = localFont({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL(
-    process.env.NEXT_PUBLIC_APP_URL ??
-      (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3030'),
-  ),
   title: '말해부엉',
   description: 'AI 갈등 조정 판결 서비스',
   icons: {
@@ -28,7 +24,7 @@ export const metadata: Metadata = {
     description: 'AI 갈등 조정 판결 서비스',
     images: [
       {
-        url: '/images/common/ogimg.jpg',
+        url: 'https://talky-owl-iota.vercel.app/images/common/ogimg.jpg',
         width: 1200,
         height: 630,
         alt: '말해부엉',
@@ -37,17 +33,21 @@ export const metadata: Metadata = {
   },
 };
 
-export default async function RootLayout({ children }: { children: React.ReactNode }) {
+async function SessionBridge({ children }: { children: React.ReactNode }) {
   const session = await getCachedSession();
+  return <AuthProvider session={session}>{children}</AuthProvider>;
+}
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="ko" className={pretendard.variable} suppressHydrationWarning>
       <body suppressHydrationWarning>
-        <AuthProvider session={session}>
+        <SessionBridge>
           <QueryProvider>
             {children}
             <Toast />
           </QueryProvider>
-        </AuthProvider>
+        </SessionBridge>
       </body>
     </html>
   );
