@@ -53,20 +53,19 @@ export async function GET(
   const mbti = searchParams.get('mbti') ?? ''
 
   const normalizedGender = gender === 'male' || gender === 'female' ? gender : null
-  const ageGroup = age > 0 ? Math.floor(age / 10) * 10 : null
+  // 20대 , 30대 ,40대 이상
+  const ageGroup = age < 30 ? 20 : age < 40 ? 30 : 40
   const normalizedMbti = mbti.length === 4 ? mbti.toUpperCase() : null
 
   try {
     const genderCond = normalizedGender
-      ? Prisma.sql`target_gender = ${normalizedGender}`
+      ? Prisma.sql`(target_gender = ${normalizedGender} OR target_gender IS NULL)`
       : Prisma.sql`target_gender IS NULL`
 
-    const ageCond = ageGroup !== null
-      ? Prisma.sql`target_age_group = ${ageGroup}`
-      : Prisma.sql`target_age_group IS NULL`
+    const ageCond = Prisma.sql`(target_age_group = ${ageGroup} OR target_age_group IS NULL)`
 
     const mbtiCond = normalizedMbti
-      ? Prisma.sql`target_mbti = ${normalizedMbti}`
+      ? Prisma.sql`(target_mbti = ${normalizedMbti} OR target_mbti IS NULL)`
       : Prisma.sql`target_mbti IS NULL`
 
     const rows = await prisma.$queryRaw<GiftRow[]>`
@@ -77,8 +76,7 @@ export async function GET(
         AND ${genderCond}
         AND ${ageCond}
         AND ${mbtiCond}
-      ORDER BY RANDOM()
-      LIMIT 1
+      LIMIT 50
     `
 
     if (rows.length === 0) {
@@ -88,7 +86,8 @@ export async function GET(
       )
     }
 
-    return NextResponse.json<ApiResponse<GiftItemDto>>({ success: true, data: toDto(rows[0]) })
+    const picked = rows[Math.floor(Math.random() * rows.length)]
+    return NextResponse.json<ApiResponse<GiftItemDto>>({ success: true, data: toDto(picked) })
   } catch {
     return NextResponse.json<ApiResponse>(
       { success: false, error: { code: 'INTERNAL_SERVER_ERROR', message: '서버 오류가 발생했습니다.' } },
