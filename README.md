@@ -168,6 +168,61 @@ src/
 
 ---
 
+## 개발 워크플로우
+
+### 브랜치 전략
+
+```
+main          ← 최종 배포
+  └── dev     ← 개발 통합
+       ├── feature/*   새 기능
+       ├── fix/*        버그 수정
+       ├── refactor/*   리팩토링
+       ├── docs/*       문서 작업
+       └── hotfix/*     긴급 수정
+```
+
+### 개발 흐름
+
+```
+1. dev 최신화
+   └── git pull origin dev
+
+2. 작업 브랜치 생성
+   └── git checkout -b feature/도메인-기능명
+
+3. 개발 및 로컬 검증
+   ├── npm run lint
+   ├── npm run type-check
+   └── npm run build
+
+4. PR 생성 (→ dev)
+   ├── PR 템플릿 작성 (작업 내용, 변경사항, 테스트 결과)
+   └── 보안·환경변수 노출 여부 체크
+
+5. 코드 리뷰
+   ├── 리뷰어 1명 이상 승인 필수
+   └── MVP 범위·문서 기준 일치 확인
+
+6. Squash Merge → dev
+
+7. 최종 배포 시 dev → main 병합
+```
+
+### 커밋 컨벤션
+
+```
+feat:      새 기능 추가
+fix:       버그 수정
+docs:      문서 변경
+refactor:  리팩토링
+style:     디자인·CSS 변경
+chore:     패키지·설정
+infra:     환경설정·인프라
+```
+
+---
+
 ## 팀원 소개
 
 **I5-Project**
