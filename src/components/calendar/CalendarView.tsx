@@ -92,6 +92,7 @@ export default function CalendarView({
           value={selectedDate ? dayjs(selectedDate) : null}
           views={['year', 'month', 'day']}
           onChange={(date) => date && onDateChange(date.format('YYYY-MM-DD'))}
+          onMonthChange={(date) => onDateChange(date.startOf('month').format('YYYY-MM-DD'))}
           dayOfWeekFormatter={(day) => ['S', 'M', 'T', 'W', 'T', 'F', 'S'][day.day()]}
           slots={{ day: (props) => <CustomDay {...props} recordMap={recordMap} /> }}
           slotProps={{
@@ -99,7 +100,6 @@ export default function CalendarView({
           }}
           sx={{
             width: '100%',
-            minHeight: 512,
             overflow: 'visible',
             fontFamily: 'var(--font-pretendard), Pretendard, -apple-system, sans-serif',
             '& *': { fontFamily: 'inherit' },

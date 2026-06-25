@@ -12,6 +12,7 @@ import Input from '@/components/ui/Input';
 import Select from '@/components/ui/Select';
 import Button from '@/components/ui/Button';
 import ActionPrompt from '@/components/ui/ActionPrompt';
+import Skeleton from '@/components/ui/Skeleton';
 import styles from './GiftRecommendation.module.scss';
 
 interface Props {
@@ -25,6 +26,7 @@ export default function GiftRecommendation({ disputeId, opponentName, opponentPa
   const [showResultModal, setShowResultModal] = useState(false);
   const [form, setForm] = useState({ gender: '', age: '', mbti: '' });
   const [giftItem, setGiftItem] = useState<GiftItemDto | null>(null);
+  const [imageLoaded, setImageLoaded] = useState(false);
 
   const { mutate: fetchGift, isPending } = useGiftRecommendation();
   const showToast = useToastStore((s) => s.show);
@@ -39,6 +41,7 @@ export default function GiftRecommendation({ disputeId, opponentName, opponentPa
       { disputeId, gender: form.gender, age: form.age, mbti: form.mbti },
       {
         onSuccess: (data) => {
+          setImageLoaded(false);
           setGiftItem(data);
           setShowInfoModal(false);
           setShowResultModal(true);
@@ -134,12 +137,16 @@ export default function GiftRecommendation({ disputeId, opponentName, opponentPa
             <h2 className={styles['giftResult__title']}>이런 선물 어떠세요?</h2>
             <div className={styles['giftResult__imageWrapper']}>
               {giftItem.imageUrl ? (
-                <Image
-                  src={giftItem.imageUrl}
-                  alt={giftItem.itemName}
-                  fill
-                  className={styles['giftResult__image']}
-                />
+                <>
+                  {!imageLoaded && <Skeleton className={styles['giftResult__skeleton']} />}
+                  <Image
+                    src={giftItem.imageUrl}
+                    alt={giftItem.itemName}
+                    fill
+                    className={styles['giftResult__image']}
+                    onLoad={() => setImageLoaded(true)}
+                  />
+                </>
               ) : (
                 <div className={styles['giftResult__imageFallback']}>
                   <span className={styles['giftResult__imageFallbackText']}>{giftItem.itemName}</span>
