@@ -32,7 +32,6 @@ export default function JudgmentTypeResult({ judgment, participants, disputeId }
 
   const { cardImageUrl, displayName } = judgment.resultConflictDetail
 
-  // Apple 기기: 공유 시트에서 저장 + 공유 통합
   const handleAppleShareSave = async () => {
     if (!cardImageUrl) {
       showToast('저장할 이미지가 없어요.')
@@ -59,7 +58,6 @@ export default function JudgmentTypeResult({ judgment, participants, disputeId }
     }
   }
 
-  // 비Apple 기기: 767px 이상 → 링크 복사, 미만 → navigator.share
   const handleShare = async () => {
     const shareUrl = `${window.location.origin}/disputes/${disputeId}/type`
     const isDesktop = window.innerWidth >= 767
@@ -87,7 +85,6 @@ export default function JudgmentTypeResult({ judgment, participants, disputeId }
     }
   }
 
-  // 비Apple 기기: 서버 프록시를 통한 anchor download
   const handleDownload = async () => {
     if (!cardImageUrl) {
       showToast('저장할 이미지가 없어요.')
@@ -116,7 +113,6 @@ export default function JudgmentTypeResult({ judgment, participants, disputeId }
     <div className={styles.container}>
       <p className={styles.title}>{viewerLabel ? `${viewerLabel}님의 유형은?` : '나의 유형은?'}</p>
 
-      {/* 유형 카드 이미지 */}
       <div className={styles.cardImageWrapper}>
         {cardImageUrl ? (
           <Image
@@ -134,7 +130,6 @@ export default function JudgmentTypeResult({ judgment, participants, disputeId }
         )}
       </div>
 
-      {/* 액션 버튼 */}
       {isAppleDevice ? (
         <div className={styles.actions}>
           <Button variant="primary" onClick={handleAppleShareSave}>
