@@ -1,6 +1,6 @@
 'use client'
 
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { useSession } from 'next-auth/react'
@@ -20,32 +20,39 @@ export default function ConflictTypeClient({ data }: Props) {
   const isSessionLoading = sessionStatus === 'loading'
   const isLoggedIn = sessionStatus === 'authenticated'
   const userName = session?.user?.name
+  const [isAppleDevice, setIsAppleDevice] = useState(false)
+
+  useEffect(() => {
+    setIsAppleDevice(/iPhone|iPad|iPod|Macintosh/.test(navigator.userAgent))
+  }, [])
 
   const handleDownload = async () => {
     if (!data?.cardImageUrl) return
     try {
-      const res = await fetch(data.cardImageUrl)
-      if (!res.ok) throw new Error(`Image download failed: ${res.status}`)
+      const proxyUrl = `/api/download?url=${encodeURIComponent(data.cardImageUrl)}`
+      const res = await fetch(proxyUrl)
+      if (!res.ok) throw new Error(`fetch failed: ${res.status}`)
       const blob = await res.blob()
-      const fileName = `갈등유형_${data.displayName}.jpg`
-      const file = new File([blob], fileName, { type: blob.type || 'image/jpeg' })
 
-      if (navigator.canShare?.({ files: [file] })) {
+      if (isAppleDevice) {
+        const file = new File([blob], 'talkyowl-conflict-type.jpg', { type: 'image/jpeg' })
         try {
           await navigator.share({ files: [file] })
-          return
         } catch (error) {
           if (error instanceof DOMException && error.name === 'AbortError') return
-          throw error
+          window.open(data.cardImageUrl, '_blank')
         }
+        return
       }
 
       const objectUrl = URL.createObjectURL(blob)
       const a = document.createElement('a')
       a.href = objectUrl
-      a.download = fileName
+      a.download = 'talkyowl-conflict-type.jpg'
+      document.body.appendChild(a)
       a.click()
-      URL.revokeObjectURL(objectUrl)
+      document.body.removeChild(a)
+      setTimeout(() => URL.revokeObjectURL(objectUrl), 100)
     } catch {
       window.open(data.cardImageUrl, '_blank')
     }
