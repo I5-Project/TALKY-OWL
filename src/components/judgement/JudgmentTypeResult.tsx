@@ -42,7 +42,8 @@ export default function JudgmentTypeResult({ judgment, participants, disputeId }
     const shareUrl = `${window.location.origin}/disputes/${disputeId}/type`
 
     try {
-      const res = await fetch(cardImageUrl)
+      const proxyUrl = `/api/download?url=${encodeURIComponent(cardImageUrl)}`
+      const res = await fetch(proxyUrl)
       if (!res.ok) throw new Error(`fetch failed: ${res.status}`)
       const blob = await res.blob()
       const file = new File([blob], 'talkyowl-conflict-type.jpg', { type: 'image/jpeg' })
