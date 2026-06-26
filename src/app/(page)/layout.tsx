@@ -13,6 +13,10 @@ export default function PageLayout({ children }: { children: React.ReactNode }) 
   const isAbout = pathname === '/about' || pathname.startsWith('/about/');
   const isHome = pathname === '/';
 
+  const showGradient =
+    pathname === '/records' ||
+    pathname.startsWith('/disputes/');
+
   const hideNav =
     pathname.endsWith('/statement') ||
     pathname.startsWith('/join/') ||
@@ -23,7 +27,7 @@ export default function PageLayout({ children }: { children: React.ReactNode }) 
     isAbout;
 
   return (
-    <div className={`${styles.layout} ${isAbout ? '' : 'container'}`}>
+    <div className={`${styles.layout} ${isAbout ? '' : 'container'} ${showGradient ? styles.gradient : ''}`}>
       {header &&
         !isAbout &&
         !isHome &&
