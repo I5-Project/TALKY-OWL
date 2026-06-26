@@ -15,7 +15,6 @@ export default function PageLayout({ children }: { children: React.ReactNode }) 
 
   const showGradient =
     pathname === '/records' ||
-    pathname === '/mypage' ||
     pathname.startsWith('/disputes/');
 
   const hideNav =
