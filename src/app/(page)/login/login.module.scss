@@ -7,6 +7,7 @@
   flex-direction: column;
   min-height: 100svh;
   padding: fn.r(20) fn.r(24) fn.r(40);
+  background: linear-gradient(180deg, #{v.$color-primary-200} 0%, #{v.$color-white} 15%);
 }
 
 .content {
@@ -26,7 +27,9 @@
 .character {
   width: 40vw;
   max-width: fn.r(200);
-  height: auto;
+  height: calc(40vw * 109 / 133);
+  max-height: fn.r(164);
+  object-fit: contain;
   image-rendering: pixelated;
 }
 

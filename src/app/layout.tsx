@@ -37,17 +37,21 @@ export const metadata: Metadata = {
   },
 };
 
-export default async function RootLayout({ children }: { children: React.ReactNode }) {
+async function SessionBridge({ children }: { children: React.ReactNode }) {
   const session = await getCachedSession();
+  return <AuthProvider session={session}>{children}</AuthProvider>;
+}
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="ko" className={pretendard.variable} suppressHydrationWarning>
       <body suppressHydrationWarning>
-        <AuthProvider session={session}>
+        <SessionBridge>
           <QueryProvider>
             {children}
             <Toast />
           </QueryProvider>
-        </AuthProvider>
+        </SessionBridge>
       </body>
     </html>
   );
