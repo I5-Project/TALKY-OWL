@@ -13,18 +13,8 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    const supabaseUrl = process.env.SUPABASE_URL
-    if (!supabaseUrl) {
-      return NextResponse.json<ApiResponse>(
-        { success: false, error: { code: 'CONFIG_ERROR', message: '서버 설정 오류입니다.' } },
-        { status: 500 },
-      )
-    }
-
-    const allowedHostname = new URL(supabaseUrl).hostname
     const requestedHostname = new URL(url).hostname
-
-    if (requestedHostname !== allowedHostname) {
+    if (!requestedHostname.endsWith('.supabase.co')) {
       return NextResponse.json<ApiResponse>(
         { success: false, error: { code: 'FORBIDDEN', message: '허용되지 않은 URL입니다.' } },
         { status: 403 },
@@ -40,9 +30,9 @@ export async function GET(request: NextRequest) {
     }
 
     const contentType = res.headers.get('content-type')?.toLowerCase() ?? ''
-    if (!contentType.startsWith('image/jpeg')) {
+    if (!contentType.startsWith('image/')) {
       return NextResponse.json<ApiResponse>(
-        { success: false, error: { code: 'UNSUPPORTED_MEDIA_TYPE', message: 'JPEG 이미지만 다운로드할 수 있습니다.' } },
+        { success: false, error: { code: 'UNSUPPORTED_MEDIA_TYPE', message: '이미지 파일만 다운로드할 수 있습니다.' } },
         { status: 415 },
       )
     }
