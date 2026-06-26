@@ -6,7 +6,7 @@ import styles from '@/app/(page)/page.module.scss';
 export default function HomeGreeting() {
   const { data: user } = useUserMe();
 
-  const displayName = user?.name ?? user?.nickname;
+  const displayName = user?.nickname ?? user?.name;
   const greeting = displayName ? `${displayName}님` : '안녕하세요';
 
   return (
