@@ -13,6 +13,10 @@ const pretendard = localFont({
   display: 'swap',
 });
 
+const baseUrl =
+  process.env.NEXT_PUBLIC_BASE_URL ??
+  (process.env.NODE_ENV === 'production' ? undefined : 'http://localhost:3030')
+
 export const metadata: Metadata = {
   title: '말해부엉',
   description: 'AI 갈등 조정 판결 서비스',
@@ -22,14 +26,16 @@ export const metadata: Metadata = {
   openGraph: {
     title: '말해부엉',
     description: 'AI 갈등 조정 판결 서비스',
-    images: [
-      {
-        url: 'https://talky-owl-iota.vercel.app/images/common/ogimg.jpg',
-        width: 1200,
-        height: 630,
-        alt: '말해부엉',
-      },
-    ],
+    images: baseUrl
+      ? [
+          {
+            url: `${baseUrl}/images/common/ogimg.jpg`,
+            width: 1200,
+            height: 630,
+            alt: '말해부엉',
+          },
+        ]
+      : [],
   },
 };
 
