@@ -14,7 +14,7 @@ const pretendard = localFont({
 });
 
 const baseUrl =
-  process.env.NEXT_PUBLIC_BASE_URL ??
+  process.env.NEXT_PUBLIC_APP_URL ??
   (process.env.NODE_ENV === 'production' ? undefined : 'http://localhost:3030')
 
 export const metadata: Metadata = {

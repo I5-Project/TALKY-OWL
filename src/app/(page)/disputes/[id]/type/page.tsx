@@ -39,7 +39,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const data = await getConflictType(id)
   const title = data ? `나의 갈등 유형 — ${data.displayName}` : '갈등 유형 결과'
   const description = data?.description ?? '나의 갈등 유형을 말해부엉을 통해 확인해봐요!'
-  const imageUrl = data?.cardImageUrl ?? 'https://talky-owl-iota.vercel.app/images/common/ogimg.jpg'
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? (process.env.NODE_ENV === 'production' ? '' : 'http://localhost:3030')
+  const imageUrl = data?.cardImageUrl ?? `${appUrl}/images/common/ogimg.jpg`
 
   return {
     title,

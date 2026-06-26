@@ -79,7 +79,7 @@ export async function POST(
     })
 
     const appUrl =
-      process.env.NEXT_PUBLIC_BASE_URL ??
+      process.env.NEXT_PUBLIC_APP_URL ??
       (process.env.NODE_ENV === 'production' ? undefined : 'http://localhost:3030')
 
     if (!appUrl) {
