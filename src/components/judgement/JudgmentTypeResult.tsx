@@ -56,7 +56,7 @@ export default function JudgmentTypeResult({ judgment, participants, disputeId }
       return
     }
 
-    const fileName = `갈등유형_${displayName}.jpg`
+    const fileName = 'talkyowl-conflict-type.jpg'
 
     try {
       const res = await fetch(cardImageUrl)
