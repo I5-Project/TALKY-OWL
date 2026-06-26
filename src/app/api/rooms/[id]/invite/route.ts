@@ -78,18 +78,8 @@ export async function POST(
       }
     })
 
-    const appUrl =
-      process.env.NEXT_PUBLIC_APP_URL ??
-      (process.env.NODE_ENV === 'production' ? undefined : 'http://localhost:3030')
-
-    if (!appUrl) {
-      return NextResponse.json<ApiResponse>(
-        { success: false, error: { code: 'CONFIG_ERROR', message: '서비스 URL 설정이 누락되었습니다.' } },
-        { status: 500 },
-      )
-    }
-
-    const inviteUrl = new URL(`/join/${token}`, appUrl).toString()
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3030'
+    const inviteUrl = `${appUrl}/join/${token}`
 
     return NextResponse.json<ApiResponse<InviteResponse>>(
       { success: true, data: { inviteUrl, expiresAt: expiresAt.toISOString() } },

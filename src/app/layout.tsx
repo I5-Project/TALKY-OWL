@@ -13,11 +13,11 @@ const pretendard = localFont({
   display: 'swap',
 });
 
-const baseUrl =
-  process.env.NEXT_PUBLIC_APP_URL ??
-  (process.env.NODE_ENV === 'production' ? undefined : 'http://localhost:3030')
-
 export const metadata: Metadata = {
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_APP_URL ??
+      (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3030'),
+  ),
   title: '말해부엉',
   description: 'AI 갈등 조정 판결 서비스',
   icons: {
@@ -26,16 +26,14 @@ export const metadata: Metadata = {
   openGraph: {
     title: '말해부엉',
     description: 'AI 갈등 조정 판결 서비스',
-    images: baseUrl
-      ? [
-          {
-            url: `${baseUrl}/images/common/ogimg.jpg`,
-            width: 1200,
-            height: 630,
-            alt: '말해부엉',
-          },
-        ]
-      : [],
+    images: [
+      {
+        url: '/images/common/ogimg.jpg',
+        width: 1200,
+        height: 630,
+        alt: '말해부엉',
+      },
+    ],
   },
 };
 
