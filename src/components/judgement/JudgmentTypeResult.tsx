@@ -86,7 +86,7 @@ export default function JudgmentTypeResult({ judgment, participants, disputeId }
     }
   }
 
-  // 비Apple 기기: anchor download
+  // 비Apple 기기: 서버 프록시를 통한 anchor download
   const handleDownload = async () => {
     if (!cardImageUrl) {
       showToast('저장할 이미지가 없어요.')
@@ -94,7 +94,8 @@ export default function JudgmentTypeResult({ judgment, participants, disputeId }
     }
 
     try {
-      const res = await fetch(cardImageUrl)
+      const proxyUrl = `/api/download?url=${encodeURIComponent(cardImageUrl)}`
+      const res = await fetch(proxyUrl)
       if (!res.ok) throw new Error(`fetch failed: ${res.status}`)
       const blob = await res.blob()
       const objectUrl = URL.createObjectURL(blob)
