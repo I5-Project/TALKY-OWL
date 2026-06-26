@@ -78,7 +78,7 @@ export default function WithdrawPage() {
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const displayName = user?.name ?? user?.nickname ?? '';
+  const displayName = user?.nickname ?? user?.name ?? '';
 
   const handleWithdraw = async () => {
     if (loading) return;

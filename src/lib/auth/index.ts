@@ -56,7 +56,12 @@ async function saveFirstLoginFields(userId: string, kakaoId: string, imageUrl?: 
     await prisma.$transaction([
       prisma.user.update({
         where: { id: userId },
-        data: { kakaoId, termsAgreedAt: now, ...(imageUrl ? { profileImageUrl: imageUrl } : {}) },
+        data: {
+          kakaoId,
+          nickname: user.name,
+          termsAgreedAt: now,
+          ...(imageUrl ? { profileImageUrl: imageUrl } : {}),
+        },
       }),
       prisma.userTermsAgreement.createMany({
         data: Object.values(CURRENT_TERMS_VERSIONS).map((terms) => ({
