@@ -46,7 +46,7 @@ export default function Chatbot() {
   const [historyLoaded, setHistoryLoaded] = useState(false)
 
   const { data: user } = useUserMe()
-  const displayName = user?.name ?? user?.nickname ?? '사용자'
+  const displayName = user?.nickname ?? user?.name ?? '사용자'
 
   const containerRef = useRef<HTMLDivElement>(null)
   const overlayRef = useRef<HTMLDivElement>(null)

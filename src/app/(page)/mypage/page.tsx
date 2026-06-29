@@ -38,7 +38,7 @@ export default function MyPage() {
   const isPreparing = (key: string): key is PreparingKey =>
     (PREPARING_ITEMS as readonly string[]).includes(key);
 
-  const displayName = user?.name ?? user?.nickname ?? '';
+  const displayName = user?.nickname ?? user?.name ?? '';
 
   const handleLogout = () => {
     signOut({ callbackUrl: '/login' });
