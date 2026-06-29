@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/db'
 import { getRequestUserId } from '@/lib/auth/session'
+import { supabaseAdmin, PROFILE_IMAGES_BUCKET } from '@/lib/storage'
 import type { ApiResponse } from '@/types/common'
 
 export const dynamic = 'force-dynamic'
@@ -22,6 +23,10 @@ const VALID_MBTI = [
 ]
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+
+const PROFILE_IMAGE_MAX_SIZE = 5 * 1024 * 1024
+const PROFILE_IMAGE_ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp']
+
 
 function getAuthErrorResponse() {
   return NextResponse.json<ApiResponse>(
@@ -120,6 +125,16 @@ export async function PATCH(request: NextRequest) {
       }
     }
 
+    const profileImageFile = formData.get('profileImage') as File | null
+    if (profileImageFile) {
+      if (!PROFILE_IMAGE_ALLOWED_TYPES.includes(profileImageFile.type)) {
+        fieldErrors.push({ field: 'profileImage', code: 'INVALID_FILE_TYPE', message: 'JPG, PNG, WEBP 파일만 업로드 가능합니다.' })
+      } else if (profileImageFile.size > PROFILE_IMAGE_MAX_SIZE) {
+        fieldErrors.push({ field: 'profileImage', code: 'FILE_TOO_LARGE', message: '파일 크기는 5MB 이하만 가능합니다.' })
+      }
+    }
+
+
     if (fieldErrors.length > 0) {
       return NextResponse.json<ApiResponse>(
         { success: false, error: { code: 'VALIDATION_ERROR', message: '입력값을 확인해주세요.', fieldErrors } },
@@ -127,7 +142,9 @@ export async function PATCH(request: NextRequest) {
       )
     }
 
-    if (Object.keys(data).length === 0) {
+    const hasProfileImage = profileImageFile && !fieldErrors.some((e) => e.field === 'profileImage')
+
+    if (Object.keys(data).length === 0 && !hasProfileImage) {
       return NextResponse.json<ApiResponse>(
         { success: false, error: { code: 'NO_CHANGES', message: '변경할 항목이 없습니다.' } },
         { status: 400 },
@@ -145,6 +162,31 @@ export async function PATCH(request: NextRequest) {
         { status: 404 },
       )
     }
+
+    if (hasProfileImage) {
+      const ext = profileImageFile.type.split('/')[1] === 'jpeg' ? 'jpg' : profileImageFile.type.split('/')[1]
+      const filePath = `${userId}/profile.${ext}`
+      const buffer = Buffer.from(await profileImageFile.arrayBuffer())
+
+      const { error: uploadError } = await supabaseAdmin.storage
+        .from(PROFILE_IMAGES_BUCKET)
+        .upload(filePath, buffer, { contentType: profileImageFile.type, upsert: true })
+
+      if (uploadError) {
+        console.error('[user/me] profile image upload error', { message: uploadError.message })
+        return NextResponse.json<ApiResponse>(
+          { success: false, error: { code: 'UPLOAD_FAILED', message: '이미지 업로드에 실패했습니다.' } },
+          { status: 500 },
+        )
+      }
+
+      const { data: urlData } = supabaseAdmin.storage
+        .from(PROFILE_IMAGES_BUCKET)
+        .getPublicUrl(filePath)
+
+      data.profileImageUrl = `${urlData.publicUrl}?t=${Date.now()}`
+    }
+
 
     const updated = await prisma.user.update({
       where: { id: userId },
