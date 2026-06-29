@@ -27,7 +27,6 @@ const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 const PROFILE_IMAGE_MAX_SIZE = 5 * 1024 * 1024
 const PROFILE_IMAGE_ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp']
 
-
 function getAuthErrorResponse() {
   return NextResponse.json<ApiResponse>(
     { success: false, error: { code: 'UNAUTHORIZED', message: '로그인이 필요합니다.' } },
@@ -134,7 +133,6 @@ export async function PATCH(request: NextRequest) {
       }
     }
 
-
     if (fieldErrors.length > 0) {
       return NextResponse.json<ApiResponse>(
         { success: false, error: { code: 'VALIDATION_ERROR', message: '입력값을 확인해주세요.', fieldErrors } },
@@ -186,7 +184,6 @@ export async function PATCH(request: NextRequest) {
 
       data.profileImageUrl = `${urlData.publicUrl}?t=${Date.now()}`
     }
-
 
     const updated = await prisma.user.update({
       where: { id: userId },
