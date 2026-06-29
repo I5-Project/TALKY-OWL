@@ -85,7 +85,6 @@ export default function JudgmentTypeResult({ judgment, participants, disputeId }
     }
   }
 
-  // 비Apple 기기: 서버 프록시를 통한 anchor download
   const handleDownload = async () => {
     if (!cardImageUrl) {
       showToast('저장할 이미지가 없어요.')
