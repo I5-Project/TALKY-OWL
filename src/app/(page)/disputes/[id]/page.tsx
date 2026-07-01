@@ -443,7 +443,7 @@ export default function DisputePage({ params }: { params: Promise<{ id: string }
               disabled={!canJudge}
               onClick={() => (isSolo ? setShowSoloModal(true) : void runJudge())}
             >
-              판결받기
+              {dispute.status === 'opponent_joined' ? '상대방이 작성 중...' : '판결받기'}
             </Button>
           </div>
         </div>
