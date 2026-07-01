@@ -142,8 +142,12 @@ export default function GiftRecommendation({ disputeId, opponentName, opponentPa
                   <Image
                     src={giftItem.imageUrl}
                     alt={giftItem.itemName}
-                    fill
+                    width={0}
+                    height={0}
+                    unoptimized
+                    loading="eager"
                     className={styles['giftResult__image']}
+                    style={{ display: imageLoaded ? 'block' : 'none' }}
                     onLoad={() => setImageLoaded(true)}
                   />
                 </>
