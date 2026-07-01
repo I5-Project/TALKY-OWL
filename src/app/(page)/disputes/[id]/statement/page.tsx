@@ -6,6 +6,7 @@ import { useHeaderStore } from '@/stores/headerStore'
 import { useDispute } from '@/domains/dispute/dispute.hooks'
 import { useUserMe } from '@/domains/user/hooks'
 import Button from '@/components/ui/Button'
+import Spinner from '@/components/ui/Spinner'
 import Select from '@/components/ui/Select'
 import Textarea from '@/components/ui/Textarea'
 import { CATEGORY_ICON_MAP, CATEGORY_LABEL_MAP } from '@/components/ui/CategoryIcon'
@@ -62,45 +63,88 @@ export default function StatementPage({
   const [isLoading, setIsLoading] = React.useState(false)
   const [filterMessage, setFilterMessage] = React.useState<string | null>(null)
   const [showPersonalInfoWarning, setShowPersonalInfoWarning] = React.useState(false)
+  const [savedDisputeId, setSavedDisputeId] = React.useState<string | null>(null)
+
+  const SAVING_MESSAGES = ['나쁜 말을 검열 중입니다', '내용을 저장 중입니다', 'AI가 분석 중입니다', '조금만 기다려주세요']
+  const [savingMsgIdx, setSavingMsgIdx] = React.useState(0)
+  React.useEffect(() => {
+    if (!isLoading || isEditMode) return
+    const timer = setInterval(() => setSavingMsgIdx((i) => (i + 1) % SAVING_MESSAGES.length), 2000)
+    return () => clearInterval(timer)
+  }, [isLoading, isEditMode])
+
+  const handleCancel = () => {
+    fetch(`/api/rooms/${id}`, { method: 'DELETE', keepalive: true }).catch(() => {})
+    router.push('/')
+  }
 
   const handleSave = async () => {
     if (isLoading) return
     setIsLoading(true)
     setFilterMessage(null)
 
-    try {
-      const res = await fetch(`/api/disputes/${id}/statements`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ content }),
-      })
-      const json = await res.json() as { success: boolean; data?: { hasPersonalInfo?: boolean }; error?: { code?: string; message?: string } }
+    if (mbti !== (userMe?.mbti ?? '')) {
+      const form = new FormData()
+      form.append('mbti', mbti)
+      await fetch('/api/user/me', { method: 'PATCH', body: form })
+    }
 
-      if (!json.success) {
-        setIsLoading(false)
-        const AI_EXTRACTION_CODES = ['AI_EXTRACTION_FAILED', 'AI_EXTRACTION_TIMEOUT', 'AI_EXTRACTION_PARSE_ERROR']
-        if (json.error?.code && AI_EXTRACTION_CODES.includes(json.error.code)) {
-          alert(json.error.message ?? 'AI 분석에 실패했습니다. 다시 시도해주세요.')
+    try {
+      if (!isEditMode) {
+        const res = await fetch('/api/disputes', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ roomId: id, categoryGroup: category, content }),
+        })
+        const json = await res.json() as { success: boolean; data?: { id: string; hasPersonalInfo?: boolean }; error?: { code?: string; message?: string } }
+
+        if (!json.success) {
+          setIsLoading(false)
+          const AI_EXTRACTION_CODES = ['AI_EXTRACTION_FAILED', 'AI_EXTRACTION_TIMEOUT', 'AI_EXTRACTION_PARSE_ERROR']
+          if (json.error?.code && AI_EXTRACTION_CODES.includes(json.error.code)) {
+            alert(json.error.message ?? 'AI 분석에 실패했습니다. 다시 시도해주세요.')
+            return
+          }
+          setFilterMessage(json.error?.message ?? '저장 중 오류가 발생했습니다. 다시 시도해주세요.')
           return
         }
-        setFilterMessage(json.error?.message ?? '저장 중 오류가 발생했습니다. 다시 시도해주세요.')
-        return
-      }
 
-      if (json.data?.hasPersonalInfo) {
-        setIsLoading(false)
-        setShowPersonalInfoWarning(true)
-        return
-      }
+        if (json.data?.hasPersonalInfo) {
+          setSavedDisputeId(json.data.id)
+          setIsLoading(false)
+          setShowPersonalInfoWarning(true)
+          return
+        }
 
-      if (mbti !== (userMe?.mbti ?? '')) {
-        const form = new FormData()
-        form.append('mbti', mbti)
-        await fetch('/api/user/me', { method: 'PATCH', body: form })
-      }
+        router.push(`/disputes/${json.data!.id}`)
+      } else {
+        const res = await fetch(`/api/disputes/${id}/statements`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ content }),
+        })
+        const json = await res.json() as { success: boolean; data?: { hasPersonalInfo?: boolean }; error?: { code?: string; message?: string } }
 
-      // 성공 시 isLoading을 false로 바꾸지 않음 — 페이지가 unmount될 때까지 스피너 유지
-      router.push(`/disputes/${id}`)
+        if (!json.success) {
+          setIsLoading(false)
+          const AI_EXTRACTION_CODES = ['AI_EXTRACTION_FAILED', 'AI_EXTRACTION_TIMEOUT', 'AI_EXTRACTION_PARSE_ERROR']
+          if (json.error?.code && AI_EXTRACTION_CODES.includes(json.error.code)) {
+            alert(json.error.message ?? 'AI 분석에 실패했습니다. 다시 시도해주세요.')
+            return
+          }
+          setFilterMessage(json.error?.message ?? '저장 중 오류가 발생했습니다. 다시 시도해주세요.')
+          return
+        }
+
+        if (json.data?.hasPersonalInfo) {
+          setIsLoading(false)
+          setShowPersonalInfoWarning(true)
+          return
+        }
+
+        // 성공 시 isLoading을 false로 바꾸지 않음 — 페이지가 unmount될 때까지 스피너 유지
+        router.push(`/disputes/${id}`)
+      }
     } catch {
       setIsLoading(false)
       setFilterMessage('네트워크 오류가 발생했습니다. 다시 시도해주세요.')
@@ -121,6 +165,17 @@ export default function StatementPage({
   }
 
   const Icon = CATEGORY_ICON_MAP[category]
+
+  if (isLoading && !isEditMode) {
+    return (
+      <div className={styles.savingScreen}>
+        <div className={styles.savingContent}>
+          <Spinner />
+          <p className={styles.savingText}>{SAVING_MESSAGES[savingMsgIdx]}</p>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className={styles.page}>
@@ -162,9 +217,16 @@ export default function StatementPage({
       </div>
 
       <div className={styles.footer}>
-        <Button onClick={handleSave} disabled={!content.trim() || isLoading}>
-          {isLoading ? '저장 중...' : isEditMode ? '수정저장' : '진술저장'}
-        </Button>
+        <div className={styles.footerRow}>
+          {!isEditMode && (
+            <Button variant="outline" onClick={() => void handleCancel()} disabled={isLoading}>
+              취소
+            </Button>
+          )}
+          <Button onClick={() => void handleSave()} disabled={!content.trim() || isLoading}>
+            {isLoading ? '저장 중...' : isEditMode ? '수정저장' : '진술저장'}
+          </Button>
+        </div>
       </div>
 
       {showPersonalInfoWarning && (
@@ -176,7 +238,7 @@ export default function StatementPage({
               진술 내용을 다시 확인해주세요.
             </p>
             <div className={styles.modalActions}>
-              <Button onClick={() => router.push(`/disputes/${id}`)}>
+              <Button onClick={() => router.push(`/disputes/${isEditMode ? id : savedDisputeId!}`)}>
                 계속 진행
               </Button>
               <Button variant="outline" onClick={() => setShowPersonalInfoWarning(false)}>
