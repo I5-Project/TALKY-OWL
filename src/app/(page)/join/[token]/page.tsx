@@ -79,7 +79,7 @@ export default function JoinPage() {
         return;
       }
 
-      router.push(`/disputes/${data.data.disputeId}/statement`);
+      router.push(`/disputes/${data.data.disputeId}/statement?category=${data.data.categoryGroup.toLowerCase()}`);
     } catch {
       setState('error');
     } finally {
