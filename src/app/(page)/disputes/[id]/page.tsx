@@ -337,9 +337,7 @@ export default function DisputePage({ params }: { params: Promise<{ id: string }
                       className={styles.statementAvatarImg}
                     />
                   </div>
-                  {participantA?.mbti && (
-                    <span className={styles.statementMbti}>{participantA.mbti}</span>
-                  )}
+                  <span className={styles.statementMbti}>{participantA?.mbti ?? 'MBTI 미설정'}</span>
                 </div>
               </div>
             )}
@@ -377,9 +375,7 @@ export default function DisputePage({ params }: { params: Promise<{ id: string }
                       className={styles.statementAvatarImg}
                     />
                   </div>
-                  {participantB?.mbti && (
-                    <span className={styles.statementMbti}>{participantB.mbti}</span>
-                  )}
+                  <span className={styles.statementMbti}>{participantB?.mbti ?? 'MBTI 미설정'}</span>
                 </div>
               </div>
             )}
