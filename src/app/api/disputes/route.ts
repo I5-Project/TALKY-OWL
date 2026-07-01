@@ -9,10 +9,6 @@ import { extractDisputeMeta } from '@/lib/ai/judgment'
 import type { ApiResponse, CategoryGroup } from '@/types/common'
 import type { DisputeDto, DisputeParticipantDto, DisputeListResponse } from '@/types/dispute'
 
-class DuplicateDisputeError extends Error {
-  constructor() { super('DISPUTE_ALREADY_EXISTS') }
-}
-
 function withTimeout<T>(promise: Promise<T>, ms: number, label: string): Promise<T> {
   let timerId: ReturnType<typeof setTimeout>
   const timeout = new Promise<never>((_, reject) => {
@@ -25,7 +21,7 @@ const createDisputeSchema = z.object({
   roomId: z.string().uuid('유효하지 않은 방 ID입니다.'),
   categoryGroup: z.enum(VALID_CATEGORY_GROUPS, {
     errorMap: () => ({ message: '카테고리는 romance, family, friend, work 중 하나여야 합니다.' }),
-  }),
+  }).optional(),
   content: z.string().min(1, '진술 내용을 입력해주세요.'),
   sourceConversationId: z.string().uuid('유효하지 않은 대화 ID입니다.').optional(),
 })
@@ -152,8 +148,13 @@ export async function GET(request: NextRequest) {
   }
 }
 
+interface DisputeResult {
+  id: string
+  hasPersonalInfo: boolean
+}
+
 // POST /api/disputes
-// 사건 생성. content(진술)를 받아 AI 추출 → dispute 생성 → statement 저장까지 원자적 처리
+// roomId 기준으로 새 사건 생성(role_a) 또는 기존 사건에 진술 저장(role_b/수정) 통합 처리
 export async function POST(request: NextRequest) {
   const userId = await getRequestUserId(request)
   if (!userId) {
@@ -195,9 +196,7 @@ export async function POST(request: NextRequest) {
   const { roomId, categoryGroup, content, sourceConversationId } = parsed.data
 
   try {
-    // 방 유효성 확인
-    const room = await prisma.disputeRoom.findFirst({ where: { id: roomId, creatorUserId: userId, deletedAt: null } })
-
+    const room = await prisma.disputeRoom.findFirst({ where: { id: roomId, deletedAt: null } })
     if (!room) {
       return NextResponse.json<ApiResponse>(
         { success: false, error: { code: 'ROOM_NOT_FOUND', message: '방을 찾을 수 없습니다.' } },
@@ -211,56 +210,130 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const activeCount = await prisma.dispute.count({
-      where: {
-        categoryGroup: categoryGroup.toUpperCase() as PrismaCategoryGroup,
-        deletedAt: null,
-        status: { notIn: [...COMPLETED_DISPUTE_STATUSES] },
-        participants: { some: { userId } },
-      },
+    const existingDispute = await prisma.dispute.findFirst({
+      where: { roomId },
+      include: { participants: { include: { statements: true } } },
     })
-    if (activeCount >= CATEGORY_ACTIVE_LIMIT) {
-      return NextResponse.json<ApiResponse>(
-        {
-          success: false,
-          error: {
-            code: 'CATEGORY_LIMIT_EXCEEDED',
-            message: '사건은 카테고리당 2개까지만\n생성이 가능합니다.',
-          },
+
+    // ── 케이스 A: 새 사건 생성 (dispute 없음, 방 생성자만 가능) ──
+    if (!existingDispute) {
+      if (room.creatorUserId !== userId) {
+        return NextResponse.json<ApiResponse>(
+          { success: false, error: { code: 'FORBIDDEN', message: '사건을 생성할 권한이 없습니다.' } },
+          { status: 403 },
+        )
+      }
+
+      const resolvedCategory = categoryGroup ?? 'romance'
+
+      const activeCount = await prisma.dispute.count({
+        where: {
+          categoryGroup: resolvedCategory.toUpperCase() as PrismaCategoryGroup,
+          deletedAt: null,
+          status: { notIn: [...COMPLETED_DISPUTE_STATUSES] },
+          participants: { some: { userId } },
         },
-        { status: 422 },
+      })
+      if (activeCount >= CATEGORY_ACTIVE_LIMIT) {
+        return NextResponse.json<ApiResponse>(
+          { success: false, error: { code: 'CATEGORY_LIMIT_EXCEEDED', message: '사건은 카테고리당 2개까지만\n생성이 가능합니다.' } },
+          { status: 422 },
+        )
+      }
+
+      const [moderationResult, metaResult] = await Promise.allSettled([
+        withTimeout(moderateContent(content), 8000, 'moderateContent'),
+        withTimeout(extractDisputeMeta(content), 10000, 'extractDisputeMeta'),
+      ])
+
+      let moderation = { isBlocked: false, hasPersonalInfo: false, confidenceScore: null as number | null, durationMs: null as number | null, modelName: null as string | null, reason: null as string | null }
+      let moderationSucceeded = false
+      if (moderationResult.status === 'fulfilled') {
+        moderation = moderationResult.value
+        moderationSucceeded = true
+      } else {
+        console.error('[disputes] moderation failed', { message: moderationResult.reason instanceof Error ? moderationResult.reason.message : 'unknown', userId, roomId })
+      }
+
+      if (moderation.isBlocked) {
+        return NextResponse.json<ApiResponse>(
+          { success: false, error: { code: 'CONTENT_BLOCKED', message: moderation.reason ?? '부적절한 표현이 포함되어 있습니다. 내용을 수정해주세요.' } },
+          { status: 422 },
+        )
+      }
+
+      if (metaResult.status === 'rejected') {
+        const msg = metaResult.reason instanceof Error ? metaResult.reason.message : String(metaResult.reason)
+        if (msg.includes('timeout')) return NextResponse.json<ApiResponse>({ success: false, error: { code: 'AI_EXTRACTION_TIMEOUT', message: 'AI 분석 시간이 초과됐습니다. 다시 시도해주세요.' } }, { status: 504 })
+        if (msg.includes('JSON')) return NextResponse.json<ApiResponse>({ success: false, error: { code: 'AI_EXTRACTION_PARSE_ERROR', message: 'AI 응답 처리 중 오류가 발생했습니다. 다시 시도해주세요.' } }, { status: 502 })
+        return NextResponse.json<ApiResponse>({ success: false, error: { code: 'AI_EXTRACTION_FAILED', message: 'AI 분석에 실패했습니다. 다시 시도해주세요.' } }, { status: 503 })
+      }
+
+      const { title, summary: description } = metaResult.value
+      if (!title) {
+        return NextResponse.json<ApiResponse>({ success: false, error: { code: 'AI_EXTRACTION_FAILED', message: 'AI가 사건 제목을 추출하지 못했습니다. 다시 시도해주세요.' } }, { status: 503 })
+      }
+
+      const dispute = await prisma.$transaction(async (tx) => {
+        const created = await tx.dispute.create({
+          data: { roomId, categoryGroup: resolvedCategory.toUpperCase() as PrismaCategoryGroup, title, description, sourceConversationId, status: 'WAITING_OPPONENT' },
+        })
+        const participant = await tx.disputeParticipant.create({
+          data: { disputeId: created.id, userId, role: 'ROLE_A' },
+        })
+        const statement = await tx.disputeStatement.create({
+          data: { disputeId: created.id, participantId: participant.id, userId, role: 'ROLE_A', content, moderationStatus: moderationSucceeded ? 'approved' : 'pending', submittedAt: new Date() },
+        })
+        if (moderationSucceeded) {
+          await tx.moderationLog.create({
+            data: { roomId, conversationId: sourceConversationId ?? null, disputeId: created.id, statementId: statement.id, userId, target: 'STATEMENT', isBlocked: false, reason: null, confidenceScore: moderation.confidenceScore, durationMs: moderation.durationMs, modelName: moderation.modelName },
+          })
+        }
+        return created
+      }, { isolationLevel: Prisma.TransactionIsolationLevel.Serializable })
+
+      return NextResponse.json<ApiResponse<DisputeResult>>(
+        { success: true, data: { id: dispute.id, hasPersonalInfo: moderation.hasPersonalInfo } },
+        { status: 201 },
       )
     }
 
-    // 모더레이션 + AI 추출 병렬 실행 (둘 다 타임아웃 적용)
-    const [moderationResult, metaResult] = await Promise.allSettled([
-      withTimeout(moderateContent(content), 8000, 'moderateContent'),
-      withTimeout(extractDisputeMeta(content), 10000, 'extractDisputeMeta'),
-    ])
+    // ── 케이스 B: 기존 사건에 진술 저장 (상대방 참여 또는 수정) ──
+    const participant = existingDispute.participants.find((p) => p.userId === userId)
+    if (!participant) {
+      return NextResponse.json<ApiResponse>(
+        { success: false, error: { code: 'FORBIDDEN', message: '해당 사건의 참여자가 아닙니다.' } },
+        { status: 403 },
+      )
+    }
 
-    // 모더레이션 처리 (실패 시 fail open)
+    const immutableStatuses: DisputeStatus[] = ['JUDGING', 'JUDGED', 'CLOSED', 'DELETED', 'EXPIRED']
+    if (immutableStatuses.includes(existingDispute.status)) {
+      return NextResponse.json<ApiResponse>(
+        { success: false, error: { code: 'CONFLICT', message: '현재 상태에서는 진술을 수정할 수 없습니다.' } },
+        { status: 409 },
+      )
+    }
+
+    const existingStatement = participant.statements[0] ?? null
+    const isNew = !existingStatement
+
+    let newDisputeStatus: DisputeStatus | null = null
+    if (participant.role === 'ROLE_A' && existingDispute.status === 'DRAFT') newDisputeStatus = 'WAITING_OPPONENT'
+    else if (participant.role === 'ROLE_B' && existingDispute.status === 'OPPONENT_JOINED') newDisputeStatus = 'BOTH_SUBMITTED'
+
     let moderation = { isBlocked: false, hasPersonalInfo: false, confidenceScore: null as number | null, durationMs: null as number | null, modelName: null as string | null, reason: null as string | null }
     let moderationSucceeded = false
-    if (moderationResult.status === 'fulfilled') {
-      moderation = moderationResult.value
+    try {
+      moderation = await moderateContent(content)
       moderationSucceeded = true
-    } else {
-      const reason = moderationResult.reason
-      console.error('[disputes] moderation failed', {
-        message: reason instanceof Error ? reason.message : 'unknown',
-        userId,
-        roomId,
-      })
+    } catch (err) {
+      console.error('[disputes] moderation failed', { message: err instanceof Error ? err.message : 'unknown' })
     }
 
     if (moderation.isBlocked) {
-      console.info('[disputes] content blocked', {
-        userId,
-        roomId,
-        isBlocked: true,
-        confidenceScore: moderation.confidenceScore,
-        modelName: moderation.modelName,
-        reason: moderation.reason,
+      await prisma.moderationLog.create({
+        data: { roomId, conversationId: existingDispute.sourceConversationId, disputeId: existingDispute.id, userId, target: 'STATEMENT', isBlocked: true, reason: moderation.reason, confidenceScore: moderation.confidenceScore, durationMs: moderation.durationMs, modelName: moderation.modelName },
       })
       return NextResponse.json<ApiResponse>(
         { success: false, error: { code: 'CONTENT_BLOCKED', message: moderation.reason ?? '부적절한 표현이 포함되어 있습니다. 내용을 수정해주세요.' } },
@@ -268,98 +341,48 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // AI 추출 처리 (실패 시 에러 반환)
-    if (metaResult.status === 'rejected') {
-      const msg = metaResult.reason instanceof Error ? metaResult.reason.message : String(metaResult.reason)
-      if (msg.includes('timeout')) {
-        return NextResponse.json<ApiResponse>(
-          { success: false, error: { code: 'AI_EXTRACTION_TIMEOUT', message: 'AI 분석 시간이 초과됐습니다. 다시 시도해주세요.' } },
-          { status: 504 },
-        )
+    let disputeMeta: { title: string; description: string } | null = null
+    if (participant.role === 'ROLE_A' && isNew) {
+      try {
+        const meta = await withTimeout(extractDisputeMeta(content), 30000, 'extractDisputeMeta')
+        disputeMeta = { title: meta.title, description: meta.summary }
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : String(err)
+        if (msg.includes('timeout')) return NextResponse.json<ApiResponse>({ success: false, error: { code: 'AI_EXTRACTION_TIMEOUT', message: 'AI 분석 시간이 초과됐습니다. 다시 시도해주세요.' } }, { status: 504 })
+        if (msg.includes('JSON')) return NextResponse.json<ApiResponse>({ success: false, error: { code: 'AI_EXTRACTION_PARSE_ERROR', message: 'AI 응답 처리 중 오류가 발생했습니다. 다시 시도해주세요.' } }, { status: 502 })
+        return NextResponse.json<ApiResponse>({ success: false, error: { code: 'AI_EXTRACTION_FAILED', message: 'AI 분석에 실패했습니다. 다시 시도해주세요.' } }, { status: 503 })
       }
-      if (msg.includes('JSON')) {
-        return NextResponse.json<ApiResponse>(
-          { success: false, error: { code: 'AI_EXTRACTION_PARSE_ERROR', message: 'AI 응답 처리 중 오류가 발생했습니다. 다시 시도해주세요.' } },
-          { status: 502 },
-        )
-      }
-      return NextResponse.json<ApiResponse>(
-        { success: false, error: { code: 'AI_EXTRACTION_FAILED', message: 'AI 분석에 실패했습니다. 다시 시도해주세요.' } },
-        { status: 503 },
-      )
     }
 
-    const { title, summary: description } = metaResult.value
-    if (!title) {
-      return NextResponse.json<ApiResponse>(
-        { success: false, error: { code: 'AI_EXTRACTION_FAILED', message: 'AI가 사건 제목을 추출하지 못했습니다. 다시 시도해주세요.' } },
-        { status: 503 },
-      )
-    }
+    const statement = await prisma.$transaction(async (tx) => {
+      const stmt = isNew
+        ? await tx.disputeStatement.create({ data: { disputeId: existingDispute.id, participantId: participant.id, userId, role: participant.role, content, moderationStatus: moderationSucceeded ? 'approved' : 'pending', submittedAt: new Date() } })
+        : await tx.disputeStatement.update({ where: { id: existingStatement.id }, data: { content, moderationStatus: moderationSucceeded ? 'approved' : 'pending', submittedAt: new Date() } })
 
-    // dispute + 참여자 + 진술 원자적 생성 (중복 체크 포함, serializable로 race condition 방지)
-    const dispute = await prisma.$transaction(async (tx) => {
-      const existing = await tx.dispute.findFirst({ where: { roomId } })
-      if (existing) throw new DuplicateDisputeError()
-
-      const created = await tx.dispute.create({
-        data: {
-          roomId,
-          categoryGroup: categoryGroup.toUpperCase() as PrismaCategoryGroup,
-          title,
-          description,
-          sourceConversationId,
-          status: 'WAITING_OPPONENT',
-        },
-      })
-      const participant = await tx.disputeParticipant.create({
-        data: { disputeId: created.id, userId, role: 'ROLE_A' },
-      })
-      const statement = await tx.disputeStatement.create({
-        data: {
-          disputeId: created.id,
-          participantId: participant.id,
-          userId,
-          role: 'ROLE_A',
-          content,
-          moderationStatus: moderationSucceeded ? 'approved' : 'pending',
-          submittedAt: new Date(),
-        },
-      })
       if (moderationSucceeded) {
         await tx.moderationLog.create({
-          data: {
-            roomId,
-            conversationId: sourceConversationId ?? null,
-            disputeId: created.id,
-            statementId: statement.id,
-            userId,
-            target: 'STATEMENT',
-            isBlocked: false,
-            reason: null,
-            confidenceScore: moderation.confidenceScore,
-            durationMs: moderation.durationMs,
-            modelName: moderation.modelName,
-          },
+          data: { roomId, conversationId: existingDispute.sourceConversationId, disputeId: existingDispute.id, statementId: stmt.id, userId, target: 'STATEMENT', isBlocked: false, reason: null, confidenceScore: moderation.confidenceScore, durationMs: moderation.durationMs, modelName: moderation.modelName },
         })
       }
-      return tx.dispute.findUniqueOrThrow({
-        where: { id: created.id },
-        include: { participants: { include: { user: { select: { profileImageUrl: true, image: true } } } } },
-      })
-    }, { isolationLevel: Prisma.TransactionIsolationLevel.Serializable })
 
-    return NextResponse.json<ApiResponse<DisputeDto & { hasPersonalInfo: boolean }>>(
-      { success: true, data: { ...toDisputeDto(dispute), hasPersonalInfo: moderation.hasPersonalInfo } },
-      { status: 201 },
+      await tx.dispute.update({
+        where: { id: existingDispute.id },
+        data: {
+          ...(newDisputeStatus ? { status: newDisputeStatus } : {}),
+          ...(disputeMeta ? { title: disputeMeta.title, description: disputeMeta.description } : {}),
+        },
+      })
+
+      return stmt
+    })
+
+    return NextResponse.json<ApiResponse<DisputeResult>>(
+      { success: true, data: { id: existingDispute.id, hasPersonalInfo: moderation.hasPersonalInfo } },
+      { status: isNew ? 201 : 200 },
     )
   } catch (error) {
-    if (error instanceof DuplicateDisputeError) {
-      return NextResponse.json<ApiResponse>(
-        { success: false, error: { code: 'DISPUTE_ALREADY_EXISTS', message: '이미 사건이 존재하는 방입니다.' } },
-        { status: 409 },
-      )
-    }
+    const message = error instanceof Error ? error.message : String(error)
+    console.error('[disputes] POST error', { message })
     return NextResponse.json<ApiResponse>(
       { success: false, error: { code: 'INTERNAL_SERVER_ERROR', message: '서버 오류가 발생했습니다.' } },
       { status: 500 },

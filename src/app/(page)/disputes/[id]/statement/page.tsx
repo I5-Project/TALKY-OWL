@@ -68,10 +68,10 @@ export default function StatementPage({
   const SAVING_MESSAGES = ['나쁜 말을 검열 중입니다', '내용을 저장 중입니다', 'AI가 분석 중입니다', '조금만 기다려주세요']
   const [savingMsgIdx, setSavingMsgIdx] = React.useState(0)
   React.useEffect(() => {
-    if (!isLoading || isEditMode) return
+    if (!isLoading) return
     const timer = setInterval(() => setSavingMsgIdx((i) => (i + 1) % SAVING_MESSAGES.length), 2000)
     return () => clearInterval(timer)
-  }, [isLoading, isEditMode])
+  }, [isLoading])
 
   const handleCancel = () => {
     fetch(`/api/rooms/${id}`, { method: 'DELETE', keepalive: true }).catch(() => {})
@@ -90,7 +90,28 @@ export default function StatementPage({
     }
 
     try {
-      if (!isEditMode) {
+      if (isEditMode) {
+        const res = await fetch(`/api/disputes/${id}/statements`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ content }),
+        })
+        const json = await res.json() as { success: boolean; data?: { hasPersonalInfo?: boolean }; error?: { code?: string; message?: string } }
+
+        if (!json.success) {
+          setIsLoading(false)
+          setFilterMessage(json.error?.message ?? '저장 중 오류가 발생했습니다. 다시 시도해주세요.')
+          return
+        }
+
+        if (json.data?.hasPersonalInfo) {
+          setIsLoading(false)
+          setShowPersonalInfoWarning(true)
+          return
+        }
+
+        router.push(`/disputes/${id}`)
+      } else {
         const res = await fetch('/api/disputes', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -117,33 +138,6 @@ export default function StatementPage({
         }
 
         router.push(`/disputes/${json.data!.id}`)
-      } else {
-        const res = await fetch(`/api/disputes/${id}/statements`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ content }),
-        })
-        const json = await res.json() as { success: boolean; data?: { hasPersonalInfo?: boolean }; error?: { code?: string; message?: string } }
-
-        if (!json.success) {
-          setIsLoading(false)
-          const AI_EXTRACTION_CODES = ['AI_EXTRACTION_FAILED', 'AI_EXTRACTION_TIMEOUT', 'AI_EXTRACTION_PARSE_ERROR']
-          if (json.error?.code && AI_EXTRACTION_CODES.includes(json.error.code)) {
-            alert(json.error.message ?? 'AI 분석에 실패했습니다. 다시 시도해주세요.')
-            return
-          }
-          setFilterMessage(json.error?.message ?? '저장 중 오류가 발생했습니다. 다시 시도해주세요.')
-          return
-        }
-
-        if (json.data?.hasPersonalInfo) {
-          setIsLoading(false)
-          setShowPersonalInfoWarning(true)
-          return
-        }
-
-        // 성공 시 isLoading을 false로 바꾸지 않음 — 페이지가 unmount될 때까지 스피너 유지
-        router.push(`/disputes/${id}`)
       }
     } catch {
       setIsLoading(false)
@@ -166,7 +160,7 @@ export default function StatementPage({
 
   const Icon = CATEGORY_ICON_MAP[category]
 
-  if (isLoading && !isEditMode) {
+  if (isLoading) {
     return (
       <div className={styles.savingScreen}>
         <div className={styles.savingContent}>

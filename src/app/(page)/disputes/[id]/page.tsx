@@ -134,7 +134,7 @@ export default function DisputePage({ params }: { params: Promise<{ id: string }
   const [isRefreshing, setIsRefreshing] = React.useState(false);
 
   React.useEffect(() => {
-    if (judgmentError && !judgmentErrorModal) {
+    if (judgmentError && !judgmentErrorModal && dispute?.status !== 'closed') {
       setJudgmentErrorMessage(
         judgmentErrorData instanceof Error
           ? judgmentErrorData.message
@@ -308,7 +308,7 @@ export default function DisputePage({ params }: { params: Promise<{ id: string }
                 className={`${styles.statementCard}${myRole === 'role_a' && !isCompleted ? ` ${styles.statementCardEditable}` : ''}`}
                 onClick={
                   myRole === 'role_a' && !isCompleted
-                    ? () => router.push(`/disputes/${id}/statement?edit=true`)
+                    ? () => router.push(`/disputes/${id}/statement?category=${dispute.categoryGroup}&edit=true`)
                     : undefined
                 }
                 {...(myRole === 'role_a' && !isCompleted
@@ -318,7 +318,7 @@ export default function DisputePage({ params }: { params: Promise<{ id: string }
                       onKeyDown: (e) => {
                         if (e.key === 'Enter' || e.key === ' ') {
                           e.preventDefault();
-                          router.push(`/disputes/${id}/statement?edit=true`);
+                          router.push(`/disputes/${id}/statement?category=${dispute.categoryGroup}&edit=true`);
                         }
                       },
                     }
@@ -346,7 +346,7 @@ export default function DisputePage({ params }: { params: Promise<{ id: string }
                 className={`${styles.statementCard}${myRole === 'role_b' && !isCompleted ? ` ${styles.statementCardEditable}` : ''}`}
                 onClick={
                   myRole === 'role_b' && !isCompleted
-                    ? () => router.push(`/disputes/${id}/statement?edit=true`)
+                    ? () => router.push(`/disputes/${id}/statement?category=${dispute.categoryGroup}&edit=true`)
                     : undefined
                 }
                 {...(myRole === 'role_b' && !isCompleted
@@ -356,7 +356,7 @@ export default function DisputePage({ params }: { params: Promise<{ id: string }
                       onKeyDown: (e) => {
                         if (e.key === 'Enter' || e.key === ' ') {
                           e.preventDefault();
-                          router.push(`/disputes/${id}/statement?edit=true`);
+                          router.push(`/disputes/${id}/statement?category=${dispute.categoryGroup}&edit=true`);
                         }
                       },
                     }
