@@ -134,7 +134,7 @@ export default function DisputePage({ params }: { params: Promise<{ id: string }
   const [isRefreshing, setIsRefreshing] = React.useState(false);
 
   React.useEffect(() => {
-    if (judgmentError && !judgmentErrorModal) {
+    if (judgmentError && !judgmentErrorModal && dispute?.status !== 'closed') {
       setJudgmentErrorMessage(
         judgmentErrorData instanceof Error
           ? judgmentErrorData.message
@@ -172,7 +172,8 @@ export default function DisputePage({ params }: { params: Promise<{ id: string }
         showToast('초대 링크 발급에 실패했어요.');
         return;
       }
-      await navigator.clipboard.writeText(data.data.inviteUrl);
+      const category = dispute.categoryGroup.toLowerCase()
+      await navigator.clipboard.writeText(`${data.data.inviteUrl}?category=${category}`);
       showToast('초대 링크가 복사되었어요!');
     } catch {
       showToast('초대 링크 발급에 실패했어요.');
@@ -308,7 +309,7 @@ export default function DisputePage({ params }: { params: Promise<{ id: string }
                 className={`${styles.statementCard}${myRole === 'role_a' && !isCompleted ? ` ${styles.statementCardEditable}` : ''}`}
                 onClick={
                   myRole === 'role_a' && !isCompleted
-                    ? () => router.push(`/disputes/${id}/statement?edit=true`)
+                    ? () => router.push(`/disputes/${id}/statement?category=${dispute.categoryGroup}&edit=true`)
                     : undefined
                 }
                 {...(myRole === 'role_a' && !isCompleted
@@ -318,7 +319,7 @@ export default function DisputePage({ params }: { params: Promise<{ id: string }
                       onKeyDown: (e) => {
                         if (e.key === 'Enter' || e.key === ' ') {
                           e.preventDefault();
-                          router.push(`/disputes/${id}/statement?edit=true`);
+                          router.push(`/disputes/${id}/statement?category=${dispute.categoryGroup}&edit=true`);
                         }
                       },
                     }
@@ -337,9 +338,7 @@ export default function DisputePage({ params }: { params: Promise<{ id: string }
                       className={styles.statementAvatarImg}
                     />
                   </div>
-                  {participantA?.mbti && (
-                    <span className={styles.statementMbti}>{participantA.mbti}</span>
-                  )}
+                  <span className={styles.statementMbti}>{participantA?.mbti ?? 'MBTI 미설정'}</span>
                 </div>
               </div>
             )}
@@ -348,7 +347,7 @@ export default function DisputePage({ params }: { params: Promise<{ id: string }
                 className={`${styles.statementCard}${myRole === 'role_b' && !isCompleted ? ` ${styles.statementCardEditable}` : ''}`}
                 onClick={
                   myRole === 'role_b' && !isCompleted
-                    ? () => router.push(`/disputes/${id}/statement?edit=true`)
+                    ? () => router.push(`/disputes/${id}/statement?category=${dispute.categoryGroup}&edit=true`)
                     : undefined
                 }
                 {...(myRole === 'role_b' && !isCompleted
@@ -358,7 +357,7 @@ export default function DisputePage({ params }: { params: Promise<{ id: string }
                       onKeyDown: (e) => {
                         if (e.key === 'Enter' || e.key === ' ') {
                           e.preventDefault();
-                          router.push(`/disputes/${id}/statement?edit=true`);
+                          router.push(`/disputes/${id}/statement?category=${dispute.categoryGroup}&edit=true`);
                         }
                       },
                     }
@@ -377,9 +376,7 @@ export default function DisputePage({ params }: { params: Promise<{ id: string }
                       className={styles.statementAvatarImg}
                     />
                   </div>
-                  {participantB?.mbti && (
-                    <span className={styles.statementMbti}>{participantB.mbti}</span>
-                  )}
+                  <span className={styles.statementMbti}>{participantB?.mbti ?? 'MBTI 미설정'}</span>
                 </div>
               </div>
             )}
@@ -447,7 +444,7 @@ export default function DisputePage({ params }: { params: Promise<{ id: string }
               disabled={!canJudge}
               onClick={() => (isSolo ? setShowSoloModal(true) : void runJudge())}
             >
-              판결받기
+              {dispute.status === 'opponent_joined' ? '상대방이 작성 중...' : '판결받기'}
             </Button>
           </div>
         </div>

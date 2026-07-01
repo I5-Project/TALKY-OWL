@@ -51,7 +51,7 @@ export default function NewCaseButton() {
         throw new Error(roomJson.error?.message)
       }
 
-      router.push(`/rooms/${roomJson.data.id}/statement?category=${category}`)
+      router.push(`/disputes/${roomJson.data.id}/statement?category=${category}`)
     } catch (err) {
       setErrorMessage(err instanceof Error && err.message ? err.message : '방 생성에 실패했습니다. 다시 시도해주세요.')
     } finally {
