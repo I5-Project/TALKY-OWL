@@ -93,6 +93,12 @@ export default function StatementPage({
         return
       }
 
+      if (mbti !== (userMe?.mbti ?? '')) {
+        const form = new FormData()
+        form.append('mbti', mbti)
+        await fetch('/api/user/me', { method: 'PATCH', body: form })
+      }
+
       // 성공 시 isLoading을 false로 바꾸지 않음 — 페이지가 unmount될 때까지 스피너 유지
       router.push(`/disputes/${id}`)
     } catch {
