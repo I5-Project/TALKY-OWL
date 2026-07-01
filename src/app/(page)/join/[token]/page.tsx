@@ -1,5 +1,6 @@
 'use client';
 
+import React from 'react';
 import { useEffect, useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import Button from '@/components/ui/Button';
@@ -15,10 +16,15 @@ interface JoinInfo {
 
 type JoinState = 'loading' | 'invite' | 'error' | 'closed' | 'expired';
 
-export default function JoinPage() {
+export default function JoinPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ category?: string }>
+}) {
   const router = useRouter();
   const params = useParams();
   const token = params.token as string;
+  const { category } = React.use(searchParams);
 
   const [state, setState] = useState<JoinState>('loading');
   const [joinInfo, setJoinInfo] = useState<JoinInfo | null>(null);
@@ -79,7 +85,8 @@ export default function JoinPage() {
         return;
       }
 
-      router.push(`/disputes/${data.data.disputeId}/statement`);
+      const cat = category ?? joinInfo?.categoryGroup?.toLowerCase() ?? 'romance'
+      router.push(`/disputes/${data.data.roomId}/statement?category=${cat}`);
     } catch {
       setState('error');
     } finally {
@@ -87,7 +94,7 @@ export default function JoinPage() {
     }
   };
 
-  const goToMain = () => router.push('/home');
+  const goToMain = () => router.push('/');
 
   const renderContent = () => {
     if (state === 'loading') return null;
