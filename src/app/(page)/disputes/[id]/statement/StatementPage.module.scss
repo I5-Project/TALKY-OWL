@@ -74,6 +74,16 @@
   background-color: var(--bg-page);
 }
 
+.footerRow {
+  display: flex;
+  flex-direction: row;
+  gap: fn.r(12);
+
+  > * {
+    flex: 1;
+  }
+}
+
 .modalOverlay {
   position: fixed;
   inset: 0;
