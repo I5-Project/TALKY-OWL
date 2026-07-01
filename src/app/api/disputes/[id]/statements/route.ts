@@ -375,3 +375,128 @@ export async function POST(
     )
   }
 }
+
+// PATCH /api/disputes/:id/statements
+// 진술 수정 (isEditMode). 모더레이션만 실행, AI 메타 추출 없음
+export async function PATCH(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> },
+) {
+  const userId = await getRequestUserId(request)
+  if (!userId) {
+    return NextResponse.json<ApiResponse>(
+      { success: false, error: { code: 'UNAUTHORIZED', message: '로그인이 필요합니다.' } },
+      { status: 401 },
+    )
+  }
+
+  const { id: disputeId } = await params
+
+  let body: unknown
+  try {
+    body = await request.json()
+  } catch {
+    return NextResponse.json<ApiResponse>(
+      { success: false, error: { code: 'INVALID_REQUEST', message: '요청 본문을 파싱할 수 없습니다.' } },
+      { status: 400 },
+    )
+  }
+
+  const parsed = statementSchema.safeParse(body)
+  if (!parsed.success) {
+    return NextResponse.json<ApiResponse>(
+      {
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: '입력값이 올바르지 않습니다.',
+          fieldErrors: parsed.error.errors.map((e) => ({
+            field: e.path.join('.'),
+            code: e.code,
+            message: e.message,
+          })),
+        },
+      },
+      { status: 400 },
+    )
+  }
+
+  const { content } = parsed.data
+
+  try {
+    const [participant, dispute] = await Promise.all([
+      prisma.disputeParticipant.findFirst({ where: { disputeId, userId }, include: { statements: true } }),
+      prisma.dispute.findFirst({ where: { id: disputeId } }),
+    ])
+
+    if (!participant) {
+      return NextResponse.json<ApiResponse>(
+        { success: false, error: { code: 'FORBIDDEN', message: '해당 사건의 참여자가 아닙니다.' } },
+        { status: 403 },
+      )
+    }
+    if (!dispute) {
+      return NextResponse.json<ApiResponse>(
+        { success: false, error: { code: 'DISPUTE_NOT_FOUND', message: '사건을 찾을 수 없습니다.' } },
+        { status: 404 },
+      )
+    }
+
+    const immutableStatuses: DisputeStatus[] = ['JUDGING', 'JUDGED', 'CLOSED', 'DELETED', 'EXPIRED']
+    if (immutableStatuses.includes(dispute.status)) {
+      return NextResponse.json<ApiResponse>(
+        { success: false, error: { code: 'CONFLICT', message: '현재 상태에서는 진술을 수정할 수 없습니다.' } },
+        { status: 409 },
+      )
+    }
+
+    const existingStatement = participant.statements[0] ?? null
+    if (!existingStatement) {
+      return NextResponse.json<ApiResponse>(
+        { success: false, error: { code: 'NOT_FOUND', message: '수정할 진술이 없습니다.' } },
+        { status: 404 },
+      )
+    }
+
+    let moderation = { isBlocked: false, hasPersonalInfo: false, confidenceScore: null as number | null, durationMs: null as number | null, modelName: null as string | null, reason: null as string | null }
+    let moderationSucceeded = false
+    try {
+      moderation = await moderateContent(content)
+      moderationSucceeded = true
+    } catch (err) {
+      console.error('[disputes/statements] PATCH moderation failed', { message: err instanceof Error ? err.message : 'unknown' })
+    }
+
+    if (moderation.isBlocked) {
+      return NextResponse.json<ApiResponse>(
+        { success: false, error: { code: 'CONTENT_BLOCKED', message: moderation.reason ?? '부적절한 표현이 포함되어 있습니다. 내용을 수정해주세요.' } },
+        { status: 422 },
+      )
+    }
+
+    const statement = await prisma.$transaction(async (tx) => {
+      const stmt = await tx.disputeStatement.update({
+        where: { id: existingStatement.id },
+        data: { content, moderationStatus: moderationSucceeded ? 'approved' : 'pending', submittedAt: new Date() },
+      })
+      if (moderationSucceeded) {
+        await tx.moderationLog.create({
+          data: { roomId: dispute.roomId, conversationId: dispute.sourceConversationId, disputeId, statementId: stmt.id, userId, target: 'STATEMENT', isBlocked: false, reason: null, confidenceScore: moderation.confidenceScore, durationMs: moderation.durationMs, modelName: moderation.modelName },
+        })
+      }
+      return stmt
+    })
+
+    return NextResponse.json<ApiResponse<StatementData>>({
+      success: true,
+      data: { id: statement.id, disputeId: statement.disputeId, role: statement.role.toLowerCase(), content: statement.content, submittedAt: statement.submittedAt?.toISOString() ?? null, hasPersonalInfo: moderation.hasPersonalInfo },
+    })
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error)
+    console.error('[disputes/statements] PATCH error', { message })
+    return NextResponse.json<ApiResponse>(
+      { success: false, error: { code: 'INTERNAL_SERVER_ERROR', message: '서버 오류가 발생했습니다.' } },
+      { status: 500 },
+    )
+  }
+}

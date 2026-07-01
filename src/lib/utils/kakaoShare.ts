@@ -12,7 +12,7 @@ export function shareDisputeResult(
     window.Kakao.init(kakaoKey)
   }
 
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL ?? window.location.origin
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? window.location.origin
   const shareUrl = `${baseUrl}/disputes/${encodeURIComponent(disputeId)}`
   const resolvedImageUrl = imageUrl ?? `${baseUrl}/images/common/ogimg.jpg`
 

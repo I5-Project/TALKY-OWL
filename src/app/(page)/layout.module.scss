@@ -8,6 +8,10 @@
   box-shadow: 0px 0px 8px rgba(0, 0, 0, 0.16);
 }
 
+.gradient {
+  background: linear-gradient(180deg, #{v.$color-primary-200} 0%, #{v.$color-white} 15%);
+}
+
 .main {
   flex: 1;
   min-height: 0;

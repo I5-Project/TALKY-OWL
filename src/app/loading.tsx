@@ -1,7 +1,10 @@
+import Spinner from '@/components/ui/Spinner';
+import styles from './loading.module.scss';
+
 export default function Loading() {
   return (
-    <main>
-      <p>로딩 중...</p>
+    <main className={styles.container}>
+      <Spinner />
     </main>
   );
 }

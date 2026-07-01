@@ -37,7 +37,7 @@ export default function ProfileEditPage() {
     if (user) {
       reset({
         email: user.email ?? '',
-        nickname: user.name ?? user.nickname ?? '',
+        nickname: user.nickname ?? user.name ?? '',
         mbti: user.mbti ?? '',
         previewUrl: user.profileImageUrl,
       });
@@ -169,7 +169,7 @@ export default function ProfileEditPage() {
           />
 
           <Input
-            label="이름"
+            label="닉네임"
             value={nickname}
             onChange={(e) => {
               setNickname(e.target.value);
