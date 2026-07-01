@@ -172,7 +172,8 @@ export default function DisputePage({ params }: { params: Promise<{ id: string }
         showToast('초대 링크 발급에 실패했어요.');
         return;
       }
-      await navigator.clipboard.writeText(data.data.inviteUrl);
+      const category = dispute.categoryGroup.toLowerCase()
+      await navigator.clipboard.writeText(`${data.data.inviteUrl}?category=${category}`);
       showToast('초대 링크가 복사되었어요!');
     } catch {
       showToast('초대 링크 발급에 실패했어요.');
